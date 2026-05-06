@@ -1,0 +1,175 @@
+import matter from 'gray-matter';
+import MarkdownIt from 'markdown-it';
+import anchor from 'markdown-it-anchor';
+import Prism from 'prismjs';
+import 'prismjs/components/prism-typescript';
+import 'prismjs/components/prism-jsx';
+import 'prismjs/components/prism-tsx';
+import 'prismjs/components/prism-bash';
+import 'prismjs/components/prism-json';
+import 'prismjs/components/prism-yaml';
+import 'prismjs/components/prism-css';
+import 'prismjs/components/prism-scss';
+import 'prismjs/components/prism-diff';
+import 'prismjs/components/prism-markup';
+import 'prismjs/components/prism-markup-templating';
+import type { Category, Difficulty, Question } from '@/types/content';
+
+const md: MarkdownIt = new MarkdownIt({
+  html: true,
+  linkify: true,
+  highlight(str: string, lang: string): string {
+    const language = lang === 'vue' ? 'markup' : lang;
+    if (language && Prism.languages[language]) {
+      try {
+        const code = Prism.highlight(str, Prism.languages[language], language);
+        return `<pre class="language-${language}"><code class="language-${language}">${code}</code></pre>`;
+      } catch {
+        // ignore
+      }
+    }
+    return `<pre><code>${md.utils.escapeHtml(str)}</code></pre>`;
+  },
+});
+md.use(anchor, { permalink: false });
+
+interface RawCategoryFront {
+  id: string;
+  title: string;
+  order: number;
+  icon?: string;
+  description?: string;
+}
+
+interface RawQuestionFront {
+  title: string;
+  difficulty?: Difficulty;
+  tags?: string[];
+}
+
+const QUESTION_HEADING_RE = /^##\s+([\w\u4e00-\u9fa5-]+)\s*$/;
+const SUBSECTION_RE = /^###\s+(题目|答案要点|代码示例|延伸)\s*$/;
+
+interface ParsedQuestionBlock {
+  slug: string;
+  meta: RawQuestionFront;
+  sections: Record<string, string>;
+  raw: string;
+}
+
+function splitQuestions(body: string): ParsedQuestionBlock[] {
+  const lines = body.split(/\r?\n/);
+  const blocks: ParsedQuestionBlock[] = [];
+  let current: ParsedQuestionBlock | null = null;
+  let currentSection: string | null = null;
+  let metaBuffer: string[] = [];
+  let collectingMeta = false;
+
+  const flushMeta = () => {
+    if (!current) return;
+    const obj: Record<string, unknown> = {};
+    for (const ln of metaBuffer) {
+      const m = ln.match(/^([\w-]+)\s*:\s*(.+)$/);
+      if (!m) continue;
+      const key = m[1];
+      let val: unknown = m[2].trim();
+      if (typeof val === 'string' && val.startsWith('[') && val.endsWith(']')) {
+        val = val
+          .slice(1, -1)
+          .split(',')
+          .map((s) => s.trim().replace(/^['"]|['"]$/g, ''))
+          .filter(Boolean);
+      }
+      obj[key] = val;
+    }
+    current.meta = { ...current.meta, ...(obj as unknown as RawQuestionFront) };
+    metaBuffer = [];
+    collectingMeta = false;
+  };
+
+  for (const line of lines) {
+    const headMatch = line.match(QUESTION_HEADING_RE);
+    if (headMatch) {
+      if (current) {
+        flushMeta();
+        blocks.push(current);
+      }
+      current = {
+        slug: headMatch[1],
+        meta: { title: '' },
+        sections: {},
+        raw: line + '\n',
+      };
+      currentSection = null;
+      collectingMeta = true;
+      metaBuffer = [];
+      continue;
+    }
+    if (!current) continue;
+    current.raw += line + '\n';
+
+    const subMatch = line.match(SUBSECTION_RE);
+    if (subMatch) {
+      flushMeta();
+      currentSection = subMatch[1];
+      current.sections[currentSection] = '';
+      continue;
+    }
+    if (collectingMeta) {
+      if (line.trim() === '') {
+        if (metaBuffer.length > 0) flushMeta();
+        continue;
+      }
+      metaBuffer.push(line);
+      continue;
+    }
+    if (currentSection) {
+      current.sections[currentSection] += line + '\n';
+    }
+  }
+  if (current) {
+    flushMeta();
+    blocks.push(current);
+  }
+  return blocks;
+}
+
+export function parseCategoryMarkdown(raw: string): Category {
+  const { data, content } = matter(raw);
+  const front = data as RawCategoryFront;
+  if (!front.id || !front.title || front.order == null) {
+    throw new Error(`分类 frontmatter 缺少 id/title/order: ${JSON.stringify(front)}`);
+  }
+  const blocks = splitQuestions(content);
+  const questions: Question[] = blocks.map((b) => {
+    if (!b.meta.title) {
+      throw new Error(`题目 ${front.id}/${b.slug} 缺少 title`);
+    }
+    const difficulty: Difficulty = (b.meta.difficulty as Difficulty) || '进阶';
+    const tags = Array.isArray(b.meta.tags) ? b.meta.tags : [];
+    return {
+      id: `${front.id}/${b.slug}`,
+      categoryId: front.id,
+      slug: b.slug,
+      title: b.meta.title,
+      difficulty,
+      tags,
+      question: md.render(b.sections['题目'] || ''),
+      answer: md.render(b.sections['答案要点'] || ''),
+      code: b.sections['代码示例'] ? md.render(b.sections['代码示例']) : undefined,
+      extra: b.sections['延伸'] ? md.render(b.sections['延伸']) : undefined,
+      raw: b.raw,
+    };
+  });
+
+  return {
+    id: front.id,
+    title: front.title,
+    order: front.order,
+    icon: front.icon || '📘',
+    description: front.description,
+    questions,
+  };
+}
+
+export { md as markdown };

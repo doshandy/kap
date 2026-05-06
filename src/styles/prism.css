@@ -1,0 +1,65 @@
+/* Prism syntax highlighting (light/dark via CSS vars) */
+code[class*='language-'],
+pre[class*='language-'] {
+  color: var(--c-code-text);
+  background: none;
+  font-family:
+    'JetBrains Mono', 'Fira Code', Consolas, Menlo, monospace;
+  font-size: 13px;
+  text-align: left;
+  white-space: pre;
+  word-spacing: normal;
+  word-break: normal;
+  line-height: 1.6;
+  tab-size: 2;
+  hyphens: none;
+}
+.token.comment,
+.token.prolog,
+.token.doctype,
+.token.cdata {
+  color: #94a3b8;
+}
+.token.punctuation {
+  color: var(--c-text-soft);
+}
+.token.property,
+.token.tag,
+.token.boolean,
+.token.number,
+.token.constant,
+.token.symbol {
+  color: #f59e0b;
+}
+.token.selector,
+.token.attr-name,
+.token.string,
+.token.char,
+.token.builtin {
+  color: #10b981;
+}
+.token.operator,
+.token.entity,
+.token.url,
+.token.variable {
+  color: #38bdf8;
+}
+.token.atrule,
+.token.attr-value,
+.token.function,
+.token.class-name {
+  color: #6366f1;
+}
+.token.keyword {
+  color: #a855f7;
+}
+.token.regex,
+.token.important {
+  color: #ef4444;
+}
+.token.bold {
+  font-weight: bold;
+}
+.token.italic {
+  font-style: italic;
+}

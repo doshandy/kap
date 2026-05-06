@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/kap/favicon.svg" />
+    <link rel="apple-touch-icon" href="/kap/apple-touch-icon.png" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <meta name="theme-color" content="#0ea5e9" />
+    <meta
+      name="description"
+      content="KAP - 十年 Vue 前端工程师知识图谱与自查面试库，含 21 大分类、可交互答题、间隔复习、模拟面试、代码沙盒。"
+    />
+    <meta property="og:title" content="KAP - 十年前端知识自查" />
+    <meta property="og:description" content="十年 Vue 前端工程师知识图谱与自查面试库" />
+    <meta property="og:image" content="/kap/og.png" />
+    <meta property="og:type" content="website" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <title>KAP - 十年前端知识自查</title>
+    <script>
+      // SPA fallback restore: 把 404.html 编码进 query 的路径还原回 history
+      (function () {
+        var l = window.location;
+        if (l.search.indexOf('?p=/') === 0 || l.search.indexOf('&p=/') !== -1) {
+          var u = new URL(l.href);
+          var p = u.searchParams.get('p');
+          var q = u.searchParams.get('q');
+          u.searchParams.delete('p');
+          u.searchParams.delete('q');
+          var hash = u.hash || '';
+          var newUrl = l.pathname.replace(/\/$/, '') + p + (q ? '?' + q : '') + hash;
+          window.history.replaceState(null, '', newUrl);
+        }
+      })();
+    </script>
+  </head>
+  <body>
+    <div id="app"></div>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>

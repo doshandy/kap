@@ -1,0 +1,27 @@
+@media print {
+  .app-sidebar,
+  .app-header,
+  .no-print,
+  .question-actions,
+  button {
+    display: none !important;
+  }
+  .app-main {
+    margin-left: 0 !important;
+    padding: 0 !important;
+  }
+  .markdown-body {
+    color: #000;
+  }
+  .card {
+    box-shadow: none;
+    border: 1px solid #ccc;
+    page-break-inside: avoid;
+  }
+  pre {
+    border: 1px solid #ddd;
+    background: #f8f8f8 !important;
+    color: #000 !important;
+    white-space: pre-wrap;
+  }
+}

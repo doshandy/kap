@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <title>KAP</title>
+    <script>
+      // Single Page Apps for GitHub Pages
+      // 把当前 path/search/hash 编码成 ?p=... 跳到根，让 index.html 还原回真实路由。
+      (function () {
+        var seg = 1; // 仓库名占用 1 段：/kap/
+        var l = window.location;
+        l.replace(
+          l.protocol +
+            '//' +
+            l.hostname +
+            (l.port ? ':' + l.port : '') +
+            l.pathname
+              .split('/')
+              .slice(0, 1 + seg)
+              .join('/') +
+            '/?p=/' +
+            l.pathname.split('/').slice(1 + seg).join('/').replace(/&/g, '~and~') +
+            (l.search ? '&q=' + l.search.slice(1).replace(/&/g, '~and~') : '') +
+            l.hash,
+        );
+      })();
+    </script>
+  </head>
+  <body></body>
+</html>

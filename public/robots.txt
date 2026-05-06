@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://doshandy.github.io/kap/sitemap.xml

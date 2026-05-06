@@ -1,0 +1,862 @@
+---
+id: 03-vue
+title: Vue 全家桶
+order: 3
+icon: 🟩
+description: Vue 3 响应式、编译、渲染、Pinia、Router 与 Nuxt 的核心机制。
+---
+
+## vue2-vs-vue3
+title: Vue2 与 Vue3 的设计差异总览
+difficulty: 基础
+tags: [架构, 响应式, 迁移]
+
+### 题目
+从响应式、编译、渲染、TypeScript 友好度和生态形态五个角度，对比 Vue2 与 Vue3 的关键差异。
+
+### 答案要点
+- **响应式**：Vue2 基于 `Object.defineProperty`，无法天然拦截新增/删除属性、数组索引和 `Map/Set`；Vue3 基于 `Proxy + Reflect`
+- **编译优化**：Vue3 编译期会生成 `PatchFlag`、Block Tree、静态提升、事件缓存，减少运行时 diff 成本
+- **API 设计**：Vue2 以 Options API 为主，逻辑按选项分散；Vue3 用 Composition API 更利于逻辑内聚和复用
+- **TS 体验**：Vue2 的类型推导靠 class-style 或额外工具，Vue3 `<script setup>` + 宏函数对类型更友好
+- **生态方向**：Vue3 更适合 Tree Shaking、SSR、跨平台和大规模工程化，Nuxt 3、Vite、Pinia 都围绕它构建
+
+### 代码示例
+```ts
+// Vue 2 Options API
+export default {
+  data() { return { count: 0 }; },
+  computed: { double() { return this.count * 2; } },
+  methods: { inc() { this.count++; } },
+  mounted() { console.log('mounted'); },
+};
+
+// Vue 3 Composition API + <script setup>
+import { ref, computed, onMounted } from 'vue';
+const count = ref(0);
+const double = computed(() => count.value * 2);
+const inc = () => count.value++;
+onMounted(() => console.log('mounted'));
+```
+
+```ts
+// 响应式底层差异
+// Vue 2：无法监听新增属性
+const v2 = Vue.observable({ a: 1 });
+v2.b = 2; // ❌ 不响应（必须 Vue.set）
+
+// Vue 3：Proxy 拦截所有操作
+const v3 = reactive({ a: 1 });
+v3.b = 2; // ✅ 响应
+delete v3.a; // ✅ 响应
+```
+
+### 延伸
+- Vue3 不是简单重写，而是把很多优化前移到编译期
+- 迁移时先处理 `this` 依赖、过滤器、`.sync`、`$listeners` 等兼容点
+
+## reactivity-core
+title: reactive、ref、shallow、readonly、toRef 的选择策略
+difficulty: 进阶
+tags: [响应式, API]
+
+### 题目
+`reactive`、`ref`、`shallowRef`、`shallowReactive`、`readonly`、`toRef/toRefs` 分别适合什么场景？
+
+### 答案要点
+- `ref` 适合基本类型或需要整体替换的值，模板里自动解包
+- `reactive` 适合对象/数组的深层代理，但解构后会丢失响应式链接
+- `shallowRef` / `shallowReactive` 只代理第一层，适合大对象、第三方实例、编辑器对象、图表实例
+- `readonly` / `shallowReadonly` 用于防止外部误改状态，常见于 provide/inject 或 store 暴露
+- `toRef(obj, key)` 为单个属性创建响应式引用；`toRefs` 用于返回对象给模板/组合函数时保留响应性
+
+### 代码示例
+```ts
+const state = reactive({ page: 1, user: { name: 'Ada' } });
+const page = toRef(state, 'page');
+const editor = shallowRef<Editor | null>(null);
+const exposed = readonly(state);
+```
+
+### 延伸
+- `ref` 包对象时内部仍会走深层响应式
+- 组合式函数若直接返回 `reactive` 对象，调用方解构时要么 `toRefs`，要么提醒不要裸解构
+
+## effect-track-trigger
+title: Vue3 响应式系统的 track / trigger 是怎么工作的
+difficulty: 资深
+tags: [响应式, 原理]
+
+### 题目
+请解释 `effect`、`track`、`trigger`、依赖桶的数据结构，以及为什么 Vue3 要配合 `Reflect` 使用。
+
+### 答案要点
+- 当前正在执行的副作用函数会被压入 effect 栈，getter 中 `track(target, key)` 记录依赖
+- 常见依赖桶结构：`WeakMap<target, Map<key, Set<effect>>>`
+- setter 中 `trigger(target, key, type)` 找到依赖集合并重新调度 effect
+- `Reflect.get/set` 可保持正确返回值和 `receiver`，避免 getter/setter 中 `this` 指向错乱
+- 对数组长度、`Map/Set`、迭代器依赖需要特殊 key 和触发策略
+
+### 代码示例
+```ts
+const bucket = new WeakMap<object, Map<PropertyKey, Set<() => void>>>();
+
+function track(target: object, key: PropertyKey, active?: () => void) {
+  if (!active) return;
+  let depsMap = bucket.get(target);
+  if (!depsMap) bucket.set(target, (depsMap = new Map()));
+  let deps = depsMap.get(key);
+  if (!deps) depsMap.set(key, (deps = new Set()));
+  deps.add(active);
+}
+```
+
+### 延伸
+- effect 还要做依赖清理，避免分支切换后保留旧依赖
+- `computed` 和 `watch` 都是建立在 effect 之上的高级封装
+
+## scheduler-nexttick
+title: Scheduler、批量更新与 nextTick 的真实含义
+difficulty: 进阶
+tags: [渲染, 调度]
+
+### 题目
+为什么 Vue 会把多次状态变更合并更新？`nextTick` 到底保证了什么？
+
+### 答案要点
+- Vue 不会每次 set 都立刻 patch DOM，而是把 job 推入队列，按微任务批量刷新
+- 去重后同一组件同一轮只更新一次，避免瀑布式重复渲染
+- `nextTick` 保证的是“当前这轮响应式更新对应的 DOM patch 已完成”，不是浏览器一定已经 paint
+- watcher 有 `flush: 'pre' | 'post' | 'sync'`，决定执行相位
+
+### 代码示例
+```ts
+count.value++;
+count.value++;
+await nextTick();
+// 这里读到的是合并更新后的 DOM
+```
+
+### 延伸
+- 读 DOM 布局通常用 `await nextTick()`，再结合 `requestAnimationFrame` 能更接近渲染后时机
+- `sync` watcher 要慎用，容易造成递归触发和性能回退
+
+## computed-watch
+title: computed、watch、watchEffect 的区别与选型
+difficulty: 基础
+tags: [响应式, API]
+
+### 题目
+`computed`、`watch`、`watchEffect` 分别解决什么问题？它们的依赖收集方式和执行时机有何不同？
+
+### 答案要点
+- `computed` 适合声明式派生值，带缓存和脏标记，只有依赖变了才重新求值
+- `watch` 适合“监听某个明确源并做副作用”，能拿到新旧值，支持深度、立即执行、flush 和清理函数
+- `watchEffect` 自动收集同步执行阶段访问到的依赖，更像“响应式 autorun”
+- 异步回调里只有第一轮同步访问能被 `watchEffect` 收集，`await` 之后访问的值不会成为依赖
+
+### 代码示例
+```ts
+import { computed, watch, watchEffect, ref } from 'vue';
+
+const count = ref(0);
+const userId = ref('1');
+
+// 1. computed：派生值，懒计算 + 缓存
+const double = computed(() => count.value * 2);
+
+// 2. watch：明确源、可拿新旧值、可控制时机
+watch(userId, async (newId, oldId, onCleanup) => {
+  const ctrl = new AbortController();
+  onCleanup(() => ctrl.abort());            // 切换时取消上次请求
+  const data = await fetch(`/api/user/${newId}`, { signal: ctrl.signal });
+  console.log(newId, oldId, data);
+}, {
+  immediate: true,    // 立即执行一次
+  flush: 'post',      // DOM 更新后再触发
+  deep: false,
+});
+
+// 3. watch 多个源
+watch([count, userId], ([c, id]) => console.log(c, id));
+
+// 4. watchEffect：自动依赖追踪（仅同步阶段）
+watchEffect(async () => {
+  console.log(count.value);     // ✅ 被收集
+  await someAsync();
+  console.log(userId.value);    // ❌ await 之后不会被收集
+});
+```
+
+### 延伸
+- 需要精确控制依赖、比对 old/new、节流防抖时优先 `watch`
+- 只是模板里用到的派生值，不要用 watch 回写另一个 ref，应优先 computed
+
+## diff-optimization
+title: Vue3 diff 为什么比 Vue2 更省？LIS、PatchFlag、Block Tree 起了什么作用
+difficulty: 资深
+tags: [diff, 编译优化]
+
+### 题目
+说明 Vue3 在运行时 diff 和编译期优化上的主要手段，并解释为什么要引入最长递增子序列。
+
+### 答案要点
+- Vue2 主要靠运行时双端 diff；Vue3 在此基础上增加了静态分析结果，减少“无意义比较”
+- `PatchFlag` 标记动态文本、class、style、props、事件等，只比较真正会变的部分
+- Block Tree 把节点拆成“稳定骨架 + 动态子节点数组”，更新时跳过大量静态节点
+- 列表乱序更新时，Vue3 用最长递增子序列减少 DOM move 次数，只移动不在 LIS 中的节点
+
+### 代码示例
+```vue
+<template>
+  <!-- 编译后会带 PatchFlag：1=TEXT，2=CLASS，4=STYLE，8=PROPS... -->
+  <div>
+    <p>静态文本</p>                             <!-- 静态提升 -->
+    <p>{{ msg }}</p>                            <!-- PatchFlag: TEXT -->
+    <button :class="cls" @click="onClick">      <!-- PatchFlag: CLASS + HYDRATE_EVENTS -->
+      {{ label }}
+    </button>
+  </div>
+</template>
+```
+
+```js
+// 编译产物（简化）
+import { createElementVNode as _v, openBlock as _o, createElementBlock as _b } from 'vue';
+
+const _hoisted_1 = _v('p', null, '静态文本');  // 提升到模块顶层
+
+export function render(_ctx) {
+  return (_o(), _b('div', null, [
+    _hoisted_1,
+    _v('p', null, _ctx.msg, 1 /* TEXT */),                    // 仅 diff 文本
+    _v('button', { class: _ctx.cls, onClick: _ctx.onClick },
+      _ctx.label, 10 /* CLASS, PROPS */, ['onClick']),
+  ]));
+}
+```
+
+```ts
+// LIS：列表 diff 中减少 DOM move
+// [a, b, c, d, e] -> [d, b, c, a, e]
+// LIS = [b, c, e]（不动）
+// 只 move：a, d
+function getSequence(arr: number[]): number[] {
+  // Vue3 源码 runtime-core/src/renderer.ts 中的 getSequence
+  const result = [0], p = arr.slice();
+  for (let i = 0; i < arr.length; i++) {
+    if (arr[i] === 0) continue;
+    const last = result[result.length - 1];
+    if (arr[last] < arr[i]) { p[i] = last; result.push(i); continue; }
+    let l = 0, r = result.length - 1;
+    while (l < r) {
+      const m = (l + r) >> 1;
+      arr[result[m]] < arr[i] ? l = m + 1 : r = m;
+    }
+    if (arr[i] < arr[result[l]]) {
+      if (l > 0) p[i] = result[l - 1];
+      result[l] = i;
+    }
+  }
+  let u = result.length, v = result[u - 1];
+  while (u-- > 0) { result[u] = v; v = p[v]; }
+  return result;
+}
+```
+
+### 延伸
+- `key` 的语义是"稳定身份"，不是"消除 warning"
+- 错误的 key（比如索引）会让组件状态复用出错，尤其在表单和动画场景
+
+## sfc-compile
+title: 模板编译、SFC 编译与 `<script setup>` 的编译产物
+difficulty: 资深
+tags: [编译, SFC]
+
+### 题目
+Vue SFC 从源码到浏览器能跑的 JS，大致经过哪些阶段？`<script setup>` 为什么叫语法糖？
+
+### 答案要点
+- 模板编译分三步：`parse -> transform -> generate`
+- `<template>` 会被编译成 render 函数，静态节点可被 hoist
+- `<script setup>` 会被编译成普通 `setup()` 函数，`defineProps/defineEmits/defineExpose/defineSlots` 等宏会在编译期擦除
+- 样式块若开启 scoped，会给节点和 CSS 选择器注入 scope id
+
+### 代码示例
+```vue
+<script setup lang="ts">
+const props = defineProps<{ msg: string }>();
+</script>
+
+<template>{{ props.msg }}</template>
+```
+
+```ts
+export default {
+  props: { msg: String },
+  setup(props) {
+    return () => props.msg;
+  },
+};
+```
+
+### 延伸
+- 宏函数不能放进条件分支里，因为编译器需要静态分析
+- `defineModel` 本质上是 props + emit 的编译糖
+
+## component-communication
+title: Vue 组件通信方案怎么选
+difficulty: 进阶
+tags: [组件通信, 设计]
+
+### 题目
+请给出 props/emit、v-model、provide/inject、Pinia、$attrs、refs/defineExpose、Teleport 的适用边界。
+
+### 答案要点
+- 父子关系优先 `props + emit`
+- 双向绑定场景优先 `v-model`，多个模型可用 `v-model:xxx`
+- 跨层但具有上下文语义时用 `provide/inject`，如表单、主题、表格列注册
+- 全局共享状态或跨路由状态用 Pinia
+- `defineExpose` / template refs 用于命令式能力暴露，如 `focus/open/reset`
+- `Teleport` 不是状态共享方案，只是把渲染位置搬到别处
+
+### 代码示例
+```vue
+<!-- 1. props + emit + v-model -->
+<script setup lang="ts">
+const props = defineProps<{ modelValue: string }>();
+const emit = defineEmits<{ (e: 'update:modelValue', v: string): void }>();
+// v-model 简化：defineModel
+const value = defineModel<string>();
+</script>
+
+<!-- 2. provide/inject + InjectionKey 类型安全 -->
+<script setup lang="ts">
+import type { InjectionKey } from 'vue';
+import { provide, inject, readonly, ref } from 'vue';
+
+const ThemeKey: InjectionKey<{ dark: boolean; toggle: () => void }> = Symbol('theme');
+
+// 父组件
+const dark = ref(false);
+provide(ThemeKey, {
+  dark: readonly(dark) as any,           // 防止子组件直接改
+  toggle: () => (dark.value = !dark.value),
+});
+
+// 子组件
+const theme = inject(ThemeKey);
+if (!theme) throw new Error('未在父级注入 Theme');
+</script>
+```
+
+```vue
+<!-- 3. defineExpose：父组件命令式调用 -->
+<!-- 子组件 -->
+<script setup lang="ts">
+import { ref } from 'vue';
+const inputRef = ref<HTMLInputElement>();
+function focus() { inputRef.value?.focus(); }
+defineExpose({ focus });
+</script>
+
+<!-- 父组件 -->
+<script setup lang="ts">
+import { ref } from 'vue';
+import Child from './Child.vue';
+const childRef = ref<InstanceType<typeof Child>>();
+function onClick() { childRef.value?.focus(); }
+</script>
+```
+
+### 延伸
+- EventBus 只适合很轻量、生命周期明确的临时通信，长期维护成本高
+- provide/inject 默认不是严格只读，建议搭配 `readonly`
+
+## pinia-router
+title: Pinia 与 Vue Router 4 的工程实践
+difficulty: 进阶
+tags: [Pinia, Router]
+
+### 题目
+如何设计 Pinia store，Router 的守卫执行顺序又该如何理解？
+
+### 答案要点
+- Pinia 推荐“一个领域一个 store”，状态、getter、action 边界清晰；setup store 更适合复用组合式能力
+- 可用 `$subscribe` 做持久化，用插件注入审计、埋点、权限等横切能力
+- Vue Router 的守卫分为全局、路由级、组件级三层：`beforeEach` 按注册顺序执行；`beforeEnter` 只在真正进入该路由记录时触发；`beforeResolve` 在导航确认前的最后阶段执行；`afterEach` 仅用于副作用，不能中断导航
+- 路由元信息适合权限、标题、埋点和缓存策略，不要把大段业务逻辑塞进守卫
+
+### 代码示例
+```ts
+// Pinia：setup 风格 store
+import { defineStore } from 'pinia';
+import { computed, ref } from 'vue';
+
+export const useUserStore = defineStore('user', () => {
+  const profile = ref<{ id: string; name: string } | null>(null);
+  const isLoggedIn = computed(() => !!profile.value);
+
+  async function login(payload: { name: string; password: string }) {
+    profile.value = await api.login(payload);
+  }
+  function logout() { profile.value = null; }
+
+  return { profile, isLoggedIn, login, logout };
+}, {
+  persist: { paths: ['profile'] }, // 配合 pinia-plugin-persistedstate
+});
+```
+
+```ts
+// Vue Router 4：守卫执行顺序
+const router = createRouter({
+  history: createWebHistory(),
+  routes: [
+    {
+      path: '/admin',
+      component: AdminLayout,
+      meta: { requiresAuth: true, role: 'admin' },
+      beforeEnter: (to, from, next) => {
+        // ⚠️ 路由级守卫，仅当真正进入此路由记录时触发
+        next();
+      },
+      children: [
+        { path: 'users', component: UsersPage, meta: { title: '用户管理' } },
+      ],
+    },
+  ],
+});
+
+// 全局前置守卫：1️⃣ 最先执行
+router.beforeEach(async (to, from) => {
+  const user = useUserStore();
+  if (to.meta.requiresAuth && !user.isLoggedIn) return '/login';
+  if (to.meta.role && to.meta.role !== user.profile?.role) return '/403';
+});
+
+// 全局解析守卫：2️⃣ 在所有组件守卫之后、afterEach 之前
+router.beforeResolve(async (to) => {
+  if (to.meta.preload) await preloadResources(to.meta.preload);
+});
+
+// 全局后置钩子：3️⃣ 不能中断，仅副作用（埋点 / 标题）
+router.afterEach((to) => {
+  document.title = to.meta.title as string ?? 'App';
+  trackPageView(to.fullPath);
+});
+```
+
+### 延伸
+- SSR/Nuxt 场景下 Pinia 需要按请求创建实例，避免跨请求污染
+- 动态路由常用于权限菜单和插件化模块
+- 组件内的 `beforeRouteEnter / beforeRouteUpdate / beforeRouteLeave` 是否触发，还与组件复用、嵌套路由和参数变化有关，具体顺序应以官方导航守卫文档为准
+
+## advanced-features
+title: KeepAlive、Teleport、Suspense、异步组件分别解决什么问题
+difficulty: 进阶
+tags: [高级组件, SSR]
+
+### 题目
+请说明 KeepAlive、Teleport、Suspense、defineAsyncComponent 的核心用途与坑点。
+
+### 答案要点
+- `KeepAlive` 用于缓存组件实例和状态，适合 tab、多页签详情；需配合 `include/exclude/max`
+- `Teleport` 把节点渲染到指定容器，常用于 Dialog、Popover、Toast，避免层叠上下文和 overflow 裁剪
+- `Suspense` 处理异步依赖的占位与回退，在 CSR 支持较好，SSR 场景要配合框架能力
+- `defineAsyncComponent` 适合懒加载大组件，支持 loading、error、timeout、retry
+
+### 代码示例
+```vue
+<!-- 1. KeepAlive：缓存路由组件 -->
+<template>
+  <router-view v-slot="{ Component, route }">
+    <KeepAlive :include="cachedViews" :max="10">
+      <component :is="Component" :key="route.fullPath" />
+    </KeepAlive>
+  </router-view>
+</template>
+
+<!-- 缓存生命周期：onActivated / onDeactivated -->
+<script setup lang="ts">
+import { onActivated, onDeactivated } from 'vue';
+onActivated(() => console.log('从缓存激活'));
+onDeactivated(() => console.log('被缓存隐藏'));
+</script>
+```
+
+```vue
+<!-- 2. Teleport：渲染到 body 解决层叠问题 -->
+<template>
+  <Teleport to="body">
+    <div v-if="show" class="modal">{{ msg }}</div>
+  </Teleport>
+</template>
+```
+
+```vue
+<!-- 3. Suspense：异步组件 + 占位 -->
+<template>
+  <Suspense>
+    <template #default>
+      <AsyncDashboard />
+    </template>
+    <template #fallback>
+      <div class="loading">加载中...</div>
+    </template>
+  </Suspense>
+</template>
+```
+
+```ts
+// 4. defineAsyncComponent：路由懒加载 + 错误兜底
+import { defineAsyncComponent } from 'vue';
+const Dashboard = defineAsyncComponent({
+  loader: () => import('./Dashboard.vue'),
+  loadingComponent: Loading,
+  errorComponent: ErrorPage,
+  delay: 200,        // 200ms 内加载完不显示 loading
+  timeout: 10_000,
+});
+```
+
+### 延伸
+- KeepAlive 缓存的是组件实例，不是 DOM 快照
+- Teleport 后事件冒泡按组件树而不是物理 DOM 树理解更不容易出错
+
+## render-jsx-directive
+title: render 函数、JSX 与自定义指令分别适合什么场景
+difficulty: 进阶
+tags: [RenderFunction, JSX, 指令]
+
+### 题目
+什么时候该从模板切到 render 函数 / JSX？自定义指令又该放在什么边界内？
+
+### 答案要点
+- 模板适合绝大多数声明式 UI；render 函数 / JSX 更适合高度动态结构、插槽编排、函数式抽象和需要直接操作 vnode 的场景
+- JSX 只是另一种书写 render 的方式，表达力更强，但也更要求团队统一风格和类型能力
+- 自定义指令适合“直接作用于原生 DOM 元素”的低层增强，如 focus、拖拽、权限水印、交叉观察等
+- 如果一个能力本质上是在复用 UI 结构或状态逻辑，通常优先组件 / composable，而不是指令
+
+### 代码示例
+```tsx
+// 1. JSX 写动态组件树
+import { defineComponent, h } from 'vue';
+
+const DynamicTable = defineComponent({
+  props: { columns: Array, rows: Array },
+  setup(props) {
+    return () => (
+      <table>
+        <thead>
+          <tr>{props.columns.map(c => <th key={c.key}>{c.title}</th>)}</tr>
+        </thead>
+        <tbody>
+          {props.rows.map(row => (
+            <tr key={row.id}>
+              {props.columns.map(c => (
+                <td key={c.key}>
+                  {c.render ? c.render(row) : row[c.key]}
+                </td>
+              ))}
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    );
+  },
+});
+```
+
+```ts
+// 2. 自定义指令：v-focus
+const vFocus = {
+  mounted: (el: HTMLElement) => el.focus(),
+};
+
+// 3. 自定义指令：v-permission（权限控制）
+const vPermission = {
+  mounted(el: HTMLElement, binding: { value: string }) {
+    const user = useUserStore();
+    if (!user.permissions.includes(binding.value)) {
+      el.parentNode?.removeChild(el);
+    }
+  },
+};
+
+// 用法：<button v-permission="'user.delete'">删除</button>
+
+// 4. 自定义指令：v-intersect（懒加载）
+const vIntersect = {
+  mounted(el: HTMLElement, binding: { value: () => void }) {
+    const io = new IntersectionObserver(([entry]) => {
+      if (entry.isIntersecting) { binding.value(); io.disconnect(); }
+    });
+    io.observe(el);
+    (el as any).__io = io;
+  },
+  unmounted(el: HTMLElement) { (el as any).__io?.disconnect(); },
+};
+```
+
+### 延伸
+- 在 render / JSX 中，`v-model`、插槽、事件修饰语法都要显式展开理解
+- 指令是 DOM 层抽象，不适合承载复杂业务状态
+
+## lifecycle-debug-hooks
+title: 生命周期、错误边界与调试钩子怎么用
+difficulty: 进阶
+tags: [生命周期, 调试, 错误边界]
+
+### 题目
+除了常见的 mounted / updated / unmounted，`onErrorCaptured`、`onRenderTracked`、`onRenderTriggered` 这类钩子分别适合什么场景？
+
+### 答案要点
+- `onErrorCaptured` 用于捕获后代组件渲染、事件、watcher 等过程中的异常，常用于局部错误降级
+- `onRenderTracked` / `onRenderTriggered` 更偏调试用途，用于分析组件渲染时到底收集了哪些依赖、又是哪些依赖触发了重渲染
+- 这些钩子适合排查“不必要更新”“依赖过多”“某个状态改动牵一大片组件”的问题
+- 真正线上兜底仍要配合全局错误处理和监控平台，不能只靠组件内钩子
+
+### 代码示例
+```vue
+<script setup lang="ts">
+import {
+  onMounted, onUnmounted, onErrorCaptured,
+  onRenderTracked, onRenderTriggered,
+} from 'vue';
+
+// 1. 错误边界：捕获后代异常并降级
+onErrorCaptured((err, instance, info) => {
+  console.error('component error:', err, info);
+  reportError(err, { component: instance?.$options.name, info });
+  // 返回 false 阻止错误向上冒泡
+  return false;
+});
+
+// 2. 调试：onRenderTracked / onRenderTriggered
+onRenderTracked(e => {
+  console.log('依赖被收集:', e.type, e.key, e.target);
+});
+onRenderTriggered(e => {
+  console.log('触发重渲染:', e.type, e.key, e.oldValue, '->', e.newValue);
+});
+
+// 3. 副作用注册与清理
+onMounted(() => {
+  const handler = () => console.log('resize');
+  window.addEventListener('resize', handler);
+  onUnmounted(() => window.removeEventListener('resize', handler));
+});
+</script>
+```
+
+```ts
+// 全局错误处理（main.ts）
+const app = createApp(App);
+app.config.errorHandler = (err, instance, info) => {
+  reportError(err, { info, route: router.currentRoute.value.fullPath });
+};
+app.config.warnHandler = (msg, instance, trace) => {
+  if (import.meta.env.PROD) return;
+  console.warn(msg, trace);
+};
+```
+
+### 延伸
+- 生命周期钩子最常见的误用是把它们当业务流程编排器，导致时序耦合严重
+- 调试钩子更适合临时分析，不建议长期保留在生产业务代码里
+
+## vue-performance-practice
+title: Vue 性能优化：v-once、v-memo、shallowRef、虚拟列表怎么配合
+difficulty: 资深
+tags: [性能优化, v-memo, v-once]
+
+### 题目
+在 Vue 里做性能优化时，哪些优化是真有场景价值的，哪些只是“看起来高级”？
+
+### 答案要点
+- `v-once` 适合真正静态且后续不再变化的内容
+- `v-memo` 适合某些高频列表或局部子树，把依赖比较显式化；要确保依赖数组写得准确
+- `shallowRef` / `shallowReactive` 适合大对象、不可变数据块、第三方实例
+- 虚拟列表、组件拆分、减少无意义响应式和稳定 props，通常比微调单个 API 更有收益
+
+### 代码示例
+```vue
+<template>
+  <!-- 1. v-once：只渲染一次（页面级常量配置） -->
+  <header v-once>
+    <Logo />
+    <h1>{{ siteName }}</h1>
+  </header>
+
+  <!-- 2. v-memo：列表中按依赖跳过子树重渲染 -->
+  <li
+    v-for="item in items"
+    :key="item.id"
+    v-memo="[item.id, item.selected]"
+  >
+    <Avatar :src="item.avatar" />
+    {{ item.name }}
+    <span v-if="item.selected">已选中</span>
+  </li>
+</template>
+
+<script setup lang="ts">
+import { shallowRef, markRaw } from 'vue';
+import * as echarts from 'echarts';
+
+// 3. shallowRef：包装大型第三方实例（不需要深层响应式）
+const chart = shallowRef<echarts.ECharts | null>(null);
+
+// 4. markRaw：彻底跳过响应式（性能敏感的常量）
+const config = markRaw({
+  options: { /* 大对象 */ },
+  schema: { /* 不变的元数据 */ },
+});
+
+// 5. 大列表：先 shallowRef 再 triggerRef 控制刷新时机
+import { triggerRef } from 'vue';
+const list = shallowRef<Item[]>([]);
+function patch(idx: number, patch: Partial<Item>) {
+  Object.assign(list.value[idx], patch);
+  triggerRef(list);  // 手动触发更新
+}
+</script>
+```
+
+### 延伸
+- 优化前先定位瓶颈，不要把 `v-memo` 当默认写法
+- Vue 官方对性能优化的建议一向是"先架构，再数据量，再微观指令"
+
+## composables-design
+title: composables 设计规范：命名、参数、返回值与副作用
+difficulty: 进阶
+tags: [Composables, 复用, 设计]
+
+### 题目
+一个高质量 composable 应该怎么设计，才能既好用又不容易埋下响应式和生命周期问题？
+
+### 答案要点
+- composable 本质上是封装有状态逻辑的函数，命名通常以 `useXxx` 开头
+- 返回多个状态时，优先返回“普通对象 + 多个 ref”，这样调用方解构后仍能保持响应性
+- 输入参数若可能是原始值、ref 或 getter，设计时应统一归一化；需要响应追踪时可结合 `watch`、`watchEffect` 和 `toValue()`
+- 涉及 DOM、事件监听、定时器、订阅等副作用时，要在合适生命周期里注册和清理；SSR 下尤其要避免在服务端阶段直接访问 DOM
+
+### 代码示例
+```ts
+// composables/useFetch.ts：高质量 composable 范式
+import { ref, shallowRef, watch, toValue, type MaybeRefOrGetter } from 'vue';
+
+interface UseFetchOptions {
+  immediate?: boolean;
+  retry?: number;
+}
+
+export function useFetch<T>(
+  url: MaybeRefOrGetter<string>,
+  opts: UseFetchOptions = {},
+) {
+  const data = shallowRef<T | null>(null);
+  const error = ref<Error | null>(null);
+  const loading = ref(false);
+  let ctrl: AbortController | null = null;
+
+  async function execute() {
+    ctrl?.abort();
+    ctrl = new AbortController();
+    loading.value = true;
+    error.value = null;
+    try {
+      const res = await fetch(toValue(url), { signal: ctrl.signal });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      data.value = await res.json();
+    } catch (e) {
+      if ((e as Error).name !== 'AbortError') error.value = e as Error;
+    } finally {
+      loading.value = false;
+    }
+  }
+
+  // url 变化自动重新请求
+  watch(() => toValue(url), execute, { immediate: opts.immediate ?? true });
+
+  return { data, error, loading, execute, abort: () => ctrl?.abort() };
+}
+```
+
+```vue
+<!-- 使用：调用方解构后仍保持响应性 -->
+<script setup lang="ts">
+import { ref } from 'vue';
+import { useFetch } from '@/composables/useFetch';
+
+const id = ref('1');
+// 传 getter 让 url 响应式
+const { data, loading, error } = useFetch(() => `/api/users/${id.value}`);
+</script>
+```
+
+### 延伸
+- composable 更像"组件内可复用服务"，不是随意拆出去的工具函数
+- 如果 composable 返回整个 `reactive` 对象，调用方一旦直接解构，就容易丢失响应式连接
+
+## nuxt3-overview
+title: Nuxt 3 的核心价值：SSR、SSG、Nitro、payload
+difficulty: 进阶
+tags: [Nuxt, SSR]
+
+### 题目
+如果让你向一个只写过 SPA 的前端解释 Nuxt 3，你会如何说明它的价值与心智模型？
+
+### 答案要点
+- Nuxt 3 = 基于 Vue3 的全栈元框架，解决路由、数据获取、SSR/SSG、部署适配、约定式工程结构
+- Nitro 统一了 Node、Edge、Serverless 等运行时抽象
+- 页面支持 SSR、SSG、ISR 等输出模式，能兼顾 SEO、首屏和运维复杂度
+- payload / hydration 负责把服务端获取的数据传给客户端，避免重复请求
+
+### 代码示例
+```vue
+<!-- pages/posts/[slug].vue：约定式路由 + 服务端数据获取 -->
+<script setup lang="ts">
+const route = useRoute();
+
+// 1. useFetch：SSR 自动序列化 payload，CSR 不会重复请求
+const { data: post, error } = await useFetch(`/api/posts/${route.params.slug}`, {
+  key: `post-${route.params.slug}`,
+  transform: (res: any) => ({ ...res, viewedAt: Date.now() }),
+});
+
+// 2. SEO 元信息
+useHead({
+  title: () => post.value?.title ?? '文章',
+  meta: [
+    { name: 'description', content: () => post.value?.summary },
+    { property: 'og:image', content: () => post.value?.cover },
+  ],
+});
+
+// 3. ISR：定时重新生成（部署在支持的运行时上）
+defineRouteRules({ swr: 600 }); // 10 分钟内复用缓存
+</script>
+```
+
+```ts
+// nuxt.config.ts
+export default defineNuxtConfig({
+  modules: ['@pinia/nuxt', '@vueuse/nuxt'],
+  ssr: true,
+  nitro: {
+    preset: 'vercel-edge',          // 部署到边缘
+    routeRules: {
+      '/': { prerender: true },      // 首页静态生成
+      '/blog/**': { swr: 3600 },     // 1 小时 SWR
+      '/admin/**': { ssr: false },   // 后台用 SPA
+      '/api/**': { cors: true },
+    },
+  },
+});
+```
+
+### 延伸
+- 不是所有项目都该上 Nuxt；纯后台系统、重交互内网、离线优先工具型应用未必值得
+- 但面向内容站、营销站、搜索流量入口时，Nuxt 往往显著降低 SSR 成本

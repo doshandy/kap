@@ -1,0 +1,434 @@
+---
+id: 05-browser
+title: 浏览器原理
+order: 5
+icon: 🌐
+description: 从 URL 到渲染、存储、事件循环、Service Worker、性能与调试工具。
+---
+
+## url-to-render
+title: 从输入 URL 到页面显示，浏览器经历了什么
+difficulty: 基础
+tags: [流程, 渲染]
+
+### 题目
+请按时间顺序描述从输入 URL 到页面可交互的大致流程。
+
+### 答案要点
+- 解析 URL，查缓存和 DNS，建立 TCP/TLS 连接
+- 发送 HTTP 请求，服务端返回 HTML
+- 浏览器边下载边解析 HTML，构建 DOM；遇到 CSS 构建 CSSOM；遇到同步脚本可能阻塞解析，`defer` / `type="module"` 与 `async` 的时机又不同
+- DOM + CSSOM 生成 Render Tree，之后做 Layout、Paint、Composite
+- JS 执行、事件绑定、异步数据请求完成后，页面逐渐进入可交互状态
+
+### 代码示例
+```html
+<!-- 影响关键路径的几种脚本加载方式 -->
+<script src="a.js"></script>           <!-- 阻塞解析与执行 -->
+<script src="b.js" defer></script>     <!-- 不阻塞解析，DOMContentLoaded 前按序执行 -->
+<script src="c.js" async></script>     <!-- 不阻塞解析，下载完立即执行（顺序不保证） -->
+<script type="module" src="d.js"></script>  <!-- 默认 defer 行为 -->
+
+<!-- 提前建立连接 -->
+<link rel="preconnect" href="https://api.example.com" crossorigin />
+<link rel="dns-prefetch" href="https://cdn.example.com" />
+
+<!-- 关键资源预加载 -->
+<link rel="preload" href="/hero.webp" as="image" fetchpriority="high" />
+```
+
+```ts
+// 测量真实流程的关键节点
+addEventListener('DOMContentLoaded', () => console.log('DCL'));
+addEventListener('load', () => {
+  const nav = performance.getEntriesByType('navigation')[0] as PerformanceNavigationTiming;
+  console.log('TTFB', nav.responseStart - nav.requestStart);
+  console.log('DCL', nav.domContentLoadedEventEnd);
+  console.log('Load', nav.loadEventEnd);
+});
+```
+
+### 延伸
+- 首屏性能优化的本质，就是缩短这条关键路径上的阻塞链
+- 真正的"可交互"不等于"首屏内容出现"
+- 浏览器通常还有预加载扫描器等并行优化机制，所以"严格串行流程图"只是帮助理解的简化模型
+
+## render-pipeline
+title: DOM、CSSOM、Render Tree、Layout、Paint、Composite 的关系
+difficulty: 进阶
+tags: [渲染, 性能]
+
+### 题目
+什么操作会触发回流、重绘和合成？为什么 transform/opacity 常被认为更高性能？
+
+### 答案要点
+- 回流（layout/reflow）是重新计算几何信息；重绘（paint）是重新绘制像素；合成（composite）是图层拼接
+- 修改尺寸、位置、字体、内容等更容易触发回流
+- 颜色、背景等可能只触发重绘
+- `transform` / `opacity` 通常只影响合成阶段，因此更适合动画
+
+### 代码示例
+```ts
+// ❌ 反例：读写交错触发多次强制布局
+function bad(items: HTMLElement[]) {
+  for (const el of items) {
+    const w = el.offsetWidth;       // 读：强制同步布局
+    el.style.width = w * 2 + 'px';  // 写：使下次读再次失效
+  }
+}
+
+// ✅ 正解：先批量读，再批量写
+function good(items: HTMLElement[]) {
+  const widths = items.map(el => el.offsetWidth);   // 集中读
+  items.forEach((el, i) => el.style.width = widths[i] * 2 + 'px'); // 集中写
+}
+
+// ✅ 用 class 切换，浏览器自动批处理
+el.classList.add('expanded');
+
+// ✅ requestAnimationFrame 把 DOM 操作对齐到渲染前
+requestAnimationFrame(() => {
+  el.style.transform = 'translateX(100px)';
+});
+
+// ✅ Web Animations API：合成层动画
+el.animate(
+  [{ transform: 'translateX(0)' }, { transform: 'translateX(100px)' }],
+  { duration: 300, easing: 'ease-out', fill: 'forwards' },
+);
+```
+
+### 延伸
+- 读取布局信息（如 `offsetHeight`）可能强制浏览器同步刷新布局
+- 批量读写分离、使用 class 切换，比一条条改 style 更稳
+
+## storage-cookie
+title: Cookie、localStorage、sessionStorage、IndexedDB、Cache Storage 如何取舍
+difficulty: 基础
+tags: [存储, Cookie]
+
+### 题目
+对比浏览器常见存储方案，并说明 Cookie 的几个关键安全属性。
+
+### 答案要点
+- Cookie 体积小、会随请求自动发送，适合会话标识；支持 `HttpOnly`、`Secure`、`SameSite`
+- localStorage 同步 API、实现简单，但配额和行为依浏览器而异；不适合存大量数据和高频写
+- sessionStorage 生命周期跟 tab 绑定
+- IndexedDB 适合结构化大数据、离线缓存、搜索索引
+- Cache Storage 更适合存 Request/Response 对象，常与 Service Worker 配合
+
+### 代码示例
+```ts
+// 1. localStorage：同步、5MB 左右
+localStorage.setItem('settings', JSON.stringify({ theme: 'dark' }));
+const s = JSON.parse(localStorage.getItem('settings') || '{}');
+
+// 2. IndexedDB：结构化大数据（用 idb 简化）
+import { openDB } from 'idb';
+const db = await openDB('app', 1, {
+  upgrade(db) {
+    const store = db.createObjectStore('posts', { keyPath: 'id' });
+    store.createIndex('byDate', 'createdAt');
+  },
+});
+await db.put('posts', { id: '1', title: 'Hi', createdAt: Date.now() });
+const posts = await db.getAllFromIndex('posts', 'byDate');
+
+// 3. Cache Storage：常配合 Service Worker
+const cache = await caches.open('static-v1');
+await cache.addAll(['/index.html', '/main.js', '/style.css']);
+const res = await caches.match('/index.html');
+```
+
+```http
+# Cookie 安全属性
+Set-Cookie: session=abc;
+  HttpOnly;
+  Secure;
+  SameSite=Lax;
+  Path=/;
+  Max-Age=86400
+
+# 更严格：__Host- 前缀强制 Secure + Path=/
+Set-Cookie: __Host-session=abc; Secure; Path=/; SameSite=Strict
+```
+
+### 延伸
+- 敏感令牌不要因为"前端方便"就直接存 localStorage
+- localStorage 是同步的，在低端机和高频写场景会卡主线程
+- Cookie 若承载会话，通常还应结合 `__Host-` / `__Secure-` 前缀、`Path`、过期策略与服务端会话治理一起设计
+
+## service-worker
+title: Service Worker 生命周期与常见缓存策略
+difficulty: 进阶
+tags: [PWA, 离线]
+
+### 题目
+Service Worker 的 install、activate、fetch 分别做什么？常见缓存策略有哪些？
+
+### 答案要点
+- Service Worker 只在安全上下文可用（通常是 HTTPS，`localhost` 例外）
+- `install` 适合预缓存静态资源
+- `activate` 适合清理旧缓存、接管客户端
+- `fetch` 拦截请求并决定从缓存还是网络返回
+- 常见策略：cache-first、network-first、stale-while-revalidate、cache-only、network-only
+
+### 代码示例
+```ts
+// service-worker.ts
+const CACHE = 'app-v3';
+const PRECACHE = ['/', '/index.html', '/main.js', '/style.css'];
+
+self.addEventListener('install', (e: any) => {
+  e.waitUntil(caches.open(CACHE).then(c => c.addAll(PRECACHE)));
+  self.skipWaiting();    // 立即激活新版本（注意兼容性）
+});
+
+self.addEventListener('activate', (e: any) => {
+  e.waitUntil(
+    caches.keys().then(keys =>
+      Promise.all(keys.filter(k => k !== CACHE).map(k => caches.delete(k))),
+    ),
+  );
+  self.clients.claim();
+});
+
+// 1. cache-first（静态资源）
+function cacheFirst(req: Request) {
+  return caches.match(req).then(r => r || fetch(req).then(res => {
+    const clone = res.clone();
+    caches.open(CACHE).then(c => c.put(req, clone));
+    return res;
+  }));
+}
+
+// 2. network-first（API）
+async function networkFirst(req: Request) {
+  try {
+    const res = await fetch(req);
+    const c = await caches.open(CACHE);
+    c.put(req, res.clone());
+    return res;
+  } catch {
+    return (await caches.match(req))!;
+  }
+}
+
+// 3. stale-while-revalidate（最常用）
+async function swr(req: Request) {
+  const cached = await caches.match(req);
+  const fetchPromise = fetch(req).then(res => {
+    caches.open(CACHE).then(c => c.put(req, res.clone()));
+    return res;
+  });
+  return cached || fetchPromise;
+}
+
+self.addEventListener('fetch', (e: any) => {
+  const url = new URL(e.request.url);
+  if (url.pathname.startsWith('/api/')) e.respondWith(networkFirst(e.request));
+  else if (url.pathname.startsWith('/assets/')) e.respondWith(cacheFirst(e.request));
+  else e.respondWith(swr(e.request));
+});
+```
+
+### 延伸
+- SW 更新策略要权衡"立即生效"与"避免打断用户"
+- 离线能力不是只缓存首页，数据和静态资源更新策略同样关键
+- `skipWaiting()` / `clients.claim()` 很常见，但是否立即接管页面要结合版本兼容与用户正在进行的操作一起评估
+
+## event-loop-worker
+title: 浏览器事件循环、主线程限制与 Worker
+difficulty: 进阶
+tags: [事件循环, Worker]
+
+### 题目
+为什么浏览器里的 JS 要尽量避免长任务？Web Worker 能解决哪些问题，不能解决哪些问题？
+
+### 答案要点
+- 主线程同时要处理 JS、样式、布局、绘制和用户输入，长任务会直接拖慢响应
+- Worker 可把计算密集型任务移到后台线程，如解析大 JSON、图像处理、搜索索引
+- Worker 不能直接访问 DOM，和主线程通常通过 `postMessage`、Transferable 对象通信；`SharedArrayBuffer` 还要求安全上下文和 cross-origin isolation
+
+### 代码示例
+```ts
+// 主线程：创建 Worker（Vite 推荐用 import.meta.url）
+const worker = new Worker(new URL('./crunch.worker.ts', import.meta.url), { type: 'module' });
+
+worker.postMessage({ data: largeArray });
+worker.onmessage = e => render(e.data);
+worker.onerror = e => console.error(e);
+
+// crunch.worker.ts
+self.onmessage = e => {
+  const { data } = e.data;
+  const result = data.map(heavyCompute);
+  // Transferable：避免结构化克隆，零拷贝转移
+  self.postMessage(result, [result.buffer ?? undefined].filter(Boolean) as Transferable[]);
+};
+```
+
+```ts
+// Comlink：把 Worker 调用变成 Promise + 类型安全
+import * as Comlink from 'comlink';
+
+// worker.ts
+const api = {
+  async parseCSV(text: string) { /* ... */ return rows; },
+  async fuzzySearch(query: string) { /* ... */ },
+};
+Comlink.expose(api);
+export type Api = typeof api;
+
+// 主线程
+import type { Api } from './worker';
+const api = Comlink.wrap<Api>(new Worker(new URL('./worker', import.meta.url), { type: 'module' }));
+const rows = await api.parseCSV(largeText);   // 像调用本地异步函数
+```
+
+### 延伸
+- 结构化克隆有成本，大数据频繁传输未必划算
+- OffscreenCanvas、AudioWorklet、PaintWorklet 都是更细分的线程化能力
+
+## observer-performance-api
+title: Observer 家族与 Performance API 的实战用法
+difficulty: 进阶
+tags: [Observer, 性能]
+
+### 题目
+`IntersectionObserver`、`ResizeObserver`、`MutationObserver`、`PerformanceObserver` 各自适合什么场景？
+
+### 答案要点
+- `IntersectionObserver`：懒加载、曝光埋点、无限滚动
+- `ResizeObserver`：容器尺寸变化监听
+- `MutationObserver`：DOM 结构变化监听
+- `PerformanceObserver`：监听长任务、LCP、布局偏移等性能条目；具体可观察类型要看浏览器支持的 `supportedEntryTypes`
+
+### 代码示例
+```ts
+// 1. IntersectionObserver：图片懒加载 + 曝光埋点
+const io = new IntersectionObserver(
+  entries => {
+    for (const entry of entries) {
+      if (entry.isIntersecting) {
+        const el = entry.target as HTMLImageElement;
+        el.src = el.dataset.src!;
+        trackExposure(el.dataset.exposureId!);
+        io.unobserve(el);
+      }
+    }
+  },
+  { rootMargin: '100px', threshold: 0.1 },
+);
+document.querySelectorAll('img[data-src]').forEach(el => io.observe(el));
+
+// 2. ResizeObserver：监听容器尺寸
+const ro = new ResizeObserver(entries => {
+  for (const entry of entries) {
+    chart.resize({
+      width: entry.contentRect.width,
+      height: entry.contentRect.height,
+    });
+  }
+});
+ro.observe(containerEl);
+
+// 3. MutationObserver：检测 DOM 变更（如富文本编辑）
+const mo = new MutationObserver(records => {
+  for (const r of records) {
+    if (r.type === 'childList') console.log('children changed');
+    if (r.type === 'attributes') console.log('attr', r.attributeName);
+  }
+});
+mo.observe(editor, { childList: true, subtree: true, attributes: true });
+
+// 4. PerformanceObserver：监听核心指标
+new PerformanceObserver(list => {
+  list.getEntries().forEach(entry => {
+    console.log(entry.entryType, entry.name, entry.startTime, entry.duration);
+  });
+}).observe({
+  type: 'longtask',
+  buffered: true,                         // 拿历史条目
+});
+
+// 监听 LCP（取最后一个）
+new PerformanceObserver(list => {
+  const last = list.getEntries().at(-1);
+  console.log('LCP', last?.startTime);
+}).observe({ type: 'largest-contentful-paint', buffered: true });
+```
+
+### 延伸
+- 这些 API 的价值在于"让浏览器帮你做监听批处理"，减少轮询与同步计算
+- 可观测性 SDK 常用 `PerformanceObserver + Beacon` 做基础指标上报
+- 性能条目缓冲区可能会满，工程上要考虑 `buffered` 读取和条目丢失问题
+
+## devtools-memory
+title: 浏览器 DevTools 如何排查内存泄漏与卡顿
+difficulty: 进阶
+tags: [DevTools, 调试]
+
+### 题目
+如果线上页面越用越卡，你会如何利用浏览器开发者工具定位问题？
+
+### 答案要点
+- Performance 面板看长任务、掉帧、布局抖动、脚本热点
+- Memory 面板做 heap snapshot，对比对象增长趋势，查 detached DOM、闭包引用链
+- Network 看资源瀑布、缓存命中、接口阻塞
+- Coverage 看未使用代码比例，辅助包体治理
+
+### 代码示例
+```ts
+// 常见内存泄漏模式与修复
+
+// 1. 全局事件未移除
+class Widget {
+  constructor() {
+    window.addEventListener('resize', this.onResize);  // ❌ 未保存引用
+  }
+  onResize = () => { /* ... */ };
+  destroy() {
+    window.removeEventListener('resize', this.onResize); // ✅ 同一引用才能移除
+  }
+}
+
+// 2. 定时器未清理
+let timer: any;
+function start() {
+  timer = setInterval(() => poll(), 1000);
+}
+function stop() { clearInterval(timer); }
+
+// 3. 闭包引用大对象
+function attach(big: ArrayBuffer) {
+  return () => console.log('hi');   // ❌ 闭包仍然持有 big
+}
+// ✅ 用完释放
+function attachOk(big: ArrayBuffer) {
+  let local: ArrayBuffer | null = big;
+  return () => { console.log(local?.byteLength); local = null; };
+}
+
+// 4. detached DOM：被 JS 引用但已移出文档
+const cache = new Map<string, HTMLElement>();
+cache.set('foo', document.createElement('div'));
+// 后来从文档移除元素，但 Map 仍引用 → 不会被 GC
+// ✅ 用 WeakRef 或 WeakMap
+
+// 5. 监控代码内存增长
+setInterval(() => {
+  const mem = (performance as any).memory;
+  if (mem) console.log('used:', mem.usedJSHeapSize / 1024 / 1024, 'MB');
+}, 5000);
+```
+
+```ts
+// 用 WeakRef 弱引用避免长生命周期持有
+const ref = new WeakRef(someObj);
+const obj = ref.deref();   // 可能为 undefined（已被 GC）
+```
+
+### 延伸
+- 排查内存泄漏常做"三次快照对比"：初始、操作后、GC 后
+- 不要只盯总内存大小，更要看"该被释放的对象是否还活着"
