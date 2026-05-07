@@ -1,25 +1,39 @@
-import Fuse from 'fuse.js';
-import type { FuseResult } from 'fuse.js';
+import type { FuseResult, default as FuseType } from 'fuse.js';
 import { computed, ref } from 'vue';
 import { useContent } from './useContent';
 import type { Question } from '@/types/content';
 
-let fuse: Fuse<Question> | null = null;
+let fuse: FuseType<Question> | null = null;
+let fusePending: Promise<FuseType<Question>> | null = null;
 
-function getFuse() {
+/**
+ * fuse.js 是搜索专属依赖（gzip 约 6KB），通过动态 import 让它仅在
+ * 用户首次打开搜索面板时加载，避免进入主入口 chunk。
+ */
+async function ensureFuse(): Promise<FuseType<Question>> {
   if (fuse) return fuse;
-  const { allQuestions } = useContent();
-  fuse = new Fuse(allQuestions.value, {
-    keys: [
-      { name: 'title', weight: 4 },
-      { name: 'tags', weight: 2 },
-      { name: 'raw', weight: 1 },
-    ],
-    threshold: 0.4,
-    ignoreLocation: true,
-    includeMatches: true,
-  });
-  return fuse;
+  if (fusePending) return fusePending;
+  fusePending = (async () => {
+    const { default: Fuse } = await import('fuse.js');
+    const { allQuestions } = useContent();
+    fuse = new Fuse(allQuestions.value, {
+      keys: [
+        { name: 'title', weight: 4 },
+        { name: 'tags', weight: 2 },
+        { name: 'raw', weight: 1 },
+      ],
+      threshold: 0.4,
+      ignoreLocation: true,
+      includeMatches: true,
+    });
+    return fuse;
+  })();
+  return fusePending;
+}
+
+/** 由 SearchPalette 在打开时主动调用，提前预热 fuse 索引，避免首次输入卡顿 */
+export function prewarmSearch(): Promise<void> {
+  return ensureFuse().then(() => undefined);
 }
 
 export interface SearchHit {
@@ -65,8 +79,9 @@ export function clearSearchHistory(): void {
 }
 
 function escapeHtml(s: string): string {
-  return s.replace(/[&<>"']/g, (c) =>
-    ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]!),
+  return s.replace(
+    /[&<>"']/g,
+    (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]!,
   );
 }
 
@@ -84,7 +99,10 @@ function highlightFromIndices(text: string, indices: readonly [number, number][]
   return segments.join('');
 }
 
-function makeExcerpt(raw: string, indices: readonly [number, number][]): {
+function makeExcerpt(
+  raw: string,
+  indices: readonly [number, number][],
+): {
   excerpt: string;
   excerptHtml: string;
 } {
@@ -137,15 +155,24 @@ function toHit(r: FuseResult<Question>): SearchHit {
 
 export function useSearch() {
   const keyword = ref('');
+  const ready = ref(!!fuse);
+
+  /**
+   * 搜索结果是 computed：它会跟随 keyword 变化，但在 fuse 未就绪时输出空数组。
+   * 首次输入时调度一次异步加载并把 ready 翻成 true，触发响应式重新计算。
+   */
   const hits = computed<SearchHit[]>(() => {
+    if (!ready.value) {
+      void ensureFuse().then(() => {
+        ready.value = true;
+      });
+    }
     const k = keyword.value.trim();
-    if (!k) return [];
-    return getFuse()
-      .search(k, { limit: 30 })
-      .map(toHit);
+    if (!k || !fuse) return [];
+    return fuse.search(k, { limit: 30 }).map(toHit);
   });
 
   const results = computed<Question[]>(() => hits.value.map((h) => h.item));
 
-  return { keyword, results, hits };
+  return { keyword, results, hits, ready };
 }

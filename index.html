@@ -11,39 +11,21 @@
     <meta http-equiv="Permissions-Policy" content="camera=(), microphone=(), geolocation=(), interest-cohort=()" />
     <meta
       name="description"
-      content="KAP - Vue 前端工程师知识图谱与自查面试库，覆盖 28 大分类、405+ 高频题，含可交互答题、间隔复习、模拟面试、代码沙盒、AI 讲解。"
+      content="KAP - Vue 前端工程师知识图谱与自查面试库，覆盖 28 大分类、447+ 高频题，含可交互答题、间隔复习、模拟面试、代码沙盒、AI 讲解。"
     />
     <link rel="canonical" href="https://doshandy.github.io/kap/" />
     <meta property="og:title" content="KAP - 前端知识自查" />
-    <meta property="og:description" content="Vue 前端工程师知识图谱与自查面试库，28 大分类 / 405+ 高频题" />
+    <meta
+      property="og:description"
+      content="Vue 前端工程师知识图谱与自查面试库，28 大分类 / 447+ 高频题"
+    />
     <meta property="og:url" content="https://doshandy.github.io/kap/" />
-    <meta property="og:image" content="/kap/og.png" />
+    <meta property="og:image" content="https://doshandy.github.io/kap/og.png" />
     <meta property="og:type" content="website" />
     <meta name="twitter:card" content="summary_large_image" />
     <title>KAP - 前端知识自查</title>
-    <script>
-      (function () {
-        if ('serviceWorker' in navigator) {
-          var KEY = 'kap-sw-cleanup-v2';
-          if (!localStorage.getItem(KEY)) {
-            navigator.serviceWorker.getRegistrations().then(function (regs) {
-              var hadOld = regs.length > 0;
-              return Promise.all(regs.map(function (r) { return r.unregister(); })).then(function () {
-                if (window.caches && caches.keys) {
-                  return caches.keys().then(function (keys) {
-                    return Promise.all(keys.map(function (k) { return caches.delete(k); }));
-                  }).then(function () { return hadOld; });
-                }
-                return hadOld;
-              });
-            }).then(function (hadOld) {
-              localStorage.setItem(KEY, '1');
-              if (hadOld) location.reload();
-            });
-          }
-        }
-      })();
-    </script>
+
+    <!-- 404.html 重定向回填：必须早于 main.ts 执行 -->
     <script>
       (function () {
         var l = window.location;
@@ -59,9 +41,52 @@
         }
       })();
     </script>
+
+    <!-- 老版本 PWA SW 一次性清理（v2 之后基本所有用户已 upgrade，可异步执行） -->
+    <script defer>
+      (function () {
+        if (!('serviceWorker' in navigator)) return;
+        var KEY = 'kap-sw-cleanup-v2';
+        if (localStorage.getItem(KEY)) return;
+        navigator.serviceWorker
+          .getRegistrations()
+          .then(function (regs) {
+            var hadOld = regs.length > 0;
+            return Promise.all(
+              regs.map(function (r) {
+                return r.unregister();
+              }),
+            ).then(function () {
+              if (window.caches && caches.keys) {
+                return caches.keys().then(function (keys) {
+                  return Promise.all(
+                    keys.map(function (k) {
+                      return caches.delete(k);
+                    }),
+                  );
+                }).then(function () {
+                  return hadOld;
+                });
+              }
+              return hadOld;
+            });
+          })
+          .then(function (hadOld) {
+            localStorage.setItem(KEY, '1');
+            if (hadOld) location.reload();
+          });
+      })();
+    </script>
   </head>
   <body>
     <div id="app"></div>
+    <noscript>
+      <div style="padding: 40px; max-width: 600px; margin: 80px auto; font-family: system-ui, sans-serif; line-height: 1.7; color: #334155;">
+        <h1 style="font-size: 22px; color: #0ea5e9;">KAP - 前端知识自查</h1>
+        <p>本站是一个交互式前端面试自查工具，需要在浏览器启用 JavaScript 才能使用。</p>
+        <p>请检查浏览器设置或使用现代浏览器访问 <a href="https://doshandy.github.io/kap/">https://doshandy.github.io/kap/</a>。</p>
+      </div>
+    </noscript>
     <script type="module" src="/src/main.ts"></script>
   </body>
 </html>

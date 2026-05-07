@@ -35,11 +35,36 @@ export default defineConfig({
         ],
       },
       workbox: {
+        // precache 排除大体积按需 vendor（echarts/markdown 真正用到再下），
+        // 避免首次访问就拉 1MB+ 带宽。这些资源会进 runtimeCaching 池。
         globPatterns: ['**/*.{js,css,html,svg,png,ico,woff2}'],
+        globIgnores: ['**/vendor-echarts-*.js', '**/vendor-markdown-*.js', '**/vendor-icons-*.js'],
         navigateFallback: '/kap/index.html',
         cleanupOutdatedCaches: true,
         clientsClaim: true,
         skipWaiting: true,
+        // 首次访问真正用到时再下载并缓存这些大 vendor / markdown 内容，
+        // 后续访问命中缓存（StaleWhileRevalidate 保证版本更新）
+        runtimeCaching: [
+          {
+            urlPattern: /\/kap\/assets\/vendor-(echarts|markdown|icons)-.*\.js$/,
+            handler: 'CacheFirst',
+            options: {
+              cacheName: 'kap-vendor',
+              expiration: { maxEntries: 8, maxAgeSeconds: 30 * 24 * 60 * 60 },
+              cacheableResponse: { statuses: [0, 200] },
+            },
+          },
+          {
+            urlPattern: /\/kap\/assets\/\d{2}-.*\.js$/,
+            handler: 'StaleWhileRevalidate',
+            options: {
+              cacheName: 'kap-content',
+              expiration: { maxEntries: 64, maxAgeSeconds: 30 * 24 * 60 * 60 },
+              cacheableResponse: { statuses: [0, 200] },
+            },
+          },
+        ],
       },
     }),
   ],

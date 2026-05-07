@@ -1,21 +1,32 @@
 <script setup lang="ts">
-import { onMounted, ref } from 'vue';
+import { defineAsyncComponent, onBeforeUnmount, onMounted, ref } from 'vue';
 import AppHeader from '@/components/layout/AppHeader.vue';
 import AppSidebar from '@/components/layout/AppSidebar.vue';
-import ShortcutsHelp from '@/components/settings/ShortcutsHelp.vue';
-import SearchPalette from '@/components/search/SearchPalette.vue';
 import { useSettingsStore } from '@/stores/settings';
 import { useShortcuts } from '@/composables/useShortcuts';
+
+// 搜索面板和快捷键弹窗仅在用户触发时才需要加载，配合动态 fuse.js
+// 可以让首屏 vendor 主链路里完全不带搜索相关代码。
+const SearchPalette = defineAsyncComponent(() => import('@/components/search/SearchPalette.vue'));
+const ShortcutsHelp = defineAsyncComponent(() => import('@/components/settings/ShortcutsHelp.vue'));
 
 const settings = useSettingsStore();
 const sidebarOpen = ref(false);
 const helpOpen = ref(false);
 const searchOpen = ref(false);
 
+let mq: MediaQueryList | null = null;
+const onColorSchemeChange = () => settings.applyTheme();
+
 onMounted(() => {
   settings.applyTheme();
-  const mq = window.matchMedia('(prefers-color-scheme: dark)');
-  mq.addEventListener('change', () => settings.applyTheme());
+  mq = window.matchMedia('(prefers-color-scheme: dark)');
+  mq.addEventListener('change', onColorSchemeChange);
+});
+
+onBeforeUnmount(() => {
+  mq?.removeEventListener('change', onColorSchemeChange);
+  mq = null;
 });
 
 useShortcuts({
@@ -44,8 +55,8 @@ useShortcuts({
         </Suspense>
       </RouterView>
     </main>
-    <ShortcutsHelp v-model:open="helpOpen" />
-    <SearchPalette v-model:open="searchOpen" />
+    <ShortcutsHelp v-if="helpOpen" v-model:open="helpOpen" />
+    <SearchPalette v-if="searchOpen" v-model:open="searchOpen" />
   </div>
 </template>
 
