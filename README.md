@@ -89,7 +89,7 @@ pnpm preview
 
 ## 🗺 分类清单
 
-当前题库按以下 27 个分类组织（合计 388 题，全量"一句话理解"覆盖，37 道高频题补「常见误区」+「追问」）：
+当前题库按以下 28 个分类组织（合计 405 题，全量"一句话理解"覆盖，37 道高频题补「常见误区」+「追问」）：
 
 1. `01-javascript` JavaScript 核心
 2. `02-typescript` TypeScript 进阶
@@ -118,6 +118,7 @@ pnpm preview
 25. `25-rust-wasm` Rust 工具链与 WASM
 26. `26-browser-extension` 浏览器插件
 27. `27-data-platform-cases` 数据平台业务场景
+28. `28-customer-service-im` 客服 / IM 实战（长连接 / 消息可靠性 / E2EE / 海外部署）
 
 ## 📝 添加 / 修改题目
 

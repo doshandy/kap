@@ -688,3 +688,188 @@ jobs:
 - SLSA（supply-chain levels for software artifacts）成熟度框架
 - SBOM（Software Bill of Materials）：清晰列出所有依赖，便于事后审计
 
+
+## web-crypto-fundamentals
+title: 浏览器原生 Web Crypto API 怎么用？哈希 / 对称 / 非对称 / 签名场景速查
+difficulty: 进阶
+tags: [加密, WebCrypto, 高频]
+
+### 一句话
+浏览器自带的 `crypto.subtle` 提供 AES / RSA / ECDSA / SHA / HKDF / PBKDF2，**永远不要自己实现密码学**——直接调原生 API，安全 + 性能（可能用硬件加速）。
+
+### 题目
+请描述 Web Crypto API 的常用能力，并各举一个前端实战场景（哈希、对称加密、非对称签名、密钥派生）。
+
+### 答案要点
+- **API 入口**：`crypto.subtle`（仅在 https / localhost 可用）+ `crypto.getRandomValues`（同步随机字节）
+- **常见算法分类**：
+  - **哈希**：SHA-256 / SHA-384 / SHA-512（不要再用 MD5 / SHA-1）
+  - **对称加密**：AES-GCM（推荐，自带认证）/ AES-CBC（要自己 HMAC）
+  - **非对称加密**：RSA-OAEP（加密小数据）/ RSA-PSS（签名）/ ECDSA（签名，更短更快）
+  - **密钥协商**：ECDH（P-256 / P-384）
+  - **密钥派生**：HKDF（从已有密钥派生）/ PBKDF2（从密码派生，慢哈希）
+- **前端实战场景**：
+  - 文件秒传：SHA-256 算文件指纹，秒传判定
+  - 密码不直传：登录时前端用 PBKDF2 + salt 派生 hash 上传（仍需 https 兜底）
+  - 上传完整性：AES-GCM 加密敏感字段（如医疗 / 金融）落本地 cache
+  - JWT 校验：ES256 用 ECDSA + SHA-256
+  - E2EE IM：ECDH 协商 + AES-GCM 加密消息（详见 28-customer-service-im 专题）
+- **密钥管理**：
+  - 用 `generateKey({ extractable: false })` 防止私钥被导出
+  - IndexedDB 可直接存 CryptoKey 对象，不用序列化
+  - 浏览器关闭后密钥还在（除非用户清数据）
+
+### 代码示例
+```ts
+async function sha256(text: string): Promise<string> {
+  const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(text));
+  return Array.from(new Uint8Array(buf))
+    .map((b) => b.toString(16).padStart(2, '0'))
+    .join('');
+}
+
+async function aesEncrypt(plain: string, password: string) {
+  const salt = crypto.getRandomValues(new Uint8Array(16));
+  const iv = crypto.getRandomValues(new Uint8Array(12));
+  const baseKey = await crypto.subtle.importKey(
+    'raw',
+    new TextEncoder().encode(password),
+    'PBKDF2',
+    false,
+    ['deriveKey'],
+  );
+  const aesKey = await crypto.subtle.deriveKey(
+    { name: 'PBKDF2', salt, iterations: 100_000, hash: 'SHA-256' },
+    baseKey,
+    { name: 'AES-GCM', length: 256 },
+    false,
+    ['encrypt'],
+  );
+  const cipher = await crypto.subtle.encrypt(
+    { name: 'AES-GCM', iv },
+    aesKey,
+    new TextEncoder().encode(plain),
+  );
+  return { salt, iv, cipher: new Uint8Array(cipher) };
+}
+
+async function ecdsaSign(privKey: CryptoKey, data: string) {
+  return crypto.subtle.sign(
+    { name: 'ECDSA', hash: 'SHA-256' },
+    privKey,
+    new TextEncoder().encode(data),
+  );
+}
+```
+
+### 常见误区
+- 用 `crypto.getRandomValues` 生成 IV 但反复用同一个 —— AES-GCM 复用 IV 等于自杀
+- AES-CBC 不加 HMAC（CBC 不带认证）—— padding oracle 攻击
+- PBKDF2 迭代次数 < 10 万 —— 暴力破解友好
+- 把 RSA-OAEP 用来加密大数据 —— RSA 只能加密 < 密钥长度的小数据；要 hybrid（RSA 包 AES key）
+- 自己 base64 编码 ArrayBuffer：用 `btoa(String.fromCharCode(...new Uint8Array(buf)))` 在大数据时栈溢出
+
+### 追问
+- WebAuthn / Passkeys 是怎么基于 Web Crypto 工作的
+- HSM / TPM 这些硬件密钥和浏览器 Web Crypto 的关系
+- 为什么不能在 http 站点用 crypto.subtle（secure context 限制）
+
+### 延伸
+- W3C Web Crypto API spec：算法清单详见 [w3.org/TR/WebCryptoAPI](https://www.w3.org/TR/WebCryptoAPI/)
+- 原生 API 比 sjcl / crypto-js 快几十倍，且不会因 npm 版本错误引入漏洞
+
+## sensitive-info-leak
+title: 客服 / SaaS 场景里前端常被忽视的"敏感信息泄漏面"有哪些？
+difficulty: 进阶
+tags: [安全, 隐私, 数据泄漏, 高频]
+
+### 一句话
+泄漏不只是接口暴露——**剪贴板 / 截屏 / postMessage / DevTools 暴露 / 未脱敏日志 / source map / 浏览器扩展 / 缓存**都是真实事故源。
+
+### 题目
+列出前端项目（特别是客服 / 财务 / 医疗 SaaS）中常被忽视的敏感信息泄漏点，以及对应的防护手段。
+
+### 答案要点
+- **剪贴板（Clipboard API）**：
+  - 复制订单号 / 卡号到剪贴板，用户粘到 IM 群 → 数据外泄
+  - 防护：复制时弹提示、敏感字段不提供"一键复制"、关键页面禁用 paste
+- **截屏 / 屏幕分享**：
+  - Web 没法完全禁截屏；但可在 visibilitychange 检测，弹"已退出敏感页面"
+  - `getDisplayMedia()` 共享屏幕时检测共享开始 → 自动隐藏敏感字段
+- **postMessage 跨窗口**：
+  - 嵌入第三方 iframe 时 `postMessage(data, '*')` 把数据广播给任何 origin
+  - 必须指定 targetOrigin、收端 `event.origin === expected` 校验
+- **DevTools 暴露**：
+  - `console.log(user)` 上线还在 → 任何人 F12 看到完整对象
+  - 敏感字段（手机 / 邮箱 / 卡号）按位脱敏：`138****0000`、`a***@gmail.com`
+  - 生产环境关 logger 或重定向到上报通道
+- **Source Map**：
+  - dist 上传带 .map 源码暴露 → 商业逻辑、API URL、key 都看到
+  - 上线只把 .map 上传到错误监控后台，不公开访问；CDN 路径用 nginx deny
+- **本地存储 / 缓存**：
+  - localStorage / IndexedDB 数据 XSS 一发就读光 → 敏感信息加密存（详见 web-crypto）
+  - HTTP 响应 `Cache-Control` 没 `no-store`，CDN / 代理 / 浏览器 back-cache 都可能留下
+  - **bfcache** 让退后页面带 form 数据回来——共享电脑的下一个用户会看到
+- **第三方脚本 / 扩展**：
+  - 用户装的浏览器扩展可读 DOM、读 cookie，按"页面权限"分级
+  - 第三方 SDK（埋点 / 客服 widget）读到了什么 → 用 SRI + 审计 SDK 行为
+- **其他**：
+  - URL query string 含 token —— 浏览器历史 / Referer 泄漏
+  - alert / confirm 弹敏感数据 —— 屏幕分享时暴露
+  - service worker 缓存了带敏感数据的接口
+
+### 代码示例
+```ts
+function maskPhone(s: string): string {
+  return s.replace(/^(\d{3})\d{4}(\d{4})$/, '$1****$2');
+}
+function maskEmail(s: string): string {
+  return s.replace(/^(.{1,2})[^@]*(@.+)$/, '$1***$2');
+}
+
+if (import.meta.env.PROD) {
+  console.log = console.info = console.debug = () => undefined;
+}
+
+window.addEventListener('message', (e) => {
+  if (e.origin !== 'https://trusted.example.com') return; 
+  handle(e.data);
+});
+
+function shareToFrame(frame: HTMLIFrameElement, data: unknown) {
+  frame.contentWindow?.postMessage(data, 'https://trusted.example.com'); 
+}
+
+document.addEventListener('visibilitychange', () => {
+  if (document.visibilityState === 'hidden') {
+    blurSensitiveFields();
+  }
+});
+
+navigator.mediaDevices.addEventListener?.('devicechange', () => {
+  if ((navigator as any).mediaDevices.getDisplayMedia) {
+    hideSensitiveOnScreenShare();
+  }
+});
+
+function safeCopy(text: string) {
+  navigator.clipboard.writeText(text);
+  toast('已复制（请勿粘贴到聊天群组等不可信场景）');
+}
+```
+
+### 常见误区
+- 只看 OWASP Top 10 不看业务面 —— "技术上没漏洞"但用户真实场景一堆泄漏
+- 日志全量上报 —— 上报通道存的是用户隐私
+- bfcache 不知道存在 —— 退出页面回退后表单 / 状态全部还在
+- Source map 公开放在 CDN —— 攻击者 5 秒拿到完整源码
+
+### 追问
+- "屏幕保护模式"（敏感页面 blur）是不是值得做
+- 怎么知道用户装了哪些浏览器扩展（其实拿不到）
+- localStorage 加密存储和不存的取舍
+
+### 延伸
+- 银行 / 医疗 / 政务等行业有专门的隐私设计规范（WCAG / HIPAA / 网安等保）
+- "数据最小化"原则：能不存就不存、能不显示就不显示
+

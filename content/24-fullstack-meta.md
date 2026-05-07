@@ -808,3 +808,102 @@ export default async function Page() {
 - "Streaming SSR"（边渲染边吐 HTML）+ Suspense 在 React 18 后流行
 - Astro 的 Islands 模式：默认 SSG，按需 hydration
 
+
+## multi-region-deploy
+title: 全栈应用的多区域部署：边缘网关 / CDN / 流量切换 / 灾备 怎么做？
+difficulty: 资深
+tags: [架构, 多区域, 灾备, 海外, 高频]
+
+### 一句话
+**用户接入就近（GeoDNS / Anycast）+ 计算分散（多 region 集群）+ 数据按法律边界落地 + 流量切换基于健康检查 + 跨 region 灾备**——五件事配齐才叫真正的多区域部署。
+
+### 题目
+你们的全栈应用部署到中国 + 东南亚 + 欧洲 + 美东 4 个区域，怎么设计接入、计算、数据、灾备？流量切换怎么做？
+
+### 答案要点
+- **接入层**：
+  - **DNS 选址**：GeoDNS（按用户 IP 返回最近 region 的 IP）/ Anycast（同一 IP 全球广播，BGP 路由就近）
+  - **TLS 终止**：边缘 CDN（Cloudflare / Akamai / Fastly）做 TLS、缓存静态资源、WAF 防护
+  - **边缘计算**：Cloudflare Workers / AWS Lambda@Edge / Vercel Edge 跑轻量逻辑（鉴权 / AB 实验 / 重定向）
+- **计算层**：
+  - 每个 region 独立的 K8s 集群 / ECS / Lambda
+  - 服务间通信走 region 内 VPC，跨 region 走专线（不公网）
+  - 配置中心 / 服务发现按 region 部署，避免单点
+- **数据层（最复杂）**：
+  - 用户数据按法律边界落地：欧盟 EU / 中国 CN / 海外其他可合并
+  - **跨 region 同步策略**：
+    - 强一致（如全球唯一订单号）→ 中心化主库 + 多活复制（Aurora Global / TiDB / Spanner）
+    - 最终一致（用户偏好 / 内容缓存）→ Kafka / DTS 异步同步
+  - **跨 region 读写**：写入本 region master，读优先本 region slave；跨 region 读延迟 100-300ms
+- **流量切换 / 灾备**：
+  - 健康检查：每 region 独立监控 + 全局监控；失败 N 次 → DNS 摘掉这个 region
+  - **金丝雀发布**：新版本先在 1 个 region 灰度，OK 了再推全球
+  - **跨 region 故障转移（failover）**：region A 挂了，DNS 自动切到 region B；前提是 B 有冷 / 温备份能扛住
+  - **演练**：定期"杀掉一个 region"做 chaos engineering 验证
+- **前端配合**：
+  - 同一份 bundle 全球可用（避免按 region 编译多份）
+  - API base URL 由运行时（边缘 worker / 域名）决定，不写死
+  - 错误监控按 region 分维度，能看出"是不是某 region 单点问题"
+
+### 代码示例
+```ts
+const dnsConfig = {
+  'api.example.com': {
+    type: 'GeoDNS',
+    rules: [
+      { region: 'cn', record: '203.0.113.10' },
+      { region: 'sea', record: '203.0.113.20' },
+      { region: 'eu', record: '203.0.113.30' },
+      { region: 'us', record: '203.0.113.40' },
+      { region: '*', record: '203.0.113.20' }, 
+    ],
+    healthCheck: '/healthz',
+  },
+};
+
+export default {
+  async fetch(req: Request, env: Env): Promise<Response> {
+    const country = req.cf?.country ?? 'US';
+    const region = mapToRegion(country);
+    const upstream = `https://${region}.api.example.com${new URL(req.url).pathname}`;
+
+    if (req.method === 'GET' && isCacheable(req)) {
+      const cached = await caches.default.match(req);
+      if (cached) return cached;
+    }
+
+    const resp = await fetch(upstream, { cf: { cacheTtl: 60 } });
+    return resp;
+  },
+};
+
+async function failoverFetch(url: string, regions: string[]): Promise<Response> {
+  for (const r of regions) {
+    try {
+      const resp = await fetch(url.replace('{region}', r), { signal: AbortSignal.timeout(2000) });
+      if (resp.ok) return resp;
+    } catch {
+      continue;
+    }
+  }
+  throw new Error('All regions failed');
+}
+```
+
+### 常见误区
+- 只在一个 region 部，加几个 CDN 节点就叫"全球部署" —— 动态请求还是绕半个地球
+- 跨 region 同步走公网 + 没加密 —— 中间人攻击 + 合规问题
+- 流量切换全靠手工改 DNS —— 故障 1 小时才发现
+- 没做 region 隔离演练 —— 真出事了切换工具突然不灵
+- 前端 bundle 内嵌 API URL —— 切 region 要重打包发版
+
+### 追问
+- 全球唯一 ID 怎么生成（Snowflake / UUID / TSID）
+- 海外 region 用 AWS 还是 Cloudflare R2 + Workers 哪个更适合 SaaS
+- 数据出境合规的具体动作（SCC / 安全评估 / 个人同意）
+
+### 延伸
+- Cloudflare Workers + KV + Durable Objects 是轻量全球架构典型
+- AWS Aurora Global Database / Google Cloud Spanner 是强一致跨 region 数据库
+- 字节跳动 / Shopee / Shopify 都有公开的多 region 架构分享
+
