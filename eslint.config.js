@@ -3,6 +3,24 @@ import vue from 'eslint-plugin-vue';
 import vueParser from 'vue-eslint-parser';
 import tsParser from '@typescript-eslint/parser';
 import tsPlugin from '@typescript-eslint/eslint-plugin';
+import globals from 'globals';
+
+const sharedRules = {
+  'vue/multi-word-component-names': 'off',
+  'vue/html-self-closing': 'off',
+  'vue/max-attributes-per-line': 'off',
+  'vue/singleline-html-element-content-newline': 'off',
+  'vue/no-v-html': 'off',
+  'no-unused-vars': 'off',
+  '@typescript-eslint/no-unused-vars': ['warn', { argsIgnorePattern: '^_' }],
+  '@typescript-eslint/no-explicit-any': 'off',
+};
+
+const sharedGlobals = {
+  ...globals.browser,
+  ...globals.node,
+  ...globals.es2022,
+};
 
 export default [
   js.configs.recommended,
@@ -16,40 +34,12 @@ export default [
         ecmaVersion: 'latest',
         sourceType: 'module',
       },
-      globals: {
-        window: 'readonly',
-        document: 'readonly',
-        navigator: 'readonly',
-        localStorage: 'readonly',
-        console: 'readonly',
-        setTimeout: 'readonly',
-        clearTimeout: 'readonly',
-        setInterval: 'readonly',
-        clearInterval: 'readonly',
-        requestAnimationFrame: 'readonly',
-        URL: 'readonly',
-        URLSearchParams: 'readonly',
-        Blob: 'readonly',
-        fetch: 'readonly',
-        FormData: 'readonly',
-        SpeechSynthesisUtterance: 'readonly',
-        speechSynthesis: 'readonly',
-        process: 'readonly',
-      },
+      globals: sharedGlobals,
     },
     plugins: {
       '@typescript-eslint': tsPlugin,
     },
-    rules: {
-      'vue/multi-word-component-names': 'off',
-      'vue/html-self-closing': 'off',
-      'vue/max-attributes-per-line': 'off',
-      'vue/singleline-html-element-content-newline': 'off',
-      'vue/no-v-html': 'off',
-      'no-unused-vars': 'off',
-      '@typescript-eslint/no-unused-vars': ['warn', { argsIgnorePattern: '^_' }],
-      '@typescript-eslint/no-explicit-any': 'off',
-    },
+    rules: sharedRules,
   },
   {
     files: ['**/*.{ts,tsx}'],
@@ -59,40 +49,12 @@ export default [
         ecmaVersion: 'latest',
         sourceType: 'module',
       },
-      globals: {
-        window: 'readonly',
-        document: 'readonly',
-        navigator: 'readonly',
-        localStorage: 'readonly',
-        console: 'readonly',
-        setTimeout: 'readonly',
-        clearTimeout: 'readonly',
-        setInterval: 'readonly',
-        clearInterval: 'readonly',
-        requestAnimationFrame: 'readonly',
-        URL: 'readonly',
-        URLSearchParams: 'readonly',
-        Blob: 'readonly',
-        fetch: 'readonly',
-        FormData: 'readonly',
-        SpeechSynthesisUtterance: 'readonly',
-        speechSynthesis: 'readonly',
-        process: 'readonly',
-      },
+      globals: sharedGlobals,
     },
     plugins: {
       '@typescript-eslint': tsPlugin,
     },
-    rules: {
-      'vue/multi-word-component-names': 'off',
-      'vue/html-self-closing': 'off',
-      'vue/max-attributes-per-line': 'off',
-      'vue/singleline-html-element-content-newline': 'off',
-      'vue/no-v-html': 'off',
-      'no-unused-vars': 'off',
-      '@typescript-eslint/no-unused-vars': ['warn', { argsIgnorePattern: '^_' }],
-      '@typescript-eslint/no-explicit-any': 'off',
-    },
+    rules: sharedRules,
   },
   {
     ignores: ['dist/**', 'node_modules/**', '*.config.*', '*.cjs'],
