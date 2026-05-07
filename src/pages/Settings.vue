@@ -306,56 +306,121 @@ function onExportAnki() {
   text-decoration: underline;
 }
 h1 {
-  font-size: 22px;
+  font-size: 20px;
   margin-bottom: 12px;
   display: inline-flex;
   align-items: center;
   gap: 8px;
 }
+.grp {
+  padding: 14px 18px;
+  margin-bottom: 12px;
+}
+.grp h3 {
+  font-size: 14px;
+  margin-bottom: 10px;
+  font-weight: 600;
+  color: var(--c-text);
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 6px 0;
+  font-size: 13px;
+}
+.row label {
+  flex-shrink: 0;
+  width: 88px;
+  font-size: 12.5px;
+  color: var(--c-text-soft);
+}
 .row .btn {
   display: inline-flex;
   align-items: center;
   gap: 6px;
+  font-size: 12.5px;
+  padding: 5px 12px;
 }
-.grp {
-  padding: 16px 20px;
-  margin-bottom: 14px;
-}
-.grp h3 {
-  font-size: 15px;
-  margin-bottom: 10px;
-}
-.row {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin: 8px 0;
-}
-.row label {
-  min-width: 120px;
-  font-size: 13px;
-  color: var(--c-text-soft);
-}
-select {
-  padding: 4px 10px;
+
+.row input[type='text'],
+.row input[type='password'],
+.row input[type='url'],
+.row input[type='number'],
+.row input:not([type]),
+.row select {
+  flex: 1;
+  min-width: 0;
+  height: 30px;
+  padding: 0 10px;
+  font-size: 12.5px;
+  line-height: 1.4;
+  color: var(--c-text);
+  background: var(--c-surface);
   border: 1px solid var(--c-border);
   border-radius: var(--radius);
-  background: var(--c-surface);
+  outline: none;
+  transition:
+    border-color 0.15s ease,
+    box-shadow 0.15s ease;
+  font-family: inherit;
+  box-sizing: border-box;
 }
+.row input[type='number'] {
+  flex: 0 0 auto;
+  width: 90px;
+}
+.row input:focus,
+.row select:focus {
+  border-color: var(--c-primary);
+  box-shadow: 0 0 0 3px var(--c-primary-soft, rgba(59, 130, 246, 0.15));
+}
+.row input::placeholder {
+  color: var(--c-text-mute);
+}
+
+/* 自定义 select 下拉箭头 */
+.row select {
+  appearance: none;
+  -webkit-appearance: none;
+  padding-right: 28px;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 12 12'><path d='M2 4l4 4 4-4' fill='none' stroke='%2364748b' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/></svg>");
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+  background-size: 10px 10px;
+  cursor: pointer;
+}
+
+/* checkbox：恢复成正常的小框，不被上面规则吃掉 */
+.row input[type='checkbox'] {
+  flex: 0 0 auto;
+  width: 16px;
+  height: 16px;
+  margin: 0;
+  padding: 0;
+  accent-color: var(--c-primary);
+  cursor: pointer;
+}
+
 .muted {
   font-size: 12px;
   color: var(--c-text-mute);
+  line-height: 1.6;
 }
 .msg {
   margin-top: 8px;
-  font-size: 13px;
+  font-size: 12.5px;
+  color: var(--c-text-soft);
 }
 .danger {
   border-left: 3px solid var(--c-danger);
 }
 .hint {
-  font-size: 11px;
+  font-size: 11.5px;
   color: var(--c-text-mute);
+  margin-top: 6px;
 }
 .warn-msg {
   margin-top: 8px;
