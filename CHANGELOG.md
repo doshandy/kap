@@ -1,5 +1,16 @@
 # Changelog
 
+## 0.17.0
+
+- feat：**面试真题（PCG 腾讯视频一面）题型补齐 12 题**
+  - 性能 / 监控（5）：`lcp-rum-collection` LCP 线上采集与 AB 验证 / `tbt-and-long-task-collection` Long Task + TBT + rIC 上报权衡 / `source-map-stack-trace` 栈→源码反解 / `white-screen-detection-deep` 多信号白屏检测 / `rrweb-on-demand-recording` 大依赖按需下发与录屏时机
+  - 工程化（4）：`webpack-to-vite-migration` 迁移痛点 / `vite-vs-webpack-deep` 为什么快 / `vite-go-and-rolldown` Go 部分 + Vite 7 + Rolldown / `tsconfig-paths-to-bundler-alias` 路径映射统一来源
+  - i18n（1）：`i18n-async-locale-routing` 多语言资源拆分 + 路由懒加载 + 切换策略
+  - AI（1）：`smart-search-with-embedding-intent` 智能搜索 + 概率分布 / 分组结果消费
+  - 网络（1）：`http1-vs-http2-multiplex` HTTP/1.1 vs HTTP/2 多路复用专题 + HPACK / Server Push / TCP 队头阻塞 / HTTP/3 升级
+  - 算法（1）：`merge-intervals-deep` 合并区间进阶（复杂度 / 边界 / 变体 / 扫描线引申）
+- chore：题库总数 435 → **447**
+
 ## 0.16.0
 
 - fix（运行时）：修复 `loadContent() called before initContent() resolved` 报错

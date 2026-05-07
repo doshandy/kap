@@ -3672,3 +3672,100 @@ function validateBaseUrl(url: string) {
 
 - 进阶：Trusted Types API 让所有 HTML 渲染必须经过策略
 - 工程化：把安全检查清单做成自动化扫描（snyk / git secrets）
+
+## smart-search-with-embedding-intent
+
+title: 智能搜索框：意图识别 / embedding / 概率分布
+difficulty: 资深
+tags: [搜索, embedding, 高频]
+
+### 一句话
+
+后端把文档预先转成 embedding 向量入库（Qdrant / Milvus / pgvector）；前端把搜索词发给后端，后端做向量召回 + 语义理解，常见返回是 ranked list + score，也可能是按 intent 桶分的"概率分布"；前端根据分布做"猜你要什么"的 UI（置顶最高 intent / 多面板分组 / 解释链）。
+
+### 题目
+
+你们做了一个智能搜索框，意图识别用的 embedding。这个 embedding 是后台做的还是前端做？前端拿到的是什么？是概率分布 / 分数块吗？
+
+### 答案要点
+
+**embedding 做在哪**
+
+- 99% 场景做在**后端**：模型大、数据敏感、向量库在服务端
+- 前端能做的（轻量）：用 transformers.js 在浏览器跑小模型，做端侧重排或纠错；适合隐私 / 离线场景
+
+**前端拿到的常见格式**
+
+- **方案 A：ranked list + 单一相似度分数**
+  - `[{ id, title, score: 0.87 }, { id, title, score: 0.72 }, ...]`
+- **方案 B：多 intent 概率分布**
+  - `{ intents: [ { name: '查订单', prob: 0.62 }, { name: '退款', prob: 0.31 }, { name: '其它', prob: 0.07 } ], items: [...] }`
+- **方案 C：分组结果**
+  - 按业务桶分组：`{ products: [...], faqs: [...], commands: [...] }`，每组带置信度
+- **方案 D：混合**：BM25 + 向量召回结果各自带分数，前端融合或后端融合
+
+**前端做什么**
+
+- 渲染分组 / 高亮 / 命中片段
+- 当 intent 概率分布**模糊**（top-1 < 0.5）时显示"你是想问 A 还是 B？"分流 UI
+- 用户 click 反馈写回服务端用于在线学习
+- 输入抖动：debounce 300-500ms 才发请求；输入空时不发
+
+**Embedding 维度对前端意义有限**
+
+- 前端通常**不直接看向量**；后端向量库做相似度召回返回结果
+- 极少数场景前端做 client-side cosine（如内置词典模糊匹配），这时前端要拿到向量
+
+### 代码示例
+
+```ts
+type Intent = { name: string; prob: number };
+type Hit = { id: string; title: string; snippet: string; score: number; bucket: string };
+
+interface SmartSearchResp {
+  intents: Intent[];
+  hits: Hit[];
+}
+
+async function smartSearch(q: string, signal: AbortSignal): Promise<SmartSearchResp> {
+  const r = await fetch('/api/search/smart', {
+    method: 'POST',
+    body: JSON.stringify({ q }),
+    headers: { 'content-type': 'application/json' },
+    signal,
+  });
+  if (!r.ok) throw new Error(String(r.status));
+  return r.json();
+}
+
+const ctl = new AbortController();
+const resp = await smartSearch('退款怎么操作', ctl.signal);
+
+const top = resp.intents[0];
+if (top.prob < 0.5) {
+  // 多义问题，UI 给二选一
+}
+```
+
+### 常见误区
+
+- 前端自己想跑 embedding 模型（除非 < 30MB 小模型）：体积 / 性能爆炸
+- 直接展示分数给用户：分数无业务意义，应转成"很相关 / 一般 / 弱"
+- 概率分布相加不为 1 也强行 normalize：可能丢失 "都不太相关"信号
+- 没 abort 旧请求：用户连续输入会拿到老结果
+
+### 追问
+
+- 概率分布 < 0.5 时是"模糊问题"，UI 怎么设计？
+  - 给 chip 二选一让用户点；或在 placeholder 提示更具体
+- 前端如何感知召回失败 / 模型超时？
+  - 后端给降级标记 `degraded: true` 让前端走 BM25 兜底
+- embedding 模型升级怎么平滑过渡？
+  - 双索引并行 + 灰度切；前端用同一接口
+- 怎么避免泄漏内部分数体系？
+  - 后端归一化为 0/1 或 1-5 星，不直接吐 cosine 数
+
+### 延伸
+
+- 进阶：Hybrid search（BM25 + Vector）通常优于单一向量，工业界主流
+- 工程：搜索点击日志回流模型微调；A/B 测 top-1 命中率 / MRR

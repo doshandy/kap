@@ -137,6 +137,7 @@
   <url><loc>https://doshandy.github.io/kap/q/06-network/status-codes</loc><lastmod>2026-05-07</lastmod></url>
   <url><loc>https://doshandy.github.io/kap/q/06-network/early-hints-103</loc><lastmod>2026-05-07</lastmod></url>
   <url><loc>https://doshandy.github.io/kap/q/06-network/bfcache-frontend</loc><lastmod>2026-05-07</lastmod></url>
+  <url><loc>https://doshandy.github.io/kap/q/06-network/http1-vs-http2-multiplex</loc><lastmod>2026-05-07</lastmod></url>
   <url><loc>https://doshandy.github.io/kap/q/07-engineering/vite-principle</loc><lastmod>2026-05-07</lastmod></url>
   <url><loc>https://doshandy.github.io/kap/q/07-engineering/bundler-ecosystem</loc><lastmod>2026-05-07</lastmod></url>
   <url><loc>https://doshandy.github.io/kap/q/07-engineering/package-manager</loc><lastmod>2026-05-07</lastmod></url>
@@ -151,6 +152,10 @@
   <url><loc>https://doshandy.github.io/kap/q/07-engineering/monorepo-changesets</loc><lastmod>2026-05-07</lastmod></url>
   <url><loc>https://doshandy.github.io/kap/q/07-engineering/bundler-deep</loc><lastmod>2026-05-07</lastmod></url>
   <url><loc>https://doshandy.github.io/kap/q/07-engineering/webpack-vs-vite</loc><lastmod>2026-05-07</lastmod></url>
+  <url><loc>https://doshandy.github.io/kap/q/07-engineering/webpack-to-vite-migration</loc><lastmod>2026-05-07</lastmod></url>
+  <url><loc>https://doshandy.github.io/kap/q/07-engineering/vite-vs-webpack-deep</loc><lastmod>2026-05-07</lastmod></url>
+  <url><loc>https://doshandy.github.io/kap/q/07-engineering/vite-go-and-rolldown</loc><lastmod>2026-05-07</lastmod></url>
+  <url><loc>https://doshandy.github.io/kap/q/07-engineering/tsconfig-paths-to-bundler-alias</loc><lastmod>2026-05-07</lastmod></url>
   <url><loc>https://doshandy.github.io/kap/q/08-performance/methodology</loc><lastmod>2026-05-07</lastmod></url>
   <url><loc>https://doshandy.github.io/kap/q/08-performance/core-web-vitals</loc><lastmod>2026-05-07</lastmod></url>
   <url><loc>https://doshandy.github.io/kap/q/08-performance/rum-vs-lab</loc><lastmod>2026-05-07</lastmod></url>
@@ -240,6 +245,7 @@
   <url><loc>https://doshandy.github.io/kap/q/11-ai-frontend/llm-multi-tenant-isolation</loc><lastmod>2026-05-07</lastmod></url>
   <url><loc>https://doshandy.github.io/kap/q/11-ai-frontend/llm-ci-cd-and-canary</loc><lastmod>2026-05-07</lastmod></url>
   <url><loc>https://doshandy.github.io/kap/q/11-ai-frontend/llm-frontend-security-checklist</loc><lastmod>2026-05-07</lastmod></url>
+  <url><loc>https://doshandy.github.io/kap/q/11-ai-frontend/smart-search-with-embedding-intent</loc><lastmod>2026-05-07</lastmod></url>
   <url><loc>https://doshandy.github.io/kap/q/12-softskills/technical-decision</loc><lastmod>2026-05-07</lastmod></url>
   <url><loc>https://doshandy.github.io/kap/q/12-softskills/upward-communication</loc><lastmod>2026-05-07</lastmod></url>
   <url><loc>https://doshandy.github.io/kap/q/12-softskills/code-review</loc><lastmod>2026-05-07</lastmod></url>
@@ -279,6 +285,7 @@
   <url><loc>https://doshandy.github.io/kap/q/14-a11y-i18n/i18n-locale-formatter</loc><lastmod>2026-05-07</lastmod></url>
   <url><loc>https://doshandy.github.io/kap/q/14-a11y-i18n/form-accessibility</loc><lastmod>2026-05-07</lastmod></url>
   <url><loc>https://doshandy.github.io/kap/q/14-a11y-i18n/a11y-quick-wins-basic</loc><lastmod>2026-05-07</lastmod></url>
+  <url><loc>https://doshandy.github.io/kap/q/14-a11y-i18n/i18n-async-locale-routing</loc><lastmod>2026-05-07</lastmod></url>
   <url><loc>https://doshandy.github.io/kap/q/15-testing/test-pyramid</loc><lastmod>2026-05-07</lastmod></url>
   <url><loc>https://doshandy.github.io/kap/q/15-testing/unit-mock-spy</loc><lastmod>2026-05-07</lastmod></url>
   <url><loc>https://doshandy.github.io/kap/q/15-testing/component-testing</loc><lastmod>2026-05-07</lastmod></url>
@@ -305,6 +312,11 @@
   <url><loc>https://doshandy.github.io/kap/q/16-observability/white-screen-detection</loc><lastmod>2026-05-07</lastmod></url>
   <url><loc>https://doshandy.github.io/kap/q/16-observability/ab-experiment-frontend</loc><lastmod>2026-05-07</lastmod></url>
   <url><loc>https://doshandy.github.io/kap/q/16-observability/js-error-types-basic</loc><lastmod>2026-05-07</lastmod></url>
+  <url><loc>https://doshandy.github.io/kap/q/16-observability/lcp-rum-collection</loc><lastmod>2026-05-07</lastmod></url>
+  <url><loc>https://doshandy.github.io/kap/q/16-observability/tbt-and-long-task-collection</loc><lastmod>2026-05-07</lastmod></url>
+  <url><loc>https://doshandy.github.io/kap/q/16-observability/source-map-stack-trace</loc><lastmod>2026-05-07</lastmod></url>
+  <url><loc>https://doshandy.github.io/kap/q/16-observability/white-screen-detection-deep</loc><lastmod>2026-05-07</lastmod></url>
+  <url><loc>https://doshandy.github.io/kap/q/16-observability/rrweb-on-demand-recording</loc><lastmod>2026-05-07</lastmod></url>
   <url><loc>https://doshandy.github.io/kap/q/17-build-publish/hashing-cache</loc><lastmod>2026-05-07</lastmod></url>
   <url><loc>https://doshandy.github.io/kap/q/17-build-publish/chunk-failure</loc><lastmod>2026-05-07</lastmod></url>
   <url><loc>https://doshandy.github.io/kap/q/17-build-publish/gray-release</loc><lastmod>2026-05-07</lastmod></url>
@@ -361,6 +373,7 @@
   <url><loc>https://doshandy.github.io/kap/q/20-algorithm/sliding-window-advanced</loc><lastmod>2026-05-07</lastmod></url>
   <url><loc>https://doshandy.github.io/kap/q/20-algorithm/monotonic-stack-queue</loc><lastmod>2026-05-07</lastmod></url>
   <url><loc>https://doshandy.github.io/kap/q/20-algorithm/prefix-sum-difference-2d</loc><lastmod>2026-05-07</lastmod></url>
+  <url><loc>https://doshandy.github.io/kap/q/20-algorithm/merge-intervals-deep</loc><lastmod>2026-05-07</lastmod></url>
   <url><loc>https://doshandy.github.io/kap/q/21-interview-special/handwrite-call-apply-bind</loc><lastmod>2026-05-07</lastmod></url>
   <url><loc>https://doshandy.github.io/kap/q/21-interview-special/handwrite-new-instanceof</loc><lastmod>2026-05-07</lastmod></url>
   <url><loc>https://doshandy.github.io/kap/q/21-interview-special/handwrite-curry-compose</loc><lastmod>2026-05-07</lastmod></url>
