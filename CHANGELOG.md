@@ -1,15 +1,25 @@
 # Changelog
 
-## 0.18.0
+## 0.19.0
 
-- feat（PWA）：**新增可见的「应用更新」机制**，告别看到旧版本只能开无痕的尴尬
-  - 新组件 `UpdateToast.vue`：检测到新版本时屏幕右下角弹出「立即更新 / 稍后」浮层（同时也显示一次性的「离线就绪」提示）
-  - 设置页新增「应用更新」区块：
-    - **检查更新**：手动触发 SW `registration.update()`，命中新版本会自动唤起上面的更新 toast
-    - **强制更新（清缓存）**：卸载所有 SW + 清空 Cache Storage + 用 `?_v=ts` 强刷，覆盖"内容已更新但页面停在旧版"的极端情况
-  - PWA 注册由"自动 skipWaiting"改为 **prompt 模式**：内容更新后 SW 进入 waiting 等用户确认，避免在你写笔记 / 答题时页面突然刷新
-  - `useAppUpdate` composable：把 `needRefresh / offlineReady / applyUpdate / forceReload / checkForUpdates` 全部 ref 化，便于其他页面接入
+- 工程化：**整体依赖现代化升级**，CI/部署链路统一
+  - GitHub Actions：`pnpm/action-setup` v4→v6、`actions/setup-node` v4→v6、`actions/configure-pages` v5→v6、`actions/upload-pages-artifact` v3→v5、`actions/deploy-pages` v4→v5
+  - 类型/工具：`@types/node` 22→25、`@vitejs/plugin-vue` 5→6、`vue-tsc` 2→3、`@vue/tsconfig` 0.7→0.9、`typescript` 5.6→5.8、`vite-plugin-pwa` 0.21→1.3
+  - Lint：`eslint` 9→10、`eslint-plugin-vue` 9→10、`vue-eslint-parser` 9→10；引入 `globals` 包统一 browser/node 全局列表
+  - dependabot.yml 加入 `pinia` / `vue-router` / `typescript` / `vite` / `stylelint` 等高风险 major 升级 ignore 规则，避免每周噪声
+- feat（PWA）：**「应用更新」可见化**
+  - 新增 `UpdateToast.vue`：检测到新版本时屏幕右下角弹出「立即更新 / 稍后」浮层；同时显示一次性的「离线就绪」提示
+  - 新增 `useAppUpdate` composable：把 `needRefresh / offlineReady / applyUpdate / forceReload / checkForUpdates` ref 化
   - 注册时启动 30 分钟一次的轻量 `registration.update()` 轮询，让长时间挂着标签页的用户也能收到新版本
+  - PWA 配置：`autoUpdate` + `skipWaiting` + `clientsClaim` + `cleanupOutdatedCaches`，新版本 SW 落地即接管，旧缓存自动清理
+- feat（设置页）：新增「应用更新」区块
+  - **检查更新**：手动触发 SW `registration.update()`，命中新版本会唤起 toast
+  - **强制更新（清缓存）**：卸载所有 SW + 清空 Cache Storage + 用 `?_v=ts` 强刷，覆盖任何缓存异常
+- style（设置页）：统一 `input/select` 视觉
+  - 高度 30px / 字号 12.5px / 一致 border / radius / focus 阴影
+  - `select` 用自定义 SVG chevron 箭头，跨浏览器表现一致
+  - `label` 88px 固定宽 + 控件 `flex:1` 自适应，所有行控件视觉对齐
+  - 区块 padding 与字号整体收紧，整页更像设置页而非内容页
 
 ## 0.17.0
 

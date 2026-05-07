@@ -1,17 +1,10 @@
 /// <reference types="vitest" />
 import { defineConfig } from 'vite';
 import vue from '@vitejs/plugin-vue';
+import { VitePWA } from 'vite-plugin-pwa';
 import { visualizer } from 'rollup-plugin-visualizer';
 import { fileURLToPath, URL } from 'node:url';
 
-// ⚠️ 暂时禁用 vite-plugin-pwa：
-// 线上发现历史 v0.17 时代部署的 SW（autoUpdate + skipWaiting）在用户机器上残留并
-// 拦截 fetch，导致即使部署了新 HTML 用户也只看到旧版样式。bump cleanup-key 已无效，
-// 因为旧 SW 直接从缓存返回旧 index.html，cleanup 脚本根本进不到。
-//
-// 临时方案：用 public/sw.js 提供一个**自杀脚本**，浏览器自然触发 SW 更新时下载它，
-// 它会清空所有 caches、unregister 自己、广播 reload。等线上老 SW 被自然替换掉之后
-// 再恢复本插件。
 export default defineConfig({
   test: {
     environment: 'jsdom',
@@ -24,6 +17,56 @@ export default defineConfig({
     process.env.ANALYZE
       ? visualizer({ open: false, filename: 'dist/stats.html', gzipSize: true, brotliSize: true })
       : null,
+    VitePWA({
+      // autoUpdate + skipWaiting + clientsClaim：
+      // 新版本 SW 安装后立刻接管所有 client，旧 SW 立刻让位、缓存自动清理。
+      // 配合 cleanupOutdatedCaches，能避免历史"旧 SW 卡死新部署"的问题。
+      registerType: 'autoUpdate',
+      injectRegister: false,
+      includeAssets: ['favicon.svg', 'apple-touch-icon.png', 'og.png'],
+      manifest: {
+        name: 'KAP - 前端知识自查',
+        short_name: 'KAP',
+        description: 'Vue 前端工程师知识图谱与自查面试库',
+        theme_color: '#0ea5e9',
+        background_color: '#0f172a',
+        display: 'standalone',
+        scope: '/kap/',
+        start_url: '/kap/',
+        icons: [
+          { src: 'favicon.svg', sizes: 'any', type: 'image/svg+xml', purpose: 'any maskable' },
+        ],
+      },
+      workbox: {
+        // precache 排除大体积按需 vendor，由 runtimeCaching 池真正用到时再下载
+        globPatterns: ['**/*.{js,css,html,svg,png,ico,woff2}'],
+        globIgnores: ['**/vendor-echarts-*.js', '**/vendor-markdown-*.js', '**/vendor-icons-*.js'],
+        navigateFallback: '/kap/index.html',
+        cleanupOutdatedCaches: true,
+        clientsClaim: true,
+        skipWaiting: true,
+        runtimeCaching: [
+          {
+            urlPattern: /\/kap\/assets\/vendor-(echarts|markdown|icons)-.*\.js$/,
+            handler: 'CacheFirst',
+            options: {
+              cacheName: 'kap-vendor',
+              expiration: { maxEntries: 8, maxAgeSeconds: 30 * 24 * 60 * 60 },
+              cacheableResponse: { statuses: [0, 200] },
+            },
+          },
+          {
+            urlPattern: /\/kap\/assets\/\d{2}-.*\.js$/,
+            handler: 'StaleWhileRevalidate',
+            options: {
+              cacheName: 'kap-content',
+              expiration: { maxEntries: 64, maxAgeSeconds: 30 * 24 * 60 * 60 },
+              cacheableResponse: { statuses: [0, 200] },
+            },
+          },
+        ],
+      },
+    }),
   ],
   resolve: {
     alias: {

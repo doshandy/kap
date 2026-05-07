@@ -1,15 +1,11 @@
 /**
- * PWA 更新管理（self-destruct 自愈期版本）
- * ----------------------------------------
- * 当前线上 vite-plugin-pwa 已临时禁用，sw.js 是 public/sw.js 里的自杀脚本。
- * 因此本 composable 不再调用 virtual:pwa-register，需求收敛为：
- *   - needRefresh / offlineReady：保留 ref 接口（toast 组件还在用），永远 false
- *   - applyUpdate(): 直接 forceReload
- *   - forceReload(): 卸 SW + 清 caches + 带 cache-buster reload
- *   - checkForUpdates(): 主动注册 /kap/sw.js（如果还没注册），让自杀脚本立即生效
- *   - 监听 sw 发来的 'kap-sw-self-destruct' 消息，收到就 reload
+ * PWA 更新管理。
  *
- * 等线上自愈期结束，重新启用 vite-plugin-pwa 时，再把 ensureRegistered 的实现切回 prompt 流程。
+ * - vite-plugin-pwa 配置为 autoUpdate + skipWaiting + clientsClaim：
+ *   新版本 SW 一旦下载完成就接管页面，旧缓存自动清理。
+ * - 我们仍然把 needRefresh / offlineReady 暴露给 UI（UpdateToast 用它来弹"内容已更新，
+ *   建议刷新"提示）；用户点 toast 后或点设置页"强制更新"，调用 forceReload。
+ * - dev 环境下 vite-plugin-pwa 默认不注册 SW，所有 ref 永远 false，不会打扰。
  */
 import { onBeforeUnmount, onMounted, ref } from 'vue';
 
@@ -17,47 +13,70 @@ const needRefresh = ref(false);
 const offlineReady = ref(false);
 const checking = ref(false);
 
-async function ensureSelfDestructSW() {
-  // 自愈期内：只对已注册的旧 SW 触发 update（让它拉自杀脚本），
-  // 不主动 register 新 SW；让 inline cleanup 脚本去 unregister。
-  if (!('serviceWorker' in navigator)) return;
+let updateSWFn: ((reloadPage?: boolean) => Promise<void>) | null = null;
+let registered = false;
+
+async function ensureRegistered() {
+  if (registered) return;
+  registered = true;
   try {
-    const reg = await navigator.serviceWorker.getRegistration();
-    if (reg) await reg.update();
+    const mod = await import('virtual:pwa-register');
+    updateSWFn = mod.registerSW({
+      immediate: true,
+      onNeedRefresh() {
+        needRefresh.value = true;
+      },
+      onOfflineReady() {
+        offlineReady.value = true;
+      },
+      onRegisteredSW(_swUrl, registration) {
+        if (!registration) return;
+        // 每 30 分钟主动 update 一次，让长期挂着标签页的用户也能及时拿到新版本
+        setInterval(
+          () => {
+            void registration.update();
+          },
+          30 * 60 * 1000,
+        );
+      },
+    });
   } catch (e) {
-    console.warn('[KAP] SW update failed:', e);
+    console.warn('[KAP] PWA register failed (likely dev mode without SW):', e);
   }
 }
 
-let messageBound = false;
-function bindMessageOnce() {
-  if (messageBound) return;
-  if (!('serviceWorker' in navigator)) return;
-  messageBound = true;
-  navigator.serviceWorker.addEventListener('message', (event) => {
-    if (event?.data && event.data.type === 'kap-sw-self-destruct') {
-      const u = new URL(location.href);
-      u.searchParams.set('_v', String(Date.now()));
-      location.replace(u.toString());
-    }
-  });
-}
-
 export async function checkForUpdates(): Promise<boolean> {
-  if (checking.value) return false;
+  if (checking.value) return needRefresh.value;
   checking.value = true;
   try {
-    await ensureSelfDestructSW();
-    return false;
+    if ('serviceWorker' in navigator) {
+      const reg = await navigator.serviceWorker.getRegistration();
+      if (reg) {
+        await reg.update();
+        await new Promise((r) => setTimeout(r, 800));
+      }
+    }
+    return needRefresh.value;
   } finally {
     checking.value = false;
   }
 }
 
+/**
+ * 触发新版本接管：autoUpdate 模式下 SW 已自动 skipWaiting，这里只需 reload 即可应用。
+ */
 export async function applyUpdate(): Promise<void> {
-  await forceReload();
+  if (updateSWFn) {
+    await updateSWFn(true);
+  } else {
+    location.reload();
+  }
 }
 
+/**
+ * 强制刷新：忽略当前缓存状态，把 SW + Cache Storage 全卸了再 reload。
+ * 设置页"强制更新"使用，覆盖任何异常缓存状态。
+ */
 export async function forceReload(): Promise<void> {
   try {
     if ('serviceWorker' in navigator) {
@@ -80,8 +99,7 @@ export async function forceReload(): Promise<void> {
 
 export function useAppUpdate() {
   onMounted(() => {
-    bindMessageOnce();
-    void ensureSelfDestructSW();
+    void ensureRegistered();
   });
   onBeforeUnmount(() => {});
   return {

@@ -42,58 +42,6 @@
       })();
     </script>
 
-    <!--
-      PWA 自愈期脚本：
-      线上发现旧 vite-plugin-pwa 的 SW（v0.17 autoUpdate 模式）残留并拦截 fetch，
-      使用户只看到旧资源。本次彻底切换：vite-plugin-pwa 已禁用，sw.js 改成自杀脚本。
-
-      下面的内联脚本提供兜底——每次进站时：
-        1. 列出所有 SW 注册，立刻 unregister；
-        2. 清空 caches storage；
-        3. 用 sessionStorage 防 reload 死循环：若刚清理过则跳过 reload；
-        4. 若确实清理了内容（regs.length > 0 或有 cacheKeys），且本会话还没 reload 过，
-           就带 cache-buster 强刷一次。
-
-      每次部署后访客的下一次进站会自动自愈，无需人工干预。
-    -->
-    <script>
-      (function () {
-        if (!('serviceWorker' in navigator)) return;
-        var GUARD = 'kap-self-heal-ts';
-        var lastHeal = +(sessionStorage.getItem(GUARD) || 0);
-        var justHealed = Date.now() - lastHeal < 15000;
-        navigator.serviceWorker
-          .getRegistrations()
-          .then(function (regs) {
-            var had = regs.length > 0;
-            return Promise.all(
-              regs.map(function (r) {
-                return r.unregister();
-              }),
-            ).then(function () {
-              if (!(window.caches && caches.keys)) return had;
-              return caches.keys().then(function (keys) {
-                if (keys.length) had = true;
-                return Promise.all(
-                  keys.map(function (k) {
-                    return caches.delete(k);
-                  }),
-                ).then(function () {
-                  return had;
-                });
-              });
-            });
-          })
-          .then(function (had) {
-            if (had && !justHealed) {
-              sessionStorage.setItem(GUARD, String(Date.now()));
-              var u = new URL(location.href);
-              u.searchParams.set('_v', String(Date.now()));
-              location.replace(u.toString());
-            }
-          });
-      })();
-    </script>
   </head>
   <body>
     <div id="app"></div>
