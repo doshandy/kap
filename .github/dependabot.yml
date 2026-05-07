@@ -8,6 +8,21 @@ updates:
       time: "09:00"
       timezone: Asia/Shanghai
     open-pull-requests-limit: 5
+    # 一些 major 升级是显著的 breaking change（runtime 框架级别），需要专门改 source 适配，
+    # 不希望 dependabot 每周都来开 PR 制造噪声。手动评估后再升。
+    ignore:
+      - dependency-name: "pinia"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "vue-router"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "typescript"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "vite"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "stylelint"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "stylelint-config-standard"
+        update-types: ["version-update:semver-major"]
     groups:
       vue-ecosystem:
         patterns:
