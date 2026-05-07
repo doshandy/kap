@@ -372,41 +372,39 @@ watch(
     <section class="grid bottom-grid">
       <div class="card readiness">
         <h3><AppIcon name="trophy" /> 面试就绪度</h3>
-        <div class="ring">
-          <svg viewBox="0 0 120 120" class="ring-svg">
-            <circle cx="60" cy="60" r="52" class="ring-bg" />
-            <circle
-              cx="60"
-              cy="60"
-              r="52"
-              class="ring-fg"
-              :stroke-dasharray="`${(readiness.score / 100) * 326.7} 326.7`"
-            />
-          </svg>
-          <div class="ring-text">
-            <div class="score">{{ readiness.score }}</div>
-            <div class="level">{{ readiness.level }}</div>
+        <div class="ring-wrap">
+          <div class="ring">
+            <svg viewBox="0 0 120 120" class="ring-svg">
+              <circle cx="60" cy="60" r="52" class="ring-bg" />
+              <circle
+                cx="60"
+                cy="60"
+                r="52"
+                class="ring-fg"
+                :stroke-dasharray="`${(readiness.score / 100) * 326.7} 326.7`"
+              />
+            </svg>
+            <div class="ring-text">
+              <div class="score">{{ readiness.score }}</div>
+              <div class="level">{{ readiness.level }}</div>
+            </div>
           </div>
+          <ul class="readiness-tips">
+            <li>
+              已掌握 / 总题：<b>{{ totalDone }}</b> / {{ totalQuestions }}
+            </li>
+            <li>
+              收藏：<b>{{ starredCount }}</b> · 待复习：<b>{{ dueCount }}</b>
+            </li>
+          </ul>
         </div>
-        <ul class="readiness-tips">
-          <li>
-            已掌握 / 总题：<b>{{ totalDone }}</b> / {{ totalQuestions }}
-          </li>
-          <li>
-            收藏：<b>{{ starredCount }}</b> · 待复习：<b>{{ dueCount }}</b>
-          </li>
-        </ul>
       </div>
 
       <div class="card rhythm">
         <h3><AppIcon name="thunderbolt" /> 学习节奏（近 14 天）</h3>
         <div class="rhythm-summary">
-          <span
-            >总完成 <b>{{ rhythmTotal }}</b> 次</span
-          >
-          <span
-            >活跃天数 <b>{{ rhythmActiveDays }}</b> / 14</span
-          >
+          <span>总完成 <b>{{ rhythmTotal }}</b> 次</span>
+          <span>活跃天数 <b>{{ rhythmActiveDays }}</b> / 14</span>
         </div>
         <div class="rhythm-bars" role="img" :aria-label="`近14天每日完成数`">
           <div
@@ -533,7 +531,23 @@ watch(
 }
 
 .bottom-grid {
-  grid-template-columns: 1fr 1.4fr 1.4fr;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.4fr) minmax(0, 1.4fr);
+  align-items: stretch;
+}
+.bottom-grid > .card {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  min-width: 0;
+  padding: 16px 18px;
+}
+.bottom-grid > .card > h3 {
+  margin: 0;
+  font-size: 14px;
+  color: var(--c-text-soft);
+  display: flex;
+  align-items: center;
+  gap: 6px;
 }
 @media (max-width: 900px) {
   .bottom-grid {
@@ -542,19 +556,20 @@ watch(
 }
 
 .readiness {
-  text-align: center;
+  align-items: stretch;
+}
+.readiness .ring-wrap {
   display: flex;
   flex-direction: column;
   align-items: center;
-}
-.readiness h3 {
-  align-self: flex-start;
+  gap: 8px;
+  flex: 1;
+  justify-content: center;
 }
 .ring {
   position: relative;
   width: 140px;
   height: 140px;
-  margin: 8px 0 4px;
 }
 .ring-svg {
   width: 100%;
@@ -594,37 +609,42 @@ watch(
 .readiness-tips {
   list-style: none;
   padding: 0;
-  margin: 4px 0 0;
+  margin: 0;
   font-size: 12px;
   color: var(--c-text-soft);
-}
-.readiness-tips li {
-  margin: 2px 0;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
 }
 
 .rhythm-summary {
   font-size: 12px;
   color: var(--c-text-soft);
   display: flex;
-  gap: 12px;
-  margin-bottom: 8px;
+  flex-wrap: wrap;
+  gap: 8px 16px;
 }
 .rhythm-bars {
   display: grid;
-  grid-template-columns: repeat(14, 1fr);
-  gap: 4px;
+  grid-template-columns: repeat(14, minmax(0, 1fr));
+  gap: 6px;
   align-items: end;
-  height: 100px;
+  height: 110px;
+  flex: 1;
 }
 .rhythm-bar {
   display: flex;
   flex-direction: column;
   align-items: center;
-  height: 100%;
   justify-content: flex-end;
+  height: 100%;
+  min-width: 0;
+  gap: 4px;
 }
 .rhythm-bar .bar {
-  width: 100%;
+  width: 70%;
+  max-width: 14px;
   background: linear-gradient(180deg, var(--c-primary), #6366f1);
   border-radius: 3px;
   min-height: 2px;
@@ -636,27 +656,47 @@ watch(
   opacity: 0.5;
 }
 .rhythm-bar .day {
-  margin-top: 4px;
   font-size: 10px;
+  line-height: 1.2;
   color: var(--c-text-mute);
-  font-family: monospace;
+  font-family: var(--font-mono, monospace);
+  white-space: nowrap;
 }
 
+.weak {
+  /* 让"无数据"提示时整卡纵向居中，避免出现大片空白 */
+}
 .weak-list {
   list-style: none;
   padding: 0;
   margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
 }
 .weak-list li {
   display: grid;
-  grid-template-columns: 28px 1fr 90px 40px;
+  grid-template-columns: 24px minmax(0, 1fr) minmax(60px, 90px) 44px;
   align-items: center;
-  gap: 8px;
-  padding: 6px 0;
+  gap: 10px;
+  padding: 8px 2px;
   border-bottom: 1px dashed var(--c-border);
 }
 .weak-list li:last-child {
   border-bottom: 0;
+}
+.weak > .muted.small {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  margin: 0;
+  padding: 24px 8px;
+  border: 1px dashed var(--c-border);
+  border-radius: 8px;
+  color: var(--c-text-mute);
+  background: var(--c-bg-mute);
 }
 .weak-icon {
   font-size: 16px;
