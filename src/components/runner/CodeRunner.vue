@@ -86,6 +86,99 @@ updateTip();
  *
  * 注意：这是"演示级"转译，不能保证 100% 正确。复杂代码请到本地跑。
  */
+/**
+ * 顶层标识符抽取：从已经做过 TS 转译的 JS 源码里，
+ * 提取 const/let/var/function/class 的顶层名字（含解构）。
+ * 仅做"看起来像顶层"的简单匹配，目的是为运行后追加 console.log 演示输出。
+ */
+function collectTopLevelNames(src: string): string[] {
+  const names = new Set<string>();
+  const lines = src.split(/\r?\n/);
+  let depth = 0;
+  for (const raw of lines) {
+    const line = raw.replace(/\/\/.*$/, '');
+    const trimmed = line.trim();
+    if (depth === 0 && trimmed) {
+      const decl = trimmed.match(/^(?:const|let|var)\s+([^=;]+?)\s*=/);
+      if (decl) {
+        const head = decl[1].trim();
+        if (head.startsWith('{') || head.startsWith('[')) {
+          const inner = head.replace(/[{}[\]]/g, '');
+          inner.split(',').forEach((part) => {
+            const name = part.split(':').pop()!.split('=')[0].trim().replace(/^\.\.\./, '');
+            if (/^[A-Za-z_$][\w$]*$/.test(name)) names.add(name);
+          });
+        } else {
+          const name = head.split(/[\s,]/)[0];
+          if (/^[A-Za-z_$][\w$]*$/.test(name)) names.add(name);
+        }
+      }
+      const fn = trimmed.match(/^(?:async\s+)?function\s*\*?\s*([A-Za-z_$][\w$]*)/);
+      if (fn) names.add(fn[1]);
+      const cls = trimmed.match(/^class\s+([A-Za-z_$][\w$]*)/);
+      if (cls) names.add(cls[1]);
+    }
+    for (const ch of line) {
+      if (ch === '{' || ch === '(' || ch === '[') depth++;
+      else if (ch === '}' || ch === ')' || ch === ']') depth = Math.max(0, depth - 1);
+    }
+  }
+  return Array.from(names);
+}
+
+/**
+ * 给运行结果生成 demo 输出：
+ * - 已经有 console.* 调用：不画蛇添足，仅在末尾加一条总结
+ * - 没有任何 console：根据顶层声明的标识符自动打印它们的值
+ * 返回追加到代码末尾的 JS 片段。
+ */
+function buildDemoTail(src: string, names: string[]): string {
+  const hasConsole = /\bconsole\s*\.\s*(log|info|warn|error|debug|table|dir)\s*\(/.test(src);
+  const lines: string[] = [];
+  lines.push('try {');
+  if (!hasConsole && names.length) {
+    lines.push('  console.info("ℹ 自动演示：以下是顶层声明的值");');
+    for (const n of names) {
+      lines.push(`  try {`);
+      lines.push(`    var __v = ${n};`);
+      lines.push(`    if (typeof __v === "function") {`);
+      lines.push(`      console.log("· ${n} =", "[Function" + (${n}.name ? " " + ${n}.name : "") + "]");`);
+      lines.push(`    } else if (typeof __v === "object" && __v !== null) {`);
+      lines.push(`      var __k = Object.keys(__v).slice(0, 8);`);
+      lines.push(`      console.log("· ${n} =", __v);`);
+      lines.push(`      if (__k.length) console.log("  keys:", __k);`);
+      lines.push(`    } else {`);
+      lines.push(`      console.log("· ${n} =", __v);`);
+      lines.push(`    }`);
+      lines.push(`  } catch (e) {}`);
+    }
+  } else if (!hasConsole && !names.length) {
+    lines.push('  console.info("ℹ 该代码片段没有显式输出，多用于演示语法/类型；以下为代码摘要：");');
+  }
+  lines.push('} catch (e) {}');
+  return lines.join('\n');
+}
+
+/**
+ * 代码摘要：给"无副作用"的片段一个友好的输出。
+ */
+function summarizeCode(src: string): { lineCount: number; charCount: number; apis: string[] } {
+  const KEY_APIS = [
+    'fetch', 'Promise', 'async', 'await', 'setTimeout', 'setInterval',
+    'addEventListener', 'IntersectionObserver', 'ResizeObserver', 'MutationObserver',
+    'localStorage', 'sessionStorage', 'indexedDB', 'navigator', 'document', 'window',
+    'requestAnimationFrame', 'requestIdleCallback', 'Worker', 'BroadcastChannel',
+    'Map', 'Set', 'WeakMap', 'WeakRef', 'Proxy', 'Reflect', 'Symbol',
+    'Object.', 'Array.', 'JSON.',
+  ];
+  const apis = KEY_APIS.filter((k) => src.includes(k));
+  return {
+    lineCount: src.split(/\r?\n/).filter((l) => l.trim()).length,
+    charCount: src.length,
+    apis,
+  };
+}
+
 function transformTS(src: string): string {
   let s = src;
   s = s.replace(/^\s*(import|export)\b[^\n]*?(;|$)\s*/gm, (m) => {
@@ -134,6 +227,21 @@ function run() {
     }
   }
 
+  const summary = summarizeCode(code);
+  const names = collectTopLevelNames(code);
+  const demoTail = buildDemoTail(code, names);
+  const finalSummary = [
+    'try {',
+    '  console.info("✦ 摘要：" + ' + JSON.stringify(`${summary.lineCount} 行 / ${summary.charCount} 字符`) + ');',
+    summary.apis.length
+      ? '  console.info("✦ 涉及 API：" + ' + JSON.stringify(summary.apis.join(', ')) + ');'
+      : '',
+    names.length
+      ? '  console.info("✦ 顶层声明：" + ' + JSON.stringify(names.join(', ')) + ');'
+      : '',
+    '} catch (e) {}',
+  ].filter(Boolean).join('\n');
+
   const closeTag = '</' + 'script>';
   const html = [
     '<!doctype html><html><head><meta charset="utf-8"></head><body><script>',
@@ -157,6 +265,8 @@ function run() {
     'window.addEventListener("unhandledrejection", function(e){ send("error", ["unhandledrejection:", String(e.reason)]); });',
     'try {',
     code,
+    demoTail,
+    finalSummary,
     '} catch (e) { send("error", [(e && e.stack) ? e.stack : String(e)]); }',
     'send("done", ["✅ 运行结束"]);',
     '})();',
