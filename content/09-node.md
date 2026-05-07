@@ -390,3 +390,97 @@ clinic doctor -- node server.js          # 综合诊断
 
 ### 延伸
 - "重启能解决"往往意味着问题只是被延后，不是被根治
+
+## node-test-runner
+title: 原生 node:test 与 Vitest / Jest 的取舍
+difficulty: 进阶
+tags: [测试, node:test]
+
+### 题目
+Node 18+ 内置了 `node:test`，还有必要再装 Jest / Vitest 吗？
+
+### 答案要点
+- `node:test` + `node:assert`：零依赖、启动快、与 Node 生态深度整合，适合纯后端 / 工具脚本
+- Jest：生态最大，snapshot / mock / 覆盖率开箱即用，但启动慢、对 ESM 兼容差
+- Vitest：基于 Vite，前端 / 同构项目首选；与 Vite config 复用
+- 选型：纯 Node 服务用 `node:test` 越来越合适；前端 + Node 混合项目继续 Vitest
+- 共用断言：`assert/strict` 在所有 runner 都能用
+- 性能：`node:test --test --test-concurrency=8 --watch` 直接并行 + watch
+
+### 代码示例
+```ts
+import { test, describe, before, after, mock } from 'node:test';
+import assert from 'node:assert/strict';
+
+describe('userService', () => {
+  before(async () => {
+    await db.connect();
+  });
+  after(async () => {
+    await db.close();
+  });
+
+  test('create user', async () => {
+    const u = await createUser({ name: 'kap' });
+    assert.equal(u.name, 'kap');
+  });
+
+  test('mocking', async () => {
+    const fn = mock.fn();
+    fn(1);
+    fn(2);
+    assert.equal(fn.mock.callCount(), 2);
+  });
+});
+```
+
+```bash
+node --test --test-reporter=spec --test-concurrency=8 src/**/*.test.ts
+```
+
+### 延伸
+- TypeScript 项目用 `tsx --test` 直接跑，无需额外编译
+- 想保留 Jest snapshot 生态可以用 vitest，迁移成本最小
+
+## stream-pipeline
+title: Node Stream 实战与背压控制
+difficulty: 资深
+tags: [Stream, 背压]
+
+### 题目
+处理大文件 / 转码 / 转发请求时为什么必须用 Stream？背压 (backpressure) 是什么？
+
+### 答案要点
+- 不用 Stream：内存里一次性塞进整文件，OOM 风险
+- Stream 三种：Readable / Writable / Transform；通过 pipe 串联自动处理背压
+- 背压：下游写入速度 < 上游产出速度，需要暂停上游避免缓冲膨胀；Node 内部由 highWaterMark + .pause/.resume 自动协调
+- `pipeline()`：替代 `.pipe()`，错误传播更可靠，自动 destroy 全链路
+- 异步迭代：现代风格用 `for await (const chunk of stream)`
+- WebStream：Node 18+ 支持 ReadableStream / WritableStream，与浏览器 / Edge 一致
+
+### 代码示例
+```ts
+import { pipeline } from 'node:stream/promises';
+import { createReadStream, createWriteStream } from 'node:fs';
+import { createGzip } from 'node:zlib';
+
+await pipeline(
+  createReadStream('big.log'),
+  createGzip(),
+  createWriteStream('big.log.gz'),
+);
+
+import { Transform } from 'node:stream';
+
+const upper = new Transform({
+  transform(chunk: Buffer, _enc, cb) {
+    cb(null, chunk.toString().toUpperCase());
+  },
+});
+
+await pipeline(req, upper, res);
+```
+
+### 延伸
+- Stream 出错最难调，建议加 `stream.finished` 监听 + 全局 logger
+- 浏览器 Fetch ReadableStream + Node Web Stream 互通可以做端到端流式

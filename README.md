@@ -89,7 +89,7 @@ pnpm preview
 
 ## 🗺 分类清单
 
-当前题库按以下 21 个分类组织：
+当前题库按以下 26 个分类组织（合计 268 题）：
 
 1. `01-javascript` JavaScript 核心
 2. `02-typescript` TypeScript 进阶
@@ -112,6 +112,11 @@ pnpm preview
 19. `19-visualization` 可视化与图形
 20. `20-algorithm` 算法与数据结构
 21. `21-interview-special` 面试专题
+22. `22-react` React 重点
+23. `23-framework-compare` 框架横向对比
+24. `24-fullstack-meta` Next.js / Nuxt 全栈
+25. `25-rust-wasm` Rust 工具链与 WASM
+26. `26-browser-extension` 浏览器插件
 
 ## 📝 添加 / 修改题目
 

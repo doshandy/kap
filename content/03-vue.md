@@ -860,3 +860,92 @@ export default defineNuxtConfig({
 ### 延伸
 - 不是所有项目都该上 Nuxt；纯后台系统、重交互内网、离线优先工具型应用未必值得
 - 但面向内容站、营销站、搜索流量入口时，Nuxt 往往显著降低 SSR 成本
+
+## vapor-mode
+title: Vue 3.5 Vapor Mode 与无 VDOM 渲染
+difficulty: 资深
+tags: [Vapor, 编译优化]
+
+### 题目
+Vue 团队在 3.5+ 推进的 Vapor Mode 是什么？跟 Solid 有什么相似点？
+
+### 答案要点
+- 现状：Vue 默认使用虚拟 DOM；模板编译期已经做了大量优化（patchFlag / hoist / blockTree）
+- Vapor：编译目标改为"直接操作 DOM 的 imperative 代码"，类似 Solid，无 VDOM
+- 收益：运行时体积更小、渲染路径更短、内存占用更低
+- 渐进：可以以"组件级"开关，不强制全局切换
+- 兼容：依赖 VDOM 的库（`<RouterView>`、`<Transition>`）需要适配；插件生态会逐步跟上
+- 与 Composition API：响应式系统不变，只是渲染策略变了，业务代码几乎不动
+
+### 代码示例
+```vue
+<script setup vapor lang="ts">
+import { ref } from 'vue';
+
+const count = ref(0);
+const double = computed(() => count.value * 2);
+</script>
+
+<template>
+  <button @click="count++">{{ count }} (x2 = {{ double }})</button>
+</template>
+```
+
+### 延伸
+- Vapor Mode 的目标是"在保留 SFC 体验的前提下，性能贴近 Solid / Svelte"
+- 大型组件库要做大改造（去掉 VDOM 假设），生态成熟会需要几个版本
+
+## vue-perf-deep
+title: Vue 项目大促前的性能体检清单
+difficulty: 资深
+tags: [性能, Vue]
+
+### 题目
+要给一个 Vue 大型项目做性能保障，你的检查清单怎么列？
+
+### 答案要点
+- Bundle：看 `rollup-plugin-visualizer` 输出，定位巨石依赖；按路由 + 按特性切分
+- 首屏：LCP 元素是什么、是否 SSR、关键 CSS 是否内联、字体是否阻塞
+- 响应式：`<script setup>` 内大对象用 `shallowRef / markRaw`；列表 item 用 `defineProps` + `withDefaults` 避免运行时合并
+- 渲染：长列表 `vue-virtual-scroller`、表格 `el-table-v2`；非交互区改为 `v-once`
+- 状态：Pinia store 读多写少的派生改为 `getters`，避免组件内 `computed` 重复
+- 网络：接口聚合、SWR 缓存（`@tanstack/vue-query`）；关键接口加 prefetch
+- 构建：升级 Vite，开启 `build.target: esnext` + `cssCodeSplit`，第三方 vendor 单独 chunk
+- 监控：上线 web-vitals + Vue 错误处理器，回归看 INP / LCP
+
+### 代码示例
+```ts
+import { defineConfig } from 'vite';
+import { visualizer } from 'rollup-plugin-visualizer';
+import vue from '@vitejs/plugin-vue';
+
+export default defineConfig({
+  plugins: [vue(), visualizer({ filename: 'stats.html' })],
+  build: {
+    target: 'esnext',
+    cssCodeSplit: true,
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          vendor: ['vue', 'vue-router', 'pinia'],
+          echarts: ['echarts'],
+          editor: ['monaco-editor'],
+        },
+      },
+    },
+  },
+});
+```
+
+```vue
+<script setup lang="ts">
+import { shallowRef, markRaw } from 'vue';
+import { hugeStaticDataset } from './data';
+
+const dataset = shallowRef(markRaw(hugeStaticDataset));
+</script>
+```
+
+### 延伸
+- 真实生产环境性能问题大多是"首屏阻塞 + 列表渲染过大 + 接口慢"组合，不要只盯前端
+- 性能优化要立项做长期规划，加预算和监控；零散修复很快会被新需求冲掉

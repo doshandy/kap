@@ -456,3 +456,518 @@ function safeLink(url: string): string {
 ### 延伸
 - AI 安全不是单点问题，前端、后端、模型策略和产品交互要协同设计
 - "模型说它调用过工具"不等于工具真的执行成功，展示层必须以系统侧真实状态为准
+
+## chat-history-context
+title: 多轮对话上下文窗口怎么管理？为什么不能一直堆历史
+difficulty: 进阶
+tags: [上下文, token, 对话]
+
+### 题目
+LLM 都有 context window 上限，如何在多轮对话里在「保留上下文」和「控制 token」之间取舍？前端通常做哪些事？
+
+### 答案要点
+- token 总量 = 系统提示 + 历史消息 + 当前用户输入 + 模型预留输出，超出会报错或截断
+- 前端常用策略组合：滑动窗口（保留最近 N 轮）、摘要压缩（让模型把旧对话总结成一段）、关键事实提取（pin 重要信息）、按角色分级
+- 系统提示要尽量精简、稳定，因为它每轮都会被算进 token；动态上下文走「检索拼装」更省钱
+- 需要在 UI 上让用户能感知：当前会话长度、压缩 / 截断状态，以及"开始新会话"入口
+
+### 代码示例
+```ts
+import { encode } from 'gpt-tokenizer';
+
+interface Msg { role: 'system' | 'user' | 'assistant'; content: string }
+
+const MAX_TOKENS = 8000;
+const RESERVE_FOR_OUTPUT = 1500;
+
+function countTokens(msgs: Msg[]): number {
+  return msgs.reduce((s, m) => s + encode(m.content).length + 4, 0);
+}
+
+async function summarize(client: { chat: (m: Msg[]) => Promise<string> }, msgs: Msg[]) {
+  return client.chat([
+    { role: 'system', content: '将以下对话摘要为不超过 200 字，保留关键事实、决定、未决问题。' },
+    ...msgs,
+  ]);
+}
+
+export async function buildContext(
+  history: Msg[],
+  userInput: string,
+  systemPrompt: string,
+  client: { chat: (m: Msg[]) => Promise<string> },
+): Promise<Msg[]> {
+  const sys: Msg = { role: 'system', content: systemPrompt };
+  const last: Msg = { role: 'user', content: userInput };
+  let kept = history.slice();
+
+  while (countTokens([sys, ...kept, last]) > MAX_TOKENS - RESERVE_FOR_OUTPUT && kept.length > 4) {
+    const head = kept.slice(0, Math.ceil(kept.length / 2));
+    const summary = await summarize(client, head);
+    kept = [{ role: 'system', content: `[历史摘要]\n${summary}` }, ...kept.slice(head.length)];
+  }
+  return [sys, ...kept, last];
+}
+```
+
+### 延伸
+- 摘要本身有信息损失，关键事实建议在客户端独立结构化存储（"事实卡片"），每轮重新拼接
+- 评估上下文管理质量：让另一个模型对答案做 LLM-as-Judge，看核心事实是否丢失
+
+## function-calling-ui
+title: Function Calling / Tool Use 在前端要怎么落地？
+difficulty: 资深
+tags: [tool-call, agent, 流式]
+
+### 题目
+让模型可以调用「查订单」「下单」「打开页面」等本地能力时，前端如何安全地编排工具调用、展示中间状态、保证幂等？
+
+### 答案要点
+- 协议层：定义 JSON Schema 工具描述，模型输出结构化 `tool_call`，前端校验后再执行
+- 执行层：分纯查询（只读，可自动执行）和写操作（要二次确认 / 鉴权 / 频控）
+- UI 层：把 tool_call 渲染成"步骤卡片"，展示参数、调用结果、耗时、错误，可手动重试
+- 安全：所有写操作都要有用户最终批准（HITL），避免 Prompt Injection 让模型偷偷下单
+- 幂等：每个 tool_call 带 client request id，结果可缓存复用
+
+### 代码示例
+```ts
+import { z } from 'zod';
+
+interface ToolDef<I, O> {
+  name: string;
+  schema: z.ZodType<I>;
+  needsConfirm?: boolean;
+  exec: (args: I) => Promise<O>;
+}
+
+const getOrder: ToolDef<{ id: string }, { id: string; status: string }> = {
+  name: 'get_order',
+  schema: z.object({ id: z.string().min(1) }),
+  exec: async ({ id }) => fetch(`/api/order/${id}`).then((r) => r.json()),
+};
+
+const cancelOrder: ToolDef<{ id: string }, { ok: boolean }> = {
+  name: 'cancel_order',
+  schema: z.object({ id: z.string().min(1) }),
+  needsConfirm: true,
+  exec: async ({ id }) =>
+    fetch(`/api/order/${id}/cancel`, { method: 'POST' }).then((r) => r.json()),
+};
+
+const TOOLS = { get_order: getOrder, cancel_order: cancelOrder };
+
+interface Step { id: string; name: string; args: unknown; status: 'pending' | 'ok' | 'fail'; result?: unknown }
+
+export async function runToolCall(
+  call: { id: string; name: string; arguments: string },
+  ui: { addStep: (s: Step) => void; updateStep: (id: string, s: Partial<Step>) => void; confirm: (s: Step) => Promise<boolean> },
+) {
+  const tool = (TOOLS as Record<string, ToolDef<unknown, unknown>>)[call.name];
+  if (!tool) throw new Error('unknown tool: ' + call.name);
+
+  const parsed = tool.schema.safeParse(JSON.parse(call.arguments));
+  if (!parsed.success) {
+    ui.addStep({ id: call.id, name: call.name, args: call.arguments, status: 'fail', result: parsed.error.message });
+    return { ok: false, error: 'invalid_args' };
+  }
+
+  const step: Step = { id: call.id, name: call.name, args: parsed.data, status: 'pending' };
+  ui.addStep(step);
+
+  if (tool.needsConfirm && !(await ui.confirm(step))) {
+    ui.updateStep(call.id, { status: 'fail', result: 'user_rejected' });
+    return { ok: false, error: 'user_rejected' };
+  }
+
+  try {
+    const result = await tool.exec(parsed.data as never);
+    ui.updateStep(call.id, { status: 'ok', result });
+    return { ok: true, result };
+  } catch (e) {
+    ui.updateStep(call.id, { status: 'fail', result: String(e) });
+    return { ok: false, error: String(e) };
+  }
+}
+```
+
+### 延伸
+- OpenAI / Anthropic / 智谱 / 通义 等的 function calling 协议大同小异，前端可以做统一适配层
+- 多步 Agent 场景下要做"步数上限"和"成本上限"，避免模型陷入死循环
+
+## rag-ui
+title: RAG 检索增强在前端的实现要点
+difficulty: 资深
+tags: [RAG, 向量, 检索]
+
+### 题目
+要给一份内部知识库做问答，前端怎么和向量检索协作？怎么展示引用、避免幻觉？
+
+### 答案要点
+- 流程：用户问题 → 检索 top-k 文档 → 拼接到 prompt 的 context 段 → 模型作答 → 前端展示答案 + 引用
+- 前端需做：query 改写（短问题扩写）、流式渲染答案、引用标号 → 文档跳转、用户标注「无用 / 幻觉」反馈
+- 防幻觉：在 system prompt 中要求"只用 context 中信息回答，引用编号"，无答案时回 "我不知道"
+- 性能：top-k 不要太大（4–8 通常足够），文档块 chunk 控制在 300–800 token，重叠 50–100
+- 安全：检索来源做权限隔离，避免越权读他人文档；展示时高亮 hit 片段方便核查
+
+### 代码示例
+```ts
+interface RagDoc { id: string; title: string; content: string; url: string }
+
+function buildRagPrompt(question: string, docs: RagDoc[]): string {
+  const ctx = docs
+    .map((d, i) => `[${i + 1}] ${d.title}\n${d.content}`)
+    .join('\n\n');
+  return [
+    'You are a helpful assistant. ANSWER ONLY using the context.',
+    'If the answer is not in the context, say "我无法在知识库中找到对应内容".',
+    'Cite sources with [number] inline. Do NOT fabricate URLs.',
+    '',
+    `# Context\n${ctx}`,
+    `\n# Question\n${question}`,
+  ].join('\n');
+}
+
+export function renderAnswerWithCites(answer: string, docs: RagDoc[]) {
+  return answer.replace(/\[(\d+)\]/g, (_, n) => {
+    const d = docs[Number(n) - 1];
+    if (!d) return `[${n}]`;
+    return `<a class="cite" href="${d.url}" target="_blank" rel="noopener">[${n} ${d.title}]</a>`;
+  });
+}
+```
+
+### 延伸
+- 检索召回率不够时常用 hybrid search：BM25 + 向量；前端可以同时展示两路 hit 让用户切换
+- 给每条引用加 thumbs up / down 反馈是后续效果迭代的关键数据来源
+
+## multi-modal-ui
+title: 多模态交互（图像 / 音频 / 视频）前端怎么实现
+difficulty: 资深
+tags: [多模态, 视觉, 语音]
+
+### 题目
+做一个能"看图说话 + 录音转文字 + 边说边显示"的 AI 助手，前端关键技术点有哪些？
+
+### 答案要点
+- 图像：File / 拖拽 / 粘贴上传 → 客户端压缩（canvas/webp）→ base64 或预签名 URL 传给模型
+- 音频：`MediaRecorder` 录制 → ASR（流式 WebSocket / 分片 HTTP）→ 文字 → 喂给 LLM
+- 输出：TTS 用 Web Speech 或服务端流式音频块（MSE / Audio Worklet）边收边播
+- UI 状态：录音波形（AudioContext + AnalyserNode）、转写中、模型思考中、播放中要清楚区分
+- 体验：自动停止检测（VAD：静音超过 1.5s 触发结束）、噪声门、回退到打字输入
+
+### 代码示例
+```ts
+export async function recordChunked(
+  onChunk: (blob: Blob) => void,
+  opts: { mime?: string; timesliceMs?: number } = {},
+) {
+  const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+  const rec = new MediaRecorder(stream, { mimeType: opts.mime ?? 'audio/webm' });
+  rec.ondataavailable = (e) => {
+    if (e.data.size > 0) onChunk(e.data);
+  };
+  rec.start(opts.timesliceMs ?? 500);
+  return {
+    stop: () => {
+      rec.stop();
+      stream.getTracks().forEach((t) => t.stop());
+    },
+  };
+}
+
+export function attachWaveform(stream: MediaStream, canvas: HTMLCanvasElement) {
+  const ctx = new AudioContext();
+  const src = ctx.createMediaStreamSource(stream);
+  const analyser = ctx.createAnalyser();
+  analyser.fftSize = 256;
+  src.connect(analyser);
+  const data = new Uint8Array(analyser.frequencyBinCount);
+  const c = canvas.getContext('2d')!;
+  let raf = 0;
+  const draw = () => {
+    raf = requestAnimationFrame(draw);
+    analyser.getByteFrequencyData(data);
+    c.clearRect(0, 0, canvas.width, canvas.height);
+    const w = canvas.width / data.length;
+    for (let i = 0; i < data.length; i++) {
+      const h = (data[i] / 255) * canvas.height;
+      c.fillStyle = '#0ea5e9';
+      c.fillRect(i * w, canvas.height - h, w - 1, h);
+    }
+  };
+  draw();
+  return () => {
+    cancelAnimationFrame(raf);
+    ctx.close();
+  };
+}
+```
+
+### 延伸
+- 上行带宽是大头，移动端建议优先压缩图片到 1280px 内 + WebP 80%；音频建议 16kHz 单声道 Opus
+- 对长视频不要让浏览器直接传全文件，按时间段或关键帧分片更稳
+
+## cost-latency-budget
+title: AI 应用前端怎么控制成本和首字延迟
+difficulty: 进阶
+tags: [成本, 延迟, 缓存]
+
+### 题目
+LLM 调用很贵且慢，前端可以用哪些组合手段把成本降下来、把"首 token 时间 (TTFT)"压下来？
+
+### 答案要点
+- 模型路由：简单意图走小模型 / 缓存，复杂任务才走大模型
+- 提示压缩：动态拼接，避免每轮都把整段 system 重复发；用 few-shot 选择器只挑 2-3 条相关示例
+- 结果缓存：query 标准化后做 key（hash），命中直接展示；语义近似缓存可以用嵌入相似度
+- 流式优先：永远用 SSE / chunked，让用户在 200ms 内看到第一个字符
+- 客户端预热：会话开始时先发一个空 ping，建好长连接，避免首次 TLS 握手成为首字延迟瓶颈
+- 取消传播：用户撤回时立刻 abort，节省后端 token
+
+### 代码示例
+```ts
+import { sha256 } from './hash';
+
+interface CachedAnswer { text: string; ts: number }
+const cache = new Map<string, CachedAnswer>();
+const TTL = 1000 * 60 * 30;
+
+export async function ask(
+  question: string,
+  variant: { model: 'small' | 'large'; system: string },
+  client: { stream: (q: string, opts: { signal: AbortSignal; system: string; model: string }) => AsyncIterable<string> },
+  onDelta: (s: string) => void,
+  signal: AbortSignal,
+): Promise<string> {
+  const key = await sha256(`${variant.model}|${variant.system}|${question.trim().toLowerCase()}`);
+  const cached = cache.get(key);
+  if (cached && Date.now() - cached.ts < TTL) {
+    onDelta(cached.text);
+    return cached.text;
+  }
+  let out = '';
+  for await (const delta of client.stream(question, { signal, system: variant.system, model: variant.model })) {
+    out += delta;
+    onDelta(delta);
+  }
+  cache.set(key, { text: out, ts: Date.now() });
+  return out;
+}
+
+export function pickModel(question: string): 'small' | 'large' {
+  if (question.length < 40 && /^(谁|什么|哪个|多少|when|what|who|how many)/i.test(question)) return 'small';
+  return 'large';
+}
+```
+
+### 延伸
+- 把"提示模板版本"埋点到日志里，方便后续把模板效果和成本一起可视化
+- 端侧蒸馏小模型（Web LLM / Transformers.js）适合做意图分类、敏感词、纠错等轻任务，可极大省钱
+
+## ai-evaluation
+title: 怎么评测一个 AI 前端功能的好坏？
+difficulty: 资深
+tags: [评测, A/B, LLM-as-Judge]
+
+### 题目
+项目上线后怎么衡量 AI 功能"有用"？除了人工抽检还能怎么自动化？
+
+### 答案要点
+- 离线：维护测试集（黄金问答对），跑回归脚本计算 BLEU / ROUGE / 自定义匹配率，每次模型 / 提示词改动都跑一次
+- 在线：埋点用户的「点赞 / 点踩」「重新生成」「复制」「采纳」「会话长度」「对话深度」等行为指标
+- LLM-as-Judge：用更强的模型给答案打分（相关性 / 准确性 / 安全性），便宜又稳定
+- A/B 实验：流量切分对比两个 prompt 或两个模型的核心指标，注意要看长尾而不是均值
+- 反馈闭环：把差答案归类（事实错 / 风格差 / 越权 / 拒答）反哺训练数据
+
+### 代码示例
+```ts
+interface JudgeResult { score: number; reasons: string[] }
+
+const JUDGE_PROMPT = `你是评审。请就回答 {answer} 是否正确回应了问题 {question} 给出 0-10 的分数和原因。
+评分维度：相关性、事实正确性、是否越权、是否拒答。返回严格 JSON：{"score":number,"reasons":string[]}`;
+
+export async function judge(
+  client: { chat: (m: { role: string; content: string }[]) => Promise<string> },
+  question: string,
+  answer: string,
+): Promise<JudgeResult> {
+  const raw = await client.chat([
+    { role: 'system', content: '你是严谨的评审，必须返回 JSON。' },
+    { role: 'user', content: JUDGE_PROMPT.replace('{question}', question).replace('{answer}', answer) },
+  ]);
+  const m = raw.match(/\{[\s\S]+\}/);
+  if (!m) return { score: 0, reasons: ['parse_error'] };
+  try {
+    return JSON.parse(m[0]) as JudgeResult;
+  } catch {
+    return { score: 0, reasons: ['parse_error'] };
+  }
+}
+```
+
+### 延伸
+- 黄金集要定期 review，因为产品需求和模型能力都在变，旧标签可能不再合理
+- 对于"判断题"类，可以让两个不同模型互相校对，分数差异大的就让人复核
+
+## ai-moderation
+title: 模型输出内容审核与合规怎么做
+difficulty: 进阶
+tags: [安全, 合规, 审核]
+
+### 题目
+模型可能输出仇恨、暴力、侵权或越权信息，前端 / 后端要做哪些层级的拦截？
+
+### 答案要点
+- 输入侧：对用户输入做敏感词 / 类目识别，明显违规直接拒绝，不浪费 token
+- 输出侧：模型回答完后过审核 API（开源 / 自研），有问题做替换 / 软回退
+- 流式中拦截：边收边过滤，命中后立即 abort 并回退到安全提示，注意已经吐出的内容要从 UI 里撤回或灰显
+- 隐私 / 数据合规：不要把用户 PII 送到第三方模型；必要时本地脱敏
+- 审计日志：保留原始问答、模型版本、审核命中分类，便于事后追责
+
+### 代码示例
+```ts
+interface ModResult { ok: boolean; categories: string[] }
+
+export async function streamSafely(
+  ask: (signal: AbortSignal) => AsyncIterable<string>,
+  moderate: (text: string) => Promise<ModResult>,
+  onDelta: (s: string, partial: string) => void,
+  onBlocked: (cats: string[]) => void,
+) {
+  const ac = new AbortController();
+  let buf = '';
+  const SCAN_EVERY = 80;
+  let nextScan = SCAN_EVERY;
+  for await (const delta of ask(ac.signal)) {
+    buf += delta;
+    onDelta(delta, buf);
+    if (buf.length >= nextScan) {
+      const r = await moderate(buf);
+      if (!r.ok) {
+        ac.abort();
+        onBlocked(r.categories);
+        return;
+      }
+      nextScan = buf.length + SCAN_EVERY;
+    }
+  }
+  const final = await moderate(buf);
+  if (!final.ok) onBlocked(final.categories);
+}
+```
+
+### 延伸
+- 不同地区合规要求不同（GDPR / 网信办生成式 AI 服务管理办法），前端要支持按区域配置审核规则
+- 审核不是一次性工作，要持续根据 case 调整阈值与规则
+
+## ai-form-copilot
+title: AI Copilot 嵌入表单 / 编辑器的体验设计
+difficulty: 进阶
+tags: [Copilot, 编辑器, UX]
+
+### 题目
+要在富文本编辑器或表单里嵌入"AI 改写 / 续写 / 摘要"功能，前端要解决哪些交互和工程问题？
+
+### 答案要点
+- 触发：选中文本 / 斜杠命令 / 快捷键，避免抢用户主流程
+- 预览：模型输出先以 diff 或 ghost text 展示，用户决定 accept / reject / refine
+- 增量：长文档不能整文段重传，要按段或按选区做最小上下文
+- 撤销：AI 修改要进编辑器自己的 undo stack，Cmd+Z 能回退
+- 错误：模型超时 / 失败要回退到本地状态，不能让用户半截编辑文档丢失
+
+### 代码示例
+```ts
+import { Editor } from 'tiptap-like-editor';
+
+interface AiCommand { mode: 'rewrite' | 'continue' | 'summarize'; tone?: string }
+
+export function attachCopilot(
+  editor: Editor,
+  ai: { stream: (input: string, mode: string, tone?: string) => AsyncIterable<string> },
+) {
+  return async function run(cmd: AiCommand) {
+    const { from, to, text } = editor.getSelection();
+    if (!text) return;
+    const ghostId = editor.insertGhost(to, '');
+
+    const ac = new AbortController();
+    let preview = '';
+    try {
+      for await (const delta of ai.stream(text, cmd.mode, cmd.tone)) {
+        preview += delta;
+        editor.updateGhost(ghostId, preview);
+      }
+    } catch {
+      editor.removeGhost(ghostId);
+      return;
+    }
+
+    const accepted = await editor.confirmGhost(ghostId);
+    if (accepted) {
+      editor.replaceRange(from, to, preview);
+    } else {
+      editor.removeGhost(ghostId);
+    }
+    return ac;
+  };
+}
+```
+
+### 延伸
+- 高频改写场景可以先在端侧用小模型给"建议预览"，用户点确认再走大模型精修
+- 多人协同场景下 AI 修改要走 OT / CRDT 系统，否则会和真人编辑冲突
+
+## ai-observability
+title: AI 应用的可观测性怎么做？要采哪些字段
+difficulty: 资深
+tags: [可观测, trace, 成本]
+
+### 题目
+线上排查 AI 功能出问题（答非所问、变慢、变贵）时，前端要采集哪些数据？
+
+### 答案要点
+- 调用链：trace_id 串前后端，记录每一步 LLM / tool / RAG 的时延、token、价格、模型版本
+- 输入输出：在合规允许下保留请求摘要 / 哈希，做事后归因
+- 体验：TTFT、总耗时、流式 chunk 数、用户中断率、点踩率
+- 错误：4xx / 5xx / 限流 / 模型 refusal / JSON 解析失败 各自分类
+- 实验：实验编号 + 提示模板版本 + 模型 + 路由策略，能在 BI 上切片对比
+
+### 代码示例
+```ts
+interface AiTrace {
+  traceId: string;
+  ts: number;
+  model: string;
+  promptVersion: string;
+  inputTokens: number;
+  outputTokens: number;
+  ttftMs: number;
+  totalMs: number;
+  status: 'ok' | 'aborted' | 'error' | 'refusal';
+  errorCode?: string;
+  feedback?: 'up' | 'down';
+  experiment?: string;
+}
+
+export function newTrace(partial: Partial<AiTrace>): AiTrace {
+  return {
+    traceId: crypto.randomUUID(),
+    ts: Date.now(),
+    model: 'unknown',
+    promptVersion: 'v1',
+    inputTokens: 0,
+    outputTokens: 0,
+    ttftMs: 0,
+    totalMs: 0,
+    status: 'ok',
+    ...partial,
+  };
+}
+
+export function reportTrace(t: AiTrace) {
+  navigator.sendBeacon('/api/ai/trace', JSON.stringify(t));
+}
+```
+
+### 延伸
+- 保留必要的明文样本（脱敏后）有助于训练私有评测集，但要注意 GDPR / 数据驻留
+- 用 OpenTelemetry 协议把 AI 调用作为 span 接到现有 APM，便于和业务链路对齐

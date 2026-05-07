@@ -6,7 +6,7 @@ const ROOT = new URL('../content/', import.meta.url).pathname;
 const OUT = new URL('../public/sitemap.xml', import.meta.url).pathname;
 const SITE = 'https://doshandy.github.io/kap';
 
-const staticPaths = ['/', '/quiz', '/review', '/roadmap', '/changelog', '/settings'];
+const staticPaths = ['/', '/learn', '/quiz', '/review', '/roadmap', '/changelog', '/settings'];
 
 const files = readdirSync(ROOT).filter((file) => file.endsWith('.md')).sort();
 
@@ -21,7 +21,7 @@ for (const file of files) {
   categoryPaths.push(`/c/${categoryId}`);
 
   for (const line of content.split(/\r?\n/)) {
-    const matched = line.match(/^##\s+([\w\u4e00-\u9fa5-]+)\s*$/);
+    const matched = line.match(/^##\s+([a-z][a-z0-9-]*)\s*$/);
     if (matched) {
       questionPaths.push(`/q/${categoryId}/${matched[1]}`);
     }

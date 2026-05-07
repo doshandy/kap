@@ -328,3 +328,99 @@ export default defineConfig({
 
 ### 延伸
 - 稳定性差的测试比没有测试更伤团队信心
+
+## playwright-tips
+title: Playwright 高级用法（trace / fixtures / projects）
+difficulty: 进阶
+tags: [Playwright, E2E]
+
+### 题目
+用 Playwright 跑 E2E 时有哪些被忽视但极有用的能力？
+
+### 答案要点
+- Trace Viewer：失败用例自动录制 dom + 网络 + 截图，定位问题极快
+- Fixtures：把登录态 / 测试数据封装成 fixture，跨用例复用
+- Projects：同一套用例在多浏览器 / 多分辨率 / 多 locale 跑
+- API + UI 混合：用 API 准备数据，UI 只验关键路径
+- 网络拦截：`page.route` 模拟接口慢 / 错误 / 异常 payload
+- Auth state：登录一次保存 cookie，后续用例直接 `storageState` 复用
+
+### 代码示例
+```ts
+import { test as base, expect } from '@playwright/test';
+
+type Fixtures = { authedPage: import('@playwright/test').Page };
+
+const test = base.extend<Fixtures>({
+  authedPage: async ({ browser }, use) => {
+    const ctx = await browser.newContext({ storageState: '.auth/state.json' });
+    const page = await ctx.newPage();
+    await use(page);
+    await ctx.close();
+  },
+});
+
+test.describe('订单流程', () => {
+  test('下单 → 支付 → 完成', async ({ authedPage }) => {
+    await authedPage.goto('/cart');
+    await authedPage.getByRole('button', { name: '结算' }).click();
+    await expect(authedPage.getByText('订单创建成功')).toBeVisible();
+  });
+});
+```
+
+```ts
+export default {
+  use: { trace: 'on-first-retry', screenshot: 'only-on-failure' },
+  projects: [
+    { name: 'chromium', use: { browserName: 'chromium' } },
+    { name: 'webkit', use: { browserName: 'webkit' } },
+    { name: 'mobile', use: { ...devices['iPhone 14'] } },
+  ],
+  retries: 2,
+};
+```
+
+### 延伸
+- CI 里把 trace 上传成 artifact，PR 失败时点开就能看完整复现
+- 用 Playwright 跑组件测试（@playwright/experimental-ct-vue）也越来越成熟
+
+## flaky-tests
+title: Flaky 测试是怎么来的，怎么治理
+difficulty: 资深
+tags: [Flaky, 稳定性]
+
+### 题目
+跑十次有两次失败的测试就是 flaky test，怎么定位和根治？
+
+### 答案要点
+- 来源：异步未等待、定时器、动画、网络抖动、并发用例数据互相污染、随机数
+- 自动检测：CI 上做 retry，记录哪些用例频繁 retry，标记成 flaky
+- 排查：本地 `--repeat-each=20`、加详细 log；隔离运行确认是不是用例间污染
+- 修复：用 `await expect.poll()` 替代 setTimeout；用 fixture 隔离数据；时间相关用 `vi.useFakeTimers`
+- 治理：flaky 用例先 quarantine 不阻塞主干，但必须有 owner + 截止时间，避免长期堆积
+- 度量：dashboard 展示 flaky 比例，作为质量指标对外可见
+
+### 代码示例
+```ts
+import { expect } from '@playwright/test';
+
+await expect.poll(async () => fetch('/api/order/1').then((r) => r.status), {
+  timeout: 10_000,
+}).toBe(200);
+
+await expect(page.getByRole('alert')).toHaveText('成功');
+```
+
+```ts
+const knownFlaky = new Set(['order-flow > pay']);
+test.describe('orders', () => {
+  test('pay', async ({ page }) => {
+    test.skip(knownFlaky.has('order-flow > pay'), 'tracked in JIRA-1234');
+  });
+});
+```
+
+### 延伸
+- Flaky 治理的关键不是技术，而是文化：让团队认可"红色 = 必须立刻处理"
+- Code review 时关注新增用例是否依赖时间 / 顺序 / 网络

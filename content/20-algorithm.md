@@ -640,3 +640,122 @@ function matchRoute(routes: Array<{ path: string }>, url: string) {
 ### 延伸
 - Vue3 diff 用 LIS 求最少移动；React Fiber 调度用最小堆
 - 复杂搜索还可上 Aho-Corasick（多模式匹配）、倒排索引
+
+## graph-bfs-dfs
+title: 图的 BFS / DFS 与前端真实场景
+difficulty: 进阶
+tags: [图, BFS, DFS]
+
+### 题目
+图遍历在前端有哪些落地场景？BFS / DFS 怎么选？
+
+### 答案要点
+- BFS：层次遍历、最短路径、最少跳数；用 queue 实现
+- DFS：拓扑排序、检测环、深度优先生成树；递归或显式 stack
+- 前端场景：
+  - 组件树遍历：找父级 / 找最近 ancestor / 收集所有 prop
+  - 路由依赖图：动态路由懒加载顺序
+  - 模块依赖图：构建器分析、循环依赖检测
+  - 设计稿图层：Figma / Sketch 文件的元素树
+  - 可视化：Sankey、Tree、Org chart
+- 注意：用 `visited` Set 防止环；递归注意栈深度，超 10k 改迭代
+
+### 代码示例
+```ts
+interface Node { id: string; neighbors: Node[] }
+
+export function bfsShortestPath(start: Node, target: string): string[] | null {
+  const visited = new Set<string>([start.id]);
+  const queue: { node: Node; path: string[] }[] = [{ node: start, path: [start.id] }];
+  while (queue.length) {
+    const { node, path } = queue.shift()!;
+    if (node.id === target) return path;
+    for (const n of node.neighbors) {
+      if (!visited.has(n.id)) {
+        visited.add(n.id);
+        queue.push({ node: n, path: [...path, n.id] });
+      }
+    }
+  }
+  return null;
+}
+
+export function topologicalSort(nodes: Node[]): string[] | null {
+  const visited = new Set<string>();
+  const stack = new Set<string>();
+  const order: string[] = [];
+
+  function dfs(node: Node): boolean {
+    if (stack.has(node.id)) return false;
+    if (visited.has(node.id)) return true;
+    stack.add(node.id);
+    for (const n of node.neighbors) if (!dfs(n)) return false;
+    stack.delete(node.id);
+    visited.add(node.id);
+    order.unshift(node.id);
+    return true;
+  }
+  for (const n of nodes) if (!dfs(n)) return null;
+  return order;
+}
+```
+
+### 延伸
+- 大型图常用 Dijkstra / A*，前端如果做地图 / 路径规划要看 priority queue
+- React Fiber 用 DFS 但分片，每个时间片处理一定数量的 fiber，再让步给浏览器
+
+## bit-manipulation
+title: 位运算技巧与前端用例
+difficulty: 进阶
+tags: [位运算, 性能]
+
+### 题目
+JS 也能位运算，常见技巧有哪些？什么时候真的有用？
+
+### 答案要点
+- 状态标志位：把多个 bool 压成一个 number，用 `&` `|` `^` 检查 / 设置 / 翻转
+- 整数判断：`x & 1` 判奇偶；`(x & (x - 1)) === 0` 判是否 2 的幂
+- 取反 / 取整：`~~x` ≈ `Math.trunc(x)`（仅在 32 位整数范围内安全）
+- 取最高位：`Math.clz32` / `31 - Math.clz32(x)`
+- 颜色处理：rgb 编码到一个 number 里，比拼字符串快
+- 注意：JS 位运算把数字转 32 位带符号整数，超过 2^31-1 就会溢出，BigInt 才支持任意位
+
+### 代码示例
+```ts
+const PERMS = {
+  read: 1 << 0,
+  write: 1 << 1,
+  exec: 1 << 2,
+  admin: 1 << 3,
+} as const;
+type Perm = (typeof PERMS)[keyof typeof PERMS];
+
+function has(mask: number, perm: Perm) {
+  return (mask & perm) === perm;
+}
+function add(mask: number, perm: Perm) {
+  return mask | perm;
+}
+function remove(mask: number, perm: Perm) {
+  return mask & ~perm;
+}
+
+function rgb(r: number, g: number, b: number) {
+  return (r << 16) | (g << 8) | b;
+}
+function unpack(c: number) {
+  return [(c >> 16) & 0xff, (c >> 8) & 0xff, c & 0xff];
+}
+
+function isPow2(x: number) {
+  return x > 0 && (x & (x - 1)) === 0;
+}
+
+function toInt(x: number) {
+  return x | 0;
+}
+```
+
+### 延伸
+- ECMAScript 的位运算只能 32 位 + 带符号，做 IPv4 / 网卡掩码够用，更大用 BigInt
+- 真正的性能瓶颈基本不是位运算，但在内核 / 编辑器 / 引擎里还是常见

@@ -432,3 +432,87 @@ const obj = ref.deref();   // 可能为 undefined（已被 GC）
 ### 延伸
 - 排查内存泄漏常做"三次快照对比"：初始、操作后、GC 后
 - 不要只盯总内存大小，更要看"该被释放的对象是否还活着"
+
+## v8-engine
+title: V8 引擎工作机制（Ignition / TurboFan / 隐藏类）
+difficulty: 资深
+tags: [V8, 引擎]
+
+### 题目
+V8 是怎么把 JS 跑得越来越快的？理解这些对前端代码有什么实际意义？
+
+### 答案要点
+- 解析 → 字节码：Parser 生成 AST，Ignition 直接解释字节码运行
+- 优化编译：热点代码进入 TurboFan，做基于类型反馈的 JIT 编译；类型不稳定会被 deopt 回 Ignition
+- 隐藏类（Hidden Class / Map）：对象按属性顺序生成 shape，频繁改变 shape 会让 V8 退化到字典模式
+- 内联缓存（IC）：调用点缓存上次见到的类型，命中则跳过查找
+- GC：分代回收（Young / Old），大对象走 large object space；写屏障维护跨代引用
+- 实践含义：保持对象 shape 稳定（构造时一次性赋值）、避免 megamorphic 调用、减少临时对象
+
+### 代码示例
+```ts
+class Slow {
+  init(x: number) {
+    this.x = x;
+    if (x > 0) this.positive = true;
+  }
+  x?: number;
+  positive?: boolean;
+}
+
+class Fast {
+  x: number;
+  positive: boolean;
+  constructor(x: number) {
+    this.x = x;
+    this.positive = x > 0;
+  }
+}
+
+function callsite(o: { foo: () => void }) {
+  o.foo();
+}
+```
+
+### 延伸
+- V8 团队博客和 v8.dev 文章常更新优化细节，比道听途说靠谱
+- "猜测优化"思路：根据代码运行时表现反馈类型，前端不需要手动加 type，但代码风格稳定能间接帮 V8
+
+## webgpu-overview
+title: WebGPU 概览与适用场景
+difficulty: 资深
+tags: [WebGPU, GPU]
+
+### 题目
+WebGPU 跟 WebGL 的核心差异是什么？哪些场景值得切换？
+
+### 答案要点
+- 设计目标：现代显卡 API（基于 Metal / Vulkan / DX12），多线程提交、Compute Shader
+- 性能：相比 WebGL 减少状态机切换开销，能用 GPU 做通用计算
+- 资源：BindGroup / Pipeline 显式声明，符合现代图形 API 习惯
+- 适用：3D 渲染、机器学习推理（TensorFlow.js WebGPU backend）、视频特效、粒子模拟
+- 兼容：Chrome 113+ 默认开启，Safari 17.4+，移动端覆盖较慢，需要做 fallback
+
+### 代码示例
+```ts
+const adapter = await navigator.gpu?.requestAdapter();
+const device = await adapter?.requestDevice();
+if (!device) throw new Error('WebGPU not supported');
+
+const module = device.createShaderModule({
+  code: `
+@group(0) @binding(0) var<storage, read_write> data: array<f32>;
+@compute @workgroup_size(64)
+fn main(@builtin(global_invocation_id) id: vec3<u32>) {
+  data[id.x] = data[id.x] * 2.0;
+}`,
+});
+const pipeline = device.createComputePipeline({
+  layout: 'auto',
+  compute: { module, entryPoint: 'main' },
+});
+```
+
+### 延伸
+- 引擎层（Three.js、Babylon.js、PIXI v8、TensorFlow.js）已支持 WebGPU 后端，业务层切换成本不大
+- 没有 WebGPU 时回退 WebGL2 / WASM SIMD 是常见的做法

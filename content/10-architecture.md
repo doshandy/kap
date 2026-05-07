@@ -584,3 +584,115 @@ function renderTemplate(s: ComponentSchema): string {
 ### 延伸
 - 低代码平台本质上是在设计一套"可长期演进的 UI DSL"
 - 最大难点通常不是拖拽，而是 schema 稳定性与物料治理
+
+## design-system-engineering
+title: 设计系统的工程化（tokens / multi-brand / a11y）
+difficulty: 资深
+tags: [设计系统, Design Tokens]
+
+### 题目
+搭一个能撑起大公司多产品线的设计系统，工程上要做对哪些事？
+
+### 答案要点
+- Tokens 单一来源：颜色 / 间距 / 字体 / 阴影 / 动效用 W3C Design Tokens 格式存 JSON，工具（Style Dictionary）转 CSS / iOS / Android
+- 多主题：dark / 高对比 / 多品牌 通过 token 派生，不在组件里写死颜色
+- 组件库分层：base（无样式逻辑）/ styled（有 token 装配）/ business（业务封装）
+- 文档：Storybook + a11y addon + 视觉回归（Chromatic / Playwright + 截图）
+- 兼容承诺：semver + RFC + Codemod，破坏性升级要 codemod 自动迁移
+- 治理：组件 owner 制度，新增 / 修改要走评审，避免设计系统失控
+
+### 代码示例
+```json
+{
+  "color": {
+    "primary": {
+      "50": { "value": "#eff6ff" },
+      "500": { "value": "#3b82f6" },
+      "900": { "value": "#1e3a8a" }
+    },
+    "text": {
+      "default": { "value": "{color.primary.900.value}" }
+    }
+  }
+}
+```
+
+```ts
+import StyleDictionary from 'style-dictionary';
+
+StyleDictionary.extend({
+  source: ['tokens/**/*.json'],
+  platforms: {
+    css: { transformGroup: 'css', buildPath: 'dist/css/', files: [{ destination: 'tokens.css', format: 'css/variables' }] },
+    js: { transformGroup: 'js', buildPath: 'dist/js/', files: [{ destination: 'tokens.ts', format: 'javascript/es6' }] },
+    ios: { transformGroup: 'ios', buildPath: 'dist/ios/', files: [{ destination: 'Tokens.swift', format: 'ios-swift/class.swift' }] },
+  },
+}).buildAllPlatforms();
+```
+
+### 延伸
+- 多品牌切换可在运行时通过 CSS 自定义属性切换 token，无需重新构建
+- 设计系统的核心收益是"减少决策次数"，比强加约束更重要
+
+## error-boundaries-resilience
+title: 前端错误隔离与韧性设计
+difficulty: 资深
+tags: [错误边界, 韧性]
+
+### 题目
+某个独立模块挂了不应该让整个页面白屏，工程上怎么做"错误隔离"？
+
+### 答案要点
+- React 用 ErrorBoundary，Vue 用 `errorCaptured` 钩子；模块外裹一层兜底 UI
+- 分块加载（dynamic import）失败要捕获并提示用户重试，而不是抛到全局
+- 第三方库挂了要降级而不是炸：广告 / 客服 / 埋点 用 try/catch 包裹
+- Iframe 隔离：第三方 widget 用 sandbox iframe，挂了不影响主框架
+- 服务端错误重试：fetch 失败做指数退避，配合 SWR / React Query
+- 监控：错误率超过阈值自动触发 alert，避免靠用户反馈才发现
+
+### 代码示例
+```tsx
+class ErrorBoundary extends React.Component<{ fallback: React.ReactNode; children: React.ReactNode }, { hasError: boolean }> {
+  state = { hasError: false };
+  static getDerivedStateFromError() {
+    return { hasError: true };
+  }
+  componentDidCatch(error: Error, info: React.ErrorInfo) {
+    reportError(error, info);
+  }
+  render() {
+    return this.state.hasError ? this.props.fallback : this.props.children;
+  }
+}
+
+function Page() {
+  return (
+    <Layout>
+      <ErrorBoundary fallback={<ModuleFallback name="商品推荐" />}>
+        <Recommendation />
+      </ErrorBoundary>
+      <ErrorBoundary fallback={<ModuleFallback name="评论列表" />}>
+        <Suspense fallback={<Skeleton />}><Comments /></Suspense>
+      </ErrorBoundary>
+    </Layout>
+  );
+}
+```
+
+```ts
+async function loadWithRetry<T>(loader: () => Promise<T>, retries = 3): Promise<T> {
+  for (let i = 0; i <= retries; i++) {
+    try {
+      return await loader();
+    } catch (e) {
+      if (i === retries) throw e;
+      await new Promise((r) => setTimeout(r, 2 ** i * 200 + Math.random() * 100));
+    }
+  }
+  throw new Error('unreachable');
+}
+```
+
+### 延伸
+- 韧性设计的关键是"假设任何子模块都可能挂"，把隔离点提前规划好
+- 关键页面要做混沌测试：故意让某个 API 返回错误，验证降级是否生效

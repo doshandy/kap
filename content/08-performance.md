@@ -475,3 +475,95 @@ jobs:
 ### 延伸
 - 性能预算不是为了挡需求，而是让团队知道"每次新增成本是多少"
 - 预算要可解释、可协商，而不是一刀切
+
+## inp-deep
+title: INP 取代 FID 后，前端要怎么优化交互响应
+difficulty: 资深
+tags: [INP, 交互]
+
+### 题目
+2024 年起 INP 取代 FID 成为 Core Web Vitals 之一，它衡量的是什么？前端如何系统性优化？
+
+### 答案要点
+- INP（Interaction to Next Paint）：从用户输入到下一帧渲染完成的最长延迟，整页生命周期内取 P98
+- FID 只看首次输入，INP 看所有交互，是更严格的指标
+- 优化路径：拆长任务、`scheduler.yield()` / `requestIdleCallback`、脏检查降级、避免大列表 sync render
+- 输入处理：`onInput` 内只 setState，重计算放到 `useTransition` 或 `requestIdleCallback`
+- 第三方脚本：埋点 / 广告 / 客服往往是 INP 杀手，能延迟加载就延迟，能用 Web Worker 就用
+- 度量：`web-vitals` SDK 里 `onINP`，配合长任务采样（PerformanceObserver `longtask`）
+
+### 代码示例
+```ts
+import { onINP } from 'web-vitals';
+onINP((m) => navigator.sendBeacon('/beacon', JSON.stringify({ name: m.name, value: m.value, id: m.id })));
+
+if ('scheduler' in window && 'yield' in (window.scheduler as object)) {
+  async function processChunks(items: unknown[]) {
+    for (const item of items) {
+      doWork(item);
+      await (window.scheduler as { yield: () => Promise<void> }).yield();
+    }
+  }
+}
+
+let pending: Set<string> | null = null;
+function onTyping(value: string) {
+  if (!pending) {
+    pending = new Set();
+    requestAnimationFrame(() => {
+      const next = new Set(pending!);
+      pending = null;
+      heavyUpdate(next);
+    });
+  }
+  pending.add(value);
+}
+```
+
+### 延伸
+- React 18 的 `useTransition`、Vue 的 Suspense + defer、Solid 的细粒度更新都直接帮助 INP
+- 长任务（>50ms）治理是 INP 优化的根，老老实实拆 long task 收益最大
+
+## image-modern-pipeline
+title: 现代图片处理流水线（AVIF / WebP / responsive / blur-up）
+difficulty: 进阶
+tags: [图片, LCP]
+
+### 题目
+做内容站的图片优化，从源图到客户端展示完整链路有哪些环节？
+
+### 答案要点
+- 上传：原图存对象存储，不要直接服务客户端
+- 处理：CDN / 服务端按需生成多尺寸 + 多格式（AVIF > WebP > JPEG）
+- 命名：`/img/{id}/{w}.{format}`，方便缓存和回滚
+- 响应式：`<picture>` + `srcset` + `sizes`，让浏览器选最优
+- 占位：LQIP（低质量缩略图）/ blurhash / dominant color，避免 CLS
+- 懒加载：`loading="lazy"` + `fetchpriority`（首屏首图设 high）
+- LCP：首屏图加 `fetchpriority="high" + preload`
+
+### 代码示例
+```html
+<picture>
+  <source type="image/avif" srcset="/img/x.avif?w=480 480w, /img/x.avif?w=960 960w" sizes="(max-width: 720px) 100vw, 720px" />
+  <source type="image/webp" srcset="/img/x.webp?w=480 480w, /img/x.webp?w=960 960w" sizes="(max-width: 720px) 100vw, 720px" />
+  <img
+    src="/img/x.jpg?w=720"
+    width="1440" height="810"
+    style="background-image: url('data:image/svg+xml;...')"
+    loading="lazy"
+    fetchpriority="auto"
+    alt="..."
+  />
+</picture>
+```
+
+```ts
+function blurDataUrl(rgb: [number, number, number]) {
+  const [r, g, b] = rgb;
+  return `data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg'><rect width='100%' height='100%' fill='rgb(${r},${g},${b})'/></svg>`;
+}
+```
+
+### 延伸
+- AVIF 体积小但编码慢，CDN 端按需生成更合适，源站直接存比较费 CPU
+- 真正提升 LCP 的常常不是图片优化，而是 HTML 流式渲染让图片更早可发现

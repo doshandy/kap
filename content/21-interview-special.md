@@ -482,3 +482,89 @@ tags: [表达, 面试, 软技能]
 ### 延伸
 - STAR / 4F 适合行为面试题
 - 提前练习"白板"或"共享屏幕讲解"，让表达成为肌肉记忆
+
+## design-rich-editor
+title: 设计一个富文本编辑器
+difficulty: 资深
+tags: [系统设计, 富文本, 编辑器]
+
+### 题目
+让你设计 Notion / 飞书文档级别的富文本编辑器，整体架构、数据模型、协作和性能怎么考虑？
+
+### 答案要点
+- 数据模型：放弃 contentEditable 的 DOM，用自定义 JSON tree（block + inline + marks）
+- 选择 Slate / TipTap / Lexical / ProseMirror，各家都有 plugin 体系
+- 渲染：从 JSON 渲染成 DOM，编辑时双向同步；contenteditable 只作为输入源
+- 输入：handle key event，转成 transaction，操作 model 而不是 DOM
+- 撤销：操作以原子 transaction 为单位入 history stack
+- 协作：CRDT（Yjs / Automerge）或 OT（ShareDB），避免冲突
+- 块化：每段 block 独立挂载 / 卸载 + virtual scroll，长文档不卡
+- 嵌入：图片 / 代码 / 视频 / mention / 表格作为独立 block，提供 schema
+- 离线：本地 IndexedDB 存最新 doc，恢复网络后再同步
+- 富功能：搜索 / 大纲 / 评论 / 历史版本 / 分享权限
+
+### 代码示例
+```ts
+import * as Y from 'yjs';
+import { WebrtcProvider } from 'y-webrtc';
+import { yXmlFragment } from 'yjs';
+
+const doc = new Y.Doc();
+new WebrtcProvider('kap-doc-1', doc);
+const fragment = doc.getXmlFragment('content');
+
+doc.transact(() => {
+  const p = new Y.XmlElement('paragraph');
+  p.insert(0, [new Y.XmlText('Hello CRDT')]);
+  fragment.push([p]);
+});
+
+doc.on('update', (update) => {
+  syncToServer(Y.encodeStateAsUpdate(doc));
+});
+```
+
+### 延伸
+- 真实编辑器最大成本是"边界 case"和"协同冲突解决"，框架选成熟的别造轮子
+- Notion 早期单页 doc 大了之后卡，是因为没有 block 级 virtualization，最终重写
+
+## design-realtime-collab
+title: 设计一个多人实时协作系统（光标 / 编辑 / 在线状态）
+difficulty: 资深
+tags: [实时协作, 系统设计]
+
+### 题目
+要让多人在同一文档 / 画布上实时协作（看到彼此光标、互不冲突地编辑），整体怎么设计？
+
+### 答案要点
+- 通信：WebSocket / WebRTC，长连接保活 + 心跳 + 重连
+- 一致性：CRDT（Yjs、Automerge）首选，OT（ShareDB）次选；CRDT 不需要中心服务器仲裁
+- Presence：各用户自身状态（光标位置、选中区域、在线 / 离开）通过 awareness 协议广播
+- 性能：高频信令（光标移动）用 throttle + 局部信道；操作信令保证可靠送达
+- 离线：操作进 local 队列，重连后批量同步
+- 权限：可读 / 可评论 / 可编辑分级，服务端二次校验
+- 扩展：服务端水平扩展 + 房间分片 + 消息队列；持久化定期 snapshot
+- 监控：在线人数、消息时延、丢包率、冲突数
+
+### 代码示例
+```ts
+import { Awareness } from 'y-protocols/awareness';
+
+const aware = new Awareness(doc);
+aware.setLocalStateField('user', { name: 'kap', color: '#0ea5e9' });
+
+window.addEventListener('mousemove', throttle((e: MouseEvent) => {
+  aware.setLocalStateField('cursor', { x: e.pageX, y: e.pageY });
+}, 50));
+
+aware.on('change', () => {
+  for (const [clientId, state] of aware.getStates()) {
+    if (clientId === aware.clientID) continue;
+    paintCursor(state.cursor, state.user);
+  }
+});
+```
+
+### 延伸
+- 真实业务的 CRDT 内存增长是个坑，要做"垃圾回收"或"snapshot 重置"
+- 跨数据中心协作要看延迟分布，超过 200ms 单线程合并就会有"漂移感"

@@ -369,3 +369,97 @@ export default defineConfig({
 
 ### 延伸
 - 很多包体问题不是"代码多"，而是依赖接入方式不对
+
+## tree-shaking-deep
+title: Tree-shaking 失效的常见原因
+difficulty: 进阶
+tags: [Tree-shaking, sideEffects]
+
+### 题目
+明明用了 ESM 还是发现整个 lodash 被打进来，可能是哪些原因？
+
+### 答案要点
+- 库不是 ESM：CJS 不能 tree-shake，要看 `package.json` 是否有 `"type": "module"` 或 `exports` 提供 ESM 入口
+- 副作用：`package.json` 里 `"sideEffects": false` 才能让打包器认为 import 无副作用
+- 顶层副作用：`import 'foo/style.css'` / `Object.assign(window, ...)` 都是副作用，必须保留
+- 动态访问：`lodash[methodName]` 会让所有方法被保留
+- 重新导出：`export * from './big'` 比命名导出更难 shake
+- Babel/SWC 配置：转译目标过低（CommonJS）会破坏静态分析
+- 实战工具：`webpack-bundle-analyzer` / `rollup-plugin-visualizer` 是定位的关键
+
+### 代码示例
+```js
+import _ from 'lodash';
+_.debounce(fn, 200);
+
+import { debounce } from 'lodash-es';
+debounce(fn, 200);
+
+{
+  "name": "my-lib",
+  "version": "1.0.0",
+  "sideEffects": ["./src/setup-polyfill.ts", "*.css"],
+  "exports": {
+    ".": {
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.cjs",
+      "types": "./dist/index.d.ts"
+    }
+  }
+}
+```
+
+### 延伸
+- 自家库一定要双格式导出 + 配 sideEffects，不要让用户操心
+- ESLint `no-restricted-imports` 可以禁止 `import * as _ from 'lodash'`，规范全员
+
+## sw-update-strategies
+title: PWA Service Worker 升级策略
+difficulty: 资深
+tags: [PWA, Service Worker]
+
+### 题目
+PWA 上线后用户访问看到的是旧版怎么办？SW 升级有哪些坑？
+
+### 答案要点
+- 默认行为：新 SW 安装完后处于 waiting 状态，老 SW 关闭所有标签后才接管
+- skipWaiting：在 install 里调用，立即激活，但要小心新旧资源版本不一致
+- clientsClaim：activate 后立即接管所有 client，和 skipWaiting 配合
+- 用户提示：检测到新 SW，弹"应用已更新，点击刷新"，让用户主动刷
+- 缓存版本：每次发布换 cache name，旧缓存在 activate 时清理
+- chunk 旧引用：HTML 引用旧 hash 的 JS 已经被新发布删除 → 404，需要保留 N 个版本或 SW 兜底
+- 离线导航：navigateFallback 指向 index.html
+
+### 代码示例
+```ts
+import { precacheAndRoute, cleanupOutdatedCaches } from 'workbox-precaching';
+import { registerRoute } from 'workbox-routing';
+import { StaleWhileRevalidate } from 'workbox-strategies';
+
+self.skipWaiting();
+clientsClaim();
+cleanupOutdatedCaches();
+precacheAndRoute(self.__WB_MANIFEST);
+
+registerRoute(
+  ({ request }) => request.destination === 'style' || request.destination === 'script',
+  new StaleWhileRevalidate({ cacheName: 'assets' }),
+);
+```
+
+```ts
+import { Workbox } from 'workbox-window';
+
+const wb = new Workbox('/sw.js');
+wb.addEventListener('waiting', () => {
+  if (confirm('应用已更新，是否刷新？')) {
+    wb.addEventListener('controlling', () => location.reload());
+    wb.messageSkipWaiting();
+  }
+});
+wb.register();
+```
+
+### 延伸
+- 不要随便上 PWA，强缓存导致的"用户看不到新功能"在大公司是高危事件
+- 强制更新建议结合"最低版本"检查：发现客户端 build hash < server 最低版本 → 弹强制刷新

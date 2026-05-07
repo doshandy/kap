@@ -422,3 +422,94 @@ if (conn) {
 - CDN 不只是"快"，还是安全和可用性基础设施
 - 缓存键里是否包含 query、header、cookie，会直接影响命中率
 - 很多平台还会引入 WAF、Bot 防护、边缘重写和回源鉴权，因此"前端看到的网络行为"未必等于源站真实行为
+
+## webrtc-basic
+title: WebRTC 基础：为什么 P2P 仍然需要服务器
+difficulty: 资深
+tags: [WebRTC, P2P]
+
+### 题目
+浏览器之间打 P2P 视频通话，整个流程涉及哪些角色？SDP 和 ICE 各自做什么？
+
+### 答案要点
+- Signaling 服务器：交换 SDP / ICE，但本身不传媒体；常用 WebSocket
+- SDP（Session Description Protocol）：协商编解码、媒体方向、加密参数
+- ICE：穷举候选地址（host / srflx / relay），用 STUN / TURN 找出最佳通路
+- STUN：帮助发现公网地址；TURN：NAT 打洞失败时做中继（流量贵）
+- 通道：`RTCPeerConnection`（媒体）+ `RTCDataChannel`（任意数据，自动 SCTP 加密）
+- 实战：同事内网通常 STUN 就够；4G / 弱网下 TURN 必备
+
+### 代码示例
+```ts
+const pc = new RTCPeerConnection({
+  iceServers: [
+    { urls: 'stun:stun.l.google.com:19302' },
+    { urls: 'turn:turn.example.com', username: 'u', credential: 'p' },
+  ],
+});
+
+const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+stream.getTracks().forEach((t) => pc.addTrack(t, stream));
+
+const offer = await pc.createOffer();
+await pc.setLocalDescription(offer);
+signaling.send({ type: 'offer', sdp: offer.sdp });
+
+pc.onicecandidate = (e) => {
+  if (e.candidate) signaling.send({ type: 'candidate', candidate: e.candidate });
+};
+
+pc.ontrack = (e) => {
+  videoEl.srcObject = e.streams[0];
+};
+```
+
+### 延伸
+- 大规模会议不走纯 P2P，而是 SFU（Selective Forwarding Unit），中心服务器只转发不编解码
+- 数据通道可代替 WebSocket 做"同 P2P 信道"的实时数据传输（白板、协同光标）
+
+## quic-http3-deep
+title: HTTP/3 / QUIC 在前端工程中的可见影响
+difficulty: 资深
+tags: [HTTP/3, QUIC]
+
+### 题目
+作为前端，HTTP/3 的落地会让你哪些指标受益？踩到的坑是什么？
+
+### 答案要点
+- 0-RTT / 1-RTT：握手次数减少，移动网络弱信号下首请求显著快
+- 多路复用：基于 UDP，避免 HTTP/2 的 TCP 队头阻塞
+- 连接迁移：网络切换（WiFi → 4G）连接不丢
+- 加密：TLS 1.3 内嵌，整个传输层强制加密
+- 影响：`Alt-Svc` 头让浏览器自动 upgrade 到 H3，无需前端改代码；但企业代理 / 老 CDN 可能不支持
+- 监控：Server-Timing、Resource Timing API 里的 `nextHopProtocol` 可以观测 H3 命中率
+- 坑：UDP 在某些企业内网被 ban；CDN H3 配置需要额外开启
+
+### 代码示例
+```ts
+performance.getEntriesByType('resource').forEach((r) => {
+  const e = r as PerformanceResourceTiming;
+  if (e.nextHopProtocol === 'h3') {
+    console.log(e.name, 'via H3', e.duration);
+  }
+});
+
+new PerformanceObserver((list) => {
+  for (const e of list.getEntries() as PerformanceResourceTiming[]) {
+    fetch('/beacon', {
+      method: 'POST',
+      body: JSON.stringify({
+        url: e.name,
+        proto: e.nextHopProtocol,
+        ttfb: e.responseStart - e.requestStart,
+        dur: e.duration,
+      }),
+      keepalive: true,
+    });
+  }
+}).observe({ type: 'resource', buffered: true });
+```
+
+### 延伸
+- HTTP/3 收益最明显的是中等延迟 + 抖动场景（跨国、移动网）
+- 强制走 H3 不一定更稳定，建议保留 H2 fallback，做 A/B

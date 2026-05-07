@@ -697,3 +697,104 @@ jobs:
 
 ### 延伸
 - CI 的目标不是"把所有事都塞进去"，而是让反馈时延和可信度平衡
+
+## monorepo-changesets
+title: Monorepo 多包发版（Changesets / Nx Release / Turborepo）
+difficulty: 资深
+tags: [Monorepo, 发版]
+
+### 题目
+一个仓库里有几十个 package，怎么处理版本号、CHANGELOG 和发布顺序？
+
+### 答案要点
+- 选型：Changesets（手写 patch / minor / major 描述）、Nx Release、Lerna v7+ 重写版
+- 流程：开发提交时附带 changeset 文件 → CI 合并后机器人开 PR → 合 PR 时统一 publish
+- 依赖：被依赖的包先发版，依赖方自动升 caret 范围
+- Changelog：自动生成 + 人工补充重要说明，遵循 Conventional Commits
+- 私有仓 / 内网 npm：配置 `publishConfig` registry，避免误传公网
+- 灰度：beta / next dist-tag，先发预发，回归通过再 promote 到 latest
+- 回滚：deprecate 而不是 unpublish；保留 24 小时窗口
+
+### 代码示例
+```bash
+pnpm changeset
+pnpm changeset version
+pnpm changeset publish
+```
+
+```yaml
+name: Release
+on:
+  push:
+    branches: [main]
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v3
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          registry-url: 'https://registry.npmjs.org'
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm build
+      - uses: changesets/action@v1
+        with:
+          publish: pnpm changeset publish
+          version: pnpm changeset version
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+```
+
+### 延伸
+- 跨包重构时，Changesets 强制写说明，能让 CHANGELOG 一目了然
+- 规模到几百包后建议看 Nx Release，提供更精细的依赖图分析
+
+## bundler-deep
+title: Webpack / Rollup / Vite / Rolldown / Turbopack 比较
+difficulty: 资深
+tags: [打包工具, Vite]
+
+### 题目
+打包器都在做什么？为什么 Vite 在 dev 上能秒开，prod 却仍然要打包？
+
+### 答案要点
+- 打包器三件事：依赖图分析、转换、产出 bundle
+- Webpack：CommonJS/ESM 都吃，生态最丰富；启动慢，对大型项目升级不友好
+- Rollup：纯 ESM 优化好，tree-shaking 极佳，组件库首选；不擅长应用代码分包
+- Vite：开发模式下用 esbuild 预构建依赖 + 浏览器原生 ESM 直接加载；生产仍 Rollup
+- Rolldown：Vite 团队 Rust 重写 Rollup 的项目，打通 dev / prod 同一管线
+- Turbopack：Vercel 出的 Rust 打包器，主要服务 Next.js
+- esbuild：极快，但 plugin 生态弱，常作为 transformer 而非完整打包器
+
+### 代码示例
+```ts
+import { defineConfig } from 'vite';
+
+export default defineConfig({
+  optimizeDeps: {
+    include: ['lodash-es', 'date-fns'],
+    exclude: ['big-wasm-pkg'],
+  },
+  build: {
+    target: 'esnext',
+    rollupOptions: {
+      output: {
+        manualChunks: (id) => {
+          if (id.includes('node_modules')) {
+            if (id.includes('echarts')) return 'echarts';
+            if (id.includes('@vue/repl')) return 'repl';
+            return 'vendor';
+          }
+        },
+      },
+    },
+  },
+});
+```
+
+### 延伸
+- 真正影响开发体验的不是打包器名字，而是依赖预构建是否稳定、HMR 是否快
+- 跨版本升级 Vite / Webpack 前先在分支跑一遍生产构建产物大小对比，避免 regression

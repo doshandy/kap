@@ -435,3 +435,180 @@ console.log(child.x); // 2，receiver 正确指向 child
 ### 延伸
 - Vue3 `reactive` 基于 Proxy 实现，对每个 trap 做依赖追踪
 - 透明拦截不到的：基础数据类型不能 Proxy，私有属性 `#x` 不可代理（会抛 TypeError）
+
+## iterator-generator
+title: 迭代器、生成器与异步迭代
+difficulty: 进阶
+tags: [迭代器, 生成器]
+
+### 题目
+`Symbol.iterator`、`Symbol.asyncIterator`、`function*` 是怎么协作的？什么时候该手写迭代器？
+
+### 答案要点
+- 可迭代协议：对象拥有 `[Symbol.iterator]()` 方法返回迭代器（含 `next()`），就能被 `for...of`、解构、扩展
+- 生成器：`function*` 自动实现迭代器协议，`yield` 暂停让出，`return` 标记 done
+- 异步迭代：`Symbol.asyncIterator` + `for await...of`，每个 `next()` 返回 Promise
+- 真实场景：流式数据（fetch ReadableStream）、分页拉取、惰性大集合、状态机
+- 优势：内存友好（按需产出）、可暂停、可组合（pipe）
+
+### 代码示例
+```ts
+function* range(start: number, end: number, step = 1) {
+  for (let i = start; i < end; i += step) yield i;
+}
+console.log([...range(0, 10, 2)]); // [0, 2, 4, 6, 8]
+
+async function* lines(stream: ReadableStream<Uint8Array>) {
+  const reader = stream.pipeThrough(new TextDecoderStream()).getReader();
+  let buf = '';
+  while (true) {
+    const { value, done } = await reader.read();
+    if (done) {
+      if (buf) yield buf;
+      break;
+    }
+    buf += value;
+    let i;
+    while ((i = buf.indexOf('\n')) >= 0) {
+      yield buf.slice(0, i);
+      buf = buf.slice(i + 1);
+    }
+  }
+}
+
+async function* paginate<T>(fetchPage: (cursor?: string) => Promise<{ items: T[]; next?: string }>) {
+  let cursor: string | undefined;
+  do {
+    const { items, next } = await fetchPage(cursor);
+    yield* items;
+    cursor = next;
+  } while (cursor);
+}
+```
+
+### 延伸
+- 生成器 + Promise 组合可以模拟 async/await（早期 co 库就是这么做的）
+- 想做"可暂停的协作式调度"（如 React 调度器）也是基于生成器思想
+
+## structured-clone
+title: 结构化克隆 vs JSON 序列化
+difficulty: 进阶
+tags: [克隆, postMessage]
+
+### 题目
+`structuredClone`、`JSON.parse(JSON.stringify(x))`、自实现深拷贝各自的能力边界？
+
+### 答案要点
+- `JSON`：丢失 `undefined / function / Symbol / Date / RegExp / Map / Set / BigInt / 循环引用`
+- `structuredClone`：标准结构化克隆算法，支持 `Date / RegExp / Map / Set / ArrayBuffer / TypedArray / Blob / 循环引用`，无法克隆 function / DOM 节点 / Symbol
+- 自实现：可定制（处理 class 实例、保留原型链、对外部资源做引用计数），但要小心循环引用
+- `postMessage / Worker / IndexedDB` 内部都用结构化克隆，理解它就理解这些 API 的限制
+- 性能：`structuredClone` 比 `JSON` 慢，但比手写递归通常更快且更正确
+
+### 代码示例
+```ts
+const obj: Record<string, unknown> = { a: 1, d: new Date(), m: new Map([['k', 1]]), self: null };
+obj.self = obj;
+const cloned = structuredClone(obj);
+console.log(cloned.self === cloned); // true，循环引用保留
+
+function deepCloneClass<T>(x: T, seen = new WeakMap<object, unknown>()): T {
+  if (x === null || typeof x !== 'object') return x;
+  if (seen.has(x as object)) return seen.get(x as object) as T;
+  const proto = Object.getPrototypeOf(x);
+  const out = Array.isArray(x) ? [] : Object.create(proto);
+  seen.set(x as object, out);
+  for (const k of Reflect.ownKeys(x as object)) {
+    (out as Record<PropertyKey, unknown>)[k] = deepCloneClass((x as Record<PropertyKey, unknown>)[k], seen);
+  }
+  return out as T;
+}
+```
+
+### 延伸
+- `structuredClone` 还能 transfer 大对象（不复制，权属转移）：`postMessage(buf, [buf])`
+- 性能极致场景下可以用 `flatbuffers / msgpack` 自定义二进制协议绕过通用克隆
+
+## tagged-template-literal
+title: 模板字符串与标签模板的实战
+difficulty: 进阶
+tags: [模板字符串, 标签模板]
+
+### 题目
+标签模板（tagged template）有什么实际用途？除了 styled-components 还能怎么玩？
+
+### 答案要点
+- 语法：`tag` 函数收到 `(strings: TemplateStringsArray, ...values: unknown[])`
+- 自动转义：把用户输入插值时强制走转义（防 XSS / SQL 注入）
+- DSL 构造：写 GraphQL / SQL / CSS 时，能让编辑器有语法高亮（VS Code 插件按 tag 名识别）
+- 国际化：`i18n` tag 可以根据 locale 重排参数顺序
+- 编译期常量：`strings.raw` 保留未转义版本（如 `\n` 仍是字面量）
+
+### 代码示例
+```ts
+function html(strings: TemplateStringsArray, ...values: unknown[]) {
+  const escape = (s: unknown) =>
+    String(s).replace(/[&<>"']/g, (c) => `&#${c.charCodeAt(0)};`);
+  return strings.reduce((out, cur, i) => out + cur + (i < values.length ? escape(values[i]) : ''), '');
+}
+
+const userInput = '<img onerror=alert(1)>';
+document.body.innerHTML = html`
+  <div>${userInput}</div>
+`;
+
+function sql(strings: TemplateStringsArray, ...values: unknown[]) {
+  const text = strings.reduce((out, cur, i) => out + cur + (i < values.length ? `$${i + 1}` : ''), '');
+  return { text, values };
+}
+const id = 42;
+const q = sql`SELECT * FROM users WHERE id = ${id}`;
+```
+
+### 延伸
+- TS 5.0 的 `Tagged Template` 类型可以静态推断变量类型，做编译期的 DSL 校验
+- 标签模板嵌套时性能要注意，每次都会新建数组
+
+## weak-collection
+title: WeakMap / WeakSet / WeakRef 与垃圾回收
+difficulty: 资深
+tags: [WeakMap, GC]
+
+### 题目
+什么时候必须用 `WeakMap`？`WeakRef` 和 `FinalizationRegistry` 又有什么用？
+
+### 答案要点
+- 普通 Map 强引用 key，被 Map 持有的 key 永远不会被 GC，容易内存泄漏
+- WeakMap：key 必须是对象，弱引用，key 被回收时条目自动消失，适合"给对象挂私有数据"
+- WeakSet：同理，做"对象集合的存在性检查"，不阻止回收
+- WeakRef：手动持有弱引用，常用于缓存大对象，避免引用导致无法回收
+- FinalizationRegistry：对象被 GC 时收到回调，但不保证及时也不保证调用，不能依赖
+
+### 代码示例
+```ts
+const meta = new WeakMap<HTMLElement, { hover: boolean; lastShown: number }>();
+
+function track(el: HTMLElement) {
+  meta.set(el, { hover: false, lastShown: Date.now() });
+  el.addEventListener('mouseenter', () => {
+    const m = meta.get(el);
+    if (m) m.hover = true;
+  });
+}
+
+const cache = new WeakRef(loadHugeData());
+const reg = new FinalizationRegistry((key: string) => {
+  console.log('GC 释放了', key);
+});
+reg.register(loadHugeData(), 'big-data');
+
+setTimeout(() => {
+  const data = cache.deref();
+  if (data) console.log('still alive');
+  else console.log('已经被回收，重新加载');
+}, 60_000);
+```
+
+### 延伸
+- WeakRef / FinalizationRegistry 行为依赖 GC 时机，跨引擎 / 跨设备表现不一致，业务侧不要依赖具体时序
+- React Compiler 的依赖追踪在内部也用 WeakMap 关联组件实例和缓存

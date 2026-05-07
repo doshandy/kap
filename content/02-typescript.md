@@ -330,3 +330,183 @@ const t = inject(ThemeKey); // 类型自动推断
 ### 延伸
 - 表单/校验场景结合 zod 等运行时 schema，自动 infer 类型
 - 组件库的 `defineComponent` + 泛型 props，可以做出真正泛型的列表/表格组件
+
+## infer-extract
+title: 用 infer 在条件类型里抽取类型
+difficulty: 资深
+tags: [infer, 条件类型]
+
+### 题目
+条件类型中 `infer` 怎么用？常见的"从泛型中拆解"模式有哪些？
+
+### 答案要点
+- 语法：`T extends Pattern<infer X> ? X : never`
+- 用途：从函数 / 类 / Promise / 数组中抽取参数 / 返回值 / 元素类型
+- 内置 utility 几乎都是 infer 实现：`ReturnType / Parameters / Awaited / ConstructorParameters / InstanceType`
+- 多 infer：可以在同一条件里抽多个位置的类型
+- 配合分布式条件类型可以遍历联合类型每一项
+- 注意：`infer` 只能用在 `extends` 子句的右侧，不能在普通类型注解里用
+
+### 代码示例
+```ts
+type First<T extends readonly unknown[]> = T extends readonly [infer F, ...unknown[]] ? F : never;
+type Last<T extends readonly unknown[]> = T extends readonly [...unknown[], infer L] ? L : never;
+type F = First<[1, 2, 3]>; // 1
+type L = Last<[1, 2, 3]>;  // 3
+
+type DeepReturn<T> = T extends (...a: never[]) => infer R
+  ? R extends Promise<infer U>
+    ? U
+    : R
+  : never;
+
+type StoreState<S> = S extends { state: () => infer R } ? R : never;
+
+type EventName<T extends string> = T extends `on${infer Name}` ? Lowercase<Name> : never;
+type N = EventName<'onClick' | 'onMouseDown'>; // "click" | "mousedown"
+```
+
+### 延伸
+- `infer` 名称可以重复，但不同分支的同名 infer 互不影响
+- 配合 `extends infer U & U` 可以做"分布式 → 单体"控制（trick）
+
+## global-augmentation
+title: 全局类型扩展与模块声明合并
+difficulty: 资深
+tags: [声明合并, ambient]
+
+### 题目
+怎么给 `window`、第三方库、Vue 实例补充全局类型？三方包没有 d.ts 怎么办？
+
+### 答案要点
+- `declare global { interface Window { foo: Foo } }` 在某模块文件里扩展全局
+- 第三方包扩展：`declare module 'pkg-name' { ... }`，会与原始声明合并
+- 命名空间合并：同名 namespace 自动合并，可在自己的项目里补充
+- 没有 d.ts 的包：先看 `@types/pkg`，没有就 `declare module 'pkg-name'` 写最小骨架
+- Vue 3 全局属性：`declare module 'vue' { interface ComponentCustomProperties { $api: ApiClient } }`
+- React Router meta：`declare module 'react-router' { interface IndexRouteObject { meta?: Meta } }`
+
+### 代码示例
+```ts
+declare global {
+  interface Window {
+    __APP__?: { user: { id: string; name: string } };
+  }
+}
+
+declare module 'vue' {
+  interface ComponentCustomProperties {
+    $api: { get: <T>(url: string) => Promise<T> };
+  }
+}
+
+declare module '@nuxt/schema' {
+  interface RuntimeConfig {
+    apiBase: string;
+  }
+}
+
+declare module 'no-types-pkg' {
+  export function doStuff(input: string): Promise<{ ok: boolean }>;
+  const _default: { doStuff: typeof doStuff };
+  export default _default;
+}
+
+export {};
+```
+
+### 延伸
+- 全局扩展文件必须能被 tsconfig 的 `include` 找到，且不能没有 `import/export`（否则会被当成脚本而不是模块）
+- 多团队共用扩展点（meta、permissions、i18n key）建议放共享 d.ts，避免类型重复定义
+
+## branded-vs-opaque
+title: 品牌类型 (Branded Types) 与不透明类型
+difficulty: 资深
+tags: [类型安全, Branded]
+
+### 题目
+TS 是结构化类型，怎么让 `UserId` 和 `OrderId` 在编译期不可互换？
+
+### 答案要点
+- TS 默认结构等价，所有 string 都互通
+- 加一层"虚拟字段"做品牌：`type UserId = string & { __brand: 'UserId' }`
+- 创建：用工厂函数做 cast，禁止外部直接 as
+- 同样可以做 `Email / NonEmptyString / PositiveInt` 这类语义类型
+- 优势：避免参数顺序错误（把 orderId 传给 userId 参数）、强制走校验
+- 类似概念：Effect-TS 的 `Brand`、io-ts 的 newtype、F# 的单一成员 union
+
+### 代码示例
+```ts
+declare const brand: unique symbol;
+type Brand<T, B> = T & { [brand]: B };
+
+type UserId = Brand<string, 'UserId'>;
+type OrderId = Brand<string, 'OrderId'>;
+type Email = Brand<string, 'Email'>;
+
+export function userId(s: string): UserId {
+  if (!/^u_[\w-]+$/.test(s)) throw new Error('invalid user id');
+  return s as UserId;
+}
+
+export function email(s: string): Email {
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(s)) throw new Error('invalid email');
+  return s as Email;
+}
+
+function sendEmail(to: Email, body: string) {}
+
+const u: UserId = userId('u_001');
+sendEmail(u, 'hi');
+```
+
+### 延伸
+- 后台 API 边界（zod / valibot 解析）就是创建品牌类型的最好场景，"进了核心域就不许再是裸 string"
+- Branded 类型在序列化（JSON.stringify）时品牌字段消失，但运行期没影响
+
+## type-level-gymnastics
+title: 类型体操实用模式（不只是为了炫技）
+difficulty: 资深
+tags: [类型体操, 模板字符串类型]
+
+### 题目
+模板字符串类型 + 递归 + 分布式条件能解决哪些真实问题？
+
+### 答案要点
+- API 路径校验：`/users/:id/posts/:postId` 自动推导出 `{ id: string; postId: string }`
+- 表单字段：`useField<T>('user.address.zip')` 推断出嵌套字段类型
+- i18n：根据 locale 文件 key 推导 `t('home.hero.title')`，缺 key 编译报错
+- SQL builder：`from('users').select('id, name')` 返回 `{ id, name }` 行类型
+- 路由参数：Next App Router 中文件结构 → 参数类型可推断
+
+### 代码示例
+```ts
+type Path = '/users/:id/posts/:postId';
+
+type ParseParams<S extends string> =
+  S extends `${string}:${infer P}/${infer Rest}`
+    ? { [K in P | keyof ParseParams<`/${Rest}`>]: string }
+    : S extends `${string}:${infer P}`
+    ? { [K in P]: string }
+    : Record<string, never>;
+
+type Params = ParseParams<Path>; // { id: string; postId: string }
+
+type DotKeys<T, P extends string = ''> = T extends Record<string, unknown>
+  ? {
+      [K in keyof T & string]: T[K] extends Record<string, unknown>
+        ? DotKeys<T[K], `${P}${K}.`>
+        : `${P}${K}`;
+    }[keyof T & string]
+  : never;
+
+type En = {
+  home: { hero: { title: string; sub: string }; cta: string };
+  about: { title: string };
+};
+type Keys = DotKeys<En>;
+```
+
+### 延伸
+- 类型体操写多了项目编译会变慢，敏感处用 `// @inferType` 缓存
+- TS 有递归深度限制（默认 50），超出就要 unfold 或者放弃静态推导

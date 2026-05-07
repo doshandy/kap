@@ -34,7 +34,7 @@ for (const f of files) {
   const slugs = new Set<string>();
 
   for (const ln of lines) {
-    const m = ln.match(/^##\s+([\w\u4e00-\u9fa5-]+)\s*$/);
+    const m = ln.match(/^##\s+([a-z][a-z0-9-]*)\s*$/);
     if (m) {
       if (inBlock) {
         if (!hasTitleMeta) errs.push(`${f}: ${curSlug} 缺少 title 元数据`);

@@ -495,3 +495,108 @@ const chart2 = echarts.init(container, null, { devicePixelRatio: dpr });
 
 ### 延伸
 - 大屏适配不是单纯缩放一层容器，信息密度和可读性同样重要
+
+## chart-interaction-tooltip
+title: 图表交互的几个关键点（联动 / hover / brush / 缩放）
+difficulty: 进阶
+tags: [可视化, 交互]
+
+### 题目
+做一个有"hover、联动、刷选、滚轮缩放"的多图表 dashboard，前端要解决什么问题？
+
+### 答案要点
+- 节流：mousemove / wheel 事件每秒上百次，要 rAF 节流
+- 联动：跨图表共享 cursor 状态，建议用 store / EventBus 广播 hover 索引
+- Brush：选区交互需要支持 keyboard ESC 取消、双击重置
+- 缩放：滚轮缩放要 cmd/ctrl 修饰，避免误触；移动端用双指
+- 图层：关键交互层用 SVG 或独立 Canvas，避免重绘整图
+- 性能：超过 1 万点用 WebGL（regl / pixi）或聚合采样
+- 可访问性：图表也要支持键盘焦点 + screen reader 文本备份
+
+### 代码示例
+```ts
+const charts = [chart1, chart2, chart3];
+
+function syncHover(targetIndex: number, dataIndex: number) {
+  charts.forEach((c, i) => {
+    if (i === targetIndex) return;
+    c.dispatchAction({ type: 'showTip', seriesIndex: 0, dataIndex });
+  });
+}
+
+charts.forEach((c, i) => {
+  c.on('updateAxisPointer', (e) => {
+    if (typeof e.dataIndex === 'number') syncHover(i, e.dataIndex);
+  });
+});
+
+charts.forEach((c) => {
+  c.getZr().on('mousewheel', (e) => {
+    if (!e.event.ctrlKey && !e.event.metaKey) return;
+    e.event.preventDefault();
+    c.dispatchAction({ type: 'dataZoom', start: 0, end: 50 });
+  });
+});
+```
+
+### 延伸
+- 大屏多图联动建议在外部用 RxJS / Pinia 集中状态，比让每个图自己 listen 干净
+- ECharts / Highcharts / G2 都有内置的联动接口，先看官方再考虑自己造
+
+## d3-force-network
+title: D3 力导向图（Force-directed Graph）实战要点
+difficulty: 资深
+tags: [D3, 力导向, 图]
+
+### 题目
+用 D3 做一张几千节点的关系图，怎么做才能不卡？
+
+### 答案要点
+- 物理仿真：`d3-force` 默认 N²，节点过千就会卡；用 `simulation.alphaDecay` 加快收敛
+- 渲染：节点多用 Canvas / WebGL（pixi）替代 SVG，节省 DOM 节点
+- 分层：固定核心节点位置，外围节点用聚类合并展示
+- 交互：拖拽时只重启局部仿真，hover 用四叉树查询提速
+- 视图：缩放层级抽稀（zoom in 才显示标签），减少标签数量
+- 异步：仿真放 Web Worker，主线程只负责绘制
+
+### 代码示例
+```ts
+import * as d3 from 'd3';
+
+interface Node { id: string; group: number; x?: number; y?: number; vx?: number; vy?: number }
+interface Link { source: string | Node; target: string | Node }
+
+export function buildSimulation(nodes: Node[], links: Link[], canvas: HTMLCanvasElement) {
+  const ctx = canvas.getContext('2d')!;
+  const sim = d3
+    .forceSimulation(nodes)
+    .force('link', d3.forceLink<Node, Link>(links).id((d) => d.id).distance(40))
+    .force('charge', d3.forceManyBody().strength(-30))
+    .force('center', d3.forceCenter(canvas.width / 2, canvas.height / 2))
+    .alphaDecay(0.05);
+
+  sim.on('tick', () => {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.strokeStyle = '#cbd5e1';
+    for (const l of links) {
+      const s = l.source as Node;
+      const t = l.target as Node;
+      ctx.beginPath();
+      ctx.moveTo(s.x!, s.y!);
+      ctx.lineTo(t.x!, t.y!);
+      ctx.stroke();
+    }
+    for (const n of nodes) {
+      ctx.fillStyle = d3.schemeCategory10[n.group];
+      ctx.beginPath();
+      ctx.arc(n.x!, n.y!, 4, 0, 2 * Math.PI);
+      ctx.fill();
+    }
+  });
+  return sim;
+}
+```
+
+### 延伸
+- "好用的图可视化"通常不是技术难，而是布局设计难，要和业务一起迭代
+- 节点超过 5 万考虑 Cytoscape.js / Sigma.js / 自研 GPU 着色

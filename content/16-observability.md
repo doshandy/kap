@@ -437,3 +437,105 @@ if (!consent) {
 
 ### 延伸
 - 监控不是法外之地，越成熟的团队越重视数据采集边界
+
+## opentelemetry-frontend
+title: OpenTelemetry 在前端的接入
+difficulty: 资深
+tags: [OpenTelemetry, Trace]
+
+### 题目
+后端常用 OpenTelemetry 做分布式追踪，前端怎么接入并把链路打通？
+
+### 答案要点
+- SDK：`@opentelemetry/sdk-trace-web` + `@opentelemetry/instrumentation-fetch / xml-http-request / document-load`
+- 出口：OTLP HTTP / gRPC，收集端如 Jaeger / Tempo / Datadog
+- TraceContext：fetch 自动注入 `traceparent` header，后端继续传播形成端到端 span
+- 用户行为 span：路由切换、关键交互埋成 span，便于回溯
+- 采样：默认全采本地 dev，生产采样率 5%–10%；错误请求 100% 采
+- 隐私：URL / 参数中的 PII 要 redact，避免外泄
+
+### 代码示例
+```ts
+import { WebTracerProvider } from '@opentelemetry/sdk-trace-web';
+import { OTLPTraceExporter } from '@opentelemetry/exporter-trace-otlp-http';
+import { BatchSpanProcessor } from '@opentelemetry/sdk-trace-base';
+import { ZoneContextManager } from '@opentelemetry/context-zone';
+import { registerInstrumentations } from '@opentelemetry/instrumentation';
+import { FetchInstrumentation } from '@opentelemetry/instrumentation-fetch';
+import { DocumentLoadInstrumentation } from '@opentelemetry/instrumentation-document-load';
+
+const provider = new WebTracerProvider();
+provider.addSpanProcessor(
+  new BatchSpanProcessor(new OTLPTraceExporter({ url: '/otlp/v1/traces' })),
+);
+provider.register({ contextManager: new ZoneContextManager() });
+
+registerInstrumentations({
+  instrumentations: [
+    new FetchInstrumentation({ propagateTraceHeaderCorsUrls: [/.*api\.example\.com.*/] }),
+    new DocumentLoadInstrumentation(),
+  ],
+});
+
+const tracer = provider.getTracer('app');
+function trackRouteChange(to: string) {
+  const span = tracer.startSpan('route.change', { attributes: { to } });
+  span.end();
+}
+```
+
+### 延伸
+- 配合 RUM 还可以聚合 user journey，定位"特定路径下错误率高"的原因
+- 前端 trace 量大、价值密度低，建议用尾采样（tail sampling）+ 错误优先
+
+## frontend-feature-flag
+title: 前端 A/B 测试与特性开关的工程实现
+difficulty: 进阶
+tags: [Feature Flag, A/B]
+
+### 题目
+特性开关 / A/B 实验在前端怎么做，才能既灵活又不影响性能 / 体验？
+
+### 答案要点
+- 决策放在边缘 / SSR：避免客户端"先看到旧版再切到新版"造成 flash
+- SDK：第三方（LaunchDarkly / Unleash / Statsig）或自建 KV + 推送
+- 缓存：每个 flag 在客户端有 TTL，不要每次渲染都问服务端
+- 实验分桶：按 user / device 哈希分桶，保证同一用户看同一版本
+- 观测：实验上线必须埋曝光 / 转化事件，结合后端核心指标做归因
+- 代码治理：flag 有"创建-试验-决策-清理"生命周期，老 flag 要定期回收
+
+### 代码示例
+```ts
+type Variant = 'control' | 'a' | 'b';
+type Flags = Record<string, Variant | boolean>;
+
+interface Ctx { userId: string; country: string; deviceType: 'mobile' | 'desktop' }
+
+function hashBucket(input: string, salt: string): number {
+  let h = 0;
+  for (const c of input + salt) h = (h * 31 + c.charCodeAt(0)) | 0;
+  return Math.abs(h) % 100;
+}
+
+export function evaluate(ctx: Ctx, definitions: Record<string, { rollout: number; variants: Variant[] }>): Flags {
+  const out: Flags = {};
+  for (const [key, def] of Object.entries(definitions)) {
+    const bucket = hashBucket(ctx.userId, key);
+    if (bucket >= def.rollout) {
+      out[key] = false;
+      continue;
+    }
+    const idx = bucket % def.variants.length;
+    out[key] = def.variants[idx];
+  }
+  return out;
+}
+
+export function trackExposure(flag: string, variant: Variant | boolean) {
+  navigator.sendBeacon('/exp/exposure', JSON.stringify({ flag, variant, ts: Date.now() }));
+}
+```
+
+### 延伸
+- 不要把所有 flag 都丢同一个对象，否则任何一个 flag 变更全站都要重渲染
+- 实验设计需要数据团队配合，前端只负责"正确分桶 + 正确埋点"

@@ -352,3 +352,106 @@ tags: [打印, 导出]
 ### 延伸
 - 先把网页内容语义结构做好，打印样式才容易稳定
 - "可打印"与"PDF 截图导出"不是一回事，前者更接近文档排版
+
+## modern-css-features
+title: 现代 CSS 必备特性：has / nesting / cascade-layers / color-mix
+difficulty: 进阶
+tags: [现代 CSS, has, layers]
+
+### 题目
+2024 年起浏览器对 `:has()`、CSS Nesting、`@layer`、`color-mix()`、`@scope` 等特性的支持已成熟，它们解决了哪些真实问题？
+
+### 答案要点
+- `:has()`：终于有了"父选择器"，可基于子节点状态选父，替代过去的 JS hack
+- CSS Nesting：原生嵌套，去掉 Sass / Less 依赖
+- `@layer`：层叠层，让设计系统、组件库、业务 CSS 优先级可控、可覆盖
+- `color-mix() / oklch()`：基于感知均匀色彩空间做派生色，主题色更自然
+- `@scope`：限定样式作用域，避免 BEM 命名冲突，对组件库有用
+- `@container`：容器查询，按父元素宽度而不是视口适配，做卡片 / 模块更灵活
+
+### 代码示例
+```css
+.card:has(img) {
+  padding-top: 0;
+}
+
+.btn {
+  background: var(--c-primary);
+  &:hover { filter: brightness(1.05); }
+  &.ghost {
+    background: transparent;
+    color: var(--c-primary);
+  }
+}
+
+@layer reset, base, components, utilities;
+@layer base {
+  body { font-family: system-ui; }
+}
+
+:root {
+  --primary: oklch(0.7 0.18 250);
+  --primary-soft: color-mix(in oklch, var(--primary) 18%, white);
+}
+
+@scope (.card) to (.actions) {
+  h3 { font-size: 16px; }
+}
+```
+
+### 延伸
+- 老项目可以让 PostCSS / Lightning CSS 把现代语法降级到兼容旧浏览器
+- 设计系统团队尤其要拥抱 layers，可以让"业务覆盖组件库"变得可预期
+
+## css-architecture
+title: CSS 架构方案：BEM / CSS-in-JS / Tailwind / CSS Modules
+difficulty: 进阶
+tags: [架构, Tailwind, CSS-in-JS]
+
+### 题目
+不同 CSS 组织方式各自的取舍是什么？大型团队怎么选？
+
+### 答案要点
+- BEM：传统命名约定，零运行时，跨技术栈通用，但样板多
+- CSS Modules：构建期局部作用域，类名 hash，配合 Vue/React 都好用
+- CSS-in-JS（styled-components / Emotion / vanilla-extract）：JS 表达力强、动态主题方便；运行时方案有性能开销，零运行时方案（vanilla-extract）需要构建集成
+- Tailwind：原子类，约定统一、不用命名、可复用 design tokens；但 HTML 拥挤、协作要建组件库
+- Sass / Less：变量、嵌套、mixin，过去主流；现代 CSS 已逐步替代它们的功能
+- 选型建议：design tokens 先定 → 视组件复杂度选实现 → 业务侧统一一种风格
+
+### 代码示例
+```vue
+<script setup lang="ts">
+import styles from './card.module.css';
+defineProps<{ active: boolean }>();
+</script>
+
+<template>
+  <div :class="[styles.card, $props.active && styles.active]">
+    <slot />
+  </div>
+</template>
+```
+
+```tsx
+import { recipe } from '@vanilla-extract/recipes';
+
+export const button = recipe({
+  base: { borderRadius: 8, padding: '8px 14px' },
+  variants: {
+    intent: {
+      primary: { background: 'var(--c-primary)', color: '#fff' },
+      ghost: { background: 'transparent', color: 'var(--c-primary)' },
+    },
+    size: {
+      sm: { fontSize: 12 },
+      md: { fontSize: 14 },
+    },
+  },
+  defaultVariants: { intent: 'primary', size: 'md' },
+});
+```
+
+### 延伸
+- 不同方案可以混用，但一个仓库内统一基本盘很重要，否则维护成本爆炸
+- 最重要的是把 design tokens（颜色、间距、圆角、阴影）做成单一来源

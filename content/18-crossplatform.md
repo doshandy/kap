@@ -553,3 +553,107 @@ if (conn?.effectiveType === '2g' || conn?.saveData) {
 
 ### 延伸
 - 跨端不是"抹平所有差异"，而是"在大部分一致和少量特化之间取平衡"
+
+## miniapp-architecture
+title: 微信小程序的双线程架构与性能边界
+difficulty: 进阶
+tags: [小程序, 双线程]
+
+### 题目
+小程序的逻辑层和渲染层为什么是两个线程？这种架构带来了哪些性能限制？
+
+### 答案要点
+- 渲染层：WebView 跑 WXML/WXSS，每个页面独立 WebView
+- 逻辑层：JsCore（iOS） / V8（Android），不能访问 DOM
+- 通信：通过 Native 桥接做 setData，所有数据都要 JSON 序列化跨进程
+- 优化：减少 setData 频次和体积；列表用 `wx:key` + 局部更新；图片用懒加载
+- API：`wx.request` 受白名单限制；`wx.canIUse` 做能力检测
+- 包大小：主包 < 2MB（旧版），分包按场景拆；首屏关键资源放主包
+- 高级能力：`wxs` 在渲染层执行少量计算（避免跨线程往返）；自定义组件提速
+
+### 代码示例
+```js
+Page({
+  data: { list: [] },
+
+  onLoad() {
+    this._buf = [];
+    this._timer = null;
+  },
+
+  pushItem(item) {
+    this._buf.push(item);
+    if (this._timer) return;
+    this._timer = setTimeout(() => {
+      this.setData({ [`list[${this.data.list.length}]`]: this._buf.shift() });
+      this._buf.forEach((it, i) => {
+        this.setData({ [`list[${this.data.list.length + i}]`]: it });
+      });
+      this._buf = [];
+      this._timer = null;
+    }, 16);
+  },
+});
+```
+
+```js
+function format(value) {
+  return value < 10 ? '0' + value : '' + value;
+}
+module.exports = { format };
+```
+
+### 延伸
+- Skyline 渲染引擎正在替代 WebView，提升性能但兼容性需评估
+- 跨平台框架（Taro / uni-app）会自动处理 setData 节流，但仍要关注大列表
+
+## taro-uniapp-choice
+title: Taro / uni-app 与原生小程序如何选择
+difficulty: 进阶
+tags: [Taro, uni-app, 跨端]
+
+### 题目
+做小程序业务时是直接写原生还是用 Taro / uni-app？各自的取舍是什么？
+
+### 答案要点
+- 原生：性能最好、API 直接、调试方便；只能跑微信，不能复用 Web
+- Taro：基于 React/Vue 写一套、编译到多端（微信/支付宝/抖音/H5/RN），生态偏 React
+- uni-app：基于 Vue 语法，国内生态成熟、组件库多、文档中文化好
+- 性能：编译产物体积大于原生，setData 优化需要跟踪框架版本
+- 适合 Taro / uni-app：需要多端覆盖、团队熟 Web 框架
+- 适合原生：核心业务、对性能/体积敏感、只投放单端
+- 真实策略：复杂功能模块原生，常规页面跨端框架
+
+### 代码示例
+```tsx
+import { View, Text, Button } from '@tarojs/components';
+import Taro, { useState } from '@tarojs/taro';
+
+export default function Index() {
+  const [count, setCount] = useState(0);
+  return (
+    <View className="page">
+      <Text>{count}</Text>
+      <Button onClick={() => setCount((c) => c + 1)}>+1</Button>
+    </View>
+  );
+}
+```
+
+```vue
+<template>
+  <view class="page">
+    <text>{{ count }}</text>
+    <button @click="count++">+1</button>
+  </view>
+</template>
+
+<script setup>
+import { ref } from 'vue';
+const count = ref(0);
+</script>
+```
+
+### 延伸
+- 跨端框架升级要紧跟，落后版本可能踩到平台 API 变更的坑
+- "技术统一、产品差异化"是常见策略：核心代码跨端、关键页定制

@@ -75,7 +75,7 @@ interface RawQuestionFront {
   tags?: string[];
 }
 
-const QUESTION_HEADING_RE = /^##\s+([\w\u4e00-\u9fa5-]+)\s*$/;
+const QUESTION_HEADING_RE = /^##\s+([a-z][a-z0-9-]*)\s*$/;
 const SUBSECTION_RE = /^###\s+(题目|答案要点|代码示例|延伸)\s*$/;
 
 interface ParsedQuestionBlock {

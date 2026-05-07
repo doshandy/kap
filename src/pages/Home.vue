@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onMounted, ref, watch } from 'vue';
+import { computed, nextTick, onActivated, onBeforeUnmount, onMounted, ref, watch } from 'vue';
 import * as echarts from 'echarts/core';
 import { PieChart, BarChart, HeatmapChart } from 'echarts/charts';
 import {
@@ -131,12 +131,15 @@ function getHeatmapOption() {
     },
     calendar: {
       top: 60,
+      left: 40,
+      right: 20,
       range: year,
-      cellSize: ['auto', 14],
-      itemStyle: { borderColor: isDark() ? '#0b1220' : '#fff' },
+      cellSize: ['auto', 16],
+      splitLine: { show: false },
+      itemStyle: { borderColor: isDark() ? '#0b1220' : '#fff', borderWidth: 1 },
       yearLabel: { show: false },
-      monthLabel: { color: isDark() ? '#cbd5e1' : '#475569' },
-      dayLabel: { color: isDark() ? '#cbd5e1' : '#475569' },
+      monthLabel: { color: isDark() ? '#cbd5e1' : '#475569', fontSize: 11 },
+      dayLabel: { color: isDark() ? '#cbd5e1' : '#475569', fontSize: 10, firstDay: 1 },
     },
     series: { type: 'heatmap', coordinateSystem: 'calendar', data: points },
   };
@@ -145,32 +148,65 @@ function getHeatmapOption() {
 let pie: echarts.ECharts | null = null;
 let bar: echarts.ECharts | null = null;
 let heat: echarts.ECharts | null = null;
+let ro: ResizeObserver | null = null;
+
+function ensureChart(
+  el: HTMLElement | null,
+  inst: echarts.ECharts | null,
+  getOpt: () => unknown,
+): echarts.ECharts | null {
+  if (!el) return inst;
+  let chart = inst;
+  if (!chart || chart.isDisposed()) {
+    chart = echarts.init(el);
+  }
+  chart.setOption(getOpt() as Parameters<echarts.ECharts['setOption']>[0], true);
+  chart.resize();
+  return chart;
+}
 
 function renderAll() {
-  if (pieRef.value) {
-    pie?.dispose();
-    pie = echarts.init(pieRef.value);
-    pie.setOption(getOption());
-  }
-  if (barRef.value) {
-    bar?.dispose();
-    bar = echarts.init(barRef.value);
-    bar.setOption(getBarOption());
-  }
-  if (heatRef.value) {
-    heat?.dispose();
-    heat = echarts.init(heatRef.value);
-    heat.setOption(getHeatmapOption());
-  }
+  pie = ensureChart(pieRef.value, pie, getOption);
+  bar = ensureChart(barRef.value, bar, getBarOption);
+  heat = ensureChart(heatRef.value, heat, getHeatmapOption);
+}
+
+function resizeAll() {
+  pie?.resize();
+  bar?.resize();
+  heat?.resize();
+}
+
+function onWinResize() {
+  resizeAll();
 }
 
 onMounted(() => {
   renderAll();
-  window.addEventListener('resize', () => {
-    pie?.resize();
-    bar?.resize();
-    heat?.resize();
+  window.addEventListener('resize', onWinResize);
+  if (typeof ResizeObserver !== 'undefined') {
+    ro = new ResizeObserver(() => resizeAll());
+    if (pieRef.value) ro.observe(pieRef.value);
+    if (barRef.value) ro.observe(barRef.value);
+    if (heatRef.value) ro.observe(heatRef.value);
+  }
+});
+
+onActivated(() => {
+  nextTick(() => {
+    renderAll();
+    resizeAll();
   });
+});
+
+onBeforeUnmount(() => {
+  window.removeEventListener('resize', onWinResize);
+  ro?.disconnect();
+  ro = null;
+  pie?.dispose();
+  bar?.dispose();
+  heat?.dispose();
+  pie = bar = heat = null;
 });
 
 watch(() => [totalDone.value, dueCount.value, document.documentElement.className], renderAll);
@@ -220,7 +256,7 @@ watch(() => [totalDone.value, dueCount.value, document.documentElement.className
       </div>
     </section>
 
-    <section class="card chart">
+    <section class="card chart heat-wrap">
       <h3>复习热力图</h3>
       <div ref="heatRef" class="chart-box heat" />
     </section>
@@ -293,9 +329,14 @@ watch(() => [totalDone.value, dueCount.value, document.documentElement.className
 .chart-box {
   width: 100%;
   height: 280px;
+  min-height: 200px;
 }
 .chart-box.heat {
-  height: 200px;
+  height: 220px;
+  min-width: 760px;
+}
+.chart.heat-wrap {
+  overflow-x: auto;
 }
 @media (max-width: 768px) {
   .grid {

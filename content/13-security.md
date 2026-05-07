@@ -348,3 +348,93 @@ build:
 ### 延伸
 - 前端能做的是"减少暴露面和滥用成本"，不是"替后端保密"
 - 真正的密钥、签名私钥、第三方管理口令只能存在受控服务端或专用密钥管理系统中
+
+## passkeys-webauthn
+title: Passkeys / WebAuthn 取代密码的工程化路径
+difficulty: 资深
+tags: [Passkeys, WebAuthn]
+
+### 题目
+Passkeys 怎么工作？业务接入要做哪些事，对老用户怎么平滑迁移？
+
+### 答案要点
+- 原理：基于公私钥的 WebAuthn 协议，私钥存设备 / iCloud Keychain / Google Password Manager，服务端只存公钥
+- 流程：注册 → `navigator.credentials.create({ publicKey })` → 把公钥送服务端；登录 → `navigator.credentials.get({ publicKey })` → 服务端校验签名
+- 优势：免密码、抗钓鱼、跨设备同步、内置生物识别
+- 兼容：iOS 16+、Android 9+、主流桌面浏览器，老设备保留密码登录作为兜底
+- 注册时需要 RP id（域名）、challenge、user 信息；登录时只要 challenge + allowCredentials
+- 安全：challenge 必须服务端生成且一次性，origin 校验交给浏览器，不要自己实现
+
+### 代码示例
+```ts
+async function registerPasskey(userId: string, name: string) {
+  const challenge = new Uint8Array(await fetch('/auth/challenge').then((r) => r.arrayBuffer()));
+  const cred = (await navigator.credentials.create({
+    publicKey: {
+      challenge,
+      rp: { id: 'kap.dev', name: 'KAP' },
+      user: { id: new TextEncoder().encode(userId), name, displayName: name },
+      pubKeyCredParams: [
+        { type: 'public-key', alg: -7 },
+        { type: 'public-key', alg: -257 },
+      ],
+      authenticatorSelection: { userVerification: 'preferred', residentKey: 'preferred' },
+      timeout: 60_000,
+    },
+  })) as PublicKeyCredential;
+  await fetch('/auth/register', { method: 'POST', body: cred.response.toString() });
+}
+
+async function loginWithPasskey() {
+  const challenge = new Uint8Array(await fetch('/auth/challenge').then((r) => r.arrayBuffer()));
+  const cred = (await navigator.credentials.get({
+    publicKey: { challenge, rpId: 'kap.dev', userVerification: 'preferred' },
+  })) as PublicKeyCredential;
+  await fetch('/auth/verify', { method: 'POST', body: cred.response.toString() });
+}
+```
+
+### 延伸
+- 渐进策略：先把 Passkey 作为"二步验证"加入，让用户熟悉；再开启"无密码登录"
+- 服务端接 [SimpleWebAuthn](https://simplewebauthn.dev) 等成熟库，不要自己实现 CBOR 解析
+
+## subresource-integrity
+title: Subresource Integrity 与第三方资源篡改
+difficulty: 进阶
+tags: [SRI, CDN]
+
+### 题目
+引入第三方 CDN 脚本时怎么避免被中间人篡改？SRI 怎么用？
+
+### 答案要点
+- SRI（Subresource Integrity）：在 `<script>` / `<link>` 上加 `integrity` 属性指定文件的 hash，浏览器校验失败就拒绝执行
+- 哈希算法：sha256 / sha384 / sha512，建议 sha384 起步
+- 配合 `crossorigin="anonymous"` 避免 hash 校验绕过
+- 自动化：构建期对外链脚本生成 SRI，提交时锁定
+- 局限：只能保护静态资源；动态生成 / 频繁更新的资源不适合 SRI
+- CSP `require-sri-for` 可以强制 SRI（实验特性，兼容性需评估）
+
+### 代码示例
+```html
+<script
+  src="https://cdn.example.com/lib.js"
+  integrity="sha384-AbCdEf012345..."
+  crossorigin="anonymous"
+></script>
+```
+
+```ts
+import { createHash } from 'node:crypto';
+import { readFileSync } from 'node:fs';
+
+function sri(file: string, algo: 'sha256' | 'sha384' | 'sha512' = 'sha384') {
+  const hash = createHash(algo).update(readFileSync(file)).digest('base64');
+  return `${algo}-${hash}`;
+}
+
+console.log(sri('dist/lib.js'));
+```
+
+### 延伸
+- 用了 webpack-subresource-integrity / vite-plugin-sri 可以自动注入 SRI
+- 不要把第三方 CDN 当作"自己的代码"，关键脚本能内嵌就内嵌，能自托管就自托管
