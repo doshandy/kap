@@ -539,3 +539,66 @@ export function trackExposure(flag: string, variant: Variant | boolean) {
 ### 延伸
 - 不要把所有 flag 都丢同一个对象，否则任何一个 flag 变更全站都要重渲染
 - 实验设计需要数据团队配合，前端只负责"正确分桶 + 正确埋点"
+
+## frontend-error-monitor
+title: 前端如何全链路捕获错误并上报
+difficulty: 进阶
+tags: [监控, 错误]
+
+### 一句话
+五条线把错误捕全：`window.onerror`（同步 JS 错）+ `unhandledrejection`（Promise）+ ErrorBoundary（React 渲染）+ resource onerror（图片/脚本加载失败）+ console.error 拦截。然后 sourcemap 还原 + 上报。
+
+### 题目
+做一个完整的前端错误监控系统需要捕获哪些类型的错误？关键链路有哪些？
+
+### 答案要点
+- **同步 JS 异常**：`window.addEventListener('error', e => ...)`（注意第 3 个参数 `useCapture=true` 才能捕获资源加载错误）
+- **未处理的 Promise rejection**：`window.addEventListener('unhandledrejection', e => e.reason)`
+- **资源加载失败**（img/script/link）：`error` 事件冒泡不上来，必须捕获阶段监听
+- **框架渲染错误**：React 的 ErrorBoundary、Vue 的 `app.config.errorHandler`、Next.js error.tsx
+- **网络请求错误**：拦截 fetch / xhr，记录 URL / 状态码 / 耗时（4xx 5xx 算业务错误）
+- **白屏检测**：通过定期检查根节点是否有内容、Performance 指标 LCP 是否上报
+- **Source Map**：构建产物 sourcemap 上传到监控平台（Sentry / 自建），上报时只传 stack + line/column
+- **采样策略**：低频错误 100% 上报，高频用 fingerprint 聚合 + 采样
+- **联动**：错误带上 traceId 与后端 APM 串联（OpenTelemetry）
+
+### 代码示例
+```js
+window.addEventListener('error', (e) => {
+  if (e.target && (e.target instanceof HTMLImageElement || e.target instanceof HTMLScriptElement)) {
+    report({ type: 'resource', url: e.target.src, tag: e.target.tagName });
+  } else {
+    report({ type: 'js', message: e.message, stack: e.error?.stack, file: e.filename, line: e.lineno });
+  }
+}, true);
+
+window.addEventListener('unhandledrejection', (e) => {
+  report({ type: 'promise', reason: String(e.reason), stack: e.reason?.stack });
+});
+
+const _fetch = window.fetch;
+window.fetch = async (...args) => {
+  const start = performance.now();
+  try {
+    const res = await _fetch(...args);
+    if (!res.ok) report({ type: 'http', status: res.status, url: args[0] });
+    return res;
+  } catch (e) {
+    report({ type: 'network', url: String(args[0]), error: String(e) });
+    throw e;
+  } finally {
+    const cost = performance.now() - start;
+    if (cost > 5000) report({ type: 'slow_api', url: args[0], cost });
+  }
+};
+
+function report(data) {
+  navigator.sendBeacon('/rum', JSON.stringify({ ...data, ts: Date.now() }));
+}
+```
+
+### 延伸
+- Sentry / Bugsnag / 阿里 ARMS / 字节 Slardar 都是成熟方案
+- 大型应用建议自建：上报量大、字段定制多
+- AI 时代可对错误聚合做"自动归因"，找最近一次代码改动
+

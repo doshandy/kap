@@ -496,3 +496,54 @@ fetch('/api/transfer', {
 - 现代框架（React、Vue）默认转义文本，所以滥用 `v-html / dangerouslySetInnerHTML` 才是 XSS 主要源头
 - 安全 = 默认安全 × 防御深度，单点措施都不够
 
+
+## auth-token-jwt
+title: 鉴权方案 Cookie+Session vs JWT 怎么选
+difficulty: 进阶
+tags: [鉴权, JWT, Session]
+
+### 一句话
+**Cookie + Session**：服务端有状态、可随时踢人，配合 HttpOnly + Secure + SameSite 最稳；**JWT**：无状态、可跨服务，但很难主动过期。Web 应用首选 Cookie+Session，纯 API / 微服务才用 JWT。
+
+### 题目
+请对比 Cookie + Session 与 JWT 两种鉴权方案，从安全、性能、运维角度评估。
+
+### 答案要点
+- **Cookie + Session（有状态）**
+  - 服务端保存 sessionId → 用户信息（Redis / DB）
+  - 前端浏览器自动带 cookie；HttpOnly 防 XSS、Secure 防降级、SameSite 防 CSRF
+  - 优点：可主动失效（踢人 / 改密码退出所有设备），权限变更立即生效
+  - 缺点：分布式架构需要共享 session 存储
+- **JWT（无状态）**
+  - Token 自身包含信息（header.payload.signature），服务端验签
+  - 优点：跨服务无状态、移动端 / 第三方接入方便
+  - 缺点：
+    - **难主动过期**（已签发的 token 在到期前都有效），需配合 refresh token + 黑名单
+    - 不要把敏感信息放进 payload（base64 可读）
+    - 必须 HTTPS（不然中间人可拿走 token）
+- **混合方案（最常用）**
+  - Web 用 Cookie + Session
+  - 移动端 / OAuth 第三方用 access_token + refresh_token
+  - access_token 短效（15min），refresh_token 长效（7 天）+ 服务端撤销列表
+- **安全要点**
+  - 密码用 bcrypt / argon2 加盐，永远不存明文
+  - 登录限速（防暴力破解）+ 验证码（防机器）
+  - Passkeys / WebAuthn 是密码的替代趋势
+
+### 代码示例
+```http
+Set-Cookie: session=abc; HttpOnly; Secure; SameSite=Lax; Max-Age=86400
+```
+
+```js
+import jwt from 'jsonwebtoken';
+const token = jwt.sign({ userId: 1, role: 'admin' }, process.env.SECRET, {
+  expiresIn: '15m',
+});
+const decoded = jwt.verify(token, process.env.SECRET);
+```
+
+### 延伸
+- 单点登录（SSO）多用 OAuth 2.0 + OIDC（基于 JWT）
+- 大厂内部一般 Cookie + Session 主流，对 C 端用户最稳
+

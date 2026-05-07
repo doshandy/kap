@@ -272,3 +272,59 @@ export default function Page({ post }: { post: Post }) {
 ### 延伸
 - 别把"SEO 友好的渲染"和"必须 SSR"画等号，结构化的 SSG / ISR 通常已经够了
 - 真正排名靠前的还是内容质量和外链，技术只是基础线
+
+## ssr-csr-ssg-isr
+title: SSR / CSR / SSG / ISR 怎么选
+difficulty: 进阶
+tags: [SSR, SSG, ISR]
+
+### 一句话
+内容稳定（博客 / 文档）→ SSG 预渲染；高度动态（仪表盘）→ CSR；要 SEO 又有动态数据 → SSR；想要 SSG 的速度 + 动态更新 → ISR（按需重新生成）。
+
+### 题目
+请对比 SSR / CSR / SSG / ISR 在性能、SEO、运维成本和适用场景上的差异。
+
+### 答案要点
+- **CSR（Client-Side Rendering）**
+  - HTML 是空壳，JS 跑起来再填内容
+  - 优点：开发简单、SPA 体验好
+  - 缺点：首屏慢、SEO 差（除非 prerender）
+- **SSR（Server-Side Rendering）**
+  - 每次请求服务端渲染 HTML 直出
+  - 优点：首屏快、SEO 好、可拿到登录态做个性化
+  - 缺点：服务器压力大、需要 hydration（注水）回到客户端组件
+- **SSG（Static Site Generation）**
+  - 构建期生成全部 HTML，CDN 直接吐
+  - 优点：极快、几乎零运维
+  - 缺点：内容更新需要重新构建，不适合频繁变化
+- **ISR（Incremental Static Regeneration，Next.js 概念）**
+  - 首次请求是 SSG，过 N 秒/手动触发再后台重新生成
+  - 兼顾静态性能与动态更新
+- **RSC（React Server Components）**
+  - 进一步把"组件级别"的渲染拆到服务端，组件自身可读数据库
+  - Next.js 14+ 默认行为
+- **选型指南**
+  - 营销页 / 文档 / 博客 → SSG / ISR（Astro / Next / Nuxt content）
+  - 后台管理 → CSR
+  - 电商 / 内容站 → SSR + ISR + RSC
+  - 强动态（chat / dashboard）→ CSR + 流式数据
+
+### 代码示例
+```ts
+// app/blog/[slug]/page.tsx (Next.js App Router)
+export const revalidate = 60;
+export async function generateStaticParams() {
+  const posts = await fetchAllPosts();
+  return posts.map((p) => ({ slug: p.slug }));
+}
+export default async function Post({ params }) {
+  const post = await getPost(params.slug);
+  return <Article data={post} />;
+}
+```
+
+### 延伸
+- Next.js 已经把这几种模型统一到 App Router + Server Components
+- Nuxt 3 用 Nitro 引擎在多个目标（Node / Edge / Cloudflare）部署
+- Edge Runtime（Cloudflare Workers / Vercel Edge）让 SSR 接近 CDN 速度
+

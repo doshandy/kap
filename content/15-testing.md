@@ -424,3 +424,55 @@ test.describe('orders', () => {
 ### 延伸
 - Flaky 治理的关键不是技术，而是文化：让团队认可"红色 = 必须立刻处理"
 - Code review 时关注新增用例是否依赖时间 / 顺序 / 网络
+
+## test-pyramid-vs-trophy
+title: 测试金字塔 / 测试奖杯 怎么选
+difficulty: 进阶
+tags: [测试, 架构]
+
+### 一句话
+传统金字塔：单测多 + 集成中 + E2E 少；前端时代变成奖杯：**集成测试**（组件测试）才是性价比最高的——既覆盖真实场景又比 E2E 快。
+
+### 题目
+单元测试、集成测试、E2E 各应该怎么投入？前端有什么自己的特殊性？
+
+### 答案要点
+- **单元测试**：纯函数 / Hook / 工具库；快、稳定、易定位 bug；适合纯逻辑
+- **集成 / 组件测试**：用 React Testing Library / Vue Test Utils 渲染真实组件树并模拟用户交互——前端核心战场
+- **E2E（Playwright / Cypress）**：跑真浏览器，覆盖关键用户流程（登录 / 下单 / 支付）；慢、不稳定，控制数量
+- **视觉回归**：Percy / Chromatic / Playwright snapshot，UI 重构必备
+- **类型 / lint** 是免费的"零成本测试"，代价低收益高
+- Kent C. Dodds 的"Testing Trophy"：静态(类型) + 单测 + **集成（最厚）** + E2E
+- 经验：组件测试用 RTL 强调"按用户行为测"——不要测实现细节
+
+### 代码示例
+```ts
+import { render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
+import { Counter } from './Counter';
+
+test('计数 +1', async () => {
+  render(<Counter />);
+  const btn = screen.getByRole('button', { name: /\+/ });
+  await userEvent.click(btn);
+  expect(screen.getByText('1')).toBeInTheDocument();
+});
+```
+
+```ts
+import { test, expect } from '@playwright/test';
+
+test('登录跳转', async ({ page }) => {
+  await page.goto('/login');
+  await page.getByLabel('账号').fill('alice');
+  await page.getByLabel('密码').fill('***');
+  await page.getByRole('button', { name: '登录' }).click();
+  await expect(page).toHaveURL('/');
+});
+```
+
+### 延伸
+- Vitest 是 Vite 项目的首选，比 Jest 快、配置简单
+- 集成测试可以 mock 网络（MSW），单测 mock 函数调用
+- 关键页面 E2E 跑在 CI，可视化回归差异自动评论 PR
+

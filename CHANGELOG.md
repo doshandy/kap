@@ -1,5 +1,28 @@
 # Changelog
 
+## 0.7.0
+
+- 题库扩充 +22 道，总数 298 → 320，补强各分类
+  - **CSS** +2：水平垂直居中 N 种姿势、position 五个值与层叠上下文
+  - **浏览器** +1：Chrome 多进程多线程架构（Browser/Renderer/GPU/Network）
+  - **网络** +1：HTTP 状态码分类与高频码（200/201/204/301/302/304/400/401/403/404/422/429/500/502/503/504）
+  - **a11y / i18n** +2：ARIA role/state/property、Intl 多语言数字日期复数
+  - **测试** +1：测试金字塔 vs 奖杯模型选型
+  - **构建发版** +1：SemVer + Changesets / semantic-release 自动化发版
+  - **可视化** +1：Canvas / SVG / WebGL 选型与性能边界
+  - **框架对比** +1：Signal / 细粒度响应式（Solid / Vue Vapor）的本质优势
+  - **Node** +1：事件循环六阶段（timers / pending / poll / check / close）
+  - **可观测性** +1：前端错误五条线全链路捕获与上报
+  - **安全** +1：Cookie+Session vs JWT 鉴权方案选型
+  - **跨端** +1：WebView / JSBridge 三种实现与协议设计
+  - **性能** +1：bundle 拆分 / 路由懒加载 / vendor / preload 实战
+  - **面试专项** +1：用 STAR 框架讲"最难调的 bug"
+  - **算法** +2：手写 Promise.all、第 K 大的元素（堆 / 快速选择）
+  - **全栈 Meta** +1：SSR / CSR / SSG / ISR / RSC 完整对比
+  - **架构** +1：Monorepo vs Multirepo + Turborepo / Changesets
+  - **AI 前端** +1：Prompt Engineering 实战（few-shot / CoT / 结构化输出 / 自我修正）
+  - **Rust / WASM** +1：前端工具链 Rust 化趋势（SWC / Rolldown / Turbopack / Biome / Oxc / Rspack）
+
 ## 0.6.0
 
 - feat：题目卡顶部新增"一句话理解"高亮区

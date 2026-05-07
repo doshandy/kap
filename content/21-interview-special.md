@@ -568,3 +568,52 @@ aware.on('change', () => {
 ### 延伸
 - 真实业务的 CRDT 内存增长是个坑，要做"垃圾回收"或"snapshot 重置"
 - 跨数据中心协作要看延迟分布，超过 200ms 单线程合并就会有"漂移感"
+
+## difficult-bug-story
+title: 你遇到过最难调的一个 bug 是什么
+difficulty: 进阶
+tags: [软实力, 经验, 高频]
+
+### 一句话
+讲故事用 STAR：背景 → 现象 → 排查路径（每一步排除假设）→ 根因 → 修复 → 复盘改进。重点不是"难"，而是**清晰的思维过程 + 可复用的经验沉淀**。
+
+### 题目
+请用 STAR 框架描述一次让你印象深刻的 bug 排查经历。
+
+### 答案要点
+- **常见加分案例方向**
+  - 偶发性问题：只在线上 / 弱网 / 特定机型出现 → 数据采样 + 上报关联
+  - 内存泄漏：DevTools Memory 面板 + heap snapshot 对比
+  - 浏览器底层差异：iOS Safari 的事件冒泡 / 输入法 / 横屏问题
+  - 多人协作冲突：状态管理 race condition / 缓存击穿
+  - 性能退化：发版后某个指标突变 → git bisect 定位 commit
+- **STAR 模板**
+  - **Situation**：什么时间 / 什么业务 / 影响范围
+  - **Task**：你的角色 + 要解决到什么程度
+  - **Action**：
+    - 提出假设并优先级排序
+    - 用什么工具（Performance / Memory / Charles / curl / log / dump）
+    - 哪些路被排除
+    - 找到根因的关键证据
+  - **Result**：修复方式 + 业务指标变化 + 沉淀（文档 / 工具 / 规范）
+- **避免**：流水账、把锅推队友、技术词堆砌、说不清"为什么这么排查"
+
+### 代码示例
+```text
+背景：电商首页曝光率比上线前下降 12%（线上灰度发布后）
+- 假设 1：白屏 → 排查 LCP 上报：90 分位变化不大 ❌
+- 假设 2：曝光埋点丢失 → 排查 SDK 版本：未变 ❌
+- 假设 3：路由懒加载 chunk 加载失败
+  - Sentry 看到 "ChunkLoadError" 暴增 ✅
+  - 定位：CDN 老 hash 文件 24 小时后 410，弱网用户 service worker 仍持久缓存 index.html，里面引用的 chunk 已经不存在
+- 修复：
+  - 临时：CDN 老 hash 至少保留 7 天
+  - 长期：捕获 ChunkLoadError 后强制刷新页面
+  - 长期：service worker 改为 network-first index.html，stale-while-revalidate 静态资源
+- 沉淀：写了《前端发版流量切换 checklist》，加到 release 审批模板
+```
+
+### 延伸
+- 真实回答最好准备 2-3 个不同方向的故事（前端 / 后端联调 / 性能）
+- 面试官关注：思考路径 > 技术细节 > 故事戏剧性
+

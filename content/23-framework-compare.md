@@ -291,3 +291,57 @@ Svelte 5（Runes）和 Solid 都是"消失的框架"，它们的实现方式有�
 ### 延伸
 - Vue 3.5 的 Vapor Mode 思路与 Solid / Svelte 5 一致，未来三家会越来越像
 - 真要在生产里大量使用，先评估生态（路由、表单、SSR、组件库）是否够用
+
+## solid-signal-finegrained
+title: Signal / 细粒度响应式（Solid / Vue Vapor）的本质优势
+difficulty: 资深
+tags: [响应式, 框架]
+
+### 一句话
+传统 React 是"组件级 re-render"，Signal 派是"只更新真正用到这个值的那一行 DOM"——更新粒度从组件级别下沉到具体的 DOM 节点。
+
+### 题目
+什么是 Signal / 细粒度响应式？相比 React 的渲染模型有什么优势和成本？
+
+### 答案要点
+- **传统 React**：state 改变 → 组件重新执行 → diff → 更新 DOM。组件粒度的"重新执行"
+- **Signal（Solid / Preact Signals / Vue Vapor / Angular Signals）**：
+  - 创建时就建立 "依赖图"
+  - 值变化时直接通知用到它的"最小订阅者"（具体一行 textContent / class）
+  - 跳过组件函数重跑、跳过虚拟 DOM diff
+- **优势**：
+  - 性能更好（运行时开销 < diff）
+  - 心智更稳：不需要 useMemo / useCallback / memo
+  - 包体更小（没有 VDOM diff 算法）
+- **代价**：
+  - 不再支持"组件函数每次重跑"——心智模型变了
+  - 调试栈不像 React 那样清晰（深依赖图）
+  - 生态规模仍远不及 React
+- **趋势**：React 19 + React Compiler 试图通过编译期优化达到接近的效果，没切到 Signal 但理念在收敛
+
+### 代码示例
+```jsx
+// SolidJS
+import { createSignal, createEffect } from 'solid-js';
+
+function Counter() {
+  const [count, setCount] = createSignal(0);
+  const double = () => count() * 2;
+  createEffect(() => console.log('count is', count()));
+  return <button onClick={() => setCount(count() + 1)}>{double()}</button>;
+}
+```
+
+```ts
+import { signal, computed, effect } from '@preact/signals';
+const n = signal(0);
+const square = computed(() => n.value * n.value);
+effect(() => console.log(square.value));
+n.value = 3;
+```
+
+### 延伸
+- Vue 3 早就有响应式核心（reactive/ref），Vue Vapor 取消 VDOM 进一步细粒度
+- React Forget / React Compiler：编译期插入 memo，让作者无需手写优化
+- 选型：极致性能 / 嵌入式 / 视觉应用 → Solid；生态 + 招聘 → React
+

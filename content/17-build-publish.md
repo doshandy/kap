@@ -463,3 +463,63 @@ wb.register();
 ### 延伸
 - 不要随便上 PWA，强缓存导致的"用户看不到新功能"在大公司是高危事件
 - 强制更新建议结合"最低版本"检查：发现客户端 build hash < server 最低版本 → 弹强制刷新
+
+## semver-release
+title: SemVer 与自动化发版（changeset / semantic-release）
+difficulty: 进阶
+tags: [发布, 工程化]
+
+### 一句话
+SemVer = MAJOR.MINOR.PATCH。`MAJOR` 改了破坏性 API、`MINOR` 加新功能、`PATCH` 修 bug。配合 changeset / semantic-release 让 commit message 自动决定下一个版本号 + 写 CHANGELOG。
+
+### 题目
+请描述语义化版本的规则与自动化发布流程。
+
+### 答案要点
+- **MAJOR**：不向后兼容的改动（删 API、改默认行为）
+- **MINOR**：向后兼容的新功能
+- **PATCH**：向后兼容的 bug fix
+- **预发布**：`1.0.0-alpha.1` / `-beta.1` / `-rc.1`
+- 自动化方案：
+  - **Changesets**（pnpm 推荐）：开发者写 `.changeset/*.md` 描述影响，CI 聚合发版 PR
+  - **semantic-release**：根据 commit message（feat / fix / BREAKING CHANGE）自动决定版本
+  - **Release Please**（Google）：在 GitHub PR 上自动维护 release PR
+- 配套：
+  - Conventional Commits（`feat: ...` / `fix: ...` / `chore: ...`）
+  - commitlint + husky 强制规范
+  - npm publish + provenance（npm 9+）
+  - 公司内部 npm 用 verdaccio / Nexus
+
+### 代码示例
+```bash
+pnpm add -Dw @changesets/cli
+pnpm changeset init
+pnpm changeset
+pnpm changeset version
+pnpm publish -r
+```
+
+```yaml
+name: Release
+on: { push: { branches: [master] } }
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v3
+      - uses: actions/setup-node@v4
+        with: { node-version: 20, registry-url: https://registry.npmjs.org }
+      - run: pnpm install
+      - uses: changesets/action@v1
+        with:
+          publish: pnpm release
+        env:
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+```
+
+### 延伸
+- monorepo 多包发布优先 Changesets，颗粒度更细
+- npm provenance 让 `npm install` 时能验证包来源，防供应链攻击
+- 大版本升级建议先发 next tag（`npm publish --tag next`）
+

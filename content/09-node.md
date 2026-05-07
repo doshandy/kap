@@ -484,3 +484,49 @@ await pipeline(req, upper, res);
 ### 延伸
 - Stream 出错最难调，建议加 `stream.finished` 监听 + 全局 logger
 - 浏览器 Fetch ReadableStream + Node Web Stream 互通可以做端到端流式
+
+## node-event-loop-phases
+title: Node.js 事件循环六阶段是什么
+difficulty: 进阶
+tags: [事件循环, Node]
+
+### 一句话
+Node 的 libuv 把异步事件分成 6 个阶段顺序处理：timers → pending callbacks → idle/prepare → poll → check → close。每跑完一个阶段会把所有微任务（Promise / nextTick）清空再进入下一个阶段。
+
+### 题目
+请描述 Node.js 的事件循环 6 个阶段，setImmediate vs setTimeout 在什么时候执行顺序不确定？
+
+### 答案要点
+- **6 个阶段**（按顺序）：
+  1. timers：到期的 setTimeout / setInterval
+  2. pending callbacks：上一轮 I/O 残留的回调
+  3. idle / prepare：内部使用
+  4. **poll**：等待新 I/O，处理 I/O 回调（核心阶段，可能阻塞等待）
+  5. check：执行 setImmediate
+  6. close callbacks：close 事件
+- 每个阶段结束都会**清空 microtask 队列**（process.nextTick > Promise.then）
+- `process.nextTick` 优先级最高，紧接当前操作执行（甚至高于 Promise）
+- `setImmediate(fn)` 在 check 阶段执行；和 `setTimeout(fn, 0)` 谁先取决于事件循环当前位置（**在 I/O callback 内：setImmediate 先**；主模块顶层不确定）
+- Node.js 与浏览器 microtask 时机略有不同（Node 18+ 已对齐 HTML 标准）
+
+### 代码示例
+```js
+setTimeout(() => console.log('timeout'), 0);
+setImmediate(() => console.log('immediate'));
+
+const fs = require('node:fs');
+fs.readFile(__filename, () => {
+  setTimeout(() => console.log('timeout'), 0);
+  setImmediate(() => console.log('immediate')); // 这种情况一定先打印
+});
+
+process.nextTick(() => console.log('next'));
+Promise.resolve().then(() => console.log('promise'));
+console.log('main');
+```
+
+### 延伸
+- 不要滥用 `process.nextTick`，会饿死 I/O
+- Worker Threads 自己有独立的事件循环
+- `--trace-event-categories` 能看清楚每个阶段的耗时
+

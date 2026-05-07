@@ -856,3 +856,106 @@ console.log(merge([[1, 4], [4, 5]]));
 - 类似题：插入区间、会议室安排、电话号码段去重
 - 区间问题大多套路：**先排序 + 一次遍历**
 
+
+## promise-all-impl
+title: 手写实现 Promise.all
+difficulty: 进阶
+tags: [Promise, 手写, 高频]
+
+### 一句话
+新建一个 Promise，对入参每一项调 `Promise.resolve(item).then`：成功计数到等于长度就 resolve(结果数组)，任一失败就立即 reject。
+
+### 题目
+请实现 `myPromiseAll`，传入 iterable 返回 Promise，行为对齐 `Promise.all`。
+
+### 答案要点
+- 兼容数组与可迭代对象（用 for...of）
+- 每个元素都用 `Promise.resolve(item)` 包裹，避免传入普通值时报错
+- 维护"完成计数 + 结果数组"，**按原始下标存放结果**（不能 push，因为顺序不固定）
+- 任一 reject 立刻整体 reject
+- 空数组立即 resolve `[]`
+
+### 代码示例
+```js
+function myPromiseAll(iterable) {
+  return new Promise((resolve, reject) => {
+    const list = Array.from(iterable);
+    if (list.length === 0) return resolve([]);
+    const out = new Array(list.length);
+    let done = 0;
+    list.forEach((p, i) => {
+      Promise.resolve(p).then(
+        (v) => {
+          out[i] = v;
+          if (++done === list.length) resolve(out);
+        },
+        reject,
+      );
+    });
+  });
+}
+
+myPromiseAll([1, Promise.resolve(2), Promise.resolve(3)]).then(console.log);
+myPromiseAll([Promise.resolve(1), Promise.reject('err')]).catch(console.log);
+```
+
+### 延伸
+- `Promise.allSettled` 把 reject 也当作 settle 计数即可
+- `Promise.race` 谁先 settle 就谁说了算
+- `Promise.any` 第一个 fulfilled 决定结果，全部 reject 抛 AggregateError
+
+## kth-largest
+title: 数组中第 K 大的元素（快速选择 / 小顶堆）
+difficulty: 进阶
+tags: [排序, 堆, 高频]
+
+### 一句话
+排序 O(n log n) 是基线；要 O(n) 用快速选择（partition 一次只递归一边）；要稳定且支持流式数据用大小为 k 的小顶堆。
+
+### 题目
+给定数组 nums 和整数 k，请返回数组中第 k 大的元素。
+
+### 答案要点
+- **方法 1：排序**：`nums.sort((a,b)=>b-a)[k-1]`，O(n log n)
+- **方法 2：小顶堆**：维护大小为 k 的小顶堆，遍历 nums，堆 size > k 时 pop。最终堆顶就是第 k 大。时间 O(n log k)
+- **方法 3：快速选择 (Quickselect)**：基于快排 partition，期望 O(n)，最坏 O(n²)。适合一次性查找
+- 工程上经常用堆（库现成 + 流式数据可增量）；面试加分用 Quickselect
+
+### 代码示例
+```js
+function findKthLargest(nums, k) {
+  nums.sort((a, b) => b - a);
+  return nums[k - 1];
+}
+
+function findKthLargestHeap(nums, k) {
+  const heap = [];
+  const less = (a, b) => a < b;
+  const up = (i) => {
+    while (i > 0) {
+      const p = (i - 1) >> 1;
+      if (less(heap[i], heap[p])) { [heap[i], heap[p]] = [heap[p], heap[i]]; i = p; } else break;
+    }
+  };
+  const down = (i) => {
+    const n = heap.length;
+    while (true) {
+      const l = i * 2 + 1, r = l + 1; let s = i;
+      if (l < n && less(heap[l], heap[s])) s = l;
+      if (r < n && less(heap[r], heap[s])) s = r;
+      if (s !== i) { [heap[i], heap[s]] = [heap[s], heap[i]]; i = s; } else break;
+    }
+  };
+  for (const x of nums) {
+    if (heap.length < k) { heap.push(x); up(heap.length - 1); }
+    else if (x > heap[0]) { heap[0] = x; down(0); }
+  }
+  return heap[0];
+}
+```
+
+### 延伸
+- LeetCode 215 经典题
+- TopK 大数据场景：小顶堆 + 流式处理，外存数据用 MapReduce + 局部 TopK 合并
+- Quickselect + 三向切分 + 随机化轴 = Bonus 加分
+

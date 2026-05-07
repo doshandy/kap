@@ -678,3 +678,41 @@ self.onmessage = async (e) => {
 - Vite / webpack 都支持把 `?worker` 后缀的文件单独打包成 Worker
 - React / Vue 里推荐用 `Comlink` 让 Worker 通信像调用普通方法
 - OffscreenCanvas 让你在 Worker 里直接操作 Canvas，特别适合可视化/游戏
+
+## browser-process-thread
+title: Chrome 多进程 + 多线程架构是什么样的
+difficulty: 进阶
+tags: [架构, 进程]
+
+### 一句话
+Chrome 把每个标签页放在独立的 Renderer 进程里（崩溃只影响当前页 + 安全沙盒）；Renderer 内部又有主线程、合成线程、光栅化线程、Worker 线程等多条线程协作。
+
+### 题目
+Chrome 浏览器的进程模型和 Renderer 进程内部的线程模型分别是什么？
+
+### 答案要点
+- 进程：
+  - **Browser Process**：主控、UI、网络、磁盘 I/O 调度
+  - **Renderer Process**：每个 Tab / iframe 一个，负责 HTML/CSS/JS 解析与渲染（沙盒）
+  - **GPU Process**：合成最终位图、3D
+  - **Network Process**：网络请求（独立沙盒）
+  - **Plugin / Utility / Storage** 进程
+- Renderer 进程内的线程：
+  - **主线程**：解析 HTML/CSS、执行 JS、布局、绘制（即"主线程任务"）
+  - **合成线程（Compositor）**：将图层合成最终帧，独立于主线程，所以 transform/opacity 动画不阻塞 JS
+  - **光栅化线程**：把图层变成位图
+  - **Worker 线程**：Web Worker / Service Worker
+  - **JS Helper 线程**：V8 后台编译
+- Site Isolation：跨站 iframe 也用独立进程，更安全（Spectre/Meltdown 后默认开启）
+
+### 代码示例
+```js
+chrome://process-internals/
+chrome://memory-internals/
+```
+
+### 延伸
+- 移动端 Chrome 进程数受限于内存，会做"进程合并"
+- Edge 与 Brave 同源 Chromium 架构相同
+- Safari 也用类似的 WebContent + Networking + GPU 进程拆分
+

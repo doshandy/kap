@@ -971,3 +971,63 @@ export function reportTrace(t: AiTrace) {
 ### 延伸
 - 保留必要的明文样本（脱敏后）有助于训练私有评测集，但要注意 GDPR / 数据驻留
 - 用 OpenTelemetry 协议把 AI 调用作为 span 接到现有 APM，便于和业务链路对齐
+
+## ai-prompt-engineering-front
+title: 前端开发者怎么用 Prompt Engineering 提升 AI 协作效果
+difficulty: 进阶
+tags: [AI, Prompt]
+
+### 一句话
+给 AI 写 Prompt 就像给同事写需求：**说清楚目标 + 上下文 + 输入输出 + 例子 + 约束**。最有用的 4 招：明确角色、给反例、要求结构化输出（JSON / Markdown）、加"如果不确定就说不确定"。
+
+### 题目
+作为前端工程师，怎样写 Prompt 能让 AI（ChatGPT / Cursor / Copilot）的产出更可用？
+
+### 答案要点
+- **结构化模板**：
+  - 角色（你是一个 Vue 3 + TS 资深工程师）
+  - 任务（重构这个组件 / 写测试 / 修 bug）
+  - 上下文（贴关键代码 + 项目约束 + 团队规范）
+  - 输入输出格式（用 JSON Schema / 给一个示例）
+  - 边界（不要引入新依赖 / 必须保持 API 兼容）
+- **提示技巧**
+  - **few-shot**：给 1-3 个"输入→输出"示例，模型模仿格式更好
+  - **chain of thought**：要求"先分析再写代码"，质量明显提升
+  - **self-correction**：让模型先写、再让它自己 review，输出 v2
+  - **结构化输出**：要求 JSON / 指定字段，便于程序处理
+  - **拒答机制**："如果信息不足就反问 / 不要瞎猜"
+- **代码场景的实战 prompt**
+  - 重构：给"前/后形态"+ 测试用例
+  - 调试：给报错堆栈 + 最小复现代码 + 已尝试方案
+  - 类型推导：让模型解释每一步类型变化
+- **不要做**
+  - 含糊指令（"优化一下" → 优化什么？）
+  - 一次塞太多文件让它"自由发挥"
+  - 不给约束，结果引入新依赖 / 改了不该改的地方
+- **工具化**
+  - Cursor / Continue / Aider 都可加载项目上下文
+  - 给团队建 prompt 仓库（refactor / review / write-test 模板）
+
+### 代码示例
+```text
+角色：你是一位资深 Vue 3 + TypeScript 工程师。
+
+任务：把下面的 Options API 组件重构为 <script setup> + Composition API。
+
+约束：
+1. 保留所有 props / emits 的对外行为
+2. 不引入新依赖
+3. 复用 useXxx 的命名风格
+4. 输出包含完整的 <template> + <script setup> + <style> 块
+
+输入：
+<script>...原代码...</script>
+
+输出格式：直接输出 .vue 文件全文，再用一段 changelog 解释哪些 API 被替换。
+```
+
+### 延伸
+- DSPy / LangChain / Promptfoo 是工程化 prompt 的工具
+- 真实生产 prompt 应该走版本化 + AB 测试 + 评测集
+- AI 协作效率 = "让 AI 干能干好的部分 + 你做最后把关"
+

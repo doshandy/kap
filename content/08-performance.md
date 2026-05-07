@@ -651,3 +651,57 @@ async function processLargeArray(items) {
 - Worker 通信开销不可忽略，复杂数据用 SharedArrayBuffer 或转 transferable
 - 别为了"拆分"而拆分，正常一两次 80ms 任务不是问题，关键是用户操作后那一次
 
+
+## bundle-split-strategy
+title: bundle 拆分与按需加载策略
+difficulty: 进阶
+tags: [打包, 性能]
+
+### 一句话
+首屏只加载"首屏要用的代码"——路由级懒加载 + 第三方库分 chunk + 首屏关键 JS 内联，非首屏走动态 import。
+
+### 题目
+什么样的拆包策略能让首屏 JS 最小？常见的反模式有哪些？
+
+### 答案要点
+- **路由级 code splitting**：`() => import('./pages/Settings.vue')`
+- **vendor 拆分**：把不常变的第三方库（vue / react / lodash）单独打成 chunk，长效缓存
+- **预加载提示**：路由切换前 `<link rel="modulepreload">` 提前下载
+- **核心库内联**：极小关键 CSS / runtime 内联到 HTML 减少瀑布
+- **避免 barrel exports 副作用**：`import { x } from 'lib'` 看似按需，但 lib/index 把所有都 re-export 时会拖整个库进来——确保库标了 `sideEffects: false`
+- **CDN externals**：vue/echarts 这种大库可放 CDN（注意配套 SRI 与缓存策略）
+- **反模式**：
+  - 首屏 import 了路由懒组件 → 拆分白做
+  - moment.js 默认 import 全部 locales（用 dayjs / date-fns 替代）
+  - polyfill 全量打包（用 `useBuiltIns: 'usage'` 按需）
+
+### 代码示例
+```ts
+import { defineConfig } from 'vite';
+
+export default defineConfig({
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks(id) {
+          if (id.includes('node_modules')) {
+            if (id.includes('echarts')) return 'echarts';
+            if (id.includes('lodash')) return 'lodash';
+            return 'vendor';
+          }
+        },
+      },
+    },
+  },
+});
+```
+
+```html
+<link rel="modulepreload" href="/assets/Settings-xyz.js">
+```
+
+### 延伸
+- Webpack：`splitChunks` + `cacheGroups` 自定义；Vite：`manualChunks` 函数
+- 监控 bundle 体积：rollup-plugin-visualizer / webpack-bundle-analyzer，CI 加 size-limit 卡阈值
+- 加载分析用 Chrome Coverage 面板（看 JS 真实使用率）
+

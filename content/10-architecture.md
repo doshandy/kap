@@ -696,3 +696,60 @@ async function loadWithRetry<T>(loader: () => Promise<T>, retries = 3): Promise<
 ### 延伸
 - 韧性设计的关键是"假设任何子模块都可能挂"，把隔离点提前规划好
 - 关键页面要做混沌测试：故意让某个 API 返回错误，验证降级是否生效
+
+## monorepo-vs-multirepo
+title: Monorepo 和 Multirepo 怎么选
+difficulty: 进阶
+tags: [架构, Monorepo]
+
+### 一句话
+组件库 / 多端共享代码 / 多包同步发版 → Monorepo（pnpm + Turborepo）；业务相互独立、团队规模大 → Multirepo + 私有 npm。
+
+### 题目
+请说明 Monorepo 与 Multirepo 的优缺点，以及前端常见的 Monorepo 工具栈。
+
+### 答案要点
+- **Monorepo 的优点**
+  - 跨包重构成本低、原子提交
+  - 共享 lint / tsconfig / CI 配置
+  - 发版可以联动（changeset 一次 PR 多包升级）
+- **Monorepo 的缺点**
+  - 仓库变大、克隆慢
+  - CI 时间膨胀（需要按依赖图增量构建 / 缓存）
+  - 权限管理不如多仓灵活
+- **典型工具栈**
+  - 包管理：**pnpm workspaces**（性价比最高）/ Yarn Berry / npm workspaces
+  - 任务编排：**Turborepo**（Vercel）/ Nx（功能多）/ Rush（微软，适合企业）
+  - 发版：**Changesets**（颗粒度细）/ semantic-release
+  - 代码所有权：CODEOWNERS 文件 + GitHub branch protection
+- **Multirepo 的适用场景**
+  - 业务高度独立（各团队自治）
+  - 依赖关系简单
+  - 国际化大型公司常见，一个团队一个仓
+- **混合方案**
+  - 公司核心包（设计系统、工具库）放 Monorepo
+  - 业务应用各自仓库
+  - 前端基建（CLI / 脚手架 / 代码生成）独立仓
+
+### 代码示例
+```yaml
+packages:
+  - 'packages/*'
+  - 'apps/*'
+```
+
+```json
+{
+  "tasks": {
+    "build": { "dependsOn": ["^build"], "outputs": ["dist/**"] },
+    "test": { "dependsOn": ["build"] },
+    "lint": {}
+  }
+}
+```
+
+### 延伸
+- 大厂自研：字节 Vesna、阿里 Bigfish、Google google3（含整个公司代码）
+- Monorepo 的关键是"远程缓存"——Turborepo Remote Cache / Nx Cloud
+- 不管哪种方案，CI 速度和构建可缓存性是核心生产力
+

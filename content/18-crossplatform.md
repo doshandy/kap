@@ -657,3 +657,67 @@ const count = ref(0);
 ### 延伸
 - 跨端框架升级要紧跟，落后版本可能踩到平台 API 变更的坑
 - "技术统一、产品差异化"是常见策略：核心代码跨端、关键页定制
+
+## webview-jsbridge
+title: WebView / JSBridge 怎么实现
+difficulty: 进阶
+tags: [JSBridge, Hybrid]
+
+### 一句话
+JSBridge 是 H5 与 Native 互相调用的"通信总线"。常见三种实现：URL Scheme（已淘汰）、`prompt`/`alert` 拦截（仅 Android）、**WebView 注入对象**（推荐：Android `addJavascriptInterface`、iOS `WKScriptMessageHandler`）。
+
+### 题目
+请描述 H5 与 Native 之间通信的几种方案，以及典型的 JSBridge 调用流程。
+
+### 答案要点
+- **方案演进**
+  - URL Scheme：H5 触发 `iframe.src = 'app://method?params'`，Native 拦截 → 兼容性好但有 8KB URL 限制
+  - `prompt` / `console.log` / 截图扫描：仅个别平台可行，已不推荐
+  - **JS 接口注入（主流）**：
+    - Android：`webView.addJavascriptInterface(obj, 'AndroidBridge')` → JS 直接调 `window.AndroidBridge.callXxx(json)`
+    - iOS：`userContentController.add(handler, name: 'iOSBridge')` → `window.webkit.messageHandlers.iOSBridge.postMessage(json)`
+- **典型协议**
+  - JS → Native：`{ method, params, callbackId }`
+  - Native → JS：执行 `window.JSBridge._callback(callbackId, result)` 完成回调
+- **设计要点**
+  - 统一封装一个 `bridge.invoke(method, params)`，返回 Promise
+  - 双端先约定方法清单 + 版本兼容矩阵
+  - 错误码标准化：success / fail / not_supported
+  - 超时机制（避免 native 不回调导致 promise pending）
+- **进阶**
+  - 鉴权：每次调用带 token，Native 校验
+  - 桥接性能瓶颈：iOS WKWebView 的 messageHandler 是异步且有序列化开销，频繁调用要批处理
+  - WebView Pool：预创建 + 缓存提升加载速度
+
+### 代码示例
+```ts
+class JSBridge {
+  private callbacks = new Map<string, (res: unknown) => void>();
+  invoke<T>(method: string, params?: unknown): Promise<T> {
+    const callbackId = `cb_${Date.now()}_${Math.random()}`;
+    return new Promise((resolve) => {
+      this.callbacks.set(callbackId, resolve as (r: unknown) => void);
+      const payload = JSON.stringify({ method, params, callbackId });
+      const w = window as unknown as {
+        AndroidBridge?: { call: (s: string) => void };
+        webkit?: { messageHandlers: { iOSBridge: { postMessage: (s: string) => void } } };
+      };
+      if (w.AndroidBridge) w.AndroidBridge.call(payload);
+      else if (w.webkit) w.webkit.messageHandlers.iOSBridge.postMessage(payload);
+    });
+  }
+  _callback(id: string, res: unknown) {
+    this.callbacks.get(id)?.(res);
+    this.callbacks.delete(id);
+  }
+}
+
+const bridge = new JSBridge();
+const user = await bridge.invoke<{ name: string }>('getUserInfo');
+```
+
+### 延伸
+- 字节、阿里、美团都开源过 JSBridge 库（`dsbridge`、`webank/JsBridge`）
+- 离线包 + JSBridge 是 Hybrid 性能优化的两驾马车
+- Web 端的 `postMessage` 通讯模型其实和 JSBridge 思想一致
+

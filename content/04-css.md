@@ -461,3 +461,91 @@ export const button = recipe({
 ### 延伸
 - 不同方案可以混用，但一个仓库内统一基本盘很重要，否则维护成本爆炸
 - 最重要的是把 design tokens（颜色、间距、圆角、阴影）做成单一来源
+
+## center-element
+title: 元素水平垂直居中的 N 种姿势
+difficulty: 基础
+tags: [布局, 居中, 高频]
+
+### 一句话
+能用 Flex / Grid 就别用其他——`display: flex; place-items: center` 或 `display: grid; place-items: center` 一句话搞定，剩下 absolute + transform、margin auto 都是辅助。
+
+### 题目
+请列出实现"水平 + 垂直居中"的常见方案，并指出各自的限制。
+
+### 答案要点
+- **Flex（首选）**：`display: flex; align-items: center; justify-content: center` 或简写 `place-items: center`
+- **Grid（一行最简）**：`display: grid; place-items: center`
+- **绝对定位 + transform**：`position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%)`，不知道子元素尺寸时通用
+- **绝对定位 + margin auto**：父级 `position: relative`，子级 `position: absolute; inset: 0; margin: auto`，子元素必须有宽高
+- **行内元素**：`text-align: center` + `line-height = height`（仅单行文本）
+- **table-cell**：兼容老浏览器（IE 时代遗留）
+
+### 代码示例
+```css
+.parent { display: flex; place-items: center; height: 100vh; }
+
+.parent { display: grid; place-items: center; height: 100vh; }
+
+.parent { position: relative; }
+.child {
+  position: absolute;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.parent { position: relative; }
+.child {
+  position: absolute;
+  inset: 0;
+  width: 200px; height: 200px;
+  margin: auto;
+}
+```
+
+### 延伸
+- `place-items` 是 Grid 速记，但在 Flex 里一样可用
+- `gap` 在 Flex 也已可用（safari 14.1+），不再需要 margin hack
+- 居中文字别忘了 `line-height` 与字体度量差异（不同字体上下空隙不同）
+
+## position-stacking
+title: position 五个值的差别和层叠上下文是怎么形成的
+difficulty: 进阶
+tags: [定位, 层叠]
+
+### 一句话
+position：`static`（默认）/ `relative`（相对自己原位偏移、保留占位）/ `absolute`（找最近 positioned 父级定位、脱离文档流）/ `fixed`（相对视口）/ `sticky`（滚动到阈值就吸住）。z-index 只在层叠上下文内部比较。
+
+### 题目
+请说明 position 5 个值的差别，以及哪些情况会形成新的层叠上下文。
+
+### 答案要点
+- `static`：默认值，正常文档流，`top/left` 无效
+- `relative`：相对自己原本位置偏移，**仍占据原位**
+- `absolute`：脱离文档流，相对最近的非 static 祖先定位
+- `fixed`：相对视口；但若祖先有 `transform / filter / will-change`，会变成相对该祖先（常见坑）
+- `sticky`：在指定阈值之前是 relative，达到阈值就 fixed
+- 层叠上下文（Stacking Context）触发条件：根元素、`position` 非 static + `z-index` 非 auto、`opacity < 1`、`transform/filter/perspective`、`isolation: isolate`、`will-change` 含上述属性
+- z-index 的"局部世界"：父级形成层叠上下文后，子元素的 z-index 再大也只在父级内部比较
+
+### 代码示例
+```html
+<div class="parent">
+  <div class="child"></div>
+</div>
+<style>
+  .parent { position: relative; opacity: 0.99; }
+  .child { position: absolute; z-index: 999; }
+</style>
+```
+
+```css
+.scope {
+  isolation: isolate;
+}
+```
+
+### 延伸
+- `isolation: isolate` 是显式创建层叠上下文的现代写法，避免 z-index 大战
+- 移动端 webview 中 `position: fixed` 在键盘弹起时会有奇怪表现，改用 sticky 或 viewport units
+

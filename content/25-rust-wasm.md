@@ -242,3 +242,60 @@ export function blur(rgba: Uint8Array, w: number, h: number) {
 ### 延伸
 - 多线程场景下要用 SAB + Atomics 做 lock，否则数据竞争会挂掉整个 wasm instance
 - 复杂数据结构（图、树）尽量在 wasm 内构建，对外只暴露不可变快照
+
+## rust-frontend-tooling
+title: 前端工具链为什么开始用 Rust 重写
+difficulty: 进阶
+tags: [Rust, 工具链]
+
+### 一句话
+Rust 编译到 native，单线程比 JS 快 10-100 倍 + 可放心多线程，所以编译 / 打包 / lint 这种 CPU 密集任务越来越多换成 Rust：SWC、Rolldown、Turbopack、Biome、Rspack。
+
+### 题目
+为什么 Rust / Go 这些原生语言开始大量出现在前端工具链中？哪些工具值得关注？
+
+### 答案要点
+- **Node.js 工具链的瓶颈**
+  - 单线程 + V8 GC，编译大型项目时 CPU 用不满
+  - 一些需要 AST 操作的工具（Babel / ESLint / Prettier）耗时占据 CI 大头
+- **Rust 的优势**
+  - native 速度 + 零成本抽象
+  - 内存安全，不需要 GC 暂停
+  - 多线程容易写得安全（borrow checker）
+  - WASM 输出友好，可在 Node / 浏览器 / Edge 共用
+- **代表项目**
+  - **SWC**（@swc/core）：Babel 替代品，10-70x；Next.js / Vite / Rspack 都用它
+  - **esbuild**（Go 写的）：开发态打包，启动飞快；Vite 预构建用它
+  - **Rolldown**：Vite 团队的 Rust Rollup 替代，目标兼容 Rollup 插件
+  - **Turbopack**：Next.js 自研，Webpack 替代
+  - **Rspack**：字节 Webpack 兼容版，迁移成本最低
+  - **Biome**：Rust 写的 lint + format，目标替代 ESLint + Prettier
+  - **Oxc**：JS 解析器 / linter / minifier 全栈 Rust 工具
+- **WASM 的角色**
+  - 大型库的核心算法（图像处理、加解密、AI 推理）可写成 Rust → WASM
+  - 浏览器和 Edge runtime 都能跑同一份代码
+- **趋势**
+  - 工具链的"硬功能"（解析 / 类型 / 打包）会越来越向 Rust 收敛
+  - 应用层（业务逻辑）仍是 JS / TS 的主场
+
+### 代码示例
+```ts
+import { defineConfig } from 'vite';
+import { rollup } from 'rolldown';
+
+const bundle = await rollup({ input: 'src/index.ts' });
+await bundle.write({ dir: 'dist', format: 'esm' });
+```
+
+```toml
+[lint]
+rules.recommended = true
+[formatter]
+indentStyle = "space"
+```
+
+### 延伸
+- 不是所有工具都需要 Rust，业务规模 < 万行项目用 ESLint / Prettier 完全够
+- Rust 工具链最大风险是"插件生态滞后"，迁移要做 PoC
+- 长期看 JS / Rust 分层共生：上层逻辑 JS、底层基建 Rust
+

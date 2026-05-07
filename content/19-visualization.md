@@ -600,3 +600,55 @@ export function buildSimulation(nodes: Node[], links: Link[], canvas: HTMLCanvas
 ### 延伸
 - "好用的图可视化"通常不是技术难，而是布局设计难，要和业务一起迭代
 - 节点超过 5 万考虑 Cytoscape.js / Sigma.js / 自研 GPU 着色
+
+## canvas-vs-svg-vs-webgl
+title: Canvas / SVG / WebGL 怎么选，性能边界在哪
+difficulty: 进阶
+tags: [Canvas, SVG, WebGL]
+
+### 一句话
+图表 / 动画且元素可点击 → SVG（DOM，但 1 万节点会卡）；像素操作、游戏、大量元素 → Canvas 2D；3D / GPU 算力 → WebGL / WebGPU。
+
+### 题目
+请对比 Canvas、SVG、WebGL 在渲染模型、交互、性能上的差异。
+
+### 答案要点
+- **SVG**
+  - DOM 元素，原生支持事件、CSS 样式、可访问性
+  - 适合数据可视化（< 1k 节点）、图标、动画 path
+  - 缺点：节点超过几千会肉眼可见卡顿
+- **Canvas 2D**
+  - 立即模式（绘制完无对象记忆），用 JS API 画像素
+  - 适合大量元素、像素级操作（图片处理、画板）
+  - 缺点：交互需自己做 hitTest（或维护一个隐藏的对象树）
+  - 离屏 Canvas + Worker（OffscreenCanvas）让渲染不卡主线程
+- **WebGL / WebGPU**
+  - 用 GPU 着色器，可处理百万级几何
+  - 适合 3D、地图、粒子、滤镜、ML 推理
+  - 上手成本最高（着色器 / 矩阵 / 缓冲区），常用 Three.js / Babylon.js / PixiJS（PixiJS 8 默认 WebGPU）封装
+- **性能边界经验值**：SVG 千级节点、Canvas 万级、WebGL 百万级
+
+### 代码示例
+```js
+const canvas = new OffscreenCanvas(800, 600);
+const ctx = canvas.getContext('2d');
+ctx.fillStyle = '#0ea5e9';
+ctx.fillRect(0, 0, 800, 600);
+const blob = await canvas.convertToBlob();
+
+import * as THREE from 'three';
+const scene = new THREE.Scene();
+const cam = new THREE.PerspectiveCamera(75, 16/9, 0.1, 1000);
+const renderer = new THREE.WebGLRenderer();
+const cube = new THREE.Mesh(
+  new THREE.BoxGeometry(),
+  new THREE.MeshBasicMaterial({ color: 0x0ea5e9 }),
+);
+scene.add(cube);
+```
+
+### 延伸
+- ECharts 4 默认 Canvas，5 同时支持 SVG，可在小图场景切回 SVG 节省内存
+- AntV / G2 / G6 都基于 Canvas / WebGL，G2 高版本支持 GPU 加速
+- WebGPU 是更现代的接口，2025 起主流浏览器全面铺开
+

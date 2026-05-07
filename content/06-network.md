@@ -633,3 +633,43 @@ location /api/ {
 - Chrome 强制 SameSite=Lax，跨域 cookie 需 Secure + SameSite=None
 - Private Network Access（CORS-RFC1918）会进一步收紧本地网络的跨源访问
 - 推荐用 BFF/网关代理减少跨域复杂度
+
+## status-codes
+title: HTTP 常见状态码及其含义
+difficulty: 基础
+tags: [HTTP, 高频]
+
+### 一句话
+1xx 处理中、2xx 成功、3xx 重定向、4xx 客户端错（请求有问题）、5xx 服务端错（后端有 bug）。重点记住 200 / 201 / 204 / 301 / 302 / 304 / 400 / 401 / 403 / 404 / 429 / 500 / 502 / 503 / 504。
+
+### 题目
+请按类别说明常见 HTTP 状态码的含义和典型使用场景。
+
+### 答案要点
+- **1xx（Informational）**：100 Continue（大请求体探测）、101 Switching Protocols（升级到 WebSocket）、103 Early Hints（提前推 preload）
+- **2xx（Success）**：200 OK、201 Created（POST 成功创建）、202 Accepted（已收到但未处理完）、204 No Content（PUT/DELETE 成功无返回体）、206 Partial Content（断点续传）
+- **3xx（Redirection）**：301 永久重定向（SEO 友好）、302 临时（POST→GET 转换）、303 See Other、304 Not Modified（协商缓存命中）、307 / 308（保留方法语义的重定向）
+- **4xx（Client Error）**：
+  - 400 Bad Request、401 Unauthorized（未登录）、403 Forbidden（已登录但无权）、404 Not Found
+  - 405 Method Not Allowed、408 Request Timeout、409 Conflict（冲突，乐观锁）
+  - 410 Gone（已永久删除）、413 Payload Too Large、415 Unsupported Media Type
+  - 422 Unprocessable Entity（参数校验失败，REST 常见）、429 Too Many Requests（限流）
+- **5xx（Server Error）**：500 Internal Server Error、502 Bad Gateway（网关上游异常）、503 Service Unavailable（过载/维护）、504 Gateway Timeout（网关上游超时）
+- **避坑**：401 vs 403 经常混；422 在 RESTful API 中比 400 更精确
+
+### 代码示例
+```js
+const res = await fetch('/api/users', { method: 'POST', body: JSON.stringify({ ... }) });
+if (res.status === 201) {
+  const id = res.headers.get('Location');
+} else if (res.status === 422) {
+  const errors = await res.json();
+} else if (res.status === 429) {
+  const retryAfter = res.headers.get('Retry-After');
+}
+```
+
+### 延伸
+- HTTP/2 推送已废弃，103 Early Hints 是替代方案
+- 限流 429 + `Retry-After` 是大型 API 标配
+
