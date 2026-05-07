@@ -43,45 +43,50 @@
     </script>
 
     <!--
-      PWA 一次性自愈：把 KEY 从 v3 → v4，强制还在 v3 之后到现在没再清理过的旧客户端
-      再卸一次 SW + 清 caches + reload。这个脚本需要在新 SW 注册之前执行，所以放在
-      <head> 里（无 defer），但只调 unregister/caches，不阻塞 HTML 解析（异步）。
+      PWA 自愈期脚本：
+      线上发现旧 vite-plugin-pwa 的 SW（v0.17 autoUpdate 模式）残留并拦截 fetch，
+      使用户只看到旧资源。本次彻底切换：vite-plugin-pwa 已禁用，sw.js 改成自杀脚本。
 
-      之后的版本迭代由 vite-plugin-pwa 的 prompt 流程接管：检测到新版本 → 弹 toast →
-      用户点「立即更新」→ skipWaiting + reload。除非再出现"老 SW 行为不可控"的紧急情况，
-      否则不再 bump KEY。
+      下面的内联脚本提供兜底——每次进站时：
+        1. 列出所有 SW 注册，立刻 unregister；
+        2. 清空 caches storage；
+        3. 用 sessionStorage 防 reload 死循环：若刚清理过则跳过 reload；
+        4. 若确实清理了内容（regs.length > 0 或有 cacheKeys），且本会话还没 reload 过，
+           就带 cache-buster 强刷一次。
+
+      每次部署后访客的下一次进站会自动自愈，无需人工干预。
     -->
     <script>
       (function () {
         if (!('serviceWorker' in navigator)) return;
-        var KEY = 'kap-sw-cleanup-v4';
-        if (localStorage.getItem(KEY)) return;
+        var GUARD = 'kap-self-heal-ts';
+        var lastHeal = +(sessionStorage.getItem(GUARD) || 0);
+        var justHealed = Date.now() - lastHeal < 15000;
         navigator.serviceWorker
           .getRegistrations()
           .then(function (regs) {
-            var hadOld = regs.length > 0;
+            var had = regs.length > 0;
             return Promise.all(
               regs.map(function (r) {
                 return r.unregister();
               }),
             ).then(function () {
-              if (window.caches && caches.keys) {
-                return caches.keys().then(function (keys) {
-                  return Promise.all(
-                    keys.map(function (k) {
-                      return caches.delete(k);
-                    }),
-                  );
-                }).then(function () {
-                  return hadOld;
+              if (!(window.caches && caches.keys)) return had;
+              return caches.keys().then(function (keys) {
+                if (keys.length) had = true;
+                return Promise.all(
+                  keys.map(function (k) {
+                    return caches.delete(k);
+                  }),
+                ).then(function () {
+                  return had;
                 });
-              }
-              return hadOld;
+              });
             });
           })
-          .then(function (hadOld) {
-            localStorage.setItem(KEY, '1');
-            if (hadOld) {
+          .then(function (had) {
+            if (had && !justHealed) {
+              sessionStorage.setItem(GUARD, String(Date.now()));
               var u = new URL(location.href);
               u.searchParams.set('_v', String(Date.now()));
               location.replace(u.toString());

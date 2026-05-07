@@ -1,10 +1,17 @@
 /// <reference types="vitest" />
 import { defineConfig } from 'vite';
 import vue from '@vitejs/plugin-vue';
-import { VitePWA } from 'vite-plugin-pwa';
 import { visualizer } from 'rollup-plugin-visualizer';
 import { fileURLToPath, URL } from 'node:url';
 
+// ⚠️ 暂时禁用 vite-plugin-pwa：
+// 线上发现历史 v0.17 时代部署的 SW（autoUpdate + skipWaiting）在用户机器上残留并
+// 拦截 fetch，导致即使部署了新 HTML 用户也只看到旧版样式。bump cleanup-key 已无效，
+// 因为旧 SW 直接从缓存返回旧 index.html，cleanup 脚本根本进不到。
+//
+// 临时方案：用 public/sw.js 提供一个**自杀脚本**，浏览器自然触发 SW 更新时下载它，
+// 它会清空所有 caches、unregister 自己、广播 reload。等线上老 SW 被自然替换掉之后
+// 再恢复本插件。
 export default defineConfig({
   test: {
     environment: 'jsdom',
@@ -17,61 +24,6 @@ export default defineConfig({
     process.env.ANALYZE
       ? visualizer({ open: false, filename: 'dist/stats.html', gzipSize: true, brotliSize: true })
       : null,
-    VitePWA({
-      // 我们用 prompt 模式：检测到新版本时由前端 UI 弹 toast 让用户决定是否立即应用，
-      // 而不是 SW 自己 skipWaiting 静默刷新（避免用户操作中页面突然 reload）。
-      registerType: 'prompt',
-      // 关闭自动注入注册脚本，由 src/composables/useAppUpdate.ts 手动 import 'virtual:pwa-register' 注册
-      injectRegister: false,
-      includeAssets: ['favicon.svg', 'apple-touch-icon.png', 'og.png'],
-      manifest: {
-        name: 'KAP - 前端知识自查',
-        short_name: 'KAP',
-        description: 'Vue 前端工程师知识图谱与自查面试库',
-        theme_color: '#0ea5e9',
-        background_color: '#0f172a',
-        display: 'standalone',
-        scope: '/kap/',
-        start_url: '/kap/',
-        icons: [
-          { src: 'favicon.svg', sizes: 'any', type: 'image/svg+xml', purpose: 'any maskable' },
-        ],
-      },
-      workbox: {
-        // precache 排除大体积按需 vendor（echarts/markdown 真正用到再下），
-        // 避免首次访问就拉 1MB+ 带宽。这些资源会进 runtimeCaching 池。
-        globPatterns: ['**/*.{js,css,html,svg,png,ico,woff2}'],
-        globIgnores: ['**/vendor-echarts-*.js', '**/vendor-markdown-*.js', '**/vendor-icons-*.js'],
-        navigateFallback: '/kap/index.html',
-        cleanupOutdatedCaches: true,
-        // prompt 模式：让 SW 进入 waiting，由用户点 toast 后再 skipWaiting + 接管，
-        // 避免用户在写笔记 / 答题中突然刷新丢状态
-        clientsClaim: false,
-        skipWaiting: false,
-        // 首次访问真正用到时再下载并缓存这些大 vendor / markdown 内容，
-        // 后续访问命中缓存（StaleWhileRevalidate 保证版本更新）
-        runtimeCaching: [
-          {
-            urlPattern: /\/kap\/assets\/vendor-(echarts|markdown|icons)-.*\.js$/,
-            handler: 'CacheFirst',
-            options: {
-              cacheName: 'kap-vendor',
-              expiration: { maxEntries: 8, maxAgeSeconds: 30 * 24 * 60 * 60 },
-              cacheableResponse: { statuses: [0, 200] },
-            },
-          },
-          {
-            urlPattern: /\/kap\/assets\/\d{2}-.*\.js$/,
-            handler: 'StaleWhileRevalidate',
-            options: {
-              cacheName: 'kap-content',
-              expiration: { maxEntries: 64, maxAgeSeconds: 30 * 24 * 60 * 60 },
-              cacheableResponse: { statuses: [0, 200] },
-            },
-          },
-        ],
-      },
-    }),
   ],
   resolve: {
     alias: {
