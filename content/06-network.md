@@ -673,3 +673,165 @@ if (res.status === 201) {
 - HTTP/2 推送已废弃，103 Early Hints 是替代方案
 - 限流 429 + `Retry-After` 是大型 API 标配
 
+
+## early-hints-103
+title: HTTP 103 Early Hints 是什么？怎么用来优化首屏
+difficulty: 资深
+tags: [HTTP, 性能, 高频]
+
+### 一句话
+服务器在最终 200 响应前，**先发一个 103 中间响应**附带 `Link: <a.css>; rel=preload` 等头，让浏览器在后端还在算业务时就提前**预连接 / 预加载**关键资源；典型可省 100-300ms LCP。
+
+### 题目
+后端响应时间长（数据库慢），但 LCP 主要瓶颈是慢资源加载。怎么不动后端逻辑就能让浏览器尽早开始下载关键资源？
+
+### 答案要点
+- **HTTP/1.1 早就有 100/101/102 等 1xx**
+  - 服务端可以在最终响应前发多次"中间响应"
+  - 103 Early Hints 是为前端性能新增的"准官方"用法（RFC 8297）
+- **典型流程**
+  - 浏览器请求 / page → 服务器先回 `103 Early Hints` 附带 Link 头
+  - 浏览器立刻开始 preload / preconnect
+  - 服务器继续算业务（查 DB），最后回 200 + HTML
+  - 浏览器拿到 HTML 时，关键 CSS/JS/字体可能已经加载完
+- **典型 Link 头内容**
+  - `Link: </app.css>; rel=preload; as=style`
+  - `Link: </main.js>; rel=preload; as=script`
+  - `Link: <https://cdn.example.com>; rel=preconnect`
+  - 多条用逗号分隔
+- **谁支持**
+  - Chromium 系（Chrome / Edge）已支持
+  - Safari / Firefox 部分场景
+  - HTTP/2 / HTTP/3 推荐（HTTP/1.1 也能用）
+- **谁来发**
+  - Cloudflare Workers / Vercel Edge / Fastly：边缘提前发 103
+  - Node Express 14+：`res.writeEarlyHints(...)`
+  - Nginx 1.13+：模块支持
+- **跟 HTTP/2 Server Push 的区别**
+  - Server Push 已被弃用：浏览器很难判断"是否已缓存"
+  - Early Hints 让浏览器自己决定要不要请求，行为正确
+- **跟 `<link rel=preload>` 标签的区别**
+  - 标签写在 HTML 里 → 浏览器要先收到 HTML 才看到
+  - 103 在 HTML 之前就到了 → 早一步开始下载
+- **何时不该用**
+  - 后端响应很快（< 50ms）：意义不大，反而多一次响应开销
+  - HTTPS 需要 TLS 1.2+ + 现代客户端
+- **观测**
+  - Chrome DevTools → Network → 显示 "Early Hints" 时间线
+  - WebPageTest 能看到具体收益
+  - LCP 通常下降 100-300ms（依赖网络延迟）
+
+### 代码示例
+```ts
+import express from 'express';
+const app = express();
+
+app.get('/', (req, res) => {
+  res.writeEarlyHints({
+    link: [
+      '</static/app.css>; rel=preload; as=style',
+      '</static/main.js>; rel=preload; as=script',
+      '<https://cdn.example.com>; rel=preconnect',
+    ],
+  });
+
+  setTimeout(() => {
+    res.send(`<!doctype html>
+<html>
+  <head>
+    <link rel="stylesheet" href="/static/app.css">
+    <script src="/static/main.js" defer></script>
+  </head>
+  <body><div id="app"></div></body>
+</html>`);
+  }, 300);
+});
+```
+
+```ts
+export default {
+  async fetch(req: Request) {
+    const earlyHints = new Response(null, {
+      status: 103,
+      headers: {
+        'Link': '</app.css>; rel=preload; as=style, </main.js>; rel=preload; as=script',
+      },
+    });
+    return earlyHints;
+  },
+};
+```
+
+### 延伸
+- Vercel / Netlify 部分平台已默认替你发 103
+- Next.js / Remix 都在路由级别支持自动注入 Link 头
+- 可以配合 Service Worker：让 SW 命中缓存的资源跳过 103（避免重复请求）
+
+## bfcache-frontend
+title: bfcache（前进/后退缓存）你怎么用好它
+difficulty: 资深
+tags: [浏览器, 性能, 高频]
+
+### 一句话
+浏览器把整页（DOM + JS state + 滚动位置）冻结在内存里，前进/后退时**几毫秒恢复**，不重新下载也不跑 JS；想吃到这个红利得避开 unload/beforeunload、避免长时定时器、避免 WebSocket / IndexedDB 持续打开。
+
+### 题目
+你做的页面在 Chrome DevTools "Back/forward cache" 显示 "not eligible"。为什么？怎么修？
+
+### 答案要点
+- **bfcache 是什么**
+  - 用户点"返回"时，浏览器从内存恢复整页：JS 内存状态、DOM、滚动、定时器、scroll position
+  - 几毫秒恢复 → INP / LCP 飞起；某些电商场景"返回继续浏览"提升转化
+- **被踢出 bfcache 的常见原因**（DevTools → Application → Back/forward cache）
+  - **unload / beforeunload 监听器**：会让浏览器无法安全冻结
+  - **打开的 IndexedDB transaction**：未提交事务被冻结会导致 DB 死锁
+  - **WebSocket / WebRTC**：长连接被冻结网络协议会异常
+  - **navigator.lock**：未释放
+  - **Cache-Control: no-store**：HTTP 头明确禁止缓存
+  - **HTTPS 证书错误 / Mixed Content**
+  - **页面有 noopener 打开的子窗口**
+- **优化做法**
+  - 用 `pagehide` / `visibilitychange` 替代 `unload`
+  - 关 IndexedDB transaction 在 `pagehide` 时立即提交
+  - WebSocket 在 `pagehide` 时主动 close，`pageshow` 时重连
+  - 用 `pagehide.persisted` 判断是否进 bfcache，true 时 cleanup
+  - 用 `pageshow.persisted` 判断是否从 bfcache 恢复，true 时 refresh 关键数据（如未读消息）
+- **跨标签 / 通信**
+  - 从 bfcache 恢复时数据可能过期（用户离开 5min 又回来）
+  - 用 BroadcastChannel / SW 通知刷新关键数据
+- **Web Vitals 影响**
+  - 从 bfcache 恢复的访问，Chrome 会单独上报"bfcache 命中"
+  - 命中率通常能到 10-30%，影响 RUM 数据解读
+- **测试**
+  - DevTools → Application → Back/forward cache → "Test back/forward cache"
+  - 列出所有阻塞原因
+- **典型场景收益**
+  - 电商列表 → 详情 → 返回列表：滚动位置 + 列表数据全保留
+  - 文章页面后退到首页：体验丝滑
+  - SPA 内部的"返回"是路由变化，跟 bfcache 无关；这只影响"跨页面"的返回
+
+### 代码示例
+```ts
+window.addEventListener('pagehide', (e) => {
+  if (e.persisted) {
+    ws?.close();
+    cancelAllTimers();
+  }
+});
+
+window.addEventListener('pageshow', (e) => {
+  if (e.persisted) {
+    ws = new WebSocket(WS_URL);
+    refreshUnreadBadge();
+    sendAnalytics({ kind: 'bfcache_restore' });
+  }
+});
+
+window.addEventListener('beforeunload', () => {});
+```
+
+### 延伸
+- Safari 一直默认 bfcache；Chrome 86+ 才默认开启
+- Firefox 也支持，但条件更严
+- SPA 路由切换不走 bfcache；想要"返回如初"得自己做 KeepAlive（Vue `<keep-alive>` / React Suspense Cache）
+

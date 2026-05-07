@@ -118,6 +118,9 @@
   <url><loc>https://doshandy.github.io/kap/q/05-browser/cookie-localstorage-indexeddb</loc><lastmod>2026-05-07</lastmod></url>
   <url><loc>https://doshandy.github.io/kap/q/05-browser/web-worker-basics</loc><lastmod>2026-05-07</lastmod></url>
   <url><loc>https://doshandy.github.io/kap/q/05-browser/browser-process-thread</loc><lastmod>2026-05-07</lastmod></url>
+  <url><loc>https://doshandy.github.io/kap/q/05-browser/webgpu-pipeline-basics</loc><lastmod>2026-05-07</lastmod></url>
+  <url><loc>https://doshandy.github.io/kap/q/05-browser/webtransport-vs-websocket</loc><lastmod>2026-05-07</lastmod></url>
+  <url><loc>https://doshandy.github.io/kap/q/05-browser/webcodecs-streams</loc><lastmod>2026-05-07</lastmod></url>
   <url><loc>https://doshandy.github.io/kap/q/06-network/tcp-tls-http</loc><lastmod>2026-05-07</lastmod></url>
   <url><loc>https://doshandy.github.io/kap/q/06-network/http1-http2-http3</loc><lastmod>2026-05-07</lastmod></url>
   <url><loc>https://doshandy.github.io/kap/q/06-network/caching</loc><lastmod>2026-05-07</lastmod></url>
@@ -131,6 +134,8 @@
   <url><loc>https://doshandy.github.io/kap/q/06-network/websocket-vs-sse-vs-polling</loc><lastmod>2026-05-07</lastmod></url>
   <url><loc>https://doshandy.github.io/kap/q/06-network/cors-and-preflight</loc><lastmod>2026-05-07</lastmod></url>
   <url><loc>https://doshandy.github.io/kap/q/06-network/status-codes</loc><lastmod>2026-05-07</lastmod></url>
+  <url><loc>https://doshandy.github.io/kap/q/06-network/early-hints-103</loc><lastmod>2026-05-07</lastmod></url>
+  <url><loc>https://doshandy.github.io/kap/q/06-network/bfcache-frontend</loc><lastmod>2026-05-07</lastmod></url>
   <url><loc>https://doshandy.github.io/kap/q/07-engineering/vite-principle</loc><lastmod>2026-05-07</lastmod></url>
   <url><loc>https://doshandy.github.io/kap/q/07-engineering/bundler-ecosystem</loc><lastmod>2026-05-07</lastmod></url>
   <url><loc>https://doshandy.github.io/kap/q/07-engineering/package-manager</loc><lastmod>2026-05-07</lastmod></url>
@@ -312,6 +317,10 @@
   <url><loc>https://doshandy.github.io/kap/q/20-algorithm/merge-intervals</loc><lastmod>2026-05-07</lastmod></url>
   <url><loc>https://doshandy.github.io/kap/q/20-algorithm/promise-all-impl</loc><lastmod>2026-05-07</lastmod></url>
   <url><loc>https://doshandy.github.io/kap/q/20-algorithm/kth-largest</loc><lastmod>2026-05-07</lastmod></url>
+  <url><loc>https://doshandy.github.io/kap/q/20-algorithm/bitwise-tricks</loc><lastmod>2026-05-07</lastmod></url>
+  <url><loc>https://doshandy.github.io/kap/q/20-algorithm/sliding-window-advanced</loc><lastmod>2026-05-07</lastmod></url>
+  <url><loc>https://doshandy.github.io/kap/q/20-algorithm/monotonic-stack-queue</loc><lastmod>2026-05-07</lastmod></url>
+  <url><loc>https://doshandy.github.io/kap/q/20-algorithm/prefix-sum-difference-2d</loc><lastmod>2026-05-07</lastmod></url>
   <url><loc>https://doshandy.github.io/kap/q/21-interview-special/handwrite-call-apply-bind</loc><lastmod>2026-05-07</lastmod></url>
   <url><loc>https://doshandy.github.io/kap/q/21-interview-special/handwrite-new-instanceof</loc><lastmod>2026-05-07</lastmod></url>
   <url><loc>https://doshandy.github.io/kap/q/21-interview-special/handwrite-curry-compose</loc><lastmod>2026-05-07</lastmod></url>
@@ -361,6 +370,8 @@
   <url><loc>https://doshandy.github.io/kap/q/24-fullstack-meta/next-data-fetching-patterns</loc><lastmod>2026-05-07</lastmod></url>
   <url><loc>https://doshandy.github.io/kap/q/24-fullstack-meta/remix-react-router-loaders</loc><lastmod>2026-05-07</lastmod></url>
   <url><loc>https://doshandy.github.io/kap/q/24-fullstack-meta/fullstack-auth-strategy</loc><lastmod>2026-05-07</lastmod></url>
+  <url><loc>https://doshandy.github.io/kap/q/24-fullstack-meta/hydration-mismatch-debug</loc><lastmod>2026-05-07</lastmod></url>
+  <url><loc>https://doshandy.github.io/kap/q/24-fullstack-meta/ssr-data-fetching-consistency</loc><lastmod>2026-05-07</lastmod></url>
   <url><loc>https://doshandy.github.io/kap/q/25-rust-wasm/why-rust-tooling</loc><lastmod>2026-05-07</lastmod></url>
   <url><loc>https://doshandy.github.io/kap/q/25-rust-wasm/wasm-fundamentals</loc><lastmod>2026-05-07</lastmod></url>
   <url><loc>https://doshandy.github.io/kap/q/25-rust-wasm/rust-wasm-toolchain</loc><lastmod>2026-05-07</lastmod></url>

@@ -959,3 +959,375 @@ function findKthLargestHeap(nums, k) {
 - TopK 大数据场景：小顶堆 + 流式处理，外存数据用 MapReduce + 局部 TopK 合并
 - Quickselect + 三向切分 + 随机化轴 = Bonus 加分
 
+
+## bitwise-tricks
+title: 位运算高频技巧一题打尽
+difficulty: 进阶
+tags: [算法, 位运算, 高频]
+
+### 一句话
+七招够用：① `n & 1` 判奇偶 ② `n & (n - 1)` 抹掉最低位 1 ③ `a ^ a = 0` 找单数 ④ `a ^ b ^ b = a` 不借第三变量交换 ⑤ `1 << k` / `n & (1 << k)` 状态压缩 ⑥ `n & -n` 取最低位 1（lowbit） ⑦ `n | (1 << k)` / `n & ~(1 << k)` 设/清某位。
+
+### 题目
+位运算面试常问哪些？给出可直接背的"题目模板 → 解法"清单。
+
+### 答案要点
+- **判断 / 计数**
+  - 是否 2 的幂：`n > 0 && (n & (n - 1)) === 0`
+  - 二进制 1 的个数（popcount）：`while (n) { n &= n - 1; cnt++; }` 或 `Number.prototype.toString(2).match(/1/g)?.length`
+  - 是否为 4 的幂：`n > 0 && (n & (n - 1)) === 0 && (n & 0x55555555)`
+- **找异常元素**
+  - 数组中只有一个数出现一次，其余出现两次 → 全部 `^=` 起来
+  - 出现一次 + 一个出现三次：用三进制状态 `ones / twos`
+  - 出现一次的两个数：先全异或得 `xor = a ^ b`；用 `xor & -xor` 拿任意一位 1，按这位分组各自异或
+- **位掩码状态压缩**
+  - 子集枚举：`for (let s = 0; s < (1 << n); s++)`
+  - 子集的子集：`for (let sub = mask; sub; sub = (sub - 1) & mask)` 经典 DP 用法
+  - 检查第 k 位：`(n >> k) & 1`；置位：`n |= (1 << k)`；清位：`n &= ~(1 << k)`；翻转：`n ^= (1 << k)`
+- **lowbit（树状数组核心）**
+  - `n & -n` 得最低位 1 对应的值，循环 `n -= n & -n` 可以从低到高遍历每一位的 1
+- **小心 JS 32 位**
+  - JS 位运算把数字转 **32 位有符号**整数，超过会溢出
+  - `1 << 31 === -2147483648`；要无符号用 `>>> 0`
+  - 大数（> 2^32）只能 BigInt：`1n << 33n`
+- **不借变量交换**：`a ^= b; b ^= a; a ^= b;`（同地址变量会清零，注意）
+
+### 代码示例
+```ts
+function popcount(n: number): number {
+  let c = 0;
+  let x = n >>> 0;
+  while (x) { x &= x - 1; c++; }
+  return c;
+}
+
+function isPowerOfTwo(n: number) {
+  return n > 0 && (n & (n - 1)) === 0;
+}
+
+function singleNumber(nums: number[]): number {
+  return nums.reduce((a, b) => a ^ b, 0);
+}
+
+function twoSingleNumbers(nums: number[]): [number, number] {
+  const xor = nums.reduce((a, b) => a ^ b, 0);
+  const diff = xor & -xor;
+  let a = 0, b = 0;
+  for (const n of nums) (n & diff) ? a ^= n : b ^= n;
+  return [a, b];
+}
+
+function subsets(arr: number[]): number[][] {
+  const n = arr.length, out: number[][] = [];
+  for (let mask = 0; mask < (1 << n); mask++) {
+    const cur: number[] = [];
+    for (let i = 0; i < n; i++) if (mask & (1 << i)) cur.push(arr[i]);
+    out.push(cur);
+  }
+  return out;
+}
+
+function* iterateOnes(n: number) {
+  while (n) {
+    const low = n & -n;
+    yield Math.log2(low);
+    n -= low;
+  }
+}
+```
+
+### 延伸
+- 树状数组（Fenwick Tree）整个建立在 lowbit 上，`update / query` 都是 `i += i & -i`
+- 旧浏览器没有 popcount 硬件指令，热点路径用查表法（256 项）
+
+## sliding-window-advanced
+title: 滑动窗口进阶：变长窗口 + 不变量维护
+difficulty: 资深
+tags: [算法, 滑动窗口, 高频]
+
+### 一句话
+固定窗口好写，**变长窗口**关键是抓住"窗口内的不变量"——比如"每个字符出现次数 ≤ k"、"窗口和 ≤ target"。当不变量被破坏时 right 不动 left 收缩，恢复后再扩张；用一个 `valid` 计数避免重复扫整段。
+
+### 题目
+比起"长度 K 的最大和"这种入门题，变长窗口怎么形成统一思路？讲讲常见变形。
+
+### 答案要点
+- **统一框架**
+  - while right < n：扩张（加入 nums[right]）→ while 不满足不变量：收缩（剔除 nums[left]）→ 更新答案 → right++
+  - 答案在"扩张完且不变量满足"那一刻取
+- **关键设计**
+  - 维护一个轻量统计（哈希表 / 计数器 / 和），保证 left/right 移动 O(1) 更新
+  - 引入 `valid` 计数器统计"满足条件的字符种类数"，避免每次扫整张哈希
+- **常见变形**
+  - **最长不重复子串**：哈希记最近位置，重复时 left 跳到 last+1
+  - **至多 k 个不同字符的最长子串**：哈希字符 → 计数；不同字符种类数 > k 时收缩
+  - **恰好 k 个不同字符**：拆成"至多 k - 至多 k-1"两个变长窗口的差
+  - **覆盖子串（Minimum Window Substring）**：双哈希 + valid 计数；先满足再收缩取最小
+  - **乘积小于 K 的子数组数**：right 每移一步累加 right - left + 1
+- **二维 / 多维窗口**
+  - 矩阵中的最大子矩阵：固定上下边界 → 列前缀和 → 一维变成滑动窗口
+- **避坑**
+  - 不变量不能"在收缩时还在判扩张条件"——容易死循环
+  - 注意答案是"长度"还是"区间个数"，前者每次取 max，后者累加 right - left + 1
+  - 字符集大用 Map / 对象，定长 26 / 128 用数组更快
+
+### 代码示例
+```ts
+function lengthOfLongestSubstring(s: string): number {
+  const last = new Map<string, number>();
+  let left = 0, ans = 0;
+  for (let right = 0; right < s.length; right++) {
+    const c = s[right];
+    if (last.has(c) && last.get(c)! >= left) left = last.get(c)! + 1;
+    last.set(c, right);
+    ans = Math.max(ans, right - left + 1);
+  }
+  return ans;
+}
+
+function lengthOfLongestSubstringKDistinct(s: string, k: number): number {
+  const cnt = new Map<string, number>();
+  let left = 0, ans = 0;
+  for (let right = 0; right < s.length; right++) {
+    cnt.set(s[right], (cnt.get(s[right]) || 0) + 1);
+    while (cnt.size > k) {
+      const c = s[left++];
+      cnt.set(c, cnt.get(c)! - 1);
+      if (cnt.get(c) === 0) cnt.delete(c);
+    }
+    ans = Math.max(ans, right - left + 1);
+  }
+  return ans;
+}
+
+function minWindow(s: string, t: string): string {
+  const need = new Map<string, number>();
+  for (const c of t) need.set(c, (need.get(c) || 0) + 1);
+  let left = 0, valid = 0, start = 0, len = Infinity;
+  const have = new Map<string, number>();
+  for (let right = 0; right < s.length; right++) {
+    const c = s[right];
+    if (need.has(c)) {
+      have.set(c, (have.get(c) || 0) + 1);
+      if (have.get(c) === need.get(c)) valid++;
+    }
+    while (valid === need.size) {
+      if (right - left + 1 < len) { start = left; len = right - left + 1; }
+      const d = s[left++];
+      if (need.has(d)) {
+        if (have.get(d)! === need.get(d)) valid--;
+        have.set(d, have.get(d)! - 1);
+      }
+    }
+  }
+  return len === Infinity ? '' : s.slice(start, start + len);
+}
+
+function numSubarrayProductLessThanK(nums: number[], k: number): number {
+  if (k <= 1) return 0;
+  let prod = 1, left = 0, ans = 0;
+  for (let right = 0; right < nums.length; right++) {
+    prod *= nums[right];
+    while (prod >= k) prod /= nums[left++];
+    ans += right - left + 1;
+  }
+  return ans;
+}
+```
+
+### 延伸
+- 滑动窗口能 work 的核心：随 right 增大，"满足条件的最小 left" 也单调不降；这是双指针正确性来源
+- 不单调的场景（比如有负数累加和）：滑动窗口失效，改用前缀和 + 单调队列 / 哈希
+
+## monotonic-stack-queue
+title: 单调栈 / 单调队列高频题
+difficulty: 资深
+tags: [算法, 单调栈, 单调队列, 高频]
+
+### 一句话
+**下一个更大元素 / 柱状图最大矩形**用单调栈（栈内保持单调）；**滑动窗口最大值**用单调双端队列（队头总是当前窗口的最大值）。复杂度 O(n)，每个元素至多入队/入栈出队/出栈各一次。
+
+### 题目
+为什么"下一个更大元素"和"滑动窗口最大值"都能 O(n)？它们的共同思想是什么？
+
+### 答案要点
+- **共同思想：及时丢弃永远用不到的候选**
+  - 当我们在比较 nums[i] 时，若栈/队尾元素 < nums[i]，则前者永远不可能是后续位置的"最大值候选"，直接弹掉
+  - 不变量：栈 / 队列从底/头到顶/尾保持单调（递减或递增）
+- **单调栈典型题**
+  - 下一个更大元素（直接 / 循环数组）
+  - 每日温度（Daily Temperatures）：求等几天会更高
+  - 柱状图中最大矩形：栈里存"递增高度对应的下标"，pop 时计算以该高度为顶的矩形
+  - 接雨水（Trapping Rain Water）：栈维护"递减高度"，每次 pop 计算凹陷
+- **单调队列典型题**
+  - 滑动窗口最大值：维护递减队列，队头超出窗口就弹
+  - 长度限制的最大子数组和（前缀和 + 单调队列）
+  - 跳跃游戏 VI（DP + 单调队列优化）
+- **如何选用**
+  - 静态数组求"两侧最近的更大/更小"：单调栈
+  - 动态窗口内求最大/最小（窗口长度变化）：单调队列
+- **实现细节**
+  - 栈/队列存"下标"还是"值"：存下标更通用（能算距离）
+  - 比较条件：等号要不要弹？影响是否处理"严格更大"还是"≥"
+  - JS 用普通数组当栈足够（push/pop O(1)）；双端队列用 array shift/unshift 是 O(n)，必要时用环形数组或 deque 实现
+
+### 代码示例
+```ts
+function nextGreaterElements(nums: number[]): number[] {
+  const n = nums.length, ans = new Array(n).fill(-1);
+  const stack: number[] = [];
+  for (let i = 0; i < 2 * n; i++) {
+    const v = nums[i % n];
+    while (stack.length && nums[stack[stack.length - 1]] < v) {
+      ans[stack.pop()!] = v;
+    }
+    if (i < n) stack.push(i);
+  }
+  return ans;
+}
+
+function largestRectangleArea(heights: number[]): number {
+  const stack: number[] = [];
+  let max = 0;
+  const h = [...heights, 0];
+  for (let i = 0; i < h.length; i++) {
+    while (stack.length && h[stack[stack.length - 1]] > h[i]) {
+      const top = stack.pop()!;
+      const left = stack.length ? stack[stack.length - 1] : -1;
+      max = Math.max(max, h[top] * (i - left - 1));
+    }
+    stack.push(i);
+  }
+  return max;
+}
+
+function trap(h: number[]): number {
+  const stack: number[] = [];
+  let water = 0;
+  for (let i = 0; i < h.length; i++) {
+    while (stack.length && h[stack[stack.length - 1]] < h[i]) {
+      const bottom = stack.pop()!;
+      if (!stack.length) break;
+      const left = stack[stack.length - 1];
+      const w = i - left - 1;
+      const minH = Math.min(h[left], h[i]) - h[bottom];
+      water += w * minH;
+    }
+    stack.push(i);
+  }
+  return water;
+}
+
+function maxSlidingWindow(nums: number[], k: number): number[] {
+  const dq: number[] = [];
+  const out: number[] = [];
+  for (let i = 0; i < nums.length; i++) {
+    while (dq.length && nums[dq[dq.length - 1]] <= nums[i]) dq.pop();
+    dq.push(i);
+    if (dq[0] <= i - k) dq.shift();
+    if (i >= k - 1) out.push(nums[dq[0]]);
+  }
+  return out;
+}
+```
+
+### 延伸
+- 单调栈的"出栈"瞬间是触发计算的时机，要想清"该位置的左右边界"是什么
+- 树状数组 / 线段树能处理范围最值，但常数大；单调队列在窗口移动场景下最优
+
+## prefix-sum-difference-2d
+title: 前缀和 / 差分进阶：二维 + 区间更新
+difficulty: 进阶
+tags: [算法, 前缀和, 高频]
+
+### 一句话
+**一维前缀和** O(1) 查询区间和；**一维差分**反过来：O(1) 区间更新 + 最后一次性还原。**二维前缀和**用容斥（左 + 上 - 左上）；**二维差分**对四个角加减。组合使用解"多次区间加 + 最后查询"。
+
+### 题目
+"给一个数组做 m 次区间加，最后查询某个位置的值" 怎么 O(n + m)？二维呢？
+
+### 答案要点
+- **一维前缀和**
+  - 构造：`pre[i + 1] = pre[i] + a[i]`
+  - 区间和：`sum(l, r) = pre[r + 1] - pre[l]`
+- **一维差分**
+  - `diff[i] = a[i] - a[i - 1]`
+  - 区间 `[l, r]` 加 `v`：`diff[l] += v; diff[r + 1] -= v`
+  - 复原：累计 prefix sum 一遍
+  - 多次 update + 最后查所有值：O(n + m)
+- **二维前缀和**
+  - `S[i][j] = S[i-1][j] + S[i][j-1] - S[i-1][j-1] + a[i][j]`
+  - 子矩阵和（容斥）：`sum(r1,c1,r2,c2) = S[r2][c2] - S[r1-1][c2] - S[r2][c1-1] + S[r1-1][c1-1]`
+- **二维差分**
+  - 矩形加 v：四个角分别 `+v / -v / -v / +v`
+  - 复原：先按行做前缀和，再按列做前缀和（或反过来）
+- **典型应用**
+  - 区间和检索（leetcode 303、304）
+  - 航班预订统计（差分）
+  - 地图航拍：多次矩形加颜色后查询某点
+  - 模拟二维卷积 / 模糊：积分图加速
+- **取模 / 大数**
+  - 大区间累加可能溢出 32 位，JS 用 BigInt 或确保不超 2^53
+
+### 代码示例
+```ts
+class NumArray {
+  pre: number[];
+  constructor(nums: number[]) {
+    this.pre = new Array(nums.length + 1).fill(0);
+    for (let i = 0; i < nums.length; i++) this.pre[i + 1] = this.pre[i] + nums[i];
+  }
+  sumRange(l: number, r: number): number {
+    return this.pre[r + 1] - this.pre[l];
+  }
+}
+
+function applyRangeAdds(n: number, ops: [number, number, number][]): number[] {
+  const diff = new Array(n + 1).fill(0);
+  for (const [l, r, v] of ops) {
+    diff[l] += v;
+    diff[r + 1] -= v;
+  }
+  const a = new Array(n);
+  let cur = 0;
+  for (let i = 0; i < n; i++) { cur += diff[i]; a[i] = cur; }
+  return a;
+}
+
+class NumMatrix {
+  S: number[][];
+  constructor(m: number[][]) {
+    const R = m.length, C = m[0].length;
+    this.S = Array.from({ length: R + 1 }, () => new Array(C + 1).fill(0));
+    for (let i = 1; i <= R; i++)
+      for (let j = 1; j <= C; j++)
+        this.S[i][j] = this.S[i - 1][j] + this.S[i][j - 1] - this.S[i - 1][j - 1] + m[i - 1][j - 1];
+  }
+  sumRegion(r1: number, c1: number, r2: number, c2: number): number {
+    return this.S[r2 + 1][c2 + 1] - this.S[r1][c2 + 1] - this.S[r2 + 1][c1] + this.S[r1][c1];
+  }
+}
+
+function applyMatrixAdds(R: number, C: number, ops: [number, number, number, number, number][]): number[][] {
+  const d = Array.from({ length: R + 1 }, () => new Array(C + 1).fill(0));
+  for (const [r1, c1, r2, c2, v] of ops) {
+    d[r1][c1] += v;
+    d[r1][c2 + 1] -= v;
+    d[r2 + 1][c1] -= v;
+    d[r2 + 1][c2 + 1] += v;
+  }
+  for (let i = 0; i < R; i++)
+    for (let j = 0; j < C; j++) {
+      if (i) d[i][j] += d[i - 1][j];
+      if (j) d[i][j] += d[i][j - 1];
+      if (i && j) d[i][j] -= d[i - 1][j - 1];
+    }
+  return d.slice(0, R).map((row) => row.slice(0, C));
+}
+```
+
+### 延伸
+- 三维前缀和 / 高维差分：电商热度图 / 多维 OLAP 离线分析常用
+- 树上前缀和（DFS 序）：解决子树查询 / 路径查询
+- 动态区间和需要"在线 update + 查询"：换成树状数组 / 线段树
+

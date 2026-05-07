@@ -716,3 +716,274 @@ chrome://memory-internals/
 - Edge 与 Brave 同源 Chromium 架构相同
 - Safari 也用类似的 WebContent + Networking + GPU 进程拆分
 
+
+## webgpu-pipeline-basics
+title: WebGPU 比 WebGL 强在哪？最小可用渲染管线
+difficulty: 资深
+tags: [WebGPU, 图形, 高频]
+
+### 一句话
+WebGPU 是新一代 GPU API：① 同时面向**渲染和计算**（compute shader），② 多线程友好（command encoder 提交 GPU），③ 显式描述 pipeline / bind group，性能可预测；适合大数据可视化、ML 推理、3D 引擎。
+
+### 题目
+WebGL 已经能做大部分图形需求，WebGPU 解决了什么新问题？写出最小三角形渲染管线的关键步骤。
+
+### 答案要点
+- **WebGL 的痛点**
+  - 状态机式 API：drawCall 前要 bind 一堆全局状态，难做并行
+  - 没有 compute shader（WebGL 2 也没有，要绕到 fragment shader 计算）
+  - 着色器语言是 GLSL，老旧
+  - 大量同步状态切换导致性能瓶颈
+- **WebGPU 关键改进**
+  - **Pipeline 显式**：vertex / fragment / compute pipeline 一次性配置好，driver 可以提前优化
+  - **Bind Group**：把 buffer/texture/sampler 打包绑定，drawCall 切换轻量
+  - **Compute Shader**：通用 GPU 计算（粒子系统、ML、物理仿真）
+  - **WGSL**：现代 SL 语言（强类型、类似 Rust 语法）
+  - **多线程**：GPU 命令在 CPU 端可由多 worker 并发录制
+- **最小渲染管线步骤**
+  1. `navigator.gpu.requestAdapter()` 拿适配器
+  2. `adapter.requestDevice()` 拿 device
+  3. canvas.getContext('webgpu') + configure
+  4. createShaderModule（顶点 + 片段 WGSL）
+  5. createRenderPipeline（描述顶点格式 / 片段输出）
+  6. 帧循环：encoder.beginRenderPass → setPipeline → draw → submit
+- **典型应用场景**
+  - 海量散点 / 时序图（百万级数据点）
+  - ML 推理：transformers.js、ONNX Runtime Web 都已支持 WebGPU 后端
+  - 3D 引擎：Babylon.js、Three.js（WebGPURenderer）
+  - 实时滤镜 / 视频特效
+- **兼容性**
+  - Chrome/Edge 113+ 默认开启
+  - Safari 18+
+  - Firefox 实验性
+  - 不支持时降级到 WebGL2 / Canvas2D
+- **常见坑**
+  - 每个 GPUBuffer 用完要 destroy（不会自动 GC）
+  - WGSL 与 GLSL 语法差异不小
+  - 调试工具不如 WebGL 成熟（Chrome DevTools 有 GPU panel）
+
+### 代码示例
+```ts
+const adapter = await navigator.gpu.requestAdapter();
+const device = await adapter!.requestDevice();
+const canvas = document.querySelector('canvas')!;
+const ctx = canvas.getContext('webgpu')!;
+const format = navigator.gpu.getPreferredCanvasFormat();
+ctx.configure({ device, format, alphaMode: 'premultiplied' });
+
+const wgsl = /* wgsl */`
+@vertex
+fn vs(@builtin(vertex_index) i: u32) -> @builtin(position) vec4f {
+  let pos = array<vec2f, 3>(vec2f(0., .5), vec2f(-.5, -.5), vec2f(.5, -.5));
+  return vec4f(pos[i], 0., 1.);
+}
+@fragment
+fn fs() -> @location(0) vec4f {
+  return vec4f(.4, .7, 1., 1.);
+}
+`;
+const module = device.createShaderModule({ code: wgsl });
+
+const pipeline = device.createRenderPipeline({
+  layout: 'auto',
+  vertex:   { module, entryPoint: 'vs' },
+  fragment: { module, entryPoint: 'fs', targets: [{ format }] },
+  primitive: { topology: 'triangle-list' },
+});
+
+function frame() {
+  const enc = device.createCommandEncoder();
+  const pass = enc.beginRenderPass({
+    colorAttachments: [{
+      view: ctx.getCurrentTexture().createView(),
+      clearValue: { r: 0, g: 0, b: 0, a: 1 },
+      loadOp: 'clear',
+      storeOp: 'store',
+    }],
+  });
+  pass.setPipeline(pipeline);
+  pass.draw(3);
+  pass.end();
+  device.queue.submit([enc.finish()]);
+  requestAnimationFrame(frame);
+}
+frame();
+```
+
+### 延伸
+- WebNN（神经网络 API）配合 WebGPU 后端，未来浏览器原生跑 LLM
+- WebGPU 在 Node 也有实现（dawn / wgpu binding），跨端复用 shader
+
+## webtransport-vs-websocket
+title: WebTransport 和 WebSocket 的关系？什么场景用
+difficulty: 资深
+tags: [WebTransport, 实时通信]
+
+### 一句话
+WebTransport 跑在 **HTTP/3（QUIC + UDP）** 上，提供**多个独立流 + 不可靠数据报**两种通道：避免 WebSocket 的"队头阻塞"，适合实时游戏、低延迟流媒体、远程渲染等对丢包/乱序敏感的场景。
+
+### 题目
+WebSocket 用了十年还很稳，为什么浏览器要做 WebTransport？两者有什么本质差异？
+
+### 答案要点
+- **WebSocket 的局限**
+  - 跑在 TCP 上，单一有序字节流 → 一旦丢包整条连接 stall（队头阻塞 HOL）
+  - 多消息类型必须复用同一条流，互相影响
+  - 没有"不可靠"模式（实时游戏宁丢一帧也不重传）
+- **WebTransport 提供两种通道**
+  - **streams**（双向 / 单向）：可靠有序，类似 WebSocket，但**多路复用**——一条流堵了不影响其他
+  - **datagrams**：不可靠不重传，类似 UDP，适合实时音视频帧 / 鼠标位置 / 游戏指令
+- **底层 = HTTP/3 = QUIC**
+  - QUIC 跑 UDP，自带加密（TLS 1.3）
+  - 0-RTT 重连：再次连接几乎瞬时
+  - 抗弱网：丢包恢复快、连接迁移（手机切 wifi 不断线）
+- **典型场景**
+  - 云游戏 / 远程桌面：低延迟 + 不能容忍 HOL
+  - 实时音视频转推
+  - 大型 MMO 游戏：状态广播用 datagram，重要事件用 stream
+  - 协同绘图 / 协同编辑大文档：数据流并行，互不阻塞
+  - 高频金融行情推送
+- **API 模型**
+  - 客户端：`new WebTransport(url)` + `await transport.ready`
+  - 创建可靠流：`createBidirectionalStream()` / `createUnidirectionalStream()`
+  - 不可靠：`transport.datagrams.writable` / `readable`
+- **服务端**
+  - 不能用普通 HTTP/1.1 / WebSocket 服务器；要 HTTP/3 服务器（quiche / msquic / aioquic）
+  - Node 暂未原生支持，要 native binding 或 Caddy / Nginx (实验) 中转
+- **兼容性**
+  - Chrome / Edge 完整支持，Firefox 跟进
+  - 不支持时降级到 WebSocket 或 SSE
+  - HTTP/3 端口 / 防火墙问题：企业网络 UDP 可能被屏蔽，需要 fallback
+- **跟 WebRTC DataChannel 的区别**
+  - WebRTC 主要为 P2P 设计（NAT 穿透 + ICE）；服务端转发繁琐
+  - WebTransport 就是 client-server，工程化更简单
+
+### 代码示例
+```ts
+const transport = new WebTransport('https://example.com/realtime');
+await transport.ready;
+
+const stream = await transport.createBidirectionalStream();
+const writer = stream.writable.getWriter();
+await writer.write(new TextEncoder().encode('hello'));
+
+const reader = stream.readable.getReader();
+const { value } = await reader.read();
+console.log(new TextDecoder().decode(value));
+
+const dgWriter = transport.datagrams.writable.getWriter();
+function loop() {
+  const buf = new Uint8Array(4);
+  new DataView(buf.buffer).setUint32(0, performance.now() | 0);
+  dgWriter.write(buf);
+  requestAnimationFrame(loop);
+}
+loop();
+
+(async () => {
+  const dgReader = transport.datagrams.readable.getReader();
+  while (true) {
+    const { value, done } = await dgReader.read();
+    if (done) break;
+    handleDatagram(value);
+  }
+})();
+```
+
+### 延伸
+- WebRTC + WebTransport 组合：媒体走 RTC，控制信令走 WebTransport
+- 阿里 / 腾讯云的低延迟直播已有 WebTransport 试点
+
+## webcodecs-streams
+title: WebCodecs + Streams 实现浏览器内视频处理
+difficulty: 资深
+tags: [WebCodecs, Streams, 视频]
+
+### 一句话
+WebCodecs 暴露浏览器内置的硬件解码 / 编码（VideoDecoder/VideoEncoder/AudioDecoder/AudioEncoder），配合 ReadableStream / WritableStream 形成"零拷贝管道"：解码 → 处理 → 编码 → 上传，全程不离开 GPU，远比 ffmpeg.wasm 高效。
+
+### 题目
+浏览器里要做"实时给视频加水印 + 转码上传"，传统方案 ffmpeg.wasm 太慢。WebCodecs 怎么帮你？
+
+### 答案要点
+- **能力定位**
+  - WebCodecs 不做封装格式（mp4 / mkv），只解 / 编 raw frame
+  - 必须配合 demuxer（mp4box.js）做容器解析
+  - 配合 muxer（ebml-muxer / webm-muxer / mp4-muxer）做封装
+- **管道结构**
+  - 文件 → demuxer → EncodedVideoChunk → VideoDecoder → VideoFrame
+  - VideoFrame → 处理（Canvas / WebGL / WebGPU 加水印）→ 新 VideoFrame
+  - 新 VideoFrame → VideoEncoder → EncodedVideoChunk → muxer → blob/upload
+- **Streams 配合**
+  - 上面每个箭头都可以包成 ReadableStream / TransformStream
+  - 自动 backpressure：解码太快编码跟不上时上游会暂停
+  - 标准 pipe：`source.pipeThrough(decode).pipeThrough(watermark).pipeThrough(encode).pipeTo(upload)`
+- **VideoFrame 的省内存哲学**
+  - VideoFrame 是 GPU 资源，**用完必须 close()**，否则很快 OOM
+  - clone() 创建新引用，而不是真复制内存
+  - 配合 OffscreenCanvas / WebGPU texture import 零拷贝处理
+- **典型应用**
+  - 浏览器内视频剪辑（裁剪 / 拼接 / 加滤镜）
+  - 直播推流：MediaStreamTrackProcessor 拿到 camera track → 编码 → WebTransport 推
+  - 截图 / 实时识别：每帧送给 WebGPU / TF.js
+- **性能对比**
+  - WebCodecs 用 GPU 硬解硬编：1080p 60fps 实时
+  - ffmpeg.wasm 纯 CPU：1080p 60fps 慢 5-10 倍
+- **常见坑**
+  - 编码器 keyFrame 间隔影响转码画质和 seek
+  - codec 字符串要严格（'avc1.42E01E' 这种 fourcc + profile + level）
+  - Safari 支持滞后，需要 fallback
+  - 错误码不直观，VideoDecoder.error 回调要打日志
+
+### 代码示例
+```ts
+const decoder = new VideoDecoder({
+  output: (frame) => writer.write(frame),
+  error: (e) => console.error(e),
+});
+decoder.configure({ codec: 'avc1.42E01E' });
+
+const encoder = new VideoEncoder({
+  output: (chunk, meta) => muxer.addVideoChunk(chunk, meta),
+  error: (e) => console.error(e),
+});
+encoder.configure({
+  codec: 'avc1.42001f',
+  width: 1280,
+  height: 720,
+  bitrate: 2_000_000,
+  framerate: 30,
+});
+
+const watermarkTransform = new TransformStream<VideoFrame, VideoFrame>({
+  transform(frame, controller) {
+    const canvas = new OffscreenCanvas(frame.codedWidth, frame.codedHeight);
+    const g = canvas.getContext('2d')!;
+    g.drawImage(frame, 0, 0);
+    g.fillStyle = 'rgba(0,0,0,.5)';
+    g.fillRect(20, 20, 200, 40);
+    g.fillStyle = '#fff';
+    g.fillText('© KAP', 30, 45);
+    const newFrame = new VideoFrame(canvas, { timestamp: frame.timestamp });
+    frame.close();
+    controller.enqueue(newFrame);
+  },
+});
+
+const track = (await navigator.mediaDevices.getUserMedia({ video: true })).getVideoTracks()[0];
+const processor = new MediaStreamTrackProcessor({ track });
+processor.readable
+  .pipeThrough(watermarkTransform)
+  .pipeTo(new WritableStream({
+    write(frame) {
+      encoder.encode(frame, { keyFrame: false });
+      frame.close();
+    },
+  }));
+```
+
+### 延伸
+- WebRTC Insertable Streams（同样 VideoFrame 概念）做端到端加密 / 滤镜
+- 实时 AI 处理：每帧扔到 WebGPU 跑模型 → 输出新 frame，全 GPU 管道
+- "无服务器视频转码"：浏览器用户机器算力替代后端
+

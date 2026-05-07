@@ -1,5 +1,24 @@
 # Changelog
 
+## 0.10.0
+
+- feat：少而精专题题库 +11，361 → 372，重点补"算法专项 + 前沿 Web 平台能力"
+  - **算法 +4**
+    - 位运算高频技巧一题打尽（popcount / 子集枚举 / lowbit / 状态压缩）
+    - 滑动窗口进阶：变长窗口 + 不变量维护（最长不重复 / 最小覆盖 / 至多 K / 乘积小于 K）
+    - 单调栈 / 单调队列高频题（接雨水 / 柱状图最大矩形 / 滑动窗口最大值）
+    - 前缀和 / 差分进阶：二维 + 区间更新（多次区间加 + 矩阵区域和）
+  - **SSR/CSR 边界 +2**（24-fullstack-meta）
+    - Hydration mismatch 排查与修复（time/random/window/扩展）
+    - SSR 数据无缝过户到 Client（dehydrate/HydrationBoundary/devalue）
+  - **前沿 Web 平台 +3**（05-browser）
+    - WebGPU 渲染管线最小可用（compute shader / pipeline / WGSL）
+    - WebTransport vs WebSocket（HTTP/3 + QUIC，streams + datagrams）
+    - WebCodecs + Streams 浏览器内视频处理（VideoFrame 零拷贝管道）
+  - **网络性能 +2**（06-network）
+    - HTTP 103 Early Hints 提前预加载关键资源
+    - bfcache 前进后退缓存的命中条件与典型坑
+
 ## 0.9.0
 
 - feat：题库覆盖面夯实 +25，336 → 361，重点补"高频但偏薄"分类

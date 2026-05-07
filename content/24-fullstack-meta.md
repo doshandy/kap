@@ -564,3 +564,166 @@ export async function middleware(req: NextRequest) {
 - mTLS / Cloudflare Access：企业内网零信任
 - 性能：session 校验放 edge middleware，命中即放行
 
+
+## hydration-mismatch-debug
+title: Hydration mismatch 怎么排查 / 修复
+difficulty: 资深
+tags: [SSR, Hydration, React, 高频]
+
+### 一句话
+本质是"server 渲染的 HTML"与"client 首次渲染的 React/Vue 树"不一致：常见因 `Date.now()`、`Math.random()`、`window/localStorage`、用户语言/时区差异、第三方扩展改 DOM。修法：把不一致的部分用 `useEffect`/客户端 only 包起来或者 SSR 注入确定值，再客户端读取。
+
+### 题目
+React/Next 控制台报 `Hydration failed because the initial UI does not match what was rendered on the server`。常见根因和定位流程是？
+
+### 答案要点
+- **根因清单（按出现频率）**
+  - 时间相关：`new Date()` / `Date.now()` / 相对时间（"3 分钟前"）服务端和客户端时刻不同
+  - 随机相关：`Math.random()`、`crypto.randomUUID()` 在 server 和 client 各跑一次得不同值
+  - 浏览器 API：`window`/`document`/`localStorage`/`navigator`，server 上 undefined → 用 `typeof window !== 'undefined'` 守卫但要注意此时 server 渲染的是 fallback，client 初次也得渲染 fallback
+  - **用户偏好**：浏览器扩展（Grammarly、暗黑模式插件）会修改 DOM；这种 mismatch 没法根治，可在最外层加 `suppressHydrationWarning`
+  - **国际化 / 时区**：服务端 UTC 渲染，客户端按本地时区显示
+  - **数据时效性**：SSR 拉数据后 cache 太旧，client 立刻又拉了一次
+  - **HTML 结构非法**：`<p>` 嵌 `<div>`、`<table>` 缺 `<tbody>`，浏览器自动修复 → server vs client DOM 不同
+- **定位流程**
+  - React 19 / Next 14 错误信息已经能直接指出 mismatch 的标签
+  - 老版本：浏览器 DevTools → React DevTools → 查看具体组件
+  - 用 `process.env.NODE_ENV === 'development'` 时的详细 diff
+- **修复模式**
+  - **Client-only 组件**
+    ```tsx
+    'use client';
+    import dynamic from 'next/dynamic';
+    const Time = dynamic(() => import('./Time'), { ssr: false });
+    ```
+  - **延迟渲染到 effect**
+    ```tsx
+    const [mounted, setMounted] = useState(false);
+    useEffect(() => setMounted(true), []);
+    if (!mounted) return null;
+    ```
+  - **服务端注入确定值**：把 `new Date().toISOString()` 在 server 决定，client 直接用这个值
+  - **suppressHydrationWarning**：兜底使用，仅作用于自身节点
+- **Vue (Nuxt) 同类问题**
+  - 出现 `<ClientOnly>` 组件包裹
+  - `useState` 在 SSR 与客户端共享同一个 key 的初值
+  - hydration 警告：`Hydration node mismatch / text content mismatch`
+- **避免"看似无害"的实践**
+  - SSR 中调 `Math.random()` 设置 key
+  - 直接 `<script>document.body.classList.add('dark')</script>` 注入主题——客户端拿到的 HTML 已是 dark，但 React 渲染的初始状态是 light
+  - 用第三方 hook 内部读 window，开发时本地都正常，部署上线 SSR 才报错
+
+### 代码示例
+```tsx
+'use client';
+import { useEffect, useState } from 'react';
+
+export function RelativeTime({ iso }: { iso: string }) {
+  const [now, setNow] = useState<number | null>(null);
+  useEffect(() => {
+    setNow(Date.now());
+    const t = setInterval(() => setNow(Date.now()), 30_000);
+    return () => clearInterval(t);
+  }, []);
+
+  if (now === null) {
+    return <time dateTime={iso}>{new Date(iso).toLocaleDateString('en-US')}</time>;
+  }
+  return <time dateTime={iso}>{format(now - new Date(iso).getTime())}</time>;
+}
+
+<html lang="zh-CN" suppressHydrationWarning>
+  <body>{children}</body>
+</html>
+```
+
+### 延伸
+- 第三方注入（暗黑模式）的标准做法：在 `<head>` 顶部塞同步 inline script 读 localStorage 加 class，server 渲染就带上这个类，client 自然一致
+- partial hydration / RSC：减少 hydration 工作量，但不改变 mismatch 本质
+
+## ssr-data-fetching-consistency
+title: SSR 数据如何无缝传递到 Client，避免重复请求
+difficulty: 资深
+tags: [SSR, 数据获取, 高频]
+
+### 一句话
+通用模式：server 拉数据 → 渲染 HTML 时序列化数据到 `<script id="__DATA__" type="application/json">` → client 启动时把数据回填到 store / TanStack Query cache → 后续渲染直接命中缓存，不再发请求。
+
+### 题目
+SSR 拉了数据渲染 HTML，client hydration 后又请求了一次同样接口。怎么把数据"无缝过户"？
+
+### 答案要点
+- **传统方案：注入 `__INITIAL_STATE__`**
+  - 服务端把 `{ users, products }` 渲染进 HTML：`<script>window.__INITIAL_STATE__ = {...}</script>`
+  - 客户端 store 初始化时优先读这个对象，缺失才发请求
+  - 注意 XSS：序列化要转义 `<` / `>` / `'` 等
+- **TanStack Query / SWR 方案**
+  - 服务端 `prefetchQuery` → `dehydrate(queryClient)` → 注入序列化数据
+  - 客户端 `<HydrationBoundary state={dehydratedState}>` → cache 命中，不再请求
+- **Next App Router (RSC)**
+  - Server Component 直接 await fetch，渲染时数据已"在 HTML 里"
+  - 不需要序列化逻辑：RSC 把组件树本身序列化成 RSC payload 给客户端
+  - 客户端组件需要数据时通过 props 传入或单独 useQuery
+- **Nuxt 3**
+  - `useFetch` / `useAsyncData` 自动处理：服务端拉到的数据通过 payload 传到 client
+  - `nuxtApp.payload.data` 内部存
+- **关键陷阱**
+  - **数据时效**：server 拉的数据 client 启动那一刻已经过期 → 设置合理 staleTime；关键场景客户端立即 revalidate
+  - **认证态**：server 用 cookie 拿到的数据可能含敏感信息；序列化前过滤
+  - **大 payload**：注入太多数据 HTML 体积爆炸 → 拆按需 chunk / 只 prefetch 关键数据
+  - **循环引用**：JSON.stringify 会失败，用 superjson / devalue 处理 Date / Map / Set / undefined
+- **去重**
+  - 同一请求 server + client 各发一次：用全局 dedupe（一个 sessionId 内同 URL 同参数走缓存）
+  - request 级别去重 vs 用户级别去重（多 tab）
+- **错误处理**
+  - server 拉失败：要让 client 知道，不能闷头不显示（会出现"server fail → client 重新拉成功"的闪烁）
+  - 失败兜底：渲染骨架屏 + client useEffect retry
+
+### 代码示例
+```tsx
+import { dehydrate, HydrationBoundary, QueryClient } from '@tanstack/react-query';
+
+export default async function Page({ params }: { params: { id: string } }) {
+  const qc = new QueryClient();
+  await qc.prefetchQuery({
+    queryKey: ['post', params.id],
+    queryFn: () => fetch(`/api/posts/${params.id}`).then((r) => r.json()),
+  });
+
+  return (
+    <HydrationBoundary state={dehydrate(qc)}>
+      <PostDetail id={params.id} />
+    </HydrationBoundary>
+  );
+}
+
+'use client';
+import { useQuery } from '@tanstack/react-query';
+
+export function PostDetail({ id }: { id: string }) {
+  const { data } = useQuery({
+    queryKey: ['post', id],
+    queryFn: () => fetch(`/api/posts/${id}`).then((r) => r.json()),
+    staleTime: 60_000,
+  });
+  return <article>{data?.title}</article>;
+}
+```
+
+```html
+<script id="__INITIAL__" type="application/json">
+  {"user":{"id":"1","name":"Tom"}}
+</script>
+<script>
+  (function () {
+    var raw = document.getElementById('__INITIAL__').textContent;
+    window.__INITIAL__ = JSON.parse(raw);
+  })();
+</script>
+```
+
+### 延伸
+- devalue 比 JSON.stringify 强：能序列化 Date / Map / Set / undefined / 循环引用
+- React Server Components 的 payload 是行级 JSON 流，比传统 `__INITIAL_STATE__` 更高效
+- 大型应用按需 lazy hydration，避免一次性反序列化几百 KB 数据
+
