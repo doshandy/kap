@@ -215,10 +215,15 @@ const hasMultiBlocks = computed(() => blocks.value.length > 1);
             片段 {{ i + 1 }} · {{ b.language }}
           </option>
         </select>
-        <button class="btn btn-ghost" @click="clear">
+        <button class="btn btn-ghost" title="清空运行日志" @click="clear">
           <AppIcon name="clear" /> 清空
         </button>
-        <button class="btn btn-primary" :disabled="!isRunnableLang(lang)" @click="run">
+        <button
+          class="btn btn-primary"
+          :title="isRunnableLang(lang) ? '在浏览器沙盒中运行当前代码' : '当前语言不支持沙盒运行'"
+          :disabled="!isRunnableLang(lang)"
+          @click="run"
+        >
           <AppIcon name="play" /> 运行
         </button>
       </div>

@@ -438,3 +438,61 @@ console.log(sri('dist/lib.js'));
 ### 延伸
 - 用了 webpack-subresource-integrity / vite-plugin-sri 可以自动注入 SRI
 - 不要把第三方 CDN 当作"自己的代码"，关键脚本能内嵌就内嵌，能自托管就自托管
+
+## xss-csrf-defense
+title: XSS 与 CSRF 的区别和防御
+difficulty: 进阶
+tags: [安全, XSS, CSRF, 高频]
+
+### 一句话
+XSS：坏人在你的页面里塞了一段 JS 帮自己干活（偷 cookie、改请求）→ 防御的核心是**输出转义 + CSP**。CSRF：坏人借用你已登录的 cookie 给后端发请求 → 防御靠**SameSite Cookie + CSRF Token**。
+
+### 题目
+分别解释 XSS / CSRF 的攻击原理和工程上对应的防御方案。
+
+### 答案要点
+- **XSS（Cross-Site Scripting）**：让目标用户的浏览器执行恶意脚本
+  - 反射型：恶意参数随 URL 反射进页面
+  - 存储型：恶意脚本存进数据库（评论、富文本）
+  - DOM 型：前端用 `innerHTML` 拼接用户输入
+  - 防御：
+    - 输出按上下文转义（HTML/属性/JS/URL）
+    - 富文本走 DOMPurify 白名单清洗
+    - HttpOnly Cookie 防止 JS 读取 token
+    - CSP `Content-Security-Policy: default-src 'self'`，禁止 inline script
+    - Trusted Types（Chrome 83+）
+- **CSRF（Cross-Site Request Forgery）**：用户登录了 A 站，访问坏人的 B 站，B 站提交了一个发到 A 站的请求，浏览器自动带上 A 站的 cookie
+  - 防御：
+    - SameSite=Lax/Strict（最简单有效，现代浏览器默认 Lax）
+    - 双 Token：一份在 cookie 一份在 header，对比一致
+    - 关键操作（转账、改密码）二次确认 + 验证码
+    - 检查 Origin / Referer
+- 总结：XSS 防"代码注入"、CSRF 防"被冒名提交"
+
+### 代码示例
+```js
+import DOMPurify from 'dompurify';
+const safeHtml = DOMPurify.sanitize(userInput);
+document.querySelector('#content').innerHTML = safeHtml;
+```
+
+```http
+Set-Cookie: session=abc; HttpOnly; Secure; SameSite=Lax
+Content-Security-Policy: default-src 'self'; script-src 'self' 'nonce-r4nd0m'
+```
+
+```js
+fetch('/api/transfer', {
+  method: 'POST',
+  credentials: 'include',
+  headers: { 'X-CSRF-Token': getCookie('csrfToken') },
+  body: JSON.stringify({ to: 'bob', amount: 100 }),
+});
+```
+
+### 延伸
+- XSS 还会衍生出 Self-XSS、Mutation XSS（DOM 解析容错坑）
+- CSRF 与 SameSite 的过渡期（旧浏览器）需要后端兜底
+- 现代框架（React、Vue）默认转义文本，所以滥用 `v-html / dangerouslySetInnerHTML` 才是 XSS 主要源头
+- 安全 = 默认安全 × 防御深度，单点措施都不够
+

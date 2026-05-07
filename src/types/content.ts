@@ -9,6 +9,8 @@ export interface Question {
   title: string;
   difficulty: Difficulty;
   tags: string[];
+  /** HTML 后的一句话理解（可选） */
+  summary?: string;
   /** HTML 后的题面 */
   question: string;
   /** HTML 后的答案 */

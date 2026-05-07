@@ -11,6 +11,9 @@ title: 原型链是什么？查找规则和终点
 difficulty: 基础
 tags: [原型, 继承]
 
+### 一句话
+对象找属性时，自己没有就去"上家"找，一直找到祖宗 `Object.prototype`，再上是 `null`，没找到就返回 `undefined`。
+
 ### 题目
 请描述 JavaScript 的原型链查找规则、终止条件，以及它与「类继承」的本质区别。
 
@@ -48,6 +51,9 @@ title: this 指向的七种场景
 difficulty: 基础
 tags: [this, 函数]
 
+### 一句话
+谁调用这个函数，`this` 就是谁；箭头函数没有自己的 this，永远跟外层走。
+
 ### 题目
 列举 this 绑定的全部规则，并说明优先级。箭头函数为何"没有 this"？
 
@@ -84,6 +90,9 @@ title: 闭包的定义、用途与陷阱
 difficulty: 基础
 tags: [闭包, 作用域]
 
+### 一句话
+函数"记住"了它出生时能看到的变量，所以离开作用域之后还能继续用。
+
 ### 题目
 什么是闭包？典型用途和常见的内存陷阱有哪些？
 
@@ -117,6 +126,9 @@ c.get(); // 2，n 始终被两个闭包共享
 title: 浏览器事件循环：宏任务、微任务、RAF、IDLE
 difficulty: 进阶
 tags: [事件循环, 异步]
+
+### 一句话
+JS 主线程就一条，先把当前同步代码跑完，然后清空所有微任务（Promise 回调），再做一帧渲染，再去执行下一个宏任务（setTimeout/事件）。
 
 ### 题目
 描述浏览器事件循环的完整执行模型，并解释下面输出顺序。
@@ -156,6 +168,9 @@ function block() {
 title: 手写一个符合 Promise/A+ 规范的 Promise
 difficulty: 进阶
 tags: [Promise, 异步, 手写]
+
+### 一句话
+Promise 是一个"未来值"，状态只能改一次（成功或失败），`then` 把回调挂队列里等状态变化时异步执行，并返回新的 Promise 用于链式调用。
 
 ### 题目
 请实现 `MyPromise`，覆盖 then 链式调用、值穿透、异步解决、错误冒泡。
@@ -250,6 +265,9 @@ title: 手写防抖与节流
 difficulty: 基础
 tags: [手写, 性能]
 
+### 一句话
+防抖：等用户"停下来" N 毫秒再触发（搜索输入）；节流：N 毫秒内最多执行一次（滚动 / resize）。
+
 ### 题目
 实现 `debounce(fn, wait, immediate)` 与 `throttle(fn, wait, { leading, trailing })`，并说明使用场景。
 
@@ -299,6 +317,9 @@ title: 深拷贝完整实现：循环引用、Symbol、特殊对象
 difficulty: 进阶
 tags: [手写, 对象]
 
+### 一句话
+JSON 大法只能搞定纯数据；要处理循环引用、Map/Set/Date/RegExp，用浏览器自带的 `structuredClone`，或自己递归 + WeakMap 标记已访问。
+
 ### 题目
 实现一个工业级深拷贝，处理循环引用、Symbol 键、Date/RegExp/Map/Set/函数。
 
@@ -343,6 +364,9 @@ title: ESM 与 CommonJS 的差异、互操作与陷阱
 difficulty: 进阶
 tags: [模块化, Node]
 
+### 一句话
+ESM 是"静态、异步、值绑定"，编译期就能分析依赖；CJS 是"动态、同步、值拷贝"，运行时才知道导出什么。两者互相 require / import 容易踩坑。
+
 ### 题目
 ESM 与 CommonJS 在加载时机、绑定语义、循环依赖处理上的差异？为什么 Node 中两者互导会踩坑？
 
@@ -373,6 +397,9 @@ console.log(count); // 1（live binding）
 title: 前端常见内存泄漏与排查
 difficulty: 进阶
 tags: [内存, 性能]
+
+### 一句话
+泄漏的本质：本该被回收的对象还有"引用线"挂着——常见来源是没解绑的事件、定时器、全局变量、被闭包持有的 DOM。
 
 ### 题目
 列举前端常见内存泄漏类型与对应排查方式。
@@ -618,6 +645,9 @@ title: bind / call / apply 的区别与手写实现
 difficulty: 进阶
 tags: [this, 函数]
 
+### 一句话
+三个都用来"指定 this"。call/apply 立即调用（差别只是参数传法），bind 返回一个新函数等你以后调用。
+
 ### 题目
 说说 bind / call / apply 的区别，并手写一个 myBind。
 
@@ -658,6 +688,9 @@ console.log(hi('Alice'));
 title: new 操作符做了哪些事，怎么手写
 difficulty: 进阶
 tags: [对象, 函数]
+
+### 一句话
+`new Foo()` = 建一个空对象 → 把它的原型指向 `Foo.prototype` → 用 Foo 当构造函数（this 指向新对象）→ 如果 Foo 没显式返回对象就返回这个新对象。
 
 ### 题目
 `new Foo(args)` 内部的执行步骤是什么？请用 myNew 实现。
@@ -701,6 +734,9 @@ title: Promise.all / allSettled / race / any 的差异和典型用法
 difficulty: 进阶
 tags: [异步, Promise]
 
+### 一句话
+all：全成功才算成功，一个失败立马失败；allSettled：等所有结束、永不失败；race：第一个出结果的说了算；any：第一个成功的说了算。
+
 ### 题目
 四个静态方法分别什么时候 resolve / reject？日常怎么选？
 
@@ -737,3 +773,177 @@ async function fastestCDN(urls) {
 - 在 Node 18+/现代浏览器中 4 个方法都已稳定支持
 - 处理「成功一个就够」用 any；处理「等所有完成才汇总」用 allSettled
 - 注意 `Promise.all` 的 fail-fast：如果有一个 reject，其他请求其实仍会继续跑（无法 abort）。需要 AbortController 配合
+
+## flatten-array
+title: 数组扁平化的多种实现
+difficulty: 基础
+tags: [数组, 手写]
+
+### 一句话
+`Array.prototype.flat(depth)` 一行就够（默认深度 1，传 `Infinity` 全平）；自己写就是递归 + 判断元素是否为数组。
+
+### 题目
+请用至少 3 种方式实现数组扁平化（任意深度），并给出复杂度对比。
+
+### 答案要点
+- ES2019 内置 `arr.flat(Infinity)`：最简洁，可指定深度
+- 递归 reduce：`(arr) => arr.reduce((a, b) => a.concat(Array.isArray(b) ? f(b) : b), [])`
+- 迭代 + 栈：手动 push/pop 避免递归深度限制（大数据量更安全）
+- `JSON.stringify(arr).replace(/\[|\]/g, '')` 是面试黑魔法但会丢类型，仅适合数字/字符串
+- 带类型保留的高质量实现：判断 `Array.isArray` 而不是 `typeof`
+
+### 代码示例
+```js
+function flat1(arr) {
+  return arr.flat(Infinity);
+}
+
+function flat2(arr) {
+  return arr.reduce((acc, v) => acc.concat(Array.isArray(v) ? flat2(v) : v), []);
+}
+
+function flat3(arr) {
+  const stack = [...arr];
+  const out = [];
+  while (stack.length) {
+    const v = stack.pop();
+    if (Array.isArray(v)) stack.push(...v);
+    else out.unshift(v);
+  }
+  return out;
+}
+
+console.log(flat1([1, [2, [3, [4]]]]));
+console.log(flat2([1, [2, [3, [4]]]]));
+console.log(flat3([1, [2, [3, [4]]]]));
+```
+
+### 延伸
+- 大数据量时优先选迭代版本，避免栈溢出
+- TypeScript 中 `flat` 的返回类型 `FlatArray<T, D>` 很有意思，可以参考类型体操
+
+## event-emitter
+title: 手写一个 EventEmitter（订阅发布）
+difficulty: 基础
+tags: [设计模式, 手写]
+
+### 一句话
+就是维护一个 `{ 事件名: [回调列表] }` 的字典：on 入队、emit 取出来调一遍、off 删除。
+
+### 题目
+请实现一个支持 on / off / once / emit 的事件总线。
+
+### 答案要点
+- `on(event, fn)` 把 fn 放进对应事件的数组里
+- `off(event, fn)` 不传 fn 清空整组，传 fn 则移除一个
+- `once(event, fn)` 用一个包装函数：调用时执行后立刻 off
+- `emit(event, ...args)` 取出回调列表依次调用，建议拷贝一份再遍历，避免遍历过程中 off 影响
+- 异常处理：用 try/catch 包住每个回调，避免一个错误导致后续监听器不执行
+
+### 代码示例
+```js
+class EventEmitter {
+  constructor() {
+    this.map = new Map();
+  }
+  on(event, fn) {
+    if (!this.map.has(event)) this.map.set(event, []);
+    this.map.get(event).push(fn);
+    return () => this.off(event, fn);
+  }
+  off(event, fn) {
+    const list = this.map.get(event);
+    if (!list) return;
+    if (!fn) this.map.delete(event);
+    else this.map.set(event, list.filter((f) => f !== fn));
+  }
+  once(event, fn) {
+    const wrap = (...args) => {
+      this.off(event, wrap);
+      fn(...args);
+    };
+    this.on(event, wrap);
+  }
+  emit(event, ...args) {
+    const list = this.map.get(event)?.slice() || [];
+    for (const fn of list) {
+      try { fn(...args); } catch (e) { console.error(e); }
+    }
+  }
+}
+
+const bus = new EventEmitter();
+const off = bus.on('msg', (x) => console.log('A', x));
+bus.once('msg', (x) => console.log('B once', x));
+bus.emit('msg', 1);
+bus.emit('msg', 2);
+off();
+bus.emit('msg', 3);
+```
+
+### 延伸
+- Node.js 内置 EventEmitter 还支持 `setMaxListeners`、错误事件、Async 迭代
+- 浏览器原生 `EventTarget` 也可以用，性能更好
+
+## debounce-immediate
+title: 防抖（debounce）的 immediate 模式怎么实现
+difficulty: 进阶
+tags: [手写, 性能]
+
+### 一句话
+普通 debounce 是"停下来 N 毫秒后才执行"；immediate 模式是"先立刻执行一次，之后 N 毫秒内再来都不响应"——典型场景是"防止按钮连点"。
+
+### 题目
+请实现支持 `immediate` 选项的防抖函数；并支持取消 `cancel` 与立即触发 `flush`。
+
+### 答案要点
+- 内部维护一个定时器 id 和最后一次调用的参数
+- `immediate=true` 时，第一次调用立刻执行，后续在 wait 内被忽略；wait 过了之后下次调用又算"第一次"
+- `cancel`：clearTimeout 并把 id 置 null
+- `flush`：清掉定时器并立即执行最后一次缓存的参数（实现起来需要在 trailing 模式下保存 args）
+- 注意 this 透传：用普通函数 + apply
+
+### 代码示例
+```js
+function debounce(fn, wait, immediate = false) {
+  let t = null;
+  let lastArgs = null;
+  let lastThis = null;
+
+  function debounced(...args) {
+    lastArgs = args;
+    lastThis = this;
+    const callNow = immediate && t == null;
+    if (t) clearTimeout(t);
+    t = setTimeout(() => {
+      t = null;
+      if (!immediate && lastArgs) {
+        fn.apply(lastThis, lastArgs);
+        lastArgs = null;
+      }
+    }, wait);
+    if (callNow) fn.apply(lastThis, lastArgs);
+  }
+  debounced.cancel = () => {
+    if (t) clearTimeout(t);
+    t = null;
+    lastArgs = null;
+  };
+  debounced.flush = () => {
+    if (t && lastArgs) {
+      clearTimeout(t);
+      fn.apply(lastThis, lastArgs);
+      t = null;
+      lastArgs = null;
+    }
+  };
+  return debounced;
+}
+
+const log = debounce((x) => console.log('run', x), 500, true);
+log(1); log(2); log(3);
+```
+
+### 延伸
+- lodash 的 `debounce` 还支持 `leading + trailing` 双触发与最大等待时间 `maxWait`
+- 真实需求里大部分情况非 immediate 就够；immediate 用于按钮防连点

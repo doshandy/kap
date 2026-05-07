@@ -11,6 +11,9 @@ title: Vue2 与 Vue3 的设计差异总览
 difficulty: 基础
 tags: [架构, 响应式, 迁移]
 
+### 一句话
+Vue 3 把响应式从 defineProperty 换成 Proxy（对象不再有"加属性看不到"的问题），同时把更多优化搬到编译期，并用 Composition API 做更好的逻辑复用和类型推导。
+
 ### 题目
 从响应式、编译、渲染、TypeScript 友好度和生态形态五个角度，对比 Vue2 与 Vue3 的关键差异。
 
@@ -59,6 +62,9 @@ delete v3.a; // ✅ 响应
 title: reactive、ref、shallow、readonly、toRef 的选择策略
 difficulty: 进阶
 tags: [响应式, API]
+
+### 一句话
+基本类型、需要整体替换 → 用 `ref`；对象/数组深层代理 → 用 `reactive`；只想代理一层 → 用 `shallow*`；想从 reactive 解构出来仍保持响应式 → 用 `toRefs`。
 
 ### 题目
 `reactive`、`ref`、`shallowRef`、`shallowReactive`、`readonly`、`toRef/toRefs` 分别适合什么场景？
@@ -146,6 +152,9 @@ title: computed、watch、watchEffect 的区别与选型
 difficulty: 基础
 tags: [响应式, API]
 
+### 一句话
+computed 是"派生值"——结果会缓存、像普通变量用；watch 是"在某个值变化时做点事"——明确源 + 拿新旧值；watchEffect 不指定源，自动追踪用到的响应式数据。
+
 ### 题目
 `computed`、`watch`、`watchEffect` 分别解决什么问题？它们的依赖收集方式和执行时机有何不同？
 
@@ -196,6 +205,9 @@ watchEffect(async () => {
 title: Vue3 diff 为什么比 Vue2 更省？LIS、PatchFlag、Block Tree 起了什么作用
 difficulty: 资深
 tags: [diff, 编译优化]
+
+### 一句话
+Vue 3 在编译时就标记了哪些节点会变（PatchFlag），运行时只对比这些"动态点"，再用最长递增子序列（LIS）算法找出最少的 DOM 移动，所以比 Vue 2 快。
 
 ### 题目
 说明 Vue3 在运行时 diff 和编译期优化上的主要手段，并解释为什么要引入最长递增子序列。
@@ -273,6 +285,9 @@ title: 模板编译、SFC 编译与 `<script setup>` 的编译产物
 difficulty: 资深
 tags: [编译, SFC]
 
+### 一句话
+SFC 会被拆成 template/script/style 三块分别编译，模板被翻译成 render 函数（带 PatchFlag），`<script setup>` 是把 setup() 内顶层声明自动暴露给模板的语法糖。
+
 ### 题目
 Vue SFC 从源码到浏览器能跑的 JS，大致经过哪些阶段？`<script setup>` 为什么叫语法糖？
 
@@ -308,6 +323,9 @@ export default {
 title: Vue 组件通信方案怎么选
 difficulty: 进阶
 tags: [组件通信, 设计]
+
+### 一句话
+父子之间用 props/emit；想双向就 v-model；穿层级用 provide/inject；任意两个组件之间共享状态就上 Pinia 或事件总线。
 
 ### 题目
 请给出 props/emit、v-model、provide/inject、Pinia、$attrs、refs/defineExpose、Teleport 的适用边界。
@@ -377,6 +395,9 @@ function onClick() { childRef.value?.focus(); }
 title: Pinia 与 Vue Router 4 的工程实践
 difficulty: 进阶
 tags: [Pinia, Router]
+
+### 一句话
+Pinia = Vuex 的简化版（去掉 mutations，直接改 state，组合式 API 写起来像普通函数）；Vue Router 4 用嵌套路由 + 守卫 + 懒加载支撑大部分单页应用。
 
 ### 题目
 如何设计 Pinia store，Router 的守卫执行顺序又该如何理解？
@@ -955,6 +976,9 @@ title: Vue 3 的 Proxy 响应式相比 Vue 2 的 defineProperty 解决了什么
 difficulty: 进阶
 tags: [响应式, Vue3]
 
+### 一句话
+Vue 2 给每个属性单独装监听器（新增/删除属性、数组下标都漏），Vue 3 用 Proxy 直接拦截整个对象的读写，啥操作都能拦到。
+
 ### 题目
 Vue 3 的响应式系统相比 Vue 2 的 Object.defineProperty 有哪些根本性改进？
 
@@ -1009,6 +1033,9 @@ title: Vue 3 组件之间通信有哪些方式
 difficulty: 基础
 tags: [组件, Vue3]
 
+### 一句话
+父→子用 props，子→父用 emit，双向用 v-model，跨层级用 provide/inject，任意组件用 Pinia / 事件总线。
+
 ### 题目
 父子、兄弟、跨层级组件分别怎么通信，各自适合什么场景？
 
@@ -1046,6 +1073,9 @@ defineExpose({ focus: () => inputEl.value?.focus() });
 title: Vue 3 异步组件 + Suspense 怎么做骨架屏与错误兜底
 difficulty: 进阶
 tags: [异步, 性能]
+
+### 一句话
+`defineAsyncComponent` 包动态 import，配合 `<Suspense>` 在异步组件加载时显示骨架屏，加载失败显示错误兜底——开箱即用的优雅 loading 体验。
 
 ### 题目
 defineAsyncComponent 和 Suspense 如何配合实现优雅的加载体验？

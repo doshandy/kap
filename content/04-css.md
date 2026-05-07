@@ -11,6 +11,9 @@ title: 盒模型、BFC 与格式化上下文的真实作用
 difficulty: 基础
 tags: [盒模型, BFC, 布局]
 
+### 一句话
+盒模型 = 内容 + padding + border + margin；`border-box` 让"宽度包括 padding 和 border"。BFC 是一个独立的渲染容器，里面元素的布局不会影响外面（清浮动、防 margin 折叠就靠它）。
+
 ### 题目
 请解释标准盒模型与 `box-sizing: border-box` 的区别，并说明 BFC 能解决哪些问题。
 
@@ -77,6 +80,9 @@ tags: [z-index, 层叠]
 title: Flex 与 Grid 的边界和常见坑
 difficulty: 基础
 tags: [Flex, Grid]
+
+### 一句话
+一维布局（一行 / 一列）用 Flex；二维布局（行列同时控制）用 Grid。两者可以嵌套，不互斥。
 
 ### 题目
 什么时候该用 Flex，什么时候该用 Grid？`flex: 1`、`min-width: 0`、`auto-fit/auto-fill` 各是什么意思？

@@ -76,7 +76,7 @@ interface RawQuestionFront {
 }
 
 const QUESTION_HEADING_RE = /^##\s+([a-z][a-z0-9-]*)\s*$/;
-const SUBSECTION_RE = /^###\s+(题目|答案要点|代码示例|延伸)\s*$/;
+const SUBSECTION_RE = /^###\s+(一句话|题目|答案要点|代码示例|延伸)\s*$/;
 
 interface ParsedQuestionBlock {
   slug: string;
@@ -182,6 +182,7 @@ export function parseCategoryMarkdown(raw: string): Category {
       title: b.meta.title,
       difficulty,
       tags,
+      summary: b.sections['一句话'] ? md.render(b.sections['一句话']) : undefined,
       question: md.render(b.sections['题目'] || ''),
       answer: md.render(b.sections['答案要点'] || ''),
       code: b.sections['代码示例'] ? md.render(b.sections['代码示例']) : undefined,

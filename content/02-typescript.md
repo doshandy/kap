@@ -11,6 +11,9 @@ title: any、unknown、never 三者的区别
 difficulty: 基础
 tags: [类型]
 
+### 一句话
+`any` 是"放弃治疗"什么都行；`unknown` 是"我不知道，你得先收窄类型才能用"；`never` 是"这里压根不可能发生"。优先用 unknown 替代 any。
+
 ### 题目
 解释 `any`、`unknown`、`never` 的区别与使用场景。
 
@@ -70,6 +73,9 @@ title: type 与 interface 的区别与取舍
 difficulty: 基础
 tags: [类型]
 
+### 一句话
+两者大多数场景互通；interface 适合"对象 + 可被外部声明合并扩展"（典型如库的扩展点），type 适合联合、交叉、映射等高级运算。
+
 ### 题目
 type 与 interface 的差异有哪些？什么时候用哪个？
 
@@ -96,6 +102,9 @@ type Result<T> = { ok: true; data: T } | { ok: false; err: Error };
 title: 内置工具类型 Pick / Omit / Partial / Required / Readonly / Record 实现
 difficulty: 进阶
 tags: [类型, 手写]
+
+### 一句话
+Partial（全可选）、Required（全必选）、Pick（挑几个）、Omit（去几个）、Record（键值映射）、ReturnType（取返回类型）—— 内置 6 个就能覆盖日常 80% 类型操作。
 
 ### 题目
 手写 Partial / Required / Readonly / Pick / Omit / Record / NonNullable / ReturnType 的实现。

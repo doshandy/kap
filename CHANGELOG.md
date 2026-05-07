@@ -1,5 +1,24 @@
 # Changelog
 
+## 0.6.0
+
+- feat：题目卡顶部新增"一句话理解"高亮区
+  - 新增可选 markdown 段 `### 一句话`，渲染为题目顶部的醒目标签
+  - 给 JS / Vue / React / 浏览器 / 网络 / CSS / TS 共 30+ 道核心高频题补充了白话总结
+- feat：朗读 / 暂停合并为一个按钮
+  - 新增 `useSpeechController` 管理朗读状态；按钮根据当前状态在"朗读 / 停止朗读"切换
+  - 切换路由 / 卸载组件时自动停止朗读
+- a11y：所有图标按钮（包括 icon-only）补齐 `title` 提示
+  - 题目卡操作（记得 / 模糊 / 复习 / 笔记 / AI 讲解 / 复制 Prompt / 沙盒 / 分享 / 导出）
+  - 顶部栏 / 代码沙盒 / 分享对话框
+- 内容扩展（+10 题，总数 288 → 298）：
+  - JavaScript：数组扁平化、手写 EventEmitter、防抖 immediate 模式
+  - 性能：Core Web Vitals (LCP / INP / CLS) 解读与优化、Long Task 拆分
+  - 浏览器：Web Worker 三种类型与适用场景
+  - 算法：LRU Cache（Map 实现）、合并区间
+  - 工程化：Webpack vs Vite 完整对比
+  - 安全：XSS / CSRF 区别与工程化防御
+
 ## 0.5.0
 
 - 修复：复习热力图在小屏 / 切页时空白

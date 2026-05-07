@@ -759,3 +759,100 @@ function toInt(x: number) {
 ### 延伸
 - ECMAScript 的位运算只能 32 位 + 带符号，做 IPv4 / 网卡掩码够用，更大用 BigInt
 - 真正的性能瓶颈基本不是位运算，但在内核 / 编辑器 / 引擎里还是常见
+
+## lru-cache-impl
+title: 实现一个 LRU 缓存（用 Map 的简洁实现）
+difficulty: 进阶
+tags: [数据结构, 手写, 高频]
+
+### 一句话
+LRU = 最近最少使用先淘汰。**用 Map**：JS 的 Map 内部按插入顺序保存键，每次访问命中就把键 delete 再 set，让它"挪到最后"；超容量删第一个键即可。
+
+### 题目
+请实现一个 `LRUCache` 类，支持 `get(key)` 与 `put(key, value)`，时间复杂度 O(1)。
+
+### 答案要点
+- 经典实现 = 双向链表 + 哈希表；JS 中可借助内置 `Map`（保留插入顺序）省掉链表
+- get：命中后 delete + set，让这个 key "刷新"到最近位置
+- put：先检查是否存在（存在就先删），插入；超过容量时 `Map.keys().next().value` 拿到第一个 key 删除
+- 复杂度：所有操作 O(1)（Map 内部有 O(1) 的访问与删除）
+
+### 代码示例
+```js
+class LRUCache {
+  constructor(capacity) {
+    this.cap = capacity;
+    this.map = new Map();
+  }
+  get(key) {
+    if (!this.map.has(key)) return -1;
+    const v = this.map.get(key);
+    this.map.delete(key);
+    this.map.set(key, v);
+    return v;
+  }
+  put(key, value) {
+    if (this.map.has(key)) this.map.delete(key);
+    this.map.set(key, value);
+    if (this.map.size > this.cap) {
+      const oldest = this.map.keys().next().value;
+      this.map.delete(oldest);
+    }
+  }
+}
+
+const c = new LRUCache(2);
+c.put('a', 1); c.put('b', 2);
+c.get('a'); // 1，"a" 变最新
+c.put('c', 3); // 容量超了，淘汰 "b"
+console.log(c.get('b')); // -1
+```
+
+### 延伸
+- 改造支持 TTL 过期：put 时记录 `expireAt`，get 时检查
+- 浏览器请求缓存、React Query 的 cache、SWR 的 cache 都是 LRU 思想
+- LFU（最不经常使用）按访问次数淘汰，需要双堆或额外数据结构
+
+## merge-intervals
+title: 合并区间
+difficulty: 基础
+tags: [数组, 排序, 高频]
+
+### 一句话
+先按左端点排序，再依次合并：如果当前区间的左端点 ≤ 上一个的右端点就合并，否则就开一个新区间。
+
+### 题目
+给定一组区间 `[[1,3],[2,6],[8,10],[15,18]]`，合并所有重叠的区间。
+
+### 答案要点
+- 时间 O(n log n)，瓶颈在排序
+- 按左端点升序排序后，遍历一次即可
+- 合并条件：`current[0] <= last[1]`
+- 合并方式：`last[1] = Math.max(last[1], current[1])`
+
+### 代码示例
+```js
+function merge(intervals) {
+  if (!intervals.length) return [];
+  intervals.sort((a, b) => a[0] - b[0]);
+  const out = [intervals[0]];
+  for (let i = 1; i < intervals.length; i++) {
+    const cur = intervals[i];
+    const last = out[out.length - 1];
+    if (cur[0] <= last[1]) {
+      last[1] = Math.max(last[1], cur[1]);
+    } else {
+      out.push(cur);
+    }
+  }
+  return out;
+}
+
+console.log(merge([[1, 3], [2, 6], [8, 10], [15, 18]]));
+console.log(merge([[1, 4], [4, 5]]));
+```
+
+### 延伸
+- 类似题：插入区间、会议室安排、电话号码段去重
+- 区间问题大多套路：**先排序 + 一次遍历**
+

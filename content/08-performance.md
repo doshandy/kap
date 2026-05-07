@@ -567,3 +567,87 @@ function blurDataUrl(rgb: [number, number, number]) {
 ### 延伸
 - AVIF 体积小但编码慢，CDN 端按需生成更合适，源站直接存比较费 CPU
 - 真正提升 LCP 的常常不是图片优化，而是 HTML 流式渲染让图片更早可发现
+
+## core-web-vitals-explain
+title: Core Web Vitals 三个指标 LCP / INP / CLS 怎么解读和优化
+difficulty: 进阶
+tags: [Web Vitals, 性能]
+
+### 一句话
+LCP（最大内容绘制 ≤2.5s）= 首屏多快；INP（交互到绘制 ≤200ms）= 操作多跟手；CLS（累计布局偏移 ≤0.1）= 页面多稳定。Google 用这三个指标排序网页体验。
+
+### 题目
+请解释 LCP / INP / CLS 各自衡量什么、推荐阈值，以及典型优化手段。
+
+### 答案要点
+- **LCP**：首屏最大元素的呈现时间。优化：服务端响应快（TTFB）、压缩图片 / 用 AVIF/WebP、首屏关键资源 preload、避免 render-blocking 的 CSS/JS、字体 `font-display: swap`
+- **INP**：用户交互到下一帧绘制的耗时（取一段时间内的 P98）。优化：减少长任务（拆分 + scheduler.yield）、`startTransition` / `useDeferredValue` 把昂贵渲染降级、事件处理器中避免大计算
+- **CLS**：可见元素位置突变的累积分数。优化：`<img>` 始终设置宽高 / aspect-ratio、不在已有内容上方插入广告、`min-height` 占位、字体回退尺寸匹配（`size-adjust`）
+- **TTFB**（不在 CWV 但相关）：边缘 CDN、HTTP/3、103 Early Hints
+- 监控：Lighthouse / PageSpeed Insights / `web-vitals` 库 + 上报 RUM
+
+### 代码示例
+```js
+import { onLCP, onINP, onCLS } from 'web-vitals/attribution';
+
+onLCP(({ name, value, attribution }) => {
+  navigator.sendBeacon('/rum', JSON.stringify({
+    name, value,
+    element: attribution.element,
+    url: attribution.url,
+  }));
+});
+onINP(console.log);
+onCLS(console.log);
+```
+
+### 延伸
+- 2024 年 INP 取代了 FID，更能反映真实交互卡顿
+- 移动端弱网场景下 LCP 优化空间更大
+- 业务侧多关注首屏关键路径，工程侧多关注 Bundle / CDN
+
+## long-task-scheduling
+title: 长任务（Long Task）怎么定位与拆分
+difficulty: 进阶
+tags: [性能, 调度]
+
+### 一句话
+浏览器主线程一旦执行单段超过 50ms 的任务，就会让用户感觉卡。解决思路是"把大任务拆小 + 让出主线程"——`requestIdleCallback`、`scheduler.yield()`、Web Worker。
+
+### 题目
+什么是 Long Task？怎么发现、怎么拆？
+
+### 答案要点
+- Long Task 定义：浏览器主线程任务执行时间 > 50ms
+- 发现：`PerformanceObserver({ entryTypes: ['longtask'] })`、Performance 面板的红色三角
+- 拆分思路：
+  - 计算密集型任务搬到 Web Worker
+  - 大列表用虚拟滚动
+  - 批处理用 `requestAnimationFrame` 切帧、`requestIdleCallback` 闲时执行
+  - React `startTransition` / `useDeferredValue` 把"次要更新"降级
+  - 新 API `scheduler.yield()`（async 函数里直接 await）让浏览器有机会响应输入
+
+### 代码示例
+```js
+const po = new PerformanceObserver((list) => {
+  for (const e of list.getEntries()) {
+    console.warn('Long task:', e.duration, 'ms', e);
+  }
+});
+po.observe({ entryTypes: ['longtask'] });
+
+async function processLargeArray(items) {
+  for (let i = 0; i < items.length; i++) {
+    handle(items[i]);
+    if (i % 100 === 0 && 'scheduler' in window && scheduler.yield) {
+      await scheduler.yield();
+    }
+  }
+}
+```
+
+### 延伸
+- React 19 的 React Compiler 自动减少不必要 re-render，对 INP 友好
+- Worker 通信开销不可忽略，复杂数据用 SharedArrayBuffer 或转 transferable
+- 别为了"拆分"而拆分，正常一两次 80ms 任务不是问题，关键是用户操作后那一次
+

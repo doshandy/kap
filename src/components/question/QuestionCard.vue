@@ -6,7 +6,7 @@ import { useProgressStore } from '@/stores/progress';
 import { useNotesStore } from '@/stores/notes';
 import { useReviewStore } from '@/stores/review';
 import { useSettingsStore } from '@/stores/settings';
-import { speak, stopSpeak, stripHtml } from '@/composables/useSpeech';
+import { stripHtml, useSpeechController } from '@/composables/useSpeech';
 import { exportQuestionMarkdown } from '@/composables/useExport';
 import { buildPrompt, chatGptUrl } from '@/lib/ai';
 import ShareDialog from '@/components/share/ShareDialog.vue';
@@ -32,6 +32,10 @@ const showRunner = ref(false);
 
 const status = computed(() => progress.get(props.question.id).status);
 
+const { isSpeaking, toggle: toggleSpeak } = useSpeechController(() =>
+  stripHtml(props.question.question + ' ' + props.question.answer),
+);
+
 function toggle() {
   open.value = !open.value;
 }
@@ -46,10 +50,6 @@ const noteText = computed({
   get: () => notes.get(props.question.id),
   set: (v) => notes.set(props.question.id, v),
 });
-
-function readQuestion() {
-  speak(stripHtml(props.question.question + ' ' + props.question.answer));
-}
 
 function aiExplain() {
   const prompt = buildPrompt(props.question);
@@ -97,6 +97,10 @@ defineExpose({ toggle });
     </header>
 
     <section class="body">
+      <div v-if="question.summary" class="summary">
+        <span class="summary-tag">一句话</span>
+        <div class="markdown-body" v-html="question.summary" />
+      </div>
       <div class="markdown-body" v-html="question.question" />
       <Transition name="fade">
         <div v-if="open" class="answer">
@@ -121,6 +125,7 @@ defineExpose({ toggle });
             <button
               class="btn"
               :class="{ 'btn-primary': status === 'mastered' }"
+              :title="`标记为已掌握 (m)`"
               @click="setStatus('mastered')"
             >
               <AppIcon name="checkCircle" /> 记得 <kbd>m</kbd>
@@ -128,6 +133,7 @@ defineExpose({ toggle });
             <button
               class="btn"
               :class="{ 'btn-primary': status === 'fuzzy' }"
+              title="标记为模糊（仍记得概念但不熟）"
               @click="setStatus('fuzzy')"
             >
               <AppIcon name="question" /> 模糊
@@ -135,33 +141,42 @@ defineExpose({ toggle });
             <button
               class="btn"
               :class="{ 'btn-primary': status === 'review' }"
+              title="标记为需要复习 (r)"
               @click="setStatus('review')"
             >
               <AppIcon name="reload" /> 需复习 <kbd>r</kbd>
             </button>
-            <button class="btn btn-ghost" @click="showNote = !showNote">
+            <button class="btn btn-ghost" title="编辑这道题的笔记 (n)" @click="showNote = !showNote">
               <AppIcon name="edit" /> 笔记 <kbd>n</kbd>
             </button>
-            <button class="btn btn-ghost" @click="readQuestion">
-              <AppIcon name="sound" /> 朗读
+            <button
+              class="btn btn-ghost"
+              :title="isSpeaking ? '点击停止朗读' : '朗读题目和答案'"
+              :class="{ active: isSpeaking }"
+              @click="toggleSpeak"
+            >
+              <AppIcon :name="isSpeaking ? 'pause' : 'sound'" />
+              {{ isSpeaking ? '停止朗读' : '朗读' }}
             </button>
-            <button class="btn btn-ghost" title="停止朗读" @click="stopSpeak">
-              <AppIcon name="pause" />
-            </button>
-            <button class="btn btn-ghost" @click="aiExplain">
+            <button class="btn btn-ghost" title="用 ChatGPT 打开预设 Prompt 求讲解" @click="aiExplain">
               <AppIcon name="robot" /> AI 讲解
             </button>
-            <button class="btn btn-ghost" @click="copyPromptToClipboard">
+            <button class="btn btn-ghost" title="复制 AI 讲解的 Prompt 到剪贴板" @click="copyPromptToClipboard">
               <AppIcon name="copy" /> 复制 Prompt
             </button>
-            <button v-if="question.code" class="btn btn-ghost" @click="showRunner = !showRunner">
+            <button
+              v-if="question.code"
+              class="btn btn-ghost"
+              :title="showRunner ? '关闭代码沙盒' : '在沙盒里运行示例代码'"
+              @click="showRunner = !showRunner"
+            >
               <AppIcon :name="showRunner ? 'close' : 'play'" />
               {{ showRunner ? '关闭沙盒' : '在沙盒运行' }}
             </button>
-            <button class="btn btn-ghost" @click="shareOpen = true">
+            <button class="btn btn-ghost" title="分享题目链接 / 二维码" @click="shareOpen = true">
               <AppIcon name="share" /> 分享
             </button>
-            <button class="btn btn-ghost" @click="exportQuestionMarkdown(question)">
+            <button class="btn btn-ghost" title="导出为 Markdown 文件" @click="exportQuestionMarkdown(question)">
               <AppIcon name="download" /> MD
             </button>
           </div>
@@ -227,6 +242,36 @@ defineExpose({ toggle });
 .body {
   margin-top: 10px;
 }
+.summary {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  padding: 10px 14px;
+  margin-bottom: 10px;
+  background: linear-gradient(
+    90deg,
+    var(--c-primary-soft, rgba(14, 165, 233, 0.12)) 0%,
+    transparent 100%
+  );
+  border-left: 3px solid var(--c-primary);
+  border-radius: var(--radius);
+  font-size: 14px;
+  color: var(--c-text);
+}
+.summary-tag {
+  flex-shrink: 0;
+  padding: 2px 10px;
+  border-radius: 999px;
+  background: var(--c-primary);
+  color: #fff;
+  font-size: 11px;
+  font-weight: 600;
+  margin-top: 1px;
+}
+.summary :deep(p) {
+  margin: 0;
+  line-height: 1.6;
+}
 .answer {
   margin-top: 12px;
   padding-top: 12px;
@@ -273,6 +318,10 @@ defineExpose({ toggle });
   background: var(--c-bg-mute);
   border-radius: 3px;
   color: var(--c-text-mute);
+}
+.actions .btn.active {
+  color: var(--c-primary);
+  background: var(--c-primary-soft);
 }
 .status-badge {
   font-size: 12px;

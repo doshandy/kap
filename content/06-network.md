@@ -11,6 +11,9 @@ title: TCP、TLS、HTTP 三层关系怎么向面试官讲清楚
 difficulty: 基础
 tags: [TCP, TLS, HTTP]
 
+### 一句话
+TCP 负责把字节"可靠地送到对面"，TLS 在 TCP 之上加密，HTTP 在 TLS 之上定报文格式。每一层只解决一件事，所以可以独立演进（HTTP/3 就把 TCP 换成了 QUIC）。
+
 ### 题目
 请说明 TCP、TLS、HTTP 各自处于什么层，分别解决什么问题。
 
@@ -54,6 +57,9 @@ new PerformanceObserver(list => {
 title: HTTP/1.1、HTTP/2、HTTP/3 的关键差异
 difficulty: 进阶
 tags: [HTTP2, HTTP3, QUIC]
+
+### 一句话
+HTTP/1.1 有队头阻塞 → HTTP/2 二进制分帧 + 多路复用，但 TCP 层还会队头阻塞 → HTTP/3 干脆把 TCP 换成 QUIC（UDP 上做可靠 + TLS 1.3），彻底解决。
 
 ### 题目
 为什么 HTTP/2 解决了一部分问题，但没有彻底消除性能瓶颈？HTTP/3 又补了什么？
@@ -519,6 +525,9 @@ title: HTTPS 握手过程，TLS 1.2 vs 1.3 有什么区别
 difficulty: 进阶
 tags: [TLS, 安全]
 
+### 一句话
+TLS 1.2 要 2 个来回（Hello + 密钥交换），TLS 1.3 把握手压到 1 个来回，常见连接还能用会话票据做 0-RTT，所以 HTTPS 不再"慢"。
+
 ### 题目
 请描述一次完整的 HTTPS 握手过程，TLS 1.3 相比 1.2 优化了什么？
 
@@ -546,6 +555,9 @@ curl --tls13 https://example.com -v
 title: 长轮询 / WebSocket / SSE 怎么选
 difficulty: 进阶
 tags: [实时, 推送]
+
+### 一句话
+单向推送（仪表盘、AI 流式响应）→ SSE；双向通讯（聊天、协作、游戏）→ WebSocket；服务端不支持长连接 → 长轮询兜底。
 
 ### 题目
 做一个聊天 / 推送 / 实时仪表盘，应该选哪种通信方式？
@@ -579,6 +591,9 @@ ws.onclose = () => setTimeout(reconnect, 1000);
 title: 跨域与 CORS 预检，谁触发了 OPTIONS
 difficulty: 进阶
 tags: [CORS, 安全]
+
+### 一句话
+跨域 = 协议/域名/端口任一不同；浏览器在"非简单请求"（自定义头、PUT/DELETE、application/json）发实际请求前会先发 OPTIONS 问服务端"我能不能这样发"。
 
 ### 题目
 请说说同源策略、CORS 的工作机制，以及哪些请求会触发预检。

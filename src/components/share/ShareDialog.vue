@@ -47,7 +47,7 @@ function close() {
           <img v-if="qrUrl" :src="qrUrl" alt="QR" class="qr" />
           <div class="link-row">
             <input :value="link" readonly />
-            <button class="btn btn-primary" @click="copy">
+            <button class="btn btn-primary" title="复制分享链接到剪贴板" @click="copy">
               {{ copied ? '已复制' : '复制链接' }}
             </button>
           </div>

@@ -11,6 +11,9 @@ title: React 和 Vue 的心智模型本质差异
 difficulty: 进阶
 tags: [React, Vue, 框架]
 
+### 一句话
+React 是"重新跑一遍组件函数"，靠不可变状态 + diff 来更新；Vue 是"响应式数据驱动局部更新"，编译期就知道哪里会变。前者更显式，后者更自动。
+
 ### 题目
 都是组件化框架，React 和 Vue 在响应式、渲染策略、数据流上的核心差异是什么？
 
@@ -62,6 +65,9 @@ title: Hooks 的核心规则与原理
 difficulty: 进阶
 tags: [Hooks, 原理]
 
+### 一句话
+Hooks 必须按相同顺序调用（不能在 if/循环里），React 靠"调用顺序"区分谁是哪个 state；每次渲染都是一次函数重跑，闭包里看到的是当时那一帧的值。
+
 ### 题目
 为什么 Hooks 必须在组件顶层、不能在条件分支里调用？React 内部是怎么实现的？
 
@@ -101,6 +107,9 @@ title: useEffect 常见陷阱与依赖管理
 difficulty: 进阶
 tags: [useEffect, 陷阱]
 
+### 一句话
+useEffect 不是"组件挂载/更新生命周期"，是"和外部世界同步"。派生值用 `useMemo`、事件用 handler，能不写 effect 就别写。
+
 ### 题目
 为什么人们说"`useEffect` 是 React 里最难用的 hook"？常见坑有哪些？
 
@@ -137,6 +146,9 @@ function User({ id }: { id: string }) {
 title: Fiber 架构与并发渲染
 difficulty: 资深
 tags: [Fiber, Concurrent]
+
+### 一句话
+Fiber 把组件树的协调过程拆成"可中断 + 可恢复的小任务"，让浏览器可以先处理用户输入、动画再回来渲染——这是 startTransition / useDeferredValue 能"插队不卡顿"的底层基础。
 
 ### 题目
 Fiber 是什么？React 18 的并发渲染解决了什么问题？
@@ -176,7 +188,10 @@ function SearchPage() {
 - 真正的多线程方案是 Web Worker / OffscreenCanvas，React 19 也在探索 React in Worker
 
 ## react-server-components
-title: React Server Components (RSC) 的本质和价值
+title: React Server Components
+
+### 一句话
+RSC 让一部分组件只在服务端跑（直接读数据库、不打包到客户端），客户端组件按需 hydrate——结果是首屏更快、bundle 更小、数据请求更少。 (RSC) 的本质和价值
 difficulty: 资深
 tags: [RSC, Next.js]
 
@@ -233,7 +248,10 @@ export function Comments({ postId }: { postId: string }) {
 - Vue 阵营对应的探索是 Nuxt 的 island components 与 server components
 
 ## state-management-react
-title: React 状态管理选型：Context / Redux / Zustand / Jotai / Recoil
+title: React 状态管理选型
+
+### 一句话
+组件内：useState；父子穿透：Context；跨组件全局：Redux Toolkit / Zustand / Jotai；服务端数据：React Query / SWR——别把后端缓存塞进 Redux。：Context / Redux / Zustand / Jotai / Recoil
 difficulty: 进阶
 tags: [状态管理, Redux, Zustand]
 
@@ -374,6 +392,9 @@ function PostPage() {
 
 ## react-perf
 title: React 性能优化清单
+
+### 一句话
+React 卡顿基本就两类：渲染次数太多（memo / 拆组件 / 把 state 下沉）、单次渲染太重（useMemo / 虚拟列表 / startTransition 把昂贵的部分延后）。
 difficulty: 进阶
 tags: [性能, memo, 虚拟化]
 
@@ -568,6 +589,9 @@ title: 列表渲染中 key 的作用与使用陷阱
 difficulty: 基础
 tags: [Diff, key]
 
+### 一句话
+key 让 React 知道"这一项还是同一项"，决定是复用还是重建。用 index 当 key，在排序/插入/删除时会让里面的 state（比如输入框文字）跑到错误的行上。
+
 ### 题目
 React 中的 key 是干什么用的，为什么不要用 index？
 
@@ -608,6 +632,9 @@ function ResetForm() {
 title: 受控组件 vs 非受控组件，性能边界在哪
 difficulty: 进阶
 tags: [表单, 性能]
+
+### 一句话
+受控 = state 是唯一真源（输入触发 setState 触发 re-render）；非受控 = DOM 自己管自己，靠 ref 取值。大表单避免 setState 风暴 → 用 react-hook-form 这种非受控库。
 
 ### 题目
 什么时候用受控、什么时候用非受控？大表单怎么避免每次输入都重渲染整个页面？
@@ -656,6 +683,9 @@ function FastForm() {
 title: Portal、Error Boundary、Suspense 的协作方式
 difficulty: 进阶
 tags: [架构, 错误处理]
+
+### 一句话
+Portal 把渲染塞到任意 DOM 位置（弹窗）；Error Boundary 捕获子树渲染错误（兜底）；Suspense 等待异步组件 / 数据（loading）。三者常嵌套：ErrorBoundary > Suspense > 业务组件。
 
 ### 题目
 渲染弹窗、捕获组件错误、处理异步 loading，这三个能力分别怎么用？

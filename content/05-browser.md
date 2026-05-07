@@ -8,6 +8,9 @@ description: 从 URL 到渲染、存储、事件循环、Service Worker、性能
 
 ## url-to-render
 title: 从输入 URL 到页面显示，浏览器经历了什么
+
+### 一句话
+DNS 解析 → 建连（TCP/TLS）→ 发请求拿 HTML → 解析 HTML 同时下载 CSS/JS → 构建 DOM/CSSOM → 合并 Render Tree → 布局 → 绘制 → 合成上屏。
 difficulty: 基础
 tags: [流程, 渲染]
 
@@ -57,6 +60,9 @@ addEventListener('load', () => {
 title: DOM、CSSOM、Render Tree、Layout、Paint、Composite 的关系
 difficulty: 进阶
 tags: [渲染, 性能]
+
+### 一句话
+DOM + CSSOM → Render Tree → Layout（算位置）→ Paint（画图层）→ Composite（GPU 合成）。改 transform/opacity 只走最后两步，所以最便宜。
 
 ### 题目
 什么操作会触发回流、重绘和合成？为什么 transform/opacity 常被认为更高性能？
@@ -522,6 +528,9 @@ title: 回流（reflow）和重绘（repaint）的区别与触发条件
 difficulty: 进阶
 tags: [渲染, 性能]
 
+### 一句话
+回流 = 改了几何（位置、大小）需要重算布局；重绘 = 只改外观（颜色、阴影）。回流必定带重绘，反之不一定。
+
 ### 题目
 回流和重绘分别是什么？哪些操作会触发它们？怎么减少？
 
@@ -558,6 +567,9 @@ el.style.willChange = 'transform';
 title: 浏览器缓存的完整链路是什么样的
 difficulty: 进阶
 tags: [缓存, 性能, HTTP]
+
+### 一句话
+请求资源时浏览器按"Service Worker → 内存 → 磁盘 → 网络"顺序找；强缓存（Cache-Control / Expires）直接返回，过期再走协商缓存（ETag / Last-Modified）。
 
 ### 题目
 从内存到磁盘，从强缓存到协商缓存，请描述浏览器请求资源时缓存命中的完整流程。
@@ -598,6 +610,9 @@ title: Cookie / localStorage / sessionStorage / IndexedDB 选哪个
 difficulty: 基础
 tags: [存储, 安全]
 
+### 一句话
+鉴权用 Cookie（自动发送 + HttpOnly 防 XSS）；少量配置用 localStorage；Tab 级临时数据用 sessionStorage；离线大数据用 IndexedDB。
+
 ### 题目
 不同的客户端存储场景下应该如何选择，安全性怎么保障？
 
@@ -627,3 +642,39 @@ req.onsuccess = () => {
 - localStorage 同步阻塞主线程，不适合频繁写入
 - 复杂应用首选 IndexedDB（用 idb-keyval / Dexie 简化）
 - 跨子域共享存储用 cookie；跨主域用 postMessage + iframe
+
+## web-worker-basics
+title: Web Worker 是什么，什么场景应该用
+difficulty: 进阶
+tags: [Worker, 性能]
+
+### 一句话
+Web Worker 让 JS 跑在独立的后台线程，不阻塞主线程；通过 `postMessage` 互通——非常适合"算得久、不需要直接操作 DOM"的任务。
+
+### 题目
+普通 Worker、SharedWorker、ServiceWorker 各自定位是什么？什么时候用？
+
+### 答案要点
+- **Dedicated Worker**：专属当前页面，主页关闭就销毁；通过 `postMessage` 通信，不能访问 DOM
+- **SharedWorker**：可在多个同源 Tab 共享，适合做"集中式 WebSocket 网关"
+- **ServiceWorker**：常驻后台，拦截网络请求 + 推送通知 + 离线缓存（PWA 的核心）
+- 适合 Worker 的场景：大数据排序 / 解析、加解密、图像处理、Markdown / 语法高亮、JSON 解析超大对象
+- 数据传递：默认是 structured clone（开销大），可用 Transferable（ArrayBuffer / OffscreenCanvas / MessagePort）零拷贝
+
+### 代码示例
+```js
+const worker = new Worker(new URL('./hash.worker.js', import.meta.url), { type: 'module' });
+worker.postMessage({ buffer: arrayBuffer }, [arrayBuffer]);
+worker.onmessage = (e) => console.log('hash:', e.data);
+
+self.onmessage = async (e) => {
+  const { buffer } = e.data;
+  const hash = await crypto.subtle.digest('SHA-256', buffer);
+  self.postMessage(hash, [hash]);
+};
+```
+
+### 延伸
+- Vite / webpack 都支持把 `?worker` 后缀的文件单独打包成 Worker
+- React / Vue 里推荐用 `Comlink` 让 Worker 通信像调用普通方法
+- OffscreenCanvas 让你在 Worker 里直接操作 Canvas，特别适合可视化/游戏

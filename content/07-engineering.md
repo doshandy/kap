@@ -798,3 +798,53 @@ export default defineConfig({
 ### 延伸
 - 真正影响开发体验的不是打包器名字，而是依赖预构建是否稳定、HMR 是否快
 - 跨版本升级 Vite / Webpack 前先在分支跑一遍生产构建产物大小对比，避免 regression
+
+## webpack-vs-vite
+title: Webpack 与 Vite 在开发态、构建态的差异
+difficulty: 进阶
+tags: [Webpack, Vite, 构建]
+
+### 一句话
+开发态：Vite 利用浏览器原生 ESM + esbuild 预构建，秒开 + 改文件秒级热更；Webpack 仍要打整个 bundle，项目越大越慢。生产态都做 Tree shaking、代码分割，差异不大。
+
+### 题目
+请说明 Webpack 与 Vite 在开发服务器与生产构建上的工作原理差异。
+
+### 答案要点
+- **开发态**
+  - Webpack：启动时 bundle 整个项目，HMR 走 webpack-dev-server；项目越大启动越慢
+  - Vite：用 esbuild 预构建第三方依赖（200x 快），源代码直接以 ESM 形式按需加载，浏览器请求到再编译；HMR 只重传改动模块
+- **生产态**
+  - Webpack：可定制度极高，loader / plugin 生态最丰富
+  - Vite：底层用 Rollup 打包，输出更精简；生态接近 Webpack 但仍在追赶
+- **配置心智**：Webpack 配置门槛高、灵活度强；Vite 大量约定优于配置（plugins 形式接入）
+- **使用建议**：新项目无脑选 Vite；老的复杂 Webpack 项目迁移成本要评估
+- **趋势**：Rspack（字节用 Rust 重写 Webpack 兼容版）、Rolldown（Vite 团队的 Rust Rollup 替代）正在收敛差异
+
+### 代码示例
+```ts
+import { defineConfig } from 'vite';
+import vue from '@vitejs/plugin-vue';
+
+export default defineConfig({
+  plugins: [vue()],
+  build: {
+    target: 'es2018',
+    sourcemap: true,
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          vendor: ['vue', 'pinia', 'vue-router'],
+        },
+      },
+    },
+  },
+  server: { hmr: true },
+});
+```
+
+### 延伸
+- Vite 在大型项目里第一次冷启动也可能慢，注意 `optimizeDeps.include`
+- Turbopack（Next.js 自研，Rust）走的也是 ESM + 增量编译路线
+- 选型核心：开发体验 > 生产产物大小 > 团队熟悉度
+
