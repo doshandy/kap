@@ -33,25 +33,48 @@
 }
 
 :root.dark {
-  --c-primary: #38bdf8;
-  --c-primary-soft: rgba(56, 189, 248, 0.15);
-  --c-bg: #0b1220;
-  --c-bg-soft: #111827;
-  --c-bg-mute: #1f2937;
-  --c-surface: #111827;
-  --c-text: #e5e7eb;
-  --c-text-soft: #cbd5e1;
-  --c-text-mute: #64748b;
-  --c-border: #1f2937;
-  --c-border-soft: #1a2333;
+  /* 主色不再用过亮的 sky-400，回落到 sky-500，避免在深色面上发光感 */
+  --c-primary: #0ea5e9;
+  --c-primary-soft: rgba(56, 189, 248, 0.14);
 
-  --c-code-bg: #0b1220;
-  --c-code-text: #e5e7eb;
-  --c-tag-bg: rgba(56, 189, 248, 0.15);
+  /* 背景层级（中性 slate 偏暖，弱化"屏幕漏蓝"的不适） */
+  --c-bg: #0f1419;
+  --c-bg-soft: #161b22;
+  --c-bg-mute: #1c232c;
+  --c-surface: #161b22;
+
+  /* 文字 4 级，确保对比度 */
+  --c-text: #e6edf3;
+  --c-text-soft: #adbac7;
+  --c-text-mute: #768390;
+
+  /* 边界比 surface 亮 1 档，让卡片真的能"被看见" */
+  --c-border: #2d333b;
+  --c-border-soft: #21262d;
+
+  --c-code-bg: #0d1117;
+  --c-code-text: #e6edf3;
+
+  /* 标签：饱和度降一档，文字提到 sky-300 但不过曝 */
+  --c-tag-bg: rgba(56, 189, 248, 0.12);
   --c-tag-text: #7dd3fc;
 
-  --c-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
-  --c-shadow-lg: 0 12px 28px rgba(0, 0, 0, 0.5);
+  /* 阴影在深色下用得更轻；改用细描边 + 阴影组合 */
+  --c-shadow: 0 1px 0 rgba(255, 255, 255, 0.02), 0 6px 20px rgba(0, 0, 0, 0.35);
+  --c-shadow-lg: 0 1px 0 rgba(255, 255, 255, 0.03), 0 16px 40px rgba(0, 0, 0, 0.5);
+}
+
+:root.dark .tag-difficulty-基础 {
+  background: rgba(34, 197, 94, 0.16);
+  color: #4ade80;
+}
+:root.dark .tag-difficulty-进阶 {
+  background: rgba(234, 179, 8, 0.16);
+  color: #fbbf24;
+}
+:root.dark .tag-difficulty-资深 {
+  background: rgba(248, 113, 113, 0.18);
+  color: #fca5a5;
 }
 
 .tag {
@@ -178,4 +201,92 @@
     transition-duration: 0.001ms !important;
     scroll-behavior: auto !important;
   }
+}
+
+/* 暗色主题专项微调：行内 code / blockquote / 链接 / 选区 / 滚动条 */
+:root.dark .markdown-body code:not(pre code) {
+  background: rgba(125, 211, 252, 0.1);
+  color: #7dd3fc;
+}
+:root.dark .markdown-body pre {
+  border-color: var(--c-border-soft);
+}
+:root.dark .markdown-body blockquote {
+  background: rgba(56, 189, 248, 0.06);
+  border-left-color: #38bdf8;
+  color: var(--c-text-soft);
+}
+:root.dark a {
+  color: #7dd3fc;
+}
+:root.dark a:hover {
+  color: #bae6fd;
+}
+:root.dark ::selection {
+  background: rgba(56, 189, 248, 0.3);
+  color: #fff;
+}
+
+/* 滚动条：暗色下避免 OS 默认亮白条 */
+:root.dark {
+  color-scheme: dark;
+  scrollbar-color: #2d333b transparent;
+}
+:root.dark ::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+:root.dark ::-webkit-scrollbar-thumb {
+  background: #2d333b;
+  border-radius: 999px;
+  border: 2px solid transparent;
+  background-clip: content-box;
+}
+:root.dark ::-webkit-scrollbar-thumb:hover {
+  background: #3a4350;
+  background-clip: content-box;
+}
+:root.dark ::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+/* 暗色 Prism 语法高亮：避免默认配色在深底过亮过艳 */
+:root.dark .markdown-body pre code .token.comment,
+:root.dark .markdown-body pre code .token.prolog,
+:root.dark .markdown-body pre code .token.doctype,
+:root.dark .markdown-body pre code .token.cdata {
+  color: #768390;
+}
+:root.dark .markdown-body pre code .token.punctuation {
+  color: #adbac7;
+}
+:root.dark .markdown-body pre code .token.property,
+:root.dark .markdown-body pre code .token.tag,
+:root.dark .markdown-body pre code .token.boolean,
+:root.dark .markdown-body pre code .token.number,
+:root.dark .markdown-body pre code .token.constant,
+:root.dark .markdown-body pre code .token.symbol {
+  color: #f0883e;
+}
+:root.dark .markdown-body pre code .token.selector,
+:root.dark .markdown-body pre code .token.attr-name,
+:root.dark .markdown-body pre code .token.string,
+:root.dark .markdown-body pre code .token.char,
+:root.dark .markdown-body pre code .token.builtin,
+:root.dark .markdown-body pre code .token.inserted {
+  color: #a5d6ff;
+}
+:root.dark .markdown-body pre code .token.atrule,
+:root.dark .markdown-body pre code .token.attr-value,
+:root.dark .markdown-body pre code .token.keyword {
+  color: #ff7b72;
+}
+:root.dark .markdown-body pre code .token.function,
+:root.dark .markdown-body pre code .token.class-name {
+  color: #d2a8ff;
+}
+:root.dark .markdown-body pre code .token.regex,
+:root.dark .markdown-body pre code .token.important,
+:root.dark .markdown-body pre code .token.variable {
+  color: #ffa657;
 }

@@ -127,6 +127,24 @@ function isDark() {
   return document.documentElement.classList.contains('dark');
 }
 
+const palette = {
+  get surface() {
+    return isDark() ? '#161b22' : '#ffffff';
+  },
+  get textStrong() {
+    return isDark() ? '#e6edf3' : '#0f172a';
+  },
+  get textSoft() {
+    return isDark() ? '#adbac7' : '#475569';
+  },
+  get textMute() {
+    return isDark() ? '#768390' : '#94a3b8';
+  },
+  get bgMute() {
+    return isDark() ? '#2d333b' : '#e2e8f0';
+  },
+};
+
 function getOption() {
   const done = totalDone.value;
   const todo = totalQuestions.value - done;
@@ -138,19 +156,19 @@ function getOption() {
         type: 'pie',
         radius: ['52%', '74%'],
         avoidLabelOverlap: false,
-        itemStyle: { borderRadius: 6, borderColor: isDark() ? '#0b1220' : '#fff', borderWidth: 2 },
+        itemStyle: { borderRadius: 6, borderColor: palette.surface, borderWidth: 2 },
         label: {
           show: true,
           position: 'center',
           formatter: () => `{a|${done}}\n{b|/${totalQuestions.value}}`,
           rich: {
-            a: { fontSize: 32, fontWeight: 'bold', color: isDark() ? '#e5e7eb' : '#0f172a' },
-            b: { fontSize: 14, color: '#94a3b8' },
+            a: { fontSize: 32, fontWeight: 'bold', color: palette.textStrong },
+            b: { fontSize: 14, color: palette.textMute },
           },
         },
         data: [
           { value: done, name: '已完成', itemStyle: { color: '#10b981' } },
-          { value: todo, name: '未完成', itemStyle: { color: isDark() ? '#1f2937' : '#e2e8f0' } },
+          { value: todo, name: '未完成', itemStyle: { color: palette.bgMute } },
         ],
       },
     ],
@@ -169,16 +187,22 @@ function getBarOption() {
     xAxis: {
       type: 'category',
       data: data.map((d) => d.name),
-      axisLabel: { rotate: 45, fontSize: 10, color: isDark() ? '#cbd5e1' : '#475569' },
+      axisLabel: { rotate: 45, fontSize: 10, color: palette.textSoft },
+      axisLine: { lineStyle: { color: palette.bgMute } },
+      axisTick: { lineStyle: { color: palette.bgMute } },
     },
-    yAxis: { type: 'value' },
-    legend: { top: 0 },
+    yAxis: {
+      type: 'value',
+      axisLabel: { color: palette.textSoft },
+      splitLine: { lineStyle: { color: palette.bgMute, type: 'dashed' } },
+    },
+    legend: { top: 0, textStyle: { color: palette.textSoft } },
     series: [
       {
         type: 'bar',
         name: '总题数',
         data: data.map((d) => d.total),
-        itemStyle: { color: isDark() ? '#1f2937' : '#e2e8f0' },
+        itemStyle: { color: palette.bgMute },
         barGap: '-100%',
       },
       {
@@ -213,8 +237,12 @@ function getHeatmapOption() {
       top: 0,
       itemWidth: 14,
       itemHeight: 12,
-      textStyle: { color: isDark() ? '#cbd5e1' : '#475569', fontSize: 11 },
-      inRange: { color: ['#e0f2fe', '#0ea5e9', '#1e3a8a'] },
+      textStyle: { color: palette.textSoft, fontSize: 11 },
+      inRange: {
+        color: isDark()
+          ? ['#1c232c', '#0c4a6e', '#0284c7', '#38bdf8']
+          : ['#e0f2fe', '#7dd3fc', '#0ea5e9', '#1e3a8a'],
+      },
     },
     calendar: {
       top: 50,
@@ -224,11 +252,11 @@ function getHeatmapOption() {
       range: [start, end],
       cellSize: [16, 16],
       splitLine: { show: false },
-      itemStyle: { borderColor: isDark() ? '#0b1220' : '#fff', borderWidth: 1 },
+      itemStyle: { borderColor: palette.surface, borderWidth: 1, color: palette.bgMute },
       yearLabel: { show: false },
-      monthLabel: { color: isDark() ? '#cbd5e1' : '#475569', fontSize: 11 },
+      monthLabel: { color: palette.textSoft, fontSize: 11 },
       dayLabel: {
-        color: isDark() ? '#cbd5e1' : '#475569',
+        color: palette.textSoft,
         fontSize: 10,
         firstDay: 1,
         nameMap: ['日', '一', '二', '三', '四', '五', '六'],
@@ -248,6 +276,7 @@ let pie: EChartsInstance | null = null;
 let bar: EChartsInstance | null = null;
 let heat: EChartsInstance | null = null;
 let ro: ResizeObserver | null = null;
+let themeMo: MutationObserver | null = null;
 
 function ensureChart(
   el: HTMLElement | null,
@@ -291,6 +320,14 @@ onMounted(() => {
     }
   });
   window.addEventListener('resize', onWinResize);
+
+  themeMo = new MutationObserver(() => {
+    void renderAll();
+  });
+  themeMo.observe(document.documentElement, {
+    attributes: true,
+    attributeFilter: ['class'],
+  });
 });
 
 onActivated(() => {
@@ -303,6 +340,8 @@ onBeforeUnmount(() => {
   window.removeEventListener('resize', onWinResize);
   ro?.disconnect();
   ro = null;
+  themeMo?.disconnect();
+  themeMo = null;
   pie?.dispose();
   bar?.dispose();
   heat?.dispose();
