@@ -42,11 +42,19 @@
       })();
     </script>
 
-    <!-- 老版本 PWA SW 一次性清理（v2 之后基本所有用户已 upgrade，可异步执行） -->
-    <script defer>
+    <!--
+      PWA 一次性自愈：把 KEY 从 v3 → v4，强制还在 v3 之后到现在没再清理过的旧客户端
+      再卸一次 SW + 清 caches + reload。这个脚本需要在新 SW 注册之前执行，所以放在
+      <head> 里（无 defer），但只调 unregister/caches，不阻塞 HTML 解析（异步）。
+
+      之后的版本迭代由 vite-plugin-pwa 的 prompt 流程接管：检测到新版本 → 弹 toast →
+      用户点「立即更新」→ skipWaiting + reload。除非再出现"老 SW 行为不可控"的紧急情况，
+      否则不再 bump KEY。
+    -->
+    <script>
       (function () {
         if (!('serviceWorker' in navigator)) return;
-        var KEY = 'kap-sw-cleanup-v3';
+        var KEY = 'kap-sw-cleanup-v4';
         if (localStorage.getItem(KEY)) return;
         navigator.serviceWorker
           .getRegistrations()
@@ -73,7 +81,11 @@
           })
           .then(function (hadOld) {
             localStorage.setItem(KEY, '1');
-            if (hadOld) location.reload();
+            if (hadOld) {
+              var u = new URL(location.href);
+              u.searchParams.set('_v', String(Date.now()));
+              location.replace(u.toString());
+            }
           });
       })();
     </script>
