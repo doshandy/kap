@@ -705,3 +705,89 @@ export default defineConfig({
 - 监控 bundle 体积：rollup-plugin-visualizer / webpack-bundle-analyzer，CI 加 size-limit 卡阈值
 - 加载分析用 Chrome Coverage 面板（看 JS 真实使用率）
 
+
+## memory-leak-frontend
+title: 怎么排查前端内存泄漏？
+difficulty: 资深
+tags: [性能, 内存, 高频]
+
+### 一句话
+**复现路径 → 三次 Heap snapshot 对比 → 看 detached DOM / 闭包引用** 是经典三步法。常见根因：定时器没清、事件监听器没移除、闭包持引用、observer 没 disconnect、被全局变量持有。
+
+### 题目
+SPA 应用打开几小时后明显变慢，怀疑内存泄漏。从工具到方法说说怎么排查、怎么修。
+
+### 答案要点
+- **判断是否真的泄漏**
+  - DevTools → Performance → Memory 录制：长时间使用后内存曲线持续上升不回落 = 泄漏
+  - performance.memory.usedJSHeapSize（仅 Chrome）按时序采样上报
+  - GC 后内存仍不降才算真泄漏（短时升降是正常）
+- **三次 Heap Snapshot 对比法**
+  - DevTools → Memory → Heap snapshot
+  - 步骤：
+    1. 进入页面 → 拍 snapshot 1
+    2. 执行可疑操作（开关弹窗 N 次、路由切换 N 次）
+    3. 强制 GC → 拍 snapshot 2
+    4. 再操作一次 → GC → snapshot 3
+  - 在 snapshot 3 选 "Comparison" → 看 #New 始终增加的对象
+  - Retainer 链找到根引用源
+- **常见泄漏类型**
+  - **detached DOM**：组件卸载后 DOM 仍被 JS 引用（如某全局 Map 缓存了 dom）
+    - 在 Heap 里搜 `Detached`
+  - **未清的定时器**：setInterval 持有 closure，永不停
+  - **未移除的 listener**：addEventListener 没 removeEventListener
+  - **未 disconnect 的 observer**：Resize/Mutation/Intersection Observer
+  - **闭包陷阱**：内部函数引用大对象，外部回调持有内部函数
+  - **全局变量**：把数据存到 window.xxx 忘了删
+  - **WeakMap/WeakRef 该用没用**：缓存用 Map 强引用导致永驻
+- **框架特定**
+  - Vue：组件 onUnmounted 里清掉一切
+  - React：useEffect 返回 cleanup 函数
+  - watch / $on 等响应式订阅，组件销毁时自动 stop（Vue 3 用 `effectScope`）
+- **典型 case**
+  - 路由切换前的 chart 实例没 dispose → echarts 持有 canvas + 大量数据
+  - 全局 EventBus.on 没 off → 老组件继续接消息
+  - WebSocket onmessage 闭包持组件 state
+  - debounce / throttle 返回的函数被某全局引用
+- **修复后验证**
+  - 同样路径再跑一次三次 snapshot，确认对象数稳定
+
+### 代码示例
+```ts
+import { onBeforeUnmount, onMounted } from 'vue';
+
+let timer: number;
+let observer: ResizeObserver;
+const onResize = () => doSomething();
+
+onMounted(() => {
+  timer = window.setInterval(tick, 1000);
+  window.addEventListener('resize', onResize);
+  observer = new ResizeObserver(onResize);
+  observer.observe(el.value!);
+});
+
+onBeforeUnmount(() => {
+  clearInterval(timer);
+  window.removeEventListener('resize', onResize);
+  observer?.disconnect();
+});
+
+const cache = new WeakMap<object, Result>();
+```
+
+```ts
+import { onBeforeUnmount, effectScope } from 'vue';
+const scope = effectScope();
+scope.run(() => {
+  watch(...);
+  watchEffect(...);
+});
+onBeforeUnmount(() => scope.stop());
+```
+
+### 延伸
+- WeakRef + FinalizationRegistry 适合做"对象失效时清理"，但浏览器 GC 时机不可控
+- Chrome `Performance Monitor` 实时看 JS heap / DOM nodes / listeners 数量
+- 大型应用周期性自动拍 snapshot 上报供分析（仅内部用）
+

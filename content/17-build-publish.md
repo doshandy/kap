@@ -523,3 +523,184 @@ jobs:
 - npm provenance 让 `npm install` 时能验证包来源，防供应链攻击
 - 大版本升级建议先发 next tag（`npm publish --tag next`）
 
+
+## ci-cd-frontend-pipeline
+title: 前端 CI/CD 流水线怎么设计
+difficulty: 资深
+tags: [CI/CD, 工程化, 高频]
+
+### 一句话
+PR 阶段：lint + typecheck + 单测 + 单测覆盖率 + build + 视觉回归 + size 报告；merge 主干：产物上传 → 灰度部署 → E2E 冒烟 → 监控护栏。每步可缓存（pnpm store / build cache），分钟级可达。
+
+### 题目
+团队前端项目 CI 跑 30 分钟，开发都不愿意提 PR。怎么设计一条又快又安全的流水线？
+
+### 答案要点
+- **PR 阶段（必须快，目标 < 5 min）**
+  - 安装依赖（pnpm + 缓存 store）
+  - lint（eslint --cache）
+  - typecheck（tsc --noEmit / vue-tsc，可分布式）
+  - 单元测试（vitest，并发 + 覆盖率）
+  - build（仅产物校验、不部署）
+  - 关键 E2E 冒烟（< 1 min）
+  - bundle size diff（与 main 对比，超阈值警告）
+  - **并行化**：每个 job 独立 runner，并发跑
+- **合并到主干**
+  - 重新跑全量测试（PR 时可能 skip 一些重测试）
+  - 完整 E2E（playwright shard 多机并发）
+  - 视觉回归（Chromatic / Percy）
+  - 上传产物到 OSS / CDN
+  - 触发部署到 staging
+- **部署阶段**
+  - staging 自动化部署 + 自动跑 smoke 测试
+  - 灰度发布（手工 trigger or 定时）：5% → 50% → 100%
+  - 每个阶段观察护栏（错误率、性能），异常自动暂停
+- **缓存策略（核心提速点）**
+  - pnpm store：`actions/cache` 缓存 ~/.pnpm-store
+  - eslint / tsc 增量：`.eslintcache` / `tsbuildinfo`
+  - build cache：vite / webpack 持久化缓存
+  - turbo / nx 增量构建（只重跑改动的包）
+- **发版**
+  - changesets：自动版本号 + changelog
+  - npm publish 走 OIDC 免 token
+  - GitHub Release 自动生成
+- **观测 CI**
+  - Datadog / Honeycomb CI tracing 找慢步骤
+  - 失败原因聚合分析（哪个 test 经常 flaky）
+  - 周度 / 月度 CI 时长趋势报告
+- **避坑**
+  - 不要在 PR 跑全量 E2E（用专门的 nightly job）
+  - 不要把 secret 写进配置（用 secret manager）
+  - 不要用 self-hosted runner 跑不可信 PR（fork 攻击风险）
+
+### 代码示例
+```yaml
+name: CI
+on:
+  pull_request:
+  push: { branches: [main] }
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v3
+        with: { version: 9 }
+      - uses: actions/setup-node@v4
+        with: { node-version: 20, cache: 'pnpm' }
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm turbo run lint typecheck test build
+      - uses: codecov/codecov-action@v4
+      - name: Bundle size
+        run: pnpm size-limit --json > size.json
+      - uses: actions/upload-artifact@v4
+        with: { name: dist, path: dist }
+
+  e2e:
+    if: github.event_name == 'push'
+    needs: test
+    runs-on: ubuntu-latest
+    strategy:
+      matrix: { shard: [1, 2, 3, 4] }
+    steps:
+      - uses: actions/checkout@v4
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm playwright test --shard=${{ matrix.shard }}/4
+```
+
+### 延伸
+- 自托管 runner：自己机器上跑，更快但运维成本高
+- 大型 monorepo 用 Turborepo / Nx remote cache
+- 部署：ArgoCD / Spinnaker 做灰度可观测
+
+## bundle-optimization-tactics
+title: 一道题打包优化全部场景
+difficulty: 资深
+tags: [构建, 性能, 高频]
+
+### 一句话
+四类手段叠加：① **Tree-shaking + 副作用标记**（package.json sideEffects）；② **代码分割**（路由 / 库 / vendor 三段拆）；③ **依赖换体积小的**（dayjs 替 moment / lodash-es 替 lodash / preact 替 react）；④ **压缩**（terser + 现代浏览器 ES2022 + brotli + 图片现代格式）。
+
+### 题目
+你的应用打包后主包 1.5MB（gzip），怎么系统性优化到 < 300KB？
+
+### 答案要点
+- **测量先行**
+  - rollup-plugin-visualizer / vite-bundle-visualizer / webpack-bundle-analyzer
+  - 找 top 10 最大依赖
+  - bundle size CI 化（size-limit）
+- **Tree-shaking 失效原因**
+  - CommonJS 包不能 tree-shake → 装 ESM 版本
+  - 没标 sideEffects: false → 全量打包
+  - 副作用 import：`import 'antd/dist/antd.css'` 这种是必要副作用
+  - import 整个对象：`import lodash from 'lodash'` 改成 `import map from 'lodash/map'`
+- **代码分割策略**
+  - 路由级懒加载：`const Foo = lazy(() => import('./Foo'))`
+  - 库级别 chunk：vite manualChunks 把 echarts / monaco 单独分
+  - 第三方 vendor 单独：长期缓存友好
+  - 注意：过度分割导致小文件多，HTTP/2 下还行，HTTP/1.1 反而慢
+- **依赖瘦身**
+  - moment 670KB → dayjs 7KB
+  - lodash 70KB → lodash-es 按需 / 自己写
+  - antd 全量 → 按需 import + babel-plugin-import / unplugin-vue-components
+  - react 130KB → preact 10KB（小项目可考虑）
+  - 大型 SDK 拆 lazy：地图 / 富文本 / 视频
+- **现代输出**
+  - target ES2022（覆盖 95% 用户），少 polyfill
+  - 双 bundle（modern + legacy）：modern 给新浏览器
+  - terser + esbuild 混合：esbuild 压更快，terser 压更小
+  - brotli > gzip：减小 15-20%
+- **资源类**
+  - 图片：webp / avif，lazy loading
+  - 字体：子集化（中文必做）+ woff2 + font-display
+  - SVG：svgo 优化 + sprite 合并
+- **代码层面**
+  - 删除死代码（未使用的 feature flag 分支）
+  - 重型功能转动态 import
+  - polyfill 按需（core-js + browserslist）
+- **运行时优化**
+  - preload 关键 chunk
+  - prefetch 下一步可能用到的 chunk（路由跳转预测）
+
+### 代码示例
+```js
+import { defineConfig } from 'vite';
+import { visualizer } from 'rollup-plugin-visualizer';
+import legacy from '@vitejs/plugin-legacy';
+
+export default defineConfig({
+  build: {
+    target: 'es2022',
+    cssMinify: 'lightningcss',
+    rollupOptions: {
+      output: {
+        manualChunks(id) {
+          if (id.includes('echarts')) return 'echarts';
+          if (id.includes('monaco-editor')) return 'monaco';
+          if (id.includes('node_modules')) return 'vendor';
+        },
+      },
+    },
+  },
+  plugins: [
+    visualizer({ filename: 'stats.html', gzipSize: true, brotliSize: true }),
+    legacy({ targets: ['defaults', 'not IE 11'] }),
+  ],
+});
+```
+
+```json
+{
+  "size-limit": [
+    { "path": "dist/assets/index-*.js", "limit": "200 KB" },
+    { "path": "dist/assets/vendor-*.js", "limit": "150 KB" }
+  ]
+}
+```
+
+### 延伸
+- Module Federation 把"运行时共享"做到极致（多个微应用共享 react 一份）
+- HTTP/3 + brotli + 现代浏览器：典型场景下 LCP 可降 30-50%
+- import maps：浏览器原生支持 bare specifier，未来"零打包"可能
+

@@ -549,3 +549,152 @@ position：`static`（默认）/ `relative`（相对自己原位偏移、保留�
 - `isolation: isolate` 是显式创建层叠上下文的现代写法，避免 z-index 大战
 - 移动端 webview 中 `position: fixed` 在键盘弹起时会有奇怪表现，改用 sticky 或 viewport units
 
+
+## css-layout-systems
+title: 一道题讲清 Flex / Grid / 多列 / Float 各自适用场景
+difficulty: 进阶
+tags: [CSS, 布局, 高频]
+
+### 一句话
+**一维**用 Flex（行或列其一），**二维**用 Grid（行列同时控），**报刊式分栏**用 multi-column，**文字环绕图片**才用 Float；现代项目里 Float 几乎只剩"图文混排"一个用途。
+
+### 题目
+对比 Flex / Grid / multi-column / Float 的核心定位、典型场景，以及搭配使用的最佳实践。
+
+### 答案要点
+- **Flex（一维）**
+  - main axis 控对齐（justify-content）+ cross axis 控对齐（align-items）
+  - 子项可伸缩：`flex: 1 1 200px` = grow shrink basis
+  - 典型场景：导航栏、卡片列表、按钮组、垂直居中
+  - 不适合：复杂栅格（不能精确控制行列对齐）
+- **Grid（二维）**
+  - 行列同时定义：`grid-template-columns: repeat(12, 1fr)`
+  - 强大的命名区域：`grid-template-areas`
+  - 子项可跨行跨列：`grid-column: span 3`
+  - 典型场景：整页布局、Dashboard、复杂卡片排列
+- **Multi-column**
+  - `column-count: 3; column-gap: 20px`
+  - 自动把内容流到多栏，像报纸杂志
+  - 典型场景：长文章、新闻列表、图片瀑布流（配合 column-fill）
+  - 注意：列内顺序是从上到下再到下一列，不能跨越
+- **Float**
+  - 现代项目几乎不用了；唯一保留场景：**文字环绕图片**
+  - 清除浮动：`.clearfix::after { content: ''; display: block; clear: both; }`
+- **组合用法**
+  - 整页 Grid + 卡片内部 Flex：最常见且合理
+  - Flex 嵌套 Flex：注意 main axis 方向不要混乱
+  - 不要 Grid 嵌 Grid 嵌 Grid，可读性差
+
+### 代码示例
+```css
+.layout {
+  display: grid;
+  grid-template-columns: 240px 1fr;
+  grid-template-rows: 56px 1fr;
+  grid-template-areas:
+    'header header'
+    'sidebar main';
+  height: 100vh;
+}
+.header  { grid-area: header; }
+.sidebar { grid-area: sidebar; }
+.main    { grid-area: main; }
+
+.card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px;
+}
+.card .actions { margin-left: auto; }
+
+.article {
+  column-count: 3;
+  column-gap: 24px;
+  column-rule: 1px solid #eee;
+}
+
+figure {
+  float: right;
+  margin: 0 0 8px 16px;
+  shape-outside: circle();
+}
+```
+
+### 延伸
+- subgrid（Firefox 全支持，Chrome 117+）：嵌套 Grid 的子项继承父 Grid 列轨道
+- aspect-ratio：保证宽高比的现代写法（替代 padding 顶部 hack）
+- container query：把响应式从"窗口"换到"容器"
+
+## css-typography-rhythm
+title: CSS 字体与排版怎么做才显专业
+difficulty: 进阶
+tags: [CSS, 字体, 排版]
+
+### 一句话
+字体栈 fallback 完整 + font-display: swap 防 FOIT；用相对单位（rem / em）保留用户缩放；行高用无单位（line-height: 1.5）继承友好；中英文混排留空（letter-spacing 或 padding）；变量字体一份文件搞定多字重。
+
+### 题目
+怎么做出"舒服又专业"的中文 / 英文混合排版？字体怎么选、加载怎么不闪、阅读怎么不累？
+
+### 答案要点
+- **字体栈**
+  - 系统字体优先：`-apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif`
+  - 自托管字体：`@font-face` + `font-display: swap`（FOIT → FOUT，避免空白）
+  - 多字重 / 多斜体：用变量字体（`Inter.var.woff2`）一份文件解决
+- **字号 / 行高 / 字距**
+  - 字号 16px 起步（移动端可 14-15px），不要 < 12px
+  - 行高 1.5-1.7（中文需要更大 line-height，英文相对小）
+  - letter-spacing 极少调；中英文混排可在中英之间塞 0.05em
+  - paragraph 之间用 margin（1em）而不是 `<br>`
+- **可读宽度**
+  - 一行最佳 60-80 字符（`max-width: 70ch`）
+  - 中文每行 35-40 个字
+- **可访问**
+  - 用相对单位（rem / em），不要 `font-size: 14px` 硬死，否则用户缩放无效
+  - 颜色对比度 ≥ 4.5:1（WCAG AA）
+  - 标题层级清晰：h1 → h6 不要跳级
+- **加载性能**
+  - 子集化：只打包实际用到的字符（中文必做，否则 4MB 起步）
+  - preload：`<link rel="preload" as="font" type="font/woff2" crossorigin>`
+  - font-display: swap：先用 fallback 渲染，字体到了再切；避免闪屏先显示空白
+- **现代特性**
+  - `font-feature-settings: 'tnum'`：等宽数字，表格/价格用
+  - `text-wrap: balance`：标题/段落自动平衡换行
+  - `line-clamp` / `-webkit-line-clamp`：多行省略号
+
+### 代码示例
+```css
+:root {
+  --font-sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC',
+               'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, Menlo, monospace;
+}
+
+@font-face {
+  font-family: 'Inter';
+  src: url('/fonts/Inter.var.woff2') format('woff2-variations');
+  font-weight: 100 900;
+  font-display: swap;
+}
+
+body {
+  font-family: 'Inter', var(--font-sans);
+  font-size: 16px;
+  line-height: 1.6;
+  color: #1a1a1a;
+}
+article {
+  max-width: 70ch;
+  margin: 0 auto;
+}
+article p { margin: 1em 0; }
+article h1 { text-wrap: balance; }
+.price { font-feature-settings: 'tnum'; }
+```
+
+### 延伸
+- 中文字体推荐：思源黑体 / 苹方 / 鸿蒙体
+- 等宽字体推荐：JetBrains Mono / Fira Code（带连字）
+- 字体加载库：fontfaceobserver 监听加载完成做切换动画
+

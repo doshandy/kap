@@ -345,3 +345,110 @@ n.value = 3;
 - React Forget / React Compiler：编译期插入 memo，让作者无需手写优化
 - 选型：极致性能 / 嵌入式 / 视觉应用 → Solid；生态 + 招聘 → React
 
+
+## hydration-vs-resumability
+title: Hydration vs Resumability：Qwik 为什么"不需要 hydration"
+difficulty: 资深
+tags: [Qwik, 渲染, SSR, 高频]
+
+### 一句话
+传统 SSR 框架需要 **hydration**——客户端重跑组件树绑定事件；Qwik 把"序列化的应用状态"也写进 HTML，只在用户**真正交互时**才下载并执行对应那一小段代码（resumability），首屏几乎零 JS。
+
+### 题目
+React 18 / Vue / Solid 都做了 hydration 优化，Qwik 直接说"我不需要 hydration"。底层差异在哪？
+
+### 答案要点
+- **传统 hydration 的问题**
+  - 服务端渲染 HTML → 客户端拿到 HTML 后**重新执行**整棵组件树
+  - 重跑是为了：建组件实例、绑定事件、初始化 state
+  - 大型应用 hydration 时间可能 1-3 秒，期间 INP 很差
+  - "你白付了一遍 SSR 又付一遍 CSR 的成本"
+- **partial hydration**（Astro / React Server Components）
+  - 只 hydrate 标记的"岛屿"
+  - 改善了，但开发者要手动决定哪些岛要 hydrate
+- **Resumability（Qwik 核心）**
+  - 服务端渲染时把**所有应用状态 + 事件 handler 引用**序列化成 HTML 属性
+  - 客户端**完全不执行任何 JS**直到用户交互
+  - 用户点按钮：从 `on:click="qwik:handler#abc"` 找到 handler 引用 → 网络请求拉那一小段 chunk → 执行
+  - JIT 加载粒度极小（每个 handler 独立 chunk）
+- **代价 / 限制**
+  - 首次交互延迟（要拉 chunk）—— 用 prefetch 缓解
+  - 序列化要求：所有 state / closures 必须 serializable
+  - 心智模型不同：函数标 `$()` 才能跨边界
+  - 工具链不成熟，生态相对小
+- **何时选 Qwik**
+  - 内容站 / 营销页 / 电商：首屏 KPI > 交互复杂度
+  - 海量页面、大部分用户不交互
+- **Resumability 的"竞争对手"**
+  - Astro Islands：partial hydration 思路，体验类似但不极致
+  - React 19 / Next 15 RSC：渲染层零 JS，交互层仍 hydrate
+  - SolidStart：编译期细粒度，hydrate 成本极小
+
+### 代码示例
+```tsx
+import { component$, useSignal, $ } from '@builder.io/qwik';
+
+export const Counter = component$(() => {
+  const count = useSignal(0);
+
+  const onClick = $(() => {
+    count.value++;
+  });
+
+  return <button onClick$={onClick}>{count.value}</button>;
+});
+```
+
+### 延伸
+- Marko、Astro、Qwik 都在探索 islands / partial / resumability
+- 性能预算视角：传统框架 TTI 300-1000ms；Qwik 几乎瞬时 interactive
+
+## meta-framework-choice
+title: 同样是 Vue/React 全家桶，Nuxt / Next / Astro / SvelteKit / Remix 怎么选
+difficulty: 资深
+tags: [元框架, 选型, 高频]
+
+### 一句话
+**内容 / 营销站** 选 Astro（默认 0 JS）；**复杂应用 + React 生态** 选 Next（生态最大）；**Vue 项目** 选 Nuxt（同等地位）；**追求 web 标准 / 表单友好** 选 Remix / React Router v7；**追求极致小** 选 SvelteKit。
+
+### 题目
+团队要做新项目（中大型 SaaS 产品 + 营销页 + 文档站），列举主流元框架的关键差异，做技术选型。
+
+### 答案要点
+- **Next.js（React 生态默认）**
+  - 优势：生态最广、Vercel 部署一流、App Router + RSC + Server Actions 体系完善
+  - 劣势：心智模型重（缓存四层）、文档迭代快易学迷
+  - 适合：复杂 SaaS、电商、需要 Edge / Serverless
+- **Nuxt 3（Vue 生态等位）**
+  - 优势：自动导入、模块生态、Nitro 服务器跨平台部署
+  - 与 Next 相比：API 更简洁、约定优于配置
+  - 适合：Vue 项目，几乎所有 Next 能做的它都能做
+- **Astro**
+  - 优势：默认零 JS，岛屿架构，可混用 React/Vue/Svelte
+  - 劣势：不适合高度交互应用
+  - 适合：内容站、博客、文档、营销页、SEO 优先
+- **SvelteKit**
+  - 优势：bundle 极小、运行时极轻、语法简洁
+  - 劣势：React 生态资源迁不过来
+  - 适合：嵌入式 / 性能极致 / 团队认可 Svelte
+- **Remix / React Router v7**
+  - 优势：web 标准（Form / loader）、错误处理边界清晰、progressive enhancement
+  - 劣势：缓存 / RSC 体系不如 Next
+  - 适合：表单密集应用、教育性项目、坚持"不依赖 JS 也能用"
+- **Qwik City**
+  - 优势：resumability 极致首屏
+  - 劣势：生态小、心智模型新
+  - 适合：营销 / 电商，对首屏 INP 极度敏感
+- **决策矩阵（建议打分）**
+  - 团队栈（React 还是 Vue 还是新栈）
+  - 性能 KPI（首屏 / 交互 / SEO）
+  - 部署平台（Vercel / Cloudflare / 自建）
+  - 应用复杂度（CRUD 多还是计算密集）
+  - 招聘 / 知识沉淀
+- **混合方案**
+  - 营销 + 文档用 Astro，应用主体用 Next/Nuxt → 子域分离 / monorepo 共享 design system
+
+### 延伸
+- 不要为了"新"换框架；React Router v7 + Remix 思想合并是个稳健选择
+- AI / Edge 是下一阶段竞争点：Cloudflare Workers / Vercel Edge / Deno Deploy
+

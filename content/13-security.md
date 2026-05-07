@@ -547,3 +547,95 @@ const decoded = jwt.verify(token, process.env.SECRET);
 - 单点登录（SSO）多用 OAuth 2.0 + OIDC（基于 JWT）
 - 大厂内部一般 Cookie + Session 主流，对 C 端用户最稳
 
+
+## supply-chain-attack
+title: 前端供应链攻击怎么防？
+difficulty: 资深
+tags: [安全, 供应链, 高频]
+
+### 一句话
+锁版本（lockfile + `--frozen-lockfile`）+ 隔离构建（CI 不可信脚本不跑）+ 来源审计（npm audit / socket.dev / snyk）+ 子资源校验（SRI）+ 最小权限（npm provenance / OIDC publish）。
+
+### 题目
+某 npm 包被劫持后投毒，下载即偷取环境变量。讲讲攻击链和防御措施。
+
+### 答案要点
+- **典型攻击形态**
+  - **依赖投毒**：作者账号被盗 / 卖号 → 发新版本带恶意代码
+  - **typosquatting**：注册相似名字（reactt / lodahs）骗误装
+  - **依赖混淆**：内部包名抢注公共 npm
+  - **postinstall 脚本**：npm install 时执行任意代码（偷 .npmrc / .env / SSH key）
+  - **CI 投毒**：恶意 PR 改 ci 脚本拿环境 secret
+- **运行期 / 构建期防御**
+  - **lockfile 严格**：`pnpm install --frozen-lockfile` / `npm ci`，不偷偷升级
+  - **disable 安装脚本**：`npm config set ignore-scripts true`，需要再单独允许
+  - **私有 registry**：所有包走自家镜像，避免依赖混淆 + 可缓存吊销
+  - **CI 隔离**：fork PR 不接 secret；workflow 用 `permissions: read-all`
+  - **secret 管理**：用 GitHub Secret / Vault；不在代码 / .env.example 里暴露真值
+- **审计 / 检测**
+  - npm audit / pnpm audit 定期跑
+  - socket.dev / snyk：行为分析（哪些包试图读 .ssh、发外网请求）
+  - dependabot / renovate：及时升级修复 CVE
+  - 监控锁文件改动：CI 检查 lockfile 是否随 PR 一起改且合理
+- **发布端**
+  - npm 2FA 必开
+  - npm provenance（OIDC + sigstore）：证明这个包是从这个仓库这次 CI 构建出来的
+  - 关键包：用 ` --access=public --provenance` 发布
+- **运行时（线上）**
+  - SRI（Subresource Integrity）：CDN 引入第三方脚本带 hash 校验
+  - CSP：限制可加载的脚本来源
+  - 敏感操作再校验（不只信前端）
+- **真实事件**
+  - event-stream（2018）：作者把权限交给陌生人 → 加币包括 BitPay
+  - ua-parser-js（2021）：作者账号被盗 → 投毒矿工
+  - color.js / faker.js（2022）：作者主动 sabotage
+- **应急**
+  - 发现可疑：立刻锁 CI、改密钥、扫日志看是否泄漏
+  - rollback 到已知干净版本
+  - 通知用户 + 公告
+
+### 代码示例
+```bash
+npm config set ignore-scripts true
+pnpm install --frozen-lockfile
+
+npx @socketsecurity/cli scan
+pnpm audit --prod
+```
+
+```yaml
+permissions:
+  contents: read
+  id-token: write
+  pull-requests: read
+
+jobs:
+  publish:
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v3
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          registry-url: 'https://registry.npmjs.org'
+      - run: pnpm install --frozen-lockfile --ignore-scripts
+      - run: pnpm build
+      - run: pnpm publish --access=public --provenance
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+```
+
+```html
+<script
+  src="https://cdn.example.com/lib.js"
+  integrity="sha384-abc..."
+  crossorigin="anonymous"
+></script>
+```
+
+### 延伸
+- SLSA（supply-chain levels for software artifacts）成熟度框架
+- SBOM（Software Bill of Materials）：清晰列出所有依赖，便于事后审计
+

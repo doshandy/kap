@@ -530,3 +530,159 @@ console.log('main');
 - Worker Threads 自己有独立的事件循环
 - `--trace-event-categories` 能看清楚每个阶段的耗时
 
+
+## node-cluster-pm2
+title: Node 进程怎么充分利用多核？cluster / worker_threads / pm2 怎么选
+difficulty: 资深
+tags: [Node, 进程, 性能, 高频]
+
+### 一句话
+**CPU 密集**（加密 / 压缩 / 解析）用 worker_threads（共享内存、低开销）；**接受请求扩展并发**用 cluster（多进程 + 内置负载均衡，但隔离强）；**生产部署管理**用 pm2 / Node 22+ 内置 `--cluster`。
+
+### 题目
+单进程 Node 只能跑满一个核。一个高 QPS 的 BFF 服务怎么充分利用 16 核？CPU 密集任务又该怎么办？
+
+### 答案要点
+- **三种横向扩展方式**
+  - **cluster**（Node 内置）：fork N 个 worker 进程，master 通过 round-robin 分发 socket；进程之间内存独立
+  - **worker_threads**：单进程内多线程，共享 ArrayBuffer，开销低
+  - **多容器 + 负载均衡**：交给 K8s / Nginx，进程级别就单核够，水平扩 pod
+- **典型选型**
+  - HTTP 服务：cluster 或多容器；不要单进程多线程接 HTTP（worker_threads 主要为计算）
+  - 大文件 hash / SQL 解析 / 图片处理：worker_threads
+  - 老牌方案 pm2：cluster 模式 + 自动重启 + 日志聚合（单机部署很方便）
+- **cluster 注意**
+  - 进程间共享 state 要靠 IPC（process.send）或外部存储（Redis）
+  - 内存型 session 不能跨进程，改用 Redis session
+  - sticky session：默认 round-robin 不绑定，长连接要自己处理
+- **worker_threads 注意**
+  - 每个 worker 启动 ~30ms + 几 MB 内存，不要随用随起，用 piscina 等池
+  - 通信用 `postMessage` + Transferable（避免大对象序列化开销）
+  - SharedArrayBuffer：跨线程共享内存，需要 Atomics 同步
+- **PM2 实用功能**
+  - `pm2 start app.js -i max`：max worker 数 = CPU 核
+  - `pm2 reload`：零宕机重启（先拉新进程再杀旧）
+  - `pm2 logs / pm2 monit`
+- **健康检查 / 进程崩溃**
+  - 单 worker 崩溃：cluster master 自动 fork 新的（避免立即 fork 风暴：限频）
+  - K8s liveness / readiness 探针
+  - `process.on('uncaughtException')` 记日志后**优雅退出**（重启），不要 swallow
+
+### 代码示例
+```js
+const cluster = require('node:cluster');
+const os = require('node:os');
+
+if (cluster.isPrimary) {
+  for (let i = 0; i < os.availableParallelism(); i++) cluster.fork();
+  cluster.on('exit', (worker) => {
+    console.log(`worker ${worker.process.pid} died, respawning`);
+    setTimeout(() => cluster.fork(), 1000);
+  });
+} else {
+  require('./server');
+}
+```
+
+```js
+const { Worker } = require('node:worker_threads');
+const Piscina = require('piscina');
+
+const pool = new Piscina({
+  filename: new URL('./image-worker.js', import.meta.url).href,
+  maxThreads: 4,
+});
+
+app.post('/resize', async (req, res) => {
+  const result = await pool.run({ buffer: req.body, width: 800 });
+  res.send(result);
+});
+```
+
+### 延伸
+- Node 21+ permission model：限制 worker 文件 / 网络访问
+- bun / deno 自带原生多线程能力，但生态兼容仍有差距
+- 生产线上：通常容器化 + K8s 横向扩 pod，进程内不再 cluster
+
+## node-streaming-response
+title: Node 接口怎么实现"边算边返回"
+difficulty: 进阶
+tags: [Node, 流, BFF, 高频]
+
+### 一句话
+HTTP/1.1 用 `Transfer-Encoding: chunked` 配合 `res.write` 分块输出；现代场景三选一：**SSE**（单向纯文本流）、**ReadableStream**（fetch 流式）、**WebSocket**（双向）。Node 18+ Web Streams 标准化支持。
+
+### 题目
+BFF 收到请求后要拉 LLM 流式返回 / 逐行处理大日志输出。Node 怎么实现并保证不 buffer 全部内容？
+
+### 答案要点
+- **基础**
+  - HTTP 默认 chunked：`res.write` 立即发送，不等
+  - `res.flushHeaders()` 提早 flush 头部，让 CDN / 代理快速建立连接
+  - 关 Nagle / buffer：某些代理会缓冲整个响应，需要 `X-Accel-Buffering: no` 或类似头
+- **三种协议**
+  - **SSE（Server-Sent Events）**
+    - 单向 server → client；浏览器原生 EventSource
+    - `Content-Type: text/event-stream` + 行格式 `data: xxx\n\n`
+    - 自带重连（last-event-id），适合 LLM 流式回包
+  - **fetch ReadableStream**
+    - server 用 chunked；client 用 `response.body.getReader()`
+    - 灵活但要自己处理协议（拆分 chunk）
+  - **WebSocket**
+    - 双向；客户端能持续发，server 持续推
+    - 适合实时游戏 / 协同编辑 / 双向控制
+- **Node 实现**
+  - 经典：`res.write(chunk)` + `res.end()`
+  - 推荐：用 `pipeline(stream, res)` 自动 backpressure
+  - Web Streams API：`new Response(readable, { headers })` (Node 18+)
+- **背压（backpressure）**
+  - `res.write` 返回 false 表示缓冲区满，要等 `drain` 事件
+  - 用 pipeline / `Readable.pipe` 自动处理
+  - 否则可能 OOM
+- **超时 / 取消**
+  - 客户端断开：监听 `req.on('close')` / AbortSignal
+  - server 内部 LLM 拉取请求要级联取消（透传 AbortController）
+  - keep-alive 超时（Nginx / ALB）：10min 之类，长流要心跳
+
+### 代码示例
+```js
+import { setInterval as every } from 'node:timers/promises';
+
+app.get('/sse', async (req, res) => {
+  res.setHeader('Content-Type', 'text/event-stream');
+  res.setHeader('Cache-Control', 'no-cache, no-transform');
+  res.setHeader('X-Accel-Buffering', 'no');
+  res.flushHeaders();
+
+  const ac = new AbortController();
+  req.on('close', () => ac.abort());
+
+  try {
+    for await (const _ of every(1000, null, { signal: ac.signal })) {
+      res.write(`data: ${JSON.stringify({ ts: Date.now() })}\n\n`);
+    }
+  } catch {
+  } finally {
+    res.end();
+  }
+});
+
+import { pipeline } from 'node:stream/promises';
+app.get('/log', async (req, res) => {
+  const upstream = createReadStream('/var/log/big.log');
+  res.setHeader('Content-Type', 'text/plain');
+  await pipeline(upstream, res);
+});
+
+import { ReadableStream } from 'node:stream/web';
+app.get('/llm', async (req, res) => {
+  const upstream = await fetch('https://api.llm/stream', { signal: req.signal });
+  await pipeline(upstream.body, res);
+});
+```
+
+### 延伸
+- Vercel / Cloudflare Edge 默认有响应 buffer 行为，需要专门启 streaming
+- 大量并发流式连接：每条连接占 TCP fd，注意 ulimit + 反向代理 connection limit
+- HTTP/2 / HTTP/3 多路复用同一 TCP，更适合大量流
+

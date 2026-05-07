@@ -602,3 +602,137 @@ function report(data) {
 - 大型应用建议自建：上报量大、字段定制多
 - AI 时代可对错误聚合做"自动归因"，找最近一次代码改动
 
+
+## white-screen-detection
+title: 前端白屏怎么检测？
+difficulty: 资深
+tags: [可观测性, 监控, 高频]
+
+### 一句话
+不能简单看"DOM 是不是空"，要多信号组合：① 关键 DOM 节点存在（document.querySelector 命中）+ ② 视口内有内容像素（采样几个点取色）+ ③ FCP / LCP 上报时间到了；任一不满足才判白屏，避免误报。
+
+### 题目
+线上偶发"用户打开页面什么都没有"，怎么自动检测和定位白屏？
+
+### 答案要点
+- **白屏成因**
+  - JS 致命错误（首屏 chunk 报错）
+  - 网络资源加载失败（CDN 挂 / 网络拦截）
+  - 渲染依赖的 API 失败（强依赖的 SSR 数据 / 用户 token）
+  - CSP 拦截 / 浏览器扩展干扰
+  - 路由错误 / 404 fallback 失效
+- **检测方法（多信号组合）**
+  - **DOM 检查**：load 后延迟 3s 检查 `document.querySelector('#app')` 子节点数量、文本长度
+  - **像素采样**：用 `elementsFromPoint` 在视口选 9 个点（井字格），看是否都命中 body / html
+  - **关键元素**：业务约定一个标识，如 `<div data-app-mounted>`，没出现 = 白屏
+  - **性能 API**：FCP / LCP 是否触发；超时未触发 = 白屏
+- **实现**
+  - 在 `<head>` 顶部塞一个守护脚本（不依赖打包产物），setTimeout 3s 后做检查
+  - 命中疑似白屏 → 上报 + 收集环境信息（UA / 网络 / 路由 / 错误日志）
+  - 可选：自动 reload 一次（前提：白屏检测有 99%+ 准确度，否则会循环刷新）
+- **关联错误归因**
+  - 同一 sessionId 下查全局 error / 资源 error / unhandledrejection
+  - 关联 RUM 数据（FCP / LCP / TTFB）
+  - 上下文信息：分页 URL / 用户 ID / 实验分组 / 灰度版本号
+- **降级 / 兜底**
+  - 主 chunk fail → SW 兜底缓存的旧版本
+  - 关键资源 retry：`<script onerror>` 切换 fallback CDN
+  - HTML 自带"加载失败"骨架，配合 navigator.onLine 提示
+
+### 代码示例
+```html
+<script>
+  (function () {
+    setTimeout(function () {
+      var app = document.getElementById('app');
+      var hasContent = app && app.children.length > 0 && (app.innerText || '').length > 5;
+      var hits = 0;
+      var w = innerWidth, h = innerHeight;
+      [[w/4, h/4], [w/2, h/4], [3*w/4, h/4],
+       [w/4, h/2], [w/2, h/2], [3*w/4, h/2],
+       [w/4, 3*h/4], [w/2, 3*h/4], [3*w/4, 3*h/4]].forEach(function (p) {
+        var el = document.elementFromPoint(p[0], p[1]);
+        if (el && el !== document.body && el !== document.documentElement) hits++;
+      });
+      var fcp = performance.getEntriesByType('paint').find(function (e) { return e.name === 'first-contentful-paint'; });
+      var isWhite = !hasContent && hits < 3 && !fcp;
+      if (isWhite) {
+        navigator.sendBeacon('/api/whitescreen', JSON.stringify({
+          url: location.href,
+          ua: navigator.userAgent,
+          ts: Date.now(),
+        }));
+      }
+    }, 3000);
+  })();
+</script>
+```
+
+### 延伸
+- 视频回放（rrweb / LogRocket）能直接看用户白屏画面
+- 配合"健康检查页"：每分钟 ping 真实页面，自动报警
+
+## ab-experiment-frontend
+title: 前端怎么承接 A/B 实验？
+difficulty: 进阶
+tags: [可观测性, 实验, 高频]
+
+### 一句话
+SDK 拉取实验分流（用户 ID hash 分桶）→ 业务通过 `useExperiment('exp_id')` 拿到当前 variant → 按 variant 渲染不同 UI → 关键事件埋点带 expId/variantId → 后端做指标差异显著性检验。
+
+### 题目
+PM 想测试两个落地页的转化率差异。前端怎么落地 A/B 实验？
+
+### 答案要点
+- **分流逻辑**
+  - 服务端分流：基于 user_id hash 取模，stick 用户在一个桶
+  - 边缘分流（CDN / Edge Worker）：响应不同版本 HTML，无 SSR 闪烁
+  - 客户端分流：需注意 SSR 不一致 + 闪烁问题（先渲染默认 → 实验分配后切换）
+- **SDK 接口**
+  - `useExperiment(expId): { variant, isControl }`
+  - 同步获取（缓存第一次结果）；首次请求做超时降级（拿不到当 control）
+  - 强制覆盖：URL 参数 `?exp_xxx=variant_b` 方便 QA
+- **埋点**
+  - 关键事件（曝光、点击、转化）必须带 `expId`、`variantId`
+  - 曝光埋点：用户**实际看到**实验位才算曝光（用 IntersectionObserver）
+  - 不要把实验分组放页面参数里 leak 给 SEO
+- **避免 SRM**
+  - SRM = Sample Ratio Mismatch：实际分桶比例与期望偏差大 → 数据不可信
+  - 前端要保证：每次访问分组结果稳定（fingerprint stable）
+  - 不要刷新换分组、不要 IP 变就换分组
+- **数据指标**
+  - 主指标 1 个 + 护栏指标若干（不能为追求转化率害用户：跳出率、白屏率、性能）
+  - 显著性检验由数据团队 / 实验平台做
+- **流程**
+  - 试点 1% → 5% → 20% → 50%（观察护栏）
+  - 持续时间至少 7 天（覆盖工作日 / 周末差异）
+  - 结果出来再"全量 + 删旧代码"
+- **代码层面**
+  - 实验代码用 feature flag 包，便于"实验完即删"
+  - 不要让多个实验互相干扰：同一组件影响时声明互斥
+
+### 代码示例
+```ts
+export function useExperiment(expId: string) {
+  const variant = expSdk.getVariant(expId) ?? 'control';
+  const elRef = ref<HTMLElement | null>(null);
+  useIntersectionObserver(elRef, ([entry]) => {
+    if (entry.isIntersecting) {
+      track('exp_exposure', { expId, variant });
+    }
+  });
+  return { variant, isControl: variant === 'control', elRef };
+}
+
+const { variant, isControl, elRef } = useExperiment('home_hero_v2');
+
+const onCta = () => {
+  track('home_cta_click', { expId: 'home_hero_v2', variant });
+};
+```
+
+### 延伸
+- 平台：GrowthBook / Optimizely / Unleash / 字节 Libra / 内部自研
+- 互斥实验组（layer）：同 layer 互斥、跨 layer 正交
+- 客户端分流的闪烁：SSR 注入 cookie 决定首次渲染版本
+

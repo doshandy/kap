@@ -270,3 +270,190 @@ tags: [发布, EMM]
 ### 延伸
 - Edge / Brave 等 Chromium 衍生浏览器多数兼容 Chrome 扩展，但商店和企业策略各自独立
 - 内部插件最好做"版本灰度 + 健康监控 + 自动回滚"，因为强推安装意味着炸了影响所有员工
+
+## extension-message-passing
+title: 浏览器扩展不同上下文之间怎么通信？
+difficulty: 进阶
+tags: [浏览器插件, 通信, 高频]
+
+### 一句话
+四类上下文（background SW / content script / popup / 页面 main world）通信走两条总线：扩展内部用 `chrome.runtime.sendMessage` + `chrome.tabs.sendMessage`；与页面 main world 用 `window.postMessage` 经 content script 中转。
+
+### 题目
+扩展里有 background、content script、popup、injected script 四种代码，分别可以访问什么 API？它们之间怎么互相发消息？
+
+### 答案要点
+- **运行环境差异**
+  - background（MV3 是 Service Worker）：`chrome.*` 全权限，但**不能**访问 DOM、`window`
+  - content script：在页面里跑，能访问 DOM；`chrome.*` 只有部分（runtime / storage 等）；和页面 JS **隔离 world**（变量不共享）
+  - popup / options：标准 web 页面，能用 `chrome.*`，关闭就销毁
+  - injected（page main world）：直接挂到目标页面 window 上，能访问页面变量；但拿不到 `chrome.*`
+- **三条通信路径**
+  1. **扩展内部（背景 ↔ popup ↔ content）**
+     - `chrome.runtime.sendMessage(msg)`：发往 background
+     - `chrome.tabs.sendMessage(tabId, msg)`：发往指定 tab 的 content script
+     - 接收方：`chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => { ... return true; })`，return true 表示异步回包
+  2. **content script ↔ 页面 main world**
+     - 隔离 world 不能直接访问页面变量 → 用 `window.postMessage` + `window.addEventListener('message')`
+     - 务必校验 `event.source === window && event.data?.from === 'mySafeMark'`
+  3. **长连接**：`chrome.runtime.connect()` 返回 `Port`，适合长流式数据
+- **常见坑**
+  - MV3 background 是 SW，会被空闲回收 → 状态要存 `chrome.storage.session`，回包要快
+  - sendMessage 在没有 listener 时会报"Receiving end does not exist" → try / catch
+  - content script 注入时机：`document_start` 早注入但 DOM 没好；`document_idle` 默认时机
+- **跨域 fetch**：放到 background 发（content script 受页面 CSP 约束）
+
+### 代码示例
+```js
+chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
+  if (msg.type === 'fetchProxy') {
+    fetch(msg.url, { credentials: 'omit' })
+      .then((r) => r.text())
+      .then((text) => sendResponse({ ok: true, text }))
+      .catch((e) => sendResponse({ ok: false, error: String(e) }));
+    return true;
+  }
+});
+
+const inject = document.createElement('script');
+inject.src = chrome.runtime.getURL('inject.js');
+(document.head || document.documentElement).append(inject);
+
+window.addEventListener('message', (e) => {
+  if (e.source !== window) return;
+  if (e.data?.from !== 'kap-inject') return;
+  chrome.runtime.sendMessage({ type: 'pageEvent', payload: e.data.payload });
+});
+
+window.postMessage({ from: 'kap-inject', payload: { user: window.__USER__ } }, '*');
+
+const port = chrome.runtime.connect({ name: 'logs' });
+port.onMessage.addListener((m) => console.log(m));
+port.postMessage({ hello: 1 });
+```
+
+### 延伸
+- Firefox 是 `browser.*`（promise 化），可用 webextension-polyfill 统一 API
+- 长链接 vs 一次性：日志流走 Port，命令走 sendMessage
+- 跨扩展通信用 `chrome.runtime.sendMessage(extensionId, msg)`，需 `externally_connectable`
+
+## extension-csp-remote-code
+title: MV3 为什么禁止远程代码？常见踩坑怎么解
+difficulty: 进阶
+tags: [浏览器插件, 安全, MV3, 高频]
+
+### 一句话
+MV3 默认 CSP 是 `script-src 'self'`，不允许 eval / 远程脚本 / 内联 onclick，避免插件被远程注入恶意代码污染上千万用户；要动态行为只能打包到本地，或者用 declarativeNet / userScripts API。
+
+### 题目
+你写的扩展用了 eval / 加载远程 SDK，MV3 商店审核没过。分析原因，以及哪些常见模式需要重写？
+
+### 答案要点
+- **MV3 安全收紧**
+  - 默认 `script-src 'self'; object-src 'self';` —— 不能 eval、Function('...')、远程 `<script src>`、setTimeout 字符串、内联 onclick
+  - 不允许声明放宽 CSP（MV2 时还可以改 `content_security_policy`，MV3 限制成只能添加 sandbox 页）
+  - 商店审核机器扫描 + 人工审核，命中就拒
+- **典型踩坑 → 改写**
+  - 用 webpack runtime eval → 改 webpack.config 用 `devtool: false` / 'source-map'，禁 eval-source-map
+  - 用第三方 CDN SDK（如 GA、Sentry CDN 版）→ 用 npm 安装 + 打包到本地 dist
+  - 用 `new Function('return ...')` 动态求值 → 改成 JSON 配置 + 解释器，或 sandbox iframe
+  - 内联 `<button onclick="...">` → 改成 addEventListener 绑定
+  - `<script src="https://...">` 注入到页面 → 改成把脚本打进扩展资源 + content script 注 `chrome.runtime.getURL('inject.js')`
+- **合法的"动态行为"**
+  - sandbox 页：在 manifest 里声明 `"sandbox": { "pages": ["sandbox.html"] }`，里面可以 eval；通过 postMessage 与主扩展通信
+  - userScripts API（MV3 后期版本）：用户主动启用油猴式脚本
+  - `chrome.scripting.executeScript`：动态注入预定义文件（不是远程字符串）
+- **网络请求拦截**
+  - MV2 的 `chrome.webRequest.onBeforeRequest` 改写请求 → MV3 改用 `declarativeNetRequest`（声明式规则文件，性能好且不能看用户流量）
+
+### 代码示例
+```json
+{
+  "manifest_version": 3,
+  "name": "kap-ext",
+  "version": "1.0.0",
+  "permissions": ["scripting", "storage"],
+  "host_permissions": ["https://example.com/*"],
+  "background": { "service_worker": "background.js" },
+  "content_security_policy": {
+    "extension_pages": "script-src 'self'; object-src 'self'"
+  },
+  "sandbox": {
+    "pages": ["sandbox.html"]
+  }
+}
+```
+
+```js
+const iframe = document.querySelector('iframe#sandbox');
+iframe.contentWindow.postMessage({ type: 'eval', expr: '1 + 2' }, '*');
+window.addEventListener('message', (e) => {
+  if (e.data.type === 'evalResult') console.log(e.data.value);
+});
+```
+
+### 延伸
+- Edge / Firefox 也跟进 MV3
+- 想做"用户脚本"只能改用油猴扩展（Tampermonkey 自己是有特殊豁免的）
+- Sentry / GA 等都已经提供 npm 包；记得关闭遥测数据收集，避免商店判违规
+
+## extension-storage-sync
+title: 扩展持久化数据用哪个 API？跨设备同步呢？
+difficulty: 进阶
+tags: [浏览器插件, 存储]
+
+### 一句话
+小数据用 `chrome.storage.local`（10MB）；要跨设备登录后同步用 `chrome.storage.sync`（100KB，自动 Google 同步）；MV3 SW 内存即用即弃用 `chrome.storage.session`；大数据走 IndexedDB。
+
+### 题目
+扩展要保存用户偏好、登录 token、操作历史。分别选什么存储，注意点是什么？
+
+### 答案要点
+- **API 对比**
+  - `chrome.storage.local`：~10MB，本设备；扩展卸载即删；最常用
+  - `chrome.storage.sync`：~100KB（每项 8KB），跟随 Google 账号跨设备同步；适合用户偏好（主题、快捷键）
+  - `chrome.storage.session`：MV3 新增；存内存，扩展进程销毁就丢；适合 SW 唤醒间共享 token / state
+  - `chrome.storage.managed`：企业策略下发的只读配置
+  - IndexedDB：大数据（几十 MB+）走这；扩展可在 background / content script 用
+- **注意**
+  - storage API 是**异步**的，`get/set` 都返回 Promise（MV3）或回调
+  - 全部用 JSON 序列化（没法存 Map/Set/Function）
+  - sync 有配额，超了 set 直接报错；要捕获并降级到 local
+- **变更监听**：`chrome.storage.onChanged.addListener((changes, area) => {...})`，可以在多上下文同步状态
+- **隐私敏感数据**
+  - 别存明文 token / 密码到 sync（理论上 Google 会同步到云）
+  - 高敏走 native messaging + OS keychain，或仅 session
+- **数据迁移**：版本号字段，启动时跑 migrate（旧字段重命名 / 字段拆分）
+
+### 代码示例
+```js
+async function getPref() {
+  const { theme = 'auto', shortcuts = {} } = await chrome.storage.sync.get(['theme', 'shortcuts']);
+  return { theme, shortcuts };
+}
+
+async function saveToken(token) {
+  await chrome.storage.session.set({ token });
+}
+
+chrome.storage.onChanged.addListener((changes, area) => {
+  if (area === 'sync' && changes.theme) applyTheme(changes.theme.newValue);
+});
+
+const STORAGE_VERSION = 3;
+async function migrate() {
+  const { __v = 0, ...rest } = await chrome.storage.local.get();
+  if (__v < 3) {
+    if (rest.user_name) {
+      rest.profile = { name: rest.user_name };
+      delete rest.user_name;
+    }
+    await chrome.storage.local.set({ ...rest, __v: STORAGE_VERSION });
+  }
+}
+```
+
+### 延伸
+- 大量历史日志（操作记录）放 IndexedDB；按日期分桶，只保留近 30 天
+- 跨扩展共享：用 `externally_connectable` + 消息传递，不直接共享 storage
+

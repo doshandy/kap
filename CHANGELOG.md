@@ -1,5 +1,23 @@
 # Changelog
 
+## 0.9.0
+
+- feat：题库覆盖面夯实 +25，336 → 361，重点补"高频但偏薄"分类
+  - **CSS** +2：Flex/Grid/multi-column/Float 选型对比、字体与排版专业实践
+  - **性能** +1：前端内存泄漏排查（三次 Heap snapshot 对比 + 常见根因）
+  - **Node** +2：cluster/worker_threads/pm2 多核扩展、流式响应（SSE/ReadableStream）
+  - **测试** +3：测试数据治理（factory + 隔离）、异步/定时器/Stream 测试技巧、视觉回归
+  - **可观测性** +2：白屏多信号检测、A/B 实验前端落地
+  - **a11y** +1：表单无障碍完整 checklist
+  - **构建发版** +2：CI/CD 流水线设计、bundle 优化全场景
+  - **可视化** +2：地图可视化（mapbox/deck.gl）、图表/看板导出 PDF/PNG
+  - **安全** +1：前端供应链攻击与防御
+  - **框架对比** +2：Hydration vs Resumability、元框架（Next/Nuxt/Astro/Remix/SvelteKit）选型
+  - **全栈 Meta** +3：Next App Router 数据获取四种姿势、Remix loader/action、SSR 鉴权设计
+  - **Rust/WASM** +2：WASM 不该用的场景、JS↔WASM 数据高效传递
+  - **浏览器插件** +3：四类上下文消息通信、MV3 远程代码限制、storage 跨设备同步
+  - **软技能** +4：需求评审、技术债治理、跨团队推进、OKR 拆解
+
 ## 0.8.0
 
 - feat：新增「数据平台业务场景」分类，挑选自真实数据平台的复杂业务问题，模拟资深面试常问流程

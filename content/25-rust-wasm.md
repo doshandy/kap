@@ -299,3 +299,138 @@ indentStyle = "space"
 - Rust 工具链最大风险是"插件生态滞后"，迁移要做 PoC
 - 长期看 JS / Rust 分层共生：上层逻辑 JS、底层基建 Rust
 
+
+## wasm-when-not-to-use
+title: WebAssembly 什么场景不该用？常见误区
+difficulty: 资深
+tags: [WASM, 架构, 性能]
+
+### 一句话
+DOM 操作密集 / 简单计算 / 启动时间敏感的小工具，**用 WASM 反而慢**——WASM 的强项是计算密集 + 复用现成 C/Rust 生态，不是"什么都能加速"。
+
+### 题目
+团队听说 WASM 很快，想把所有热点逻辑都用 Rust 重写。哪些场景其实不该用 WASM？
+
+### 答案要点
+- **WASM 的真实优势**
+  - CPU 密集计算（codec / 加密 / 物理仿真 / 解析 AST）
+  - 复用现成的 C / C++ / Rust 库（FFmpeg / SQLite / OpenCV）
+  - 性能可预测（无 GC 抖动）
+  - 安全沙盒（适合不可信代码执行）
+- **不该用 WASM 的场景**
+  - **DOM 操作多**：WASM 没法直接操作 DOM，每次得 JS bridge，调用开销大
+  - **简单计算**：JS V8 优化后跟 WASM 差距很小，但你多了 200KB+ wasm 体积 + 加载时间
+  - **首屏 / 启动敏感**：编译 + 实例化需要时间（几十到几百 ms），首屏用反而慢
+  - **频繁与 JS 交互**：每次跨界调用有成本（JS ↔ WASM 数据拷贝、字符串编码）
+  - **小型工具函数**：debounce / throttle / 简单解析，没必要
+- **常见性能反模式**
+  - 在循环里频繁调用 WASM 导出函数：每次跨界开销累加 > 节省的计算时间
+  - 大字符串 / Object 跨界：序列化开销远超 WASM 内部计算
+  - 没用 SharedArrayBuffer 就在 WASM 和 JS 间复制大数组
+- **正确用法**
+  - 一次跨界处理一大块数据
+  - 用 SharedArrayBuffer / Memory.buffer 共享，避免拷贝
+  - 把整个"业务流"塞进 WASM（如 Excel parser），而不是把零碎函数搬过去
+- **典型成功案例**
+  - Figma：渲染引擎 C++ → WASM
+  - Photoshop Web：核心图像处理
+  - SQLite WASM：浏览器内直接跑 SQL
+  - SWC / Rolldown / Lightning CSS：构建工具用 Rust 编译到 native，不是 WASM
+- **决策清单**
+  - 你的瓶颈是 CPU 还是 IO / DOM？
+  - 复用现成库比自己写更值得吗？
+  - 跨界调用频率高吗？
+  - 体积 / 加载时间能接受吗？
+
+### 代码示例
+```ts
+import init, { fft } from './wasm/dsp.js';
+await init();
+
+const samples = new Float32Array(8192);
+const result = fft(samples);
+
+const items = [/* ... */];
+const out = items.map((x) => simpleProcess(x));
+
+import init, { batchProcess } from './wasm/dsp.js';
+const buf = new Float32Array(items.flat());
+const out = batchProcess(buf);
+```
+
+### 延伸
+- 体积优化：wasm-opt -Oz、wee_alloc 替代 std allocator
+- 加载优化：streaming compile（`WebAssembly.instantiateStreaming`）+ 拆 chunk
+- 真实指标：WebAssembly 启动时间在低端机可能 200ms+，要 lazy
+
+## js-wasm-data-bridge
+title: JS 和 WASM 之间数据怎么高效传递
+difficulty: 资深
+tags: [WASM, 性能, 互操作]
+
+### 一句话
+WASM 内存就是一块 ArrayBuffer；**只能传数字**，复杂数据（字符串 / 对象）要先序列化到这块内存里 → 把指针 + 长度传过去；用 wasm-bindgen / Emscripten 自动生成 binding，但理解底层有助于性能调优。
+
+### 题目
+你想从 JS 把一个 100MB 的图片像素 buffer 给 Rust 处理。怎么传才不会复制开销巨大？
+
+### 答案要点
+- **WASM 内存模型**
+  - WASM 实例有一块线性 Memory（默认 16MB，可增长）
+  - JS 通过 `instance.exports.memory.buffer` 拿到 ArrayBuffer
+  - 这块 buffer JS 和 WASM 直接共享（同一片内存）
+- **基础 API（手写）**
+  - 分配：调 wasm 导出的 alloc(size) → 拿 ptr
+  - 写入：JS 用 `new Uint8Array(memory.buffer, ptr, size).set(data)`
+  - 调函数：`process(ptr, size)`
+  - 读结果：从指定 ptr 读 buffer
+  - 释放：调 free(ptr)
+- **wasm-bindgen 自动化**
+  - 标 `#[wasm_bindgen]` 函数，参数 / 返回值类型自动桥接
+  - `&[u8]` / `Vec<u8>` 自动复制；想零拷贝用 `js_sys::Uint8Array::view`
+  - 字符串：自动 UTF-8 编码 / 解码（有开销）
+- **零拷贝技巧**
+  - 大 buffer：JS 把数据写进 WASM memory，传 ptr；处理完直接读
+  - SharedArrayBuffer：跨 worker 真共享，不需要拷贝（要 COOP/COEP 头）
+  - WebGPU / WebCodecs：直接在 GPU buffer 上跑，跳过 CPU 拷贝
+- **跨界调用成本**
+  - 单次调用 ~微秒级；高频调用累加成性能瓶颈
+  - 把"循环 + 数据"整体扔进 WASM，比 JS 循环里调 WASM 快得多
+- **字符串处理**
+  - JS 是 UTF-16，WASM / Rust 通常是 UTF-8 → 编码转换有成本
+  - 大量字符串处理建议在 WASM 内闭环
+
+### 代码示例
+```rust
+use wasm_bindgen::prelude::*;
+
+#[wasm_bindgen]
+pub fn invert_pixels(data: &mut [u8]) {
+    for chunk in data.chunks_mut(4) {
+        chunk[0] = 255 - chunk[0];
+        chunk[1] = 255 - chunk[1];
+        chunk[2] = 255 - chunk[2];
+    }
+}
+```
+
+```ts
+import init, { invert_pixels, __wbindgen_malloc, __wbindgen_free } from './pkg/dsp.js';
+
+await init();
+
+const memory = (init as any).__wbindgen_export_2.buffer as ArrayBuffer;
+const u8 = new Uint8Array(imageData.data);
+const ptr = __wbindgen_malloc(u8.length, 1);
+new Uint8Array(memory, ptr, u8.length).set(u8);
+invert_pixels_raw(ptr, u8.length);
+
+const out = new Uint8Array(memory, ptr, u8.length).slice();
+__wbindgen_free(ptr, u8.length, 1);
+```
+
+### 延伸
+- WASI 让 WASM 跑出浏览器（CLI / 服务端 / Edge）
+- Component Model：WASM 模块间标准化数据交换
+- AssemblyScript：用 TS 风格语法写 WASM，门槛低但生态没 Rust 大
+

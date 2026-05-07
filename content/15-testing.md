@@ -476,3 +476,218 @@ test('登录跳转', async ({ page }) => {
 - 集成测试可以 mock 网络（MSW），单测 mock 函数调用
 - 关键页面 E2E 跑在 CI，可视化回归差异自动评论 PR
 
+
+## test-data-strategy
+title: 测试数据怎么造？怎么避免脏数据互相干扰
+difficulty: 进阶
+tags: [测试, 数据, 高频]
+
+### 一句话
+单测用 factory 函数（`makeUser({ name: 'x' })`）按需造；集成 / E2E 用每条用例独立的"种子前缀 + 随机后缀"避免冲突；运行后回滚或单独环境；不要共用线下"测试账号"。
+
+### 题目
+你团队的 E2E 测试经常因为"昨天的数据没清"而挂；写单测又有人造一份巨大的 fixture，怎么治理？
+
+### 答案要点
+- **分层造数据**
+  - 单元 / 组件测试：用 factory 函数（builder 模式），按需覆盖字段
+  - 集成 / E2E：直接调 API 造数据，跑完调 API 删；不要写死 SQL
+- **隔离策略**
+  - 用例级别：`name = 'kap-test-' + uuid()`，跑完按前缀清理
+  - suite 级别：beforeAll 造、afterAll 清
+  - 环境级别：每个 PR 起独立 namespace（k8s）/ schema（db）
+- **fixture 别变化石**
+  - 大 JSON fixture 容易腐烂，没人敢动
+  - 只放"骨架数据"，差异字段用 builder 覆盖
+  - 每个测试只声明它关心的字段，其他用合理默认
+- **时间相关**
+  - 用 fake timer / 固定时间：`vi.setSystemTime(new Date('2024-01-01'))`
+  - 不要用 `new Date()`、`Date.now()` 直接进断言
+- **网络与外部依赖**
+  - 单测：mock fetch 或用 MSW
+  - 集成：用 testcontainers 起真实 DB / Redis
+  - E2E：mock 外部第三方（支付、短信），不真实调用
+- **数据库回滚**
+  - 单测：每个用例事务包裹，结束 ROLLBACK
+  - 集成：truncate 表 / 重置 schema
+  - E2E：按前缀清理，或定期清理 job
+
+### 代码示例
+```ts
+import { faker } from '@faker-js/faker';
+
+export const makeUser = (overrides: Partial<User> = {}): User => ({
+  id: faker.string.uuid(),
+  name: 'kap-test-' + faker.person.firstName(),
+  email: faker.internet.email(),
+  createdAt: '2024-01-01T00:00:00Z',
+  ...overrides,
+});
+
+test('admin can edit', async () => {
+  const admin = makeUser({ role: 'admin' });
+  const target = makeUser();
+  await canEdit(admin, target);
+});
+
+test('order placed at 9am', async () => {
+  vi.setSystemTime(new Date('2024-01-01T09:00:00Z'));
+  const order = await placeOrder({ userId: 'u1' });
+  expect(order.createdAt).toBe('2024-01-01T09:00:00.000Z');
+});
+
+afterAll(async () => {
+  await api.delete('/test-data?prefix=kap-test-');
+});
+```
+
+### 延伸
+- snapshot 测试要小，超过 50 行要警惕；只对关键 DOM 树快照
+- 共享数据库环境：CI 并发跑测试时锁同一行就死锁，建议每个 worker 独立 schema
+
+## test-async-tricks
+title: 异步代码 / 定时器 / Stream 怎么测？
+difficulty: 进阶
+tags: [测试, 异步, 高频]
+
+### 一句话
+Promise / async 直接 `await`；setTimeout / setInterval 用 fake timer + `vi.advanceTimersByTime`；Stream 用真实流 + 收集结果再断言；DOM 异步用 `findBy*` / `waitFor`。
+
+### 题目
+怎么写出**稳定**的异步测试？带 setTimeout 的代码、流式接口、组件里的 useEffect，分别什么写法？
+
+### 答案要点
+- **Promise / async**
+  - 直接 await，断言异常用 `await expect(fn()).rejects.toThrow()`
+  - 不要 `setTimeout(done, 100)` 等异步，会 flaky
+- **fake timer**
+  - `vi.useFakeTimers()` / `jest.useFakeTimers()`
+  - `vi.advanceTimersByTime(1000)` 推进时间
+  - `vi.runAllTimers()` 跑完所有
+  - 注意：fake timer 不会让真实 Promise 变快，需要 microtask flush（`await Promise.resolve()`）
+- **DOM 异步（React Testing Library / Vue Test Utils）**
+  - `findByText('xxx')`：自带 retry 直到出现或超时
+  - `await waitFor(() => expect(...).toBe(...))`：自定义断言重试
+  - 不要 `await sleep(100)` 后再断言，flaky
+- **Stream**
+  - 真实 ReadableStream：在测试里 push 已知 chunk，收集 reader 输出再断言
+  - 用 web-streams-polyfill 或 Node 的 `Readable.from`
+- **网络请求**
+  - mock fetch：MSW（推荐，最贴近真实）
+  - axios mock adapter / vi.mock('axios')
+- **组件副作用**
+  - useEffect 异步：`await waitFor(...)` 等 effect 跑完
+  - cleanup 验证：`unmount()` 后断言副作用被清
+- **常见 flaky 因素**
+  - 用真定时器 + setTimeout(done, 100)
+  - 测试间共享全局状态
+  - 顺序依赖（用 `test.concurrent` 暴露问题）
+  - 时区 / 语言：测试环境锁定 TZ='UTC' / LANG='en_US'
+
+### 代码示例
+```ts
+import { vi, test, expect } from 'vitest';
+
+test('debounce 只调一次', () => {
+  vi.useFakeTimers();
+  const fn = vi.fn();
+  const d = debounce(fn, 100);
+  d(); d(); d();
+  vi.advanceTimersByTime(99);
+  expect(fn).not.toHaveBeenCalled();
+  vi.advanceTimersByTime(1);
+  expect(fn).toHaveBeenCalledTimes(1);
+});
+
+test('async 异常', async () => {
+  await expect(loadUser('bad-id')).rejects.toThrow('not found');
+});
+
+test('button 点击后异步显示文案', async () => {
+  render(<Demo />);
+  await userEvent.click(screen.getByRole('button'));
+  expect(await screen.findByText('已加载')).toBeInTheDocument();
+});
+
+test('ReadableStream 切片读取', async () => {
+  const stream = new ReadableStream({
+    start(c) { c.enqueue('a'); c.enqueue('b'); c.close(); },
+  });
+  const reader = stream.getReader();
+  const chunks: any[] = [];
+  while (true) {
+    const { value, done } = await reader.read();
+    if (done) break;
+    chunks.push(value);
+  }
+  expect(chunks).toEqual(['a', 'b']);
+});
+```
+
+### 延伸
+- Playwright 等 E2E 默认 retry，重要 case 写清等待条件
+- "时间旅行"调试 flaky：本地循环跑 100 次（`vitest --repeat 100`）
+
+## visual-regression
+title: 视觉回归测试怎么做？
+difficulty: 进阶
+tags: [测试, 视觉, UI]
+
+### 一句话
+渲染目标组件 / 页面截图 → 与基线对比 → 像素 diff 超阈值就 fail。本地预览 diff 后人工 review，确认是有意改动则 update baseline。常用工具：Playwright `toHaveScreenshot` / Chromatic / Percy。
+
+### 题目
+组件库改了一行 CSS，哪些页面受影响很难肉眼覆盖。视觉回归怎么落地？
+
+### 答案要点
+- **核心原理**
+  - 第一次跑：生成 baseline 截图存 git
+  - 后续跑：对比当前渲染 vs baseline，逐像素 diff
+  - 容忍：可设阈值（0.1% 像素），抗 antialiasing
+- **工具选型**
+  - **Playwright** 内置：`expect(page).toHaveScreenshot()`，本地友好，CI 易用
+  - **Chromatic**（Storybook 公司）：每个 story 自动截图，PR 评论里看 diff
+  - **Percy**（BrowserStack）：CI 服务，支持响应式、跨浏览器
+  - **reg-suit / loki**：开源方案
+- **稳定性技巧**
+  - 锁定字体（系统字体差异会触发 diff）→ 用自托管字体
+  - 锁定时间（动画 / 时钟组件）→ `await page.evaluate(() => Date.now = () => 0)`
+  - 等待加载完成 → `waitForLoadState('networkidle')` + 关键元素 `waitFor`
+  - 关闭动画 → 注入 `* { animation: none !important; transition: none !important; }`
+  - 屏蔽随机内容（avatar、广告位）→ `mask: [page.locator('.ad')]`
+- **集成 Storybook**
+  - 每个 story 自动生成截图：`storybook test-runner` + Playwright
+  - 多 viewport / 多主题：`@storybook/addon-themes`
+- **审核 / 更新流程**
+  - PR 触发 → 上传 diff 报告
+  - 设计师 / FE leader review → 接受新基线（按钮 update）
+  - baseline 进 git；用 LFS 防仓库暴涨
+- **覆盖面**
+  - 不能只测核心页面，覆盖：组件库每个 story、关键页面 5-8 张、典型边界（空 / 错误 / 长文本）
+  - 响应式：mobile + desktop 至少两个 viewport
+- **失败时**
+  - 输出三张图：actual / expected / diff（高亮像素差异）
+  - 在 PR 里贴评论方便 review
+
+### 代码示例
+```ts
+import { test, expect } from '@playwright/test';
+
+test('product card visual', async ({ page }) => {
+  await page.goto('/components/card?theme=light');
+  await page.addStyleTag({
+    content: `*, *::before, *::after { animation: none !important; transition: none !important; }`,
+  });
+  await page.waitForLoadState('networkidle');
+  await expect(page.locator('.card')).toHaveScreenshot('card-light.png', {
+    maxDiffPixelRatio: 0.001,
+    mask: [page.locator('[data-mask]')],
+  });
+});
+```
+
+### 延伸
+- 视觉回归不能替代功能测试，互补
+- 大型组件库会自动生成几千张图，CI 时长变长 → 用 sharding 并行
+- 跨浏览器（Chromium / Firefox / WebKit）渲染差异大，按平台分别管理 baseline
+

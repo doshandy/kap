@@ -652,3 +652,173 @@ scene.add(cube);
 - AntV / G2 / G6 都基于 Canvas / WebGL，G2 高版本支持 GPU 加速
 - WebGPU 是更现代的接口，2025 起主流浏览器全面铺开
 
+
+## map-visualization
+title: 地图可视化怎么做？数据点 / 热力图 / 行政区划
+difficulty: 进阶
+tags: [可视化, 地图, 高频]
+
+### 一句话
+底图选 mapbox-gl / maplibre-gl（矢量瓦片，可换样式）或国产高德 / 百度（合规）；点位 < 1 万用 Marker；> 1 万用 Canvas / WebGL 图层（deck.gl）；行政区划用 GeoJSON + topojson 压缩；热力图用 heatmap layer 内置渲染。
+
+### 题目
+要做一个全国订单分布大屏：1. 标记 5 万订单点 2. 城市级热力 3. 省级行政区划着色。技术怎么选？
+
+### 答案要点
+- **底图选型**
+  - **mapbox-gl-js / maplibre-gl**：矢量瓦片、样式可定制、性能好；mapbox 收费，maplibre 是其开源 fork
+  - **leaflet**：轻量但栅格瓦片为主，量大较卡
+  - **高德 / 百度地图 JS API**：国内合规、行政边界数据现成
+  - **deck.gl**：WebGL 图层化引擎，可叠在 mapbox / google 上，海量点首选
+- **点位渲染**
+  - Marker DOM（< 200 点）：简单但元素多就卡
+  - Canvas 自绘（< 5 万）：性能尚可
+  - WebGL（deck.gl ScatterplotLayer，5 万 - 千万）：GPU 渲染，丝滑
+- **聚合**
+  - supercluster：客户端聚合，缩放级别变化时重算
+  - 服务端聚合：拉数据时按 zoom 已经分桶
+- **热力图**
+  - mapbox/maplibre 的 `heatmap` layer：内置高斯模糊渲染
+  - deck.gl HeatmapLayer：WebGL 实现，支持权重
+  - 自定义：逐点画半透明圆，叠加形成热度
+- **行政区划**
+  - 数据：GeoJSON（简单）或 topojson（小 4-5 倍，需要解码）
+  - 中国国家测绘局对国境线有合规要求，国内项目建议用国产地图或经审核的 GeoJSON
+  - 着色：根据指标填色（choropleth），用 d3-scale 配色
+- **性能 / 体验**
+  - 大底图首屏延迟：用合适 zoom / center 直达目标区域
+  - 上千点点击事件：用 `queryRenderedFeatures(point)` 精准 hit
+  - 移动端：减少图层数 + 降级到 raster
+  - 视口变化时按需 lazy 加载点（拖到哪加载哪）
+- **国际化**
+  - mapbox 支持多语言切换 `text-field: ['get', 'name_zh-Hant']`
+  - 一些国家的边界政治敏感，按部署地区切样式
+
+### 代码示例
+```ts
+import maplibregl from 'maplibre-gl';
+import { ScatterplotLayer } from '@deck.gl/layers';
+import { MapboxOverlay } from '@deck.gl/mapbox';
+
+const map = new maplibregl.Map({
+  container: 'map',
+  style: 'https://demotiles.maplibre.org/style.json',
+  center: [104, 35],
+  zoom: 4,
+});
+
+const scatter = new ScatterplotLayer({
+  id: 'orders',
+  data: orders,
+  getPosition: (d) => [d.lng, d.lat],
+  getRadius: 60,
+  getFillColor: [22, 119, 255, 180],
+  pickable: true,
+  onHover: ({ object }) => showTooltip(object),
+});
+
+map.on('load', () => {
+  map.addControl(new MapboxOverlay({ layers: [scatter] }));
+
+  map.addSource('cities', {
+    type: 'geojson',
+    data: cityHeatGeoJSON,
+  });
+  map.addLayer({
+    id: 'heat',
+    type: 'heatmap',
+    source: 'cities',
+    paint: {
+      'heatmap-weight': ['get', 'value'],
+      'heatmap-intensity': 1,
+      'heatmap-radius': 30,
+    },
+  });
+});
+```
+
+### 延伸
+- 实时点位（车辆 / 配送）：WebSocket 推 + 增量更新 layer data
+- 3D 地图：deck.gl 的 ColumnLayer / TripsLayer，立体感强
+- 离线场景：自部署矢量瓦片服务（Tegola / Tippecanoe）
+
+## chart-export-printing
+title: 图表 / 看板怎么导出图片 / PDF？
+difficulty: 进阶
+tags: [可视化, 导出, PDF]
+
+### 一句话
+**单图导出**用框架自带 API（ECharts.getDataURL / Highcharts exportChart）—— 矢量友好；**整页导出**用 html2canvas 截屏 → jsPDF 拼 PDF，或者 Puppeteer 服务端渲染（最佳质量）；移动端 / 内嵌设备性能差时只能服务端。
+
+### 题目
+看板要支持"导出当前页为 PDF / PNG"。性能 / 清晰度 / 字体 / 跨域图片各种坑怎么解？
+
+### 答案要点
+- **单图导出**
+  - ECharts：`chart.getDataURL({ type: 'png', pixelRatio: 2, backgroundColor: '#fff' })`
+  - 或 SVG 模式直接导出 svg 字符串（矢量，缩放无损）
+  - 复制到剪贴板：`navigator.clipboard.write([new ClipboardItem({ 'image/png': blob })])`
+- **整页导出（客户端方案）**
+  - html2canvas：把 DOM 转 canvas → toDataURL
+  - jsPDF：按 A4 比例分页拼接
+  - 注意 scale：默认 1 倍清晰度差，建议 `scale: 2` （retina）
+  - 避免被截断：在 export 模式下临时改样式（去掉 max-height / 滚动）
+- **整页导出（服务端方案，最佳）**
+  - Puppeteer / Playwright headless：访问"打印模式 URL" → `page.pdf()`
+  - 优势：字体渲染完美、无浏览器差异、CSS @media print 生效
+  - 劣势：要服务端资源、需要登录态（注入 cookie / token）
+- **跨域图片坑**
+  - html2canvas 截图会读 canvas 像素 → 跨域图必须 `crossorigin="anonymous"` + 服务端配 CORS 头
+  - 否则报"tainted canvas"错误
+- **字体坑**
+  - Web Font 没加载完时截图字体 fallback
+  - export 前 `await document.fonts.ready`
+  - PDF 嵌入字体（jsPDF 默认西文，中文需要手动 addFont）
+- **图表特殊处理**
+  - Canvas 图表（ECharts canvas mode）：html2canvas 不会画，需要先 getDataURL → 替换成 img 元素
+  - WebGL 图表：context 创建时要 `preserveDrawingBuffer: true` 才能截图
+- **大尺寸 / 高清**
+  - 4K 分辨率导出：scale 4-8，注意内存峰值
+  - 超长页面（瀑布流）：分页截图后纵向拼接
+- **印刷友好**
+  - @media print 隐藏导航 / 调整间距
+  - 颜色用 CMYK 不可能（浏览器只支持 RGB），但确保深色文字 + 浅色背景对比足
+
+### 代码示例
+```ts
+import html2canvas from 'html2canvas';
+import jsPDF from 'jspdf';
+
+async function exportPdf() {
+  await document.fonts.ready;
+
+  document.querySelectorAll('canvas[data-echart]').forEach((cv: any) => {
+    const chart = echarts.getInstanceByDom(cv);
+    const url = chart?.getDataURL({ pixelRatio: 2, backgroundColor: '#fff' });
+    if (!url) return;
+    const img = document.createElement('img');
+    img.src = url;
+    img.style.cssText = cv.style.cssText;
+    cv.replaceWith(img);
+  });
+
+  const target = document.querySelector('#dashboard') as HTMLElement;
+  const canvas = await html2canvas(target, {
+    scale: 2,
+    backgroundColor: '#fff',
+    useCORS: true,
+  });
+
+  const pdf = new jsPDF('l', 'pt', 'a4');
+  const pw = pdf.internal.pageSize.getWidth();
+  const ph = (canvas.height * pw) / canvas.width;
+  pdf.addImage(canvas.toDataURL('image/png'), 'PNG', 0, 0, pw, ph);
+  pdf.save('dashboard.pdf');
+}
+```
+
+### 延伸
+- 服务端方案对 SEO / 邮件订阅 dashboard 截图很合适
+- iText / wkhtmltopdf 老牌方案，但 CSS3 / Web Font 支持不如 Puppeteer
+- Excel 导出：SheetJS / exceljs，图表导出为图片嵌入
+
