@@ -209,6 +209,37 @@
   <url><loc>https://doshandy.github.io/kap/q/11-ai-frontend/ai-observability</loc><lastmod>2026-05-07</lastmod></url>
   <url><loc>https://doshandy.github.io/kap/q/11-ai-frontend/ai-prompt-engineering-front</loc><lastmod>2026-05-07</lastmod></url>
   <url><loc>https://doshandy.github.io/kap/q/11-ai-frontend/llm-basic-concepts</loc><lastmod>2026-05-07</lastmod></url>
+  <url><loc>https://doshandy.github.io/kap/q/11-ai-frontend/llm-token-and-pricing</loc><lastmod>2026-05-07</lastmod></url>
+  <url><loc>https://doshandy.github.io/kap/q/11-ai-frontend/llm-temperature-topp-sampling</loc><lastmod>2026-05-07</lastmod></url>
+  <url><loc>https://doshandy.github.io/kap/q/11-ai-frontend/llm-context-window-and-truncation</loc><lastmod>2026-05-07</lastmod></url>
+  <url><loc>https://doshandy.github.io/kap/q/11-ai-frontend/llm-system-vs-user-vs-assistant</loc><lastmod>2026-05-07</lastmod></url>
+  <url><loc>https://doshandy.github.io/kap/q/11-ai-frontend/llm-embedding-and-similarity</loc><lastmod>2026-05-07</lastmod></url>
+  <url><loc>https://doshandy.github.io/kap/q/11-ai-frontend/llm-streaming-protocols</loc><lastmod>2026-05-07</lastmod></url>
+  <url><loc>https://doshandy.github.io/kap/q/11-ai-frontend/llm-hallucination-and-grounding</loc><lastmod>2026-05-07</lastmod></url>
+  <url><loc>https://doshandy.github.io/kap/q/11-ai-frontend/llm-modes-chat-vs-completion-vs-reasoning</loc><lastmod>2026-05-07</lastmod></url>
+  <url><loc>https://doshandy.github.io/kap/q/11-ai-frontend/llm-retry-and-backoff</loc><lastmod>2026-05-07</lastmod></url>
+  <url><loc>https://doshandy.github.io/kap/q/11-ai-frontend/llm-rate-limit-and-quota</loc><lastmod>2026-05-07</lastmod></url>
+  <url><loc>https://doshandy.github.io/kap/q/11-ai-frontend/llm-streaming-cancel-and-resume</loc><lastmod>2026-05-07</lastmod></url>
+  <url><loc>https://doshandy.github.io/kap/q/11-ai-frontend/llm-prompt-caching-and-prefix</loc><lastmod>2026-05-07</lastmod></url>
+  <url><loc>https://doshandy.github.io/kap/q/11-ai-frontend/llm-output-parser-and-recovery</loc><lastmod>2026-05-07</lastmod></url>
+  <url><loc>https://doshandy.github.io/kap/q/11-ai-frontend/llm-multi-turn-memory-pattern</loc><lastmod>2026-05-07</lastmod></url>
+  <url><loc>https://doshandy.github.io/kap/q/11-ai-frontend/llm-agent-architecture</loc><lastmod>2026-05-07</lastmod></url>
+  <url><loc>https://doshandy.github.io/kap/q/11-ai-frontend/llm-tool-design-and-router</loc><lastmod>2026-05-07</lastmod></url>
+  <url><loc>https://doshandy.github.io/kap/q/11-ai-frontend/llm-rag-recall-quality</loc><lastmod>2026-05-07</lastmod></url>
+  <url><loc>https://doshandy.github.io/kap/q/11-ai-frontend/llm-multi-model-router</loc><lastmod>2026-05-07</lastmod></url>
+  <url><loc>https://doshandy.github.io/kap/q/11-ai-frontend/llm-output-streaming-with-tools</loc><lastmod>2026-05-07</lastmod></url>
+  <url><loc>https://doshandy.github.io/kap/q/11-ai-frontend/llm-streaming-ui-state-machine</loc><lastmod>2026-05-07</lastmod></url>
+  <url><loc>https://doshandy.github.io/kap/q/11-ai-frontend/llm-prompt-versioning</loc><lastmod>2026-05-07</lastmod></url>
+  <url><loc>https://doshandy.github.io/kap/q/11-ai-frontend/llm-eval-pipeline</loc><lastmod>2026-05-07</lastmod></url>
+  <url><loc>https://doshandy.github.io/kap/q/11-ai-frontend/llm-ab-testing-and-rollout</loc><lastmod>2026-05-07</lastmod></url>
+  <url><loc>https://doshandy.github.io/kap/q/11-ai-frontend/llm-cost-governance</loc><lastmod>2026-05-07</lastmod></url>
+  <url><loc>https://doshandy.github.io/kap/q/11-ai-frontend/llm-observability-and-tracing</loc><lastmod>2026-05-07</lastmod></url>
+  <url><loc>https://doshandy.github.io/kap/q/11-ai-frontend/llm-incident-and-replay</loc><lastmod>2026-05-07</lastmod></url>
+  <url><loc>https://doshandy.github.io/kap/q/11-ai-frontend/llm-safety-guardrails-and-moderation</loc><lastmod>2026-05-07</lastmod></url>
+  <url><loc>https://doshandy.github.io/kap/q/11-ai-frontend/llm-data-pipeline-and-finetuning-frontend</loc><lastmod>2026-05-07</lastmod></url>
+  <url><loc>https://doshandy.github.io/kap/q/11-ai-frontend/llm-multi-tenant-isolation</loc><lastmod>2026-05-07</lastmod></url>
+  <url><loc>https://doshandy.github.io/kap/q/11-ai-frontend/llm-ci-cd-and-canary</loc><lastmod>2026-05-07</lastmod></url>
+  <url><loc>https://doshandy.github.io/kap/q/11-ai-frontend/llm-frontend-security-checklist</loc><lastmod>2026-05-07</lastmod></url>
   <url><loc>https://doshandy.github.io/kap/q/12-softskills/technical-decision</loc><lastmod>2026-05-07</lastmod></url>
   <url><loc>https://doshandy.github.io/kap/q/12-softskills/upward-communication</loc><lastmod>2026-05-07</lastmod></url>
   <url><loc>https://doshandy.github.io/kap/q/12-softskills/code-review</loc><lastmod>2026-05-07</lastmod></url>

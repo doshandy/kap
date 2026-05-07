@@ -1281,3 +1281,2394 @@ const res = await fetch('https://api.openai.com/v1/chat/completions', {
 
 - tiktoken / @anthropic-ai/tokenizer 可以前端预估 token 数
 - 不同模型的 token 计费不同，前端可以做用量预估展示
+
+## llm-token-and-pricing
+
+title: Token 是什么？前端为什么必须懂 token 计费
+difficulty: 基础
+tags: [Token, 计费]
+
+### 一句话
+
+Token 是模型处理文本的最小单位（约 1 中文 ≈ 1.5-2 token，1 英文单词 ≈ 1.3 token）；输入输出按 token 双向计费，前端要做用量预估、截断和提示。
+
+### 题目
+
+解释什么是 token，常见模型的 token 与字符的换算关系，前端在 UI 上有哪些必须围绕 token 做的事？
+
+### 答案要点
+
+- Token 是 LLM 把文本切成的"子词单元"，由 tokenizer（如 BPE / SentencePiece）决定
+- 经验值：英文 ≈ 4 字符/token；中文 ≈ 1.5-2 token/字；JSON / 代码会更"碎"
+- 计费维度：输入 token + 输出 token + 缓存命中 token，单价不同，输出通常更贵
+- 模型有**最大上下文窗口**（如 GPT-4o 128K、Claude 3.5 200K），超出会丢前面或报错
+- 前端需要：**实时预估** + **超限提示** + **截断策略**（FIFO / 摘要 / 滑窗）
+- tokenizer 可在浏览器跑：`tiktoken-js` / `@anthropic-ai/tokenizer` / `gpt-tokenizer`
+- 用户提示明显的 token 计数和预估费用，比"假装无限"对企业用户更友好
+
+### 代码示例
+
+```ts
+import { encoding_for_model } from 'tiktoken';
+
+const enc = encoding_for_model('gpt-4o');
+function countTokens(text: string) {
+  return enc.encode(text).length;
+}
+
+const input = '请用一句话解释什么是 React Server Components';
+const tokens = countTokens(input);
+const usdInput = (tokens / 1000) * 0.0025;
+console.log(`输入约 ${tokens} tokens，预估 $${usdInput.toFixed(5)}`);
+
+function truncate(text: string, maxTokens: number) {
+  const ids = enc.encode(text);
+  return ids.length <= maxTokens ? text : enc.decode(ids.slice(0, maxTokens));
+}
+```
+
+### 常见误区
+
+- 把"字符数 / 4"当成精确 token 数：仅适合英文场景，中文 / 代码差距大
+- 忽略 system prompt / few-shot 例子也占 token
+- 把"上下文窗口"等同于"显存大小"——前者是模型可见的 token 总量，与显存不直接相关
+
+### 追问
+
+- 同一句话用 GPT-4o 和 Claude 算出的 token 数为什么不同？
+- 怎么估算流式输出过程中的 token 消耗？
+- 长上下文模型为什么收费比短上下文还贵？
+
+### 延伸
+
+- 进阶：基于 token 用量做 budget 限流（每用户 / 每会话）
+- 实战：把"已用 / 剩余 token"渲染到聊天框上方，配合颜色提示
+
+## llm-temperature-topp-sampling
+
+title: Temperature、Top-p、Stop sequence 这些采样参数到底改的是什么
+difficulty: 基础
+tags: [Sampling, 参数]
+
+### 一句话
+
+Temperature 控制概率分布"陡平"（0=贪婪、1+=发散）；Top-p 在累计概率 p 内候选；Stop sequence 命中即截断；前端要根据场景给合理默认值，并向用户暴露可调项。
+
+### 题目
+
+解释 Temperature、Top-p、Top-k、Stop、frequency_penalty / presence_penalty 各自作用，并给出"代码生成 / 创意写作 / 数据抽取"三种场景的推荐配置。
+
+### 答案要点
+
+- **Temperature (0~2)**：调节 logits 分布锐度。低 → 确定性强；高 → 随机性强
+- **Top-p (0~1)**：核采样，从概率累计到 p 的最小集合中采样；常和 temperature 二选一
+- **Top-k**：仅在前 k 个候选里采样，硬截断
+- **Stop**：命中字符串后立即停（如 `\n\n` / `</answer>`），用来约束输出格式
+- **frequency_penalty**：对已出现 token 的二次出现做惩罚（防重复）
+- **presence_penalty**：是否出现过都施加固定惩罚（鼓励新词）
+- 推荐配置：
+  - 代码 / 抽取 / 工具调用：temperature 0~0.2、top-p 1
+  - 通用问答：0.3~0.7
+  - 创意 / 文案：0.8~1.2，可配 frequency_penalty 0.3
+- 前端 UI 经验：暴露 1-2 个核心滑块（温度 + 创造性档位）即可，不要把全部都丢给用户
+
+### 代码示例
+
+```ts
+const presets = {
+  precise: { temperature: 0, top_p: 1, frequency_penalty: 0 },
+  default: { temperature: 0.5, top_p: 0.9, frequency_penalty: 0 },
+  creative: { temperature: 1.0, top_p: 0.95, frequency_penalty: 0.3 },
+};
+
+await openai.chat.completions.create({
+  model: 'gpt-4o-mini',
+  messages,
+  ...presets[mode],
+  stop: ['</answer>', '\n\n###'],
+});
+```
+
+### 常见误区
+
+- 同时调 temperature 和 top-p：会相互削弱，**官方建议二选一**
+- 以为 temperature=0 就一定确定性输出：模型并发或 sampling 实现差异仍可能造成微小波动
+- 把 stop sequence 当通用截断：实际上 stop 不会算在输出里，要小心需要的内容被截
+
+### 追问
+
+- 为什么 reasoning 模型（o1 / o3）不让用户改 temperature？
+- 多次调用想要稳定输出有什么手段？
+- temperature 高时如何防止跑偏？
+
+### 延伸
+
+- 进阶：基于 logprobs 给输出"置信度"显示
+- 实战：聊天 UI 中"再来一次"按钮可以临时把 temperature +0.3 让结果有变化
+
+## llm-context-window-and-truncation
+
+title: 上下文窗口与截断策略
+difficulty: 基础
+tags: [上下文, 窗口]
+
+### 一句话
+
+模型有最大 token 容量；超出时必须裁剪历史；常见策略 FIFO 滑窗 / 摘要折叠 / 重要消息固定 / RAG 注入；前端要主动管理而不是依赖模型截断。
+
+### 题目
+
+聊天历史越来越长，前端如何管理上下文窗口？不同策略的取舍是什么？
+
+### 答案要点
+
+- 模型上下文窗口 = system + history + 当前 user + 函数 schema 总 token 上限
+- **直接 FIFO 滑窗**：丢最早的消息，简单但易丢关键约束（system 必须保留）
+- **摘要折叠**：用小模型周期性把旧消息摘要成 1-2 段，留新消息原文
+- **关键消息钉住**：用户主动 ⭐ 的消息永久保留
+- **RAG 注入**：长文档不放进 history，分块入向量库，按需召回相关片段
+- 输出预算：留 ≥ max_tokens 给输出，否则模型可能"想说但被截断"
+- 计算时**包含函数 schema / 工具列表的 token**，常被忽略
+
+### 代码示例
+
+```ts
+const SYSTEM = '你是 KAP 助手，专注前端面试';
+const RESERVE_OUTPUT = 1024;
+const MODEL_CTX = 128_000;
+
+function buildMessages(history: ChatMessage[], userInput: string) {
+  const sys = { role: 'system', content: SYSTEM };
+  const cur = { role: 'user', content: userInput };
+  let used = countTokens(SYSTEM) + countTokens(userInput) + RESERVE_OUTPUT;
+
+  const kept: ChatMessage[] = [];
+  for (let i = history.length - 1; i >= 0; i--) {
+    const t = countTokens(history[i].content);
+    if (used + t > MODEL_CTX) break;
+    used += t;
+    kept.unshift(history[i]);
+  }
+  return [sys, ...kept, cur];
+}
+```
+
+### 常见误区
+
+- 以为模型自己会"智能裁剪"——实际超限会直接报 400
+- 留太少输出预算 → 模型答到一半被截
+- 总是让用户重开对话以避免溢出 → 体验差，应该后台自动摘要
+
+### 追问
+
+- 上下文很长时，模型为什么会"失忆"或"漏看中间"？(lost-in-the-middle)
+- 怎么权衡历史与最新一句话的权重？
+- 何时该把对话切成多个独立 session？
+
+### 延伸
+
+- 进阶：流式过程中边生成边检查输出 token，实时降级模型
+- 工程化：把"超限"作为指标上报，监控用户是否长期撞窗口
+
+## llm-system-vs-user-vs-assistant
+
+title: System / User / Assistant 三种角色 prompt 的差异与作用
+difficulty: 基础
+tags: [Prompt, 角色]
+
+### 一句话
+
+System 设定模型的"人设、规则、风格、输出格式"；User 是当前请求；Assistant 是模型上轮回复（构成上下文）；用 role 分层可让指令更稳定且不被用户输入污染。
+
+### 题目
+
+为什么不能把所有指令塞进一条 user 消息里？三种角色如何配合？
+
+### 答案要点
+
+- **system**：高权重的约束（角色、格式、禁忌、知识范围）；放在最前
+- **user**：当前用户输入；可以包含 few-shot 例子
+- **assistant**：上轮模型回复，带回上下文；多轮里必须按时序还原
+- **role 分层 ≠ 完全隔离**：用户仍可能 prompt injection 突破 system，前端要做防护（见 prompt-injection 题）
+- 多个 system 在新模型里可叠加（OpenAI 支持），但实践上首条最权威
+- 工具调用模型还有 `tool` / `function` role 用于把工具结果回灌
+- few-shot 例子放 user/assistant 配对里，比放 system 内更稳定
+
+### 代码示例
+
+```ts
+const messages = [
+  {
+    role: 'system',
+    content: '你是数据库 DDL 专家。仅以严格 JSON 回复，结构 { sql: string, risks: string[] }',
+  },
+  { role: 'user', content: '示例：表 users 增加列 age int' },
+  { role: 'assistant', content: '{"sql":"ALTER TABLE users ADD COLUMN age INT;","risks":[]}' },
+  { role: 'user', content: '把 orders 的 status 改成 enum(pending, paid, refunded)' },
+];
+```
+
+### 常见误区
+
+- 把规则全塞进 user 消息：用户后面一句"忽略上面要求"就可能生效
+- 多轮里漏传 assistant：模型"失忆"导致重复问相同问题
+- 在 system 里写"如果用户问 X 就回 Y" 这种长 if-else：用 function calling / RAG 更靠谱
+
+### 追问
+
+- system 太长会发生什么？
+- 工具调用结果用什么 role 回灌？
+- 如何让模型"忘掉"一条历史消息？
+
+### 延伸
+
+- 进阶：把 system 抽成可版本化的"prompt template"
+- 工程化：A/B 测试不同 system 表述对同一指标的影响
+
+## llm-embedding-and-similarity
+
+title: Embedding 是什么？前端怎么用它做语义搜索
+difficulty: 基础
+tags: [Embedding, RAG]
+
+### 一句话
+
+Embedding 把文本映射成定长向量（如 1536 维）；语义近的文本向量也近；前端常用余弦相似度做搜索 / 推荐 / 去重 / 聚类。
+
+### 题目
+
+解释 embedding 的原理；前端有哪些场景能直接用？怎么算相似度？
+
+### 答案要点
+
+- 通过模型（如 text-embedding-3-small）把任意文本编码成稠密向量
+- 同一向量空间里，**语义近的文本余弦距离更近**（即使没共同关键词）
+- 余弦相似度 = `(A·B) / (|A| × |B|)`，范围 -1~1，越大越相似
+- 典型用途：**RAG 召回 / 语义搜索 / 推荐 / 模糊去重 / 聚类 / 异常检测**
+- 前端落地：调 embedding API → 存 IndexedDB 或向量库（Pinecone / Qdrant / pgvector）
+- 注意：不同模型的向量空间**不通用**，切换模型要重算
+- 维度越高语义越细，但存储/计算开销大；常用 768 / 1024 / 1536
+
+### 代码示例
+
+```ts
+const { data } = await openai.embeddings.create({
+  model: 'text-embedding-3-small',
+  input: ['React Server Components', 'RSC 服务器组件', '冰美式咖啡'],
+});
+
+function cosine(a: number[], b: number[]) {
+  let dot = 0,
+    na = 0,
+    nb = 0;
+  for (let i = 0; i < a.length; i++) {
+    dot += a[i] * b[i];
+    na += a[i] * a[i];
+    nb += b[i] * b[i];
+  }
+  return dot / (Math.sqrt(na) * Math.sqrt(nb));
+}
+
+const [v1, v2, v3] = data.map((d) => d.embedding);
+console.log(cosine(v1, v2));
+console.log(cosine(v1, v3));
+```
+
+### 常见误区
+
+- 把 embedding 当 hash：embedding 是连续向量，比较要用相似度而非相等
+- 不同模型生成的向量混着用：完全没意义
+- 长文本直接整段 embed：超过模型最大输入会截断；应分块
+
+### 追问
+
+- chunk 切多大合适？怎么处理 chunk 之间语义连续性？
+- 怎么把 metadata（标签、时间）和向量结合做混合检索？
+- 怎么衡量召回质量？
+
+### 延伸
+
+- 进阶：用 HNSW / IVF 等近似最近邻算法在百万级数据中毫秒检索
+- 实战：前端 KAP 题库可以离线建 embedding 索引做"语义搜索"
+
+## llm-streaming-protocols
+
+title: 流式输出的协议有哪些？SSE / fetch stream / WebSocket 怎么选
+difficulty: 基础
+tags: [流式, SSE]
+
+### 一句话
+
+LLM 流式主流是 SSE（OpenAI/Anthropic 都用）；前端用 EventSource 或 fetch ReadableStream 解析；WebSocket 用于双向，多用在工具调用 + 语音；选型看是否需要双向。
+
+### 题目
+
+列举 LLM 服务常见的流式协议，对比 EventSource、fetch stream、WebSocket，分别适合什么场景？
+
+### 答案要点
+
+- **SSE (Server-Sent Events)**：单向 HTTP 长连接，文本协议简单，**99% LLM 厂商首选**
+- **fetch + ReadableStream**：现代浏览器原生 API，比 EventSource 灵活（可加 headers / abort）
+- **WebSocket**：双向、二进制，适合**语音 / 实时工具调用 / 协作场景**
+- **HTTP/2 / HTTP/3 streaming**：底层；fetch stream 自动复用其多路复用
+- 选型决策：
+  - 文本流 + 一次请求 → SSE / fetch stream
+  - 双向交互（语音 / 中途修改 prompt）→ WebSocket
+  - 需要 abort + Authorization header → fetch stream（EventSource 不支持自定义 header）
+- 错误恢复：SSE 自带 `Last-Event-ID` 重连；fetch stream 要自己实现
+- 中间代理（Cloudflare / Nginx）默认会缓冲，需要关闭 buffering 才能流式生效
+
+### 代码示例
+
+```ts
+const res = await fetch('/api/chat', {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${key}` },
+  body: JSON.stringify({ messages }),
+  signal: abortController.signal,
+});
+
+const reader = res.body!.getReader();
+const decoder = new TextDecoder();
+let buffer = '';
+
+while (true) {
+  const { done, value } = await reader.read();
+  if (done) break;
+  buffer += decoder.decode(value, { stream: true });
+  let nl;
+  while ((nl = buffer.indexOf('\n\n')) !== -1) {
+    const event = buffer.slice(0, nl);
+    buffer = buffer.slice(nl + 2);
+    if (event.startsWith('data: ')) {
+      const payload = event.slice(6);
+      if (payload === '[DONE]') return;
+      const json = JSON.parse(payload);
+      onDelta(json.choices?.[0]?.delta?.content ?? '');
+    }
+  }
+}
+```
+
+### 常见误区
+
+- 用 EventSource 想加 Authorization header → 不支持，要用 fetch stream
+- 忘记 `decoder.decode(value, { stream: true })` 的 stream 选项 → 多字节字符被截
+- 没处理"半个 SSE 事件横跨 chunk 边界" → JSON.parse 抛错
+
+### 追问
+
+- 服务器流式但被代理缓冲了怎么办？
+- 怎么实现 SSE 断线后从中断处续传？
+- iOS Safari 的 SSE 限制有哪些？
+
+### 延伸
+
+- 进阶：流式 + 函数调用边出参数边渲染（"打字机参数"）
+- 工程化：把流式过程的 ttfb / tokens/s 上报为业务核心指标
+
+## llm-hallucination-and-grounding
+
+title: 模型幻觉是什么？前端能做什么减少幻觉
+difficulty: 基础
+tags: [幻觉, Grounding]
+
+### 一句话
+
+幻觉 = 模型一本正经地编造事实；治理三板斧：① 给真实上下文（RAG）② 强制结构化输出 + 引用 ③ UI 上让"答案"和"事实"分离，便于校验。
+
+### 题目
+
+什么是幻觉？为什么会出现？前端在产品层面有哪些可以做的减幻觉手段？
+
+### 答案要点
+
+- 幻觉本质：模型基于概率续写，**没有知识真假概念**；遇到训练中未见过的内容就编
+- 高发场景：新事件、内部数据、API 文档版本、人名 / 数字 / 引用
+- **缓解策略**：
+  - **Grounding / RAG**：把真实文档片段注入 prompt，并明确"仅基于以下材料回答"
+  - **要求引用**：让模型给出引用编号，UI 把"未引用句子"高亮提醒
+  - **结构化输出**：JSON Schema 限制字段；空值用 null 而不是编造
+  - **二次验证**：用代码 / 检索校对模型输出（如校验 URL、SQL 语法、数学）
+  - **降温度 + few-shot**：给清晰的"我不知道"示例
+- UI 层：明显标注"AI 生成内容仅供参考"；提供"反馈 / 来源"按钮
+- 监控：把"用户标错"率作为质量指标，定期回看 case
+
+### 代码示例
+
+```ts
+const messages = [
+  {
+    role: 'system',
+    content: `严格仅根据以下"材料"回答；材料中没有的，回复 "我无法从已知材料中回答"。
+回答必须给出引用编号 [1] [2]，未引用的句子不得出现具体数字或专有名词。`,
+  },
+  {
+    role: 'user',
+    content: `材料：
+[1] React 19 引入了 Server Actions
+[2] React 19 默认开启了 Compiler
+问题：React 19 有哪些新特性？`,
+  },
+];
+
+function highlightUnsourced(html: string) {
+  return html.replace(/(?<!\[\d+\])\.(\s|$)/g, '<mark class="unsourced">.$1</mark>');
+}
+```
+
+### 常见误区
+
+- 把 temperature 降到 0 就以为没幻觉了：低温度只是更确定，不是更真实
+- 让模型"自己说有没有把握"：模型对自己的不确定性也不可靠
+- 在 system 里只写一句"不要编造"：远不如"必须引用 + 不知道就说不知道"具体
+
+### 追问
+
+- RAG 召不到相关材料时怎么办？
+- 长文档摘要里的幻觉怎么发现？
+- 用户问的问题超出材料范围时如何拒绝？
+
+### 延伸
+
+- 进阶：用 reranker 模型对召回结果二次排序
+- 工程化：建立"幻觉黑名单"（已知错误的回答），CI 跑回归
+
+## llm-modes-chat-vs-completion-vs-reasoning
+
+title: Chat / Completion / Reasoning 三种模型形态
+difficulty: 基础
+tags: [模型形态]
+
+### 一句话
+
+Completion 是补全单段文本（旧形态）；Chat 是多轮对话（主流）；Reasoning（o1/o3/Claude 3.7 thinking）让模型先内部推理再输出，更适合数学 / 编码 / 规划任务。
+
+### 题目
+
+解释 Chat、Completion、Reasoning 三种 API 形态的差异，以及前端在调用上的不同点。
+
+### 答案要点
+
+- **Completion** (`/v1/completions`)：传字符串 prompt，返回续写；旧 API，多数厂商已弱化
+- **Chat** (`/v1/chat/completions`)：传 messages 数组（system/user/assistant）；当前主流
+- **Reasoning**（o1 / o3 / Claude thinking 模式）：模型先生成"思考链"再生成答案
+  - 前端拿不到 thinking 内容（OpenAI），但 token 仍计费
+  - **不能改 temperature / top_p / system message**（部分模型）
+  - 响应**显著更慢**（数秒到分钟）—— UI 必须给"思考中"占位
+- 选型：
+  - 工具调用 / 流式聊天 → Chat
+  - 数学推理 / 复杂规划 / 代码重构 → Reasoning
+  - 短补全（简单 autocomplete）→ 现在仍可用 Chat 模式包装
+- 前端差异点：reasoning 模型 UI 必须做"长等待"动画 + 可中断 + 计费透明
+
+### 代码示例
+
+```ts
+const isReasoning = /^(o1|o3|claude-.*-thinking)/.test(model);
+
+const params = isReasoning
+  ? { model, messages, max_completion_tokens: 8192 }
+  : { model, messages, temperature: 0.5, max_tokens: 2048, stream: true };
+
+const res = await openai.chat.completions.create(params);
+
+if (isReasoning) {
+  showThinking('模型正在思考，可能需要 30 秒到数分钟...');
+}
+```
+
+### 常见误区
+
+- 以为 reasoning 模型也支持 stream / temperature——大多不支持
+- 看到 reasoning 模型贵就放弃 → 实际复杂任务可能比 GPT-4o 多次重试更省
+- 把 reasoning 模型用在简单 chat 场景 → 成本和延迟双输
+
+### 追问
+
+- reasoning 模型为什么不能流式？（实际是先思考后输出）
+- 如何让普通 Chat 模型"模拟 reasoning"？
+- 怎么判断当前任务该不该用 reasoning？
+
+### 延伸
+
+- 进阶：Chain-of-Thought / Tree-of-Thought / Reflexion 等"伪 reasoning"技法
+- 工程化：基于"任务复杂度"自动路由模型（见 model-router 题）
+
+## llm-retry-and-backoff
+
+title: 调用失败的重试与退避策略
+difficulty: 进阶
+tags: [可靠性, 重试]
+
+### 一句话
+
+仅对幂等错误重试（429 / 5xx / 网络）；用指数退避 + 抖动避免雪崩；流式请求要"分清是握手失败还是中途断"，前者整体重试，后者改增量续写。
+
+### 题目
+
+LLM API 调用经常遇到 429 / 5xx / 中途断流。设计一个生产级重试策略。
+
+### 答案要点
+
+- **可重试错误**：网络抛异常、429 (Rate Limit)、500/502/503/504、请求被中间网关 reset
+- **不可重试**：400 (参数错)、401 (鉴权)、403、404、422（schema 错）
+- 策略：**指数退避 + 抖动（jitter）**，base 500ms × 2^n + random(0~500)，最多 3-5 次
+- 对 429 优先用 `Retry-After` header 指示的秒数
+- 流式中途断（已经收到部分 token）：**不要整体重试**，应记录已生成内容，用 "继续从第 X 字符开始" 续写
+- 用 `AbortController` 管理超时（如 60s 兜底）；不要无限等
+- 不同错误**分别上报**到 monitoring，区分"模型问题 / 网络问题 / 限流"
+
+### 代码示例
+
+```ts
+async function callWithRetry<T>(
+  fn: (signal: AbortSignal) => Promise<T>,
+  opts = { max: 3, baseMs: 500, timeoutMs: 60_000 },
+): Promise<T> {
+  let lastErr: unknown;
+  for (let i = 0; i < opts.max; i++) {
+    const ac = new AbortController();
+    const t = setTimeout(() => ac.abort(), opts.timeoutMs);
+    try {
+      return await fn(ac.signal);
+    } catch (e: any) {
+      clearTimeout(t);
+      lastErr = e;
+      const status = e?.status ?? e?.response?.status;
+      const retryable = !status || status === 429 || (status >= 500 && status < 600);
+      if (!retryable) throw e;
+      const retryAfter = Number(e?.response?.headers?.get?.('retry-after')) * 1000;
+      const wait = retryAfter || opts.baseMs * 2 ** i + Math.random() * 500;
+      await new Promise((r) => setTimeout(r, wait));
+    } finally {
+      clearTimeout(t);
+    }
+  }
+  throw lastErr;
+}
+```
+
+### 常见误区
+
+- 对 400 / 401 也重试 → 制造垃圾流量、可能触发风控
+- 全部用固定间隔 → 雪崩重试压垮上游
+- 流式断了从头重试 → 用户看到答案"重置"，体验差且双倍计费
+
+### 追问
+
+- 怎么实现"流式断线续写"？模型怎么知道接着写？
+- 重试期间用户改了输入怎么办？
+- 怎么区分"模型超时"和"用户网络慢"？
+
+### 延伸
+
+- 进阶：把重试策略封装成可观测的 middleware（用 OpenTelemetry span）
+- 工程化：超过 N 次失败后自动降级模型（GPT-4o → GPT-4o-mini）
+
+## llm-rate-limit-and-quota
+
+title: 客户端怎么处理限流（rate limit）和配额
+difficulty: 进阶
+tags: [限流, 配额]
+
+### 一句话
+
+监听 Retry-After 与 x-ratelimit-\* 响应头自适应节流；前端做请求队列 + 用户级配额可视化；触发限流时优先降级（小模型 / 缓存 / 排队）而不是粗暴失败。
+
+### 题目
+
+当 API 返回 429 时，前端应该如何处理？怎么主动避免触发限流？
+
+### 答案要点
+
+- 响应头：`x-ratelimit-limit-requests` / `x-ratelimit-remaining-requests` / `x-ratelimit-reset-requests`（OpenAI），`Retry-After`（通用）
+- **被动应对**：429 收到 → 读 `Retry-After` → 等待并重试
+- **主动避免**：维护本地的请求计数 + token 计数，预估即将超限时主动延迟
+- 用**令牌桶**（token bucket）算法做客户端 rate limiter：每秒补 N，突发可借
+- UI 层面：显示"剩余 X 次 / 分钟"配额；超限时**降级**而非失败：
+  - 切到小模型 / 本地模型
+  - 命中缓存返回历史结果
+  - 排队 + 估算等待时间
+- 多用户场景，前端不是最佳限流位置：**应该在 BFF / 网关**做强制限流，前端做友好提示
+
+### 代码示例
+
+```ts
+class TokenBucket {
+  private tokens: number;
+  private last = Date.now();
+  constructor(
+    private rate: number,
+    private capacity: number,
+  ) {
+    this.tokens = capacity;
+  }
+  async acquire(n = 1): Promise<void> {
+    while (true) {
+      const now = Date.now();
+      this.tokens = Math.min(this.capacity, this.tokens + ((now - this.last) / 1000) * this.rate);
+      this.last = now;
+      if (this.tokens >= n) {
+        this.tokens -= n;
+        return;
+      }
+      const wait = ((n - this.tokens) / this.rate) * 1000;
+      await new Promise((r) => setTimeout(r, wait));
+    }
+  }
+}
+
+const bucket = new TokenBucket(3, 10);
+async function safeCall(prompt: string) {
+  await bucket.acquire(1);
+  return openai.chat.completions.create({ model, messages: [{ role: 'user', content: prompt }] });
+}
+```
+
+### 常见误区
+
+- 仅依赖前端限流：用户开多 tab / 改代码就破了，必须服务端兜底
+- 429 立刻全错重试：会把限流时间窗拉得更久
+- 给用户报"系统繁忙"：用户不知道何时能重试
+
+### 追问
+
+- token-based limit 和 request-based limit 一起触发怎么处理？
+- 怎么把"配额"做成产品功能（免费 vs 订阅）？
+- 多模型多区域 key 池如何做负载均衡？
+
+### 延伸
+
+- 进阶：基于 OpenAI 响应头 + 历史用量做"剩余预算预测"
+- 工程化：BFF 用 Redis + Lua 做分布式令牌桶
+
+## llm-streaming-cancel-and-resume
+
+title: 流式输出的中断与续写
+difficulty: 进阶
+tags: [流式, 中断]
+
+### 一句话
+
+中断用 AbortController；续写要把"已输出文本 + 当前未完成的句子"作为 assistant 消息回灌，让模型从中断处继续；都需要服务端配合识别"是新轮还是续写"。
+
+### 题目
+
+用户点了停止后又点继续，怎么让模型从断的地方接着说？
+
+### 答案要点
+
+- **中断**：`AbortController.abort()`；reader 会在下一次 read 时抛 `AbortError`
+- 中断时：保留已输出文本作为 partial assistant content，**不要清空**
+- **续写实现一**：直接把 partial 作为 assistant message 加进 history，再发 user "请继续"
+- **续写实现二**：服务端实现专门的 `continue` 接口，传入 `previous_response_id`（OpenAI Responses API 支持）
+- 需要避免"重复内容"：模型可能从 partial 之前重新开始，要前端 trim 或服务端处理
+- 流式中途用户**改了 prompt**：等于全新一轮，丢弃 partial
+- 输入 token 计费：续写时 partial 文本会再次作为输入计费一次
+
+### 代码示例
+
+```ts
+let abort = new AbortController();
+let partial = '';
+
+async function start(messages: ChatMessage[]) {
+  partial = '';
+  const stream = await fetch('/api/chat', {
+    method: 'POST',
+    body: JSON.stringify({ messages }),
+    signal: abort.signal,
+  });
+  const reader = stream.body!.getReader();
+  for (;;) {
+    const { done, value } = await reader.read().catch(() => ({ done: true, value: undefined }));
+    if (done) return;
+    const delta = decode(value);
+    partial += delta;
+    onDelta(delta);
+  }
+}
+
+function stop() {
+  abort.abort();
+}
+
+async function continueWriting(history: ChatMessage[]) {
+  abort = new AbortController();
+  const next = [
+    ...history,
+    { role: 'assistant', content: partial },
+    { role: 'user', content: '请继续' },
+  ];
+  await start(next);
+}
+```
+
+### 常见误区
+
+- 中断后把 partial 也清空：用户体验差且浪费 token
+- 直接发"请继续"但没把 partial 加入：模型从头开始
+- 续写没去重：partial 末尾被重复输出
+
+### 追问
+
+- 流式过程中怎么实时显示"已生成 X 字 / Y tokens"？
+- 中断后用户切走再回来，怎么恢复界面？
+- 续写时怎么避免和原文风格不一致？
+
+### 延伸
+
+- 进阶：基于 logprobs 在中断点找"自然停顿"再续写
+- 工程化：partial 作为草稿存 IndexedDB，崩溃后可恢复
+
+## llm-prompt-caching-and-prefix
+
+title: Prompt Caching / Prefix Caching：让重复请求便宜 90%
+difficulty: 进阶
+tags: [缓存, 性能]
+
+### 一句话
+
+长 system prompt / RAG 文档复用时，开启服务端 prefix cache 可让缓存命中部分按 1/10~1/4 计费；前端要保证 prompt **前缀稳定**（变量都放最后），并显式声明缓存断点。
+
+### 题目
+
+长 system prompt 一直重复发会很贵。OpenAI / Anthropic 都推出了 prompt caching，前端怎么用？
+
+### 答案要点
+
+- **OpenAI Prompt Caching**：长度 ≥ 1024 token 的前缀自动 cache，命中部分输入 token 价 5 折
+- **Anthropic Prompt Caching**：用 `cache_control: { type: "ephemeral" }` 显式标记断点，命中价 1/10
+- 关键约束：**前缀必须 byte-level 完全一致**；变化部分（用户输入）放最后
+- 前端实践：
+  - System / few-shot / RAG 文档放前面（稳定）
+  - 用户当前请求放最后（变化）
+  - 拼接顺序固定，不要每次随机插入时间戳
+- 缓存有效期：OpenAI 5-10 分钟、Anthropic 5 分钟（写时刷新）
+- 监控 `prompt_cache_hit_tokens`（OpenAI）或 `cache_read_input_tokens`（Anthropic）
+
+### 代码示例
+
+```ts
+const messages = [
+  {
+    role: 'system',
+    content: [
+      { type: 'text', text: longSystemPrompt },
+      { type: 'text', text: ragDocuments, cache_control: { type: 'ephemeral' } },
+    ],
+  },
+  { role: 'user', content: userInput },
+];
+
+const res = await anthropic.messages.create({
+  model: 'claude-3-5-sonnet-20241022',
+  max_tokens: 1024,
+  messages,
+});
+
+console.log({
+  cacheRead: res.usage.cache_read_input_tokens,
+  cacheWrite: res.usage.cache_creation_input_tokens,
+  inputCost: res.usage.input_tokens,
+});
+```
+
+### 常见误区
+
+- 在 prompt 里塞当前时间 / 随机 trace_id：每次都失效
+- 把用户名放在 system 里：用户切换就 miss
+- 没用最新 SDK：旧版本不带 cache_control 字段
+
+### 追问
+
+- cache 命中怎么和"用户已删除聊天"协调（语义和合规）？
+- 多用户共享 system 但 RAG 数据不同，怎么分层缓存？
+- 怎么测算 cache 实际省了多少钱？
+
+### 延伸
+
+- 进阶：把 prompt 拆成"L1 system / L2 文档 / L3 user"三层 cache 断点
+- 工程化：CI 跑成本回归——同 prompt 在 cache 命中和未命中下的成本对比
+
+## llm-output-parser-and-recovery
+
+title: 模型输出 JSON 出错怎么办？前端的解析与恢复
+difficulty: 进阶
+tags: [JSON, 容错]
+
+### 一句话
+
+不要直接 JSON.parse；先用 zod / 容错解析器（jsonrepair / partial-json）补全，再 schema 校验；流式过程中用增量解析展示已确定字段；解析失败有重试或降级。
+
+### 题目
+
+要求模型返回 JSON，但它偶尔会返回 `json ... ` 包裹、缺括号、夹解释文字。前端怎么稳？
+
+### 答案要点
+
+- **第一招：约束输出**
+  - OpenAI `response_format: { type: 'json_schema', schema }` 强制 schema
+  - Anthropic 用 tool calling 让 schema 进入 function 参数
+- **第二招：容错解析**
+  - 移除 markdown code fence (`json `)
+  - 用 `jsonrepair` 修复缺逗号 / 多余逗号 / 单引号
+  - 流式用 `partial-json` 增量解析（边接收边给 UI 渲染已完成字段）
+- **第三招：schema 校验**：用 zod 校验类型，失败 → 重试或降级
+- **第四招：失败兜底**：自动重试 1 次（带"上次输出无效"hint）；2 次都失败显示原始文本 + 报错
+- UI 层：渲染"已确定字段"时把"未到的字段"用 skeleton 占位
+
+### 代码示例
+
+````ts
+import { z } from 'zod';
+import { jsonrepair } from 'jsonrepair';
+import { parse as parsePartial } from 'partial-json';
+
+const Schema = z.object({
+  intent: z.enum(['search', 'create', 'delete']),
+  entities: z.record(z.string(), z.string()),
+});
+
+function safeParse(raw: string) {
+  let text = raw
+    .trim()
+    .replace(/^```json\s*|```$/g, '')
+    .trim();
+  try {
+    return Schema.parse(JSON.parse(text));
+  } catch {
+    try {
+      return Schema.parse(JSON.parse(jsonrepair(text)));
+    } catch (e) {
+      console.warn('[ai] JSON parse failed', e, raw);
+      return null;
+    }
+  }
+}
+
+function streamParse(buffer: string) {
+  try {
+    return parsePartial(buffer);
+  } catch {
+    return null;
+  }
+}
+````
+
+### 常见误区
+
+- 直接信任 `response_format: json_schema`：极少数情况下还是会越界，仍要 schema 校验
+- 流式输出强行 JSON.parse buffer：99% 早期分片是不完整 JSON
+- 失败就 throw：不如降级显示原文 + 重试按钮
+
+### 追问
+
+- 怎么实现"边流式边渲染表单"？
+- schema 怎么和 TypeScript 类型对应起来？
+- 模型经常多了"解释性废话"前缀怎么治？
+
+### 延伸
+
+- 进阶：把 zod schema 通过 `zod-to-json-schema` 反推 OpenAI schema 参数
+- 工程化：把每次"JSON 解析失败"上报，按错误类型聚合分析模型
+
+## llm-multi-turn-memory-pattern
+
+title: 多轮对话的记忆模式：滑窗 / 摘要 / Memory Bank
+difficulty: 进阶
+tags: [记忆, 多轮]
+
+### 一句话
+
+短记忆用滑窗；中长用滑窗 + 阶段性摘要；长期用结构化 memory bank（key-value / 向量库）；选型看会话生命周期与个性化深度。
+
+### 题目
+
+多轮对话怎么处理"既要记住关键信息又不超 context"？给出一个工程化方案。
+
+### 答案要点
+
+- **滑动窗口（短）**：保留最近 N 轮原文，简单但易丢早期信息
+- **阶段性摘要（中）**：当 history token > 阈值时调小模型摘要前半段，替换为摘要 message
+- **Memory Bank（长期）**：
+  - 提取实体/偏好（用户名、语言、过敏、目标）→ 存 KV / DB
+  - 每次对话开头注入相关 memory（"用户偏好：...."）
+  - 适合个性化助手 / 客服 / 长期项目协作
+- **向量记忆（超长）**：把所有历史消息 embed → 检索"语义相关"片段注入
+- 混合方案：**Recent + Summary + Bank + Vector** 四层
+- 隐私合规：memory 必须可查 / 可删除 / 可导出（GDPR / 用户预期）
+
+### 代码示例
+
+```ts
+interface MemoryBank {
+  preferences: Record<string, string>;
+  facts: { id: string; text: string; ts: number }[];
+}
+
+async function buildContext(userId: string, history: ChatMessage[], userInput: string) {
+  const bank = await loadMemory(userId);
+  const memSlice = bank.facts.length ? `已知：${bank.facts.map((f) => f.text).join('；')}` : '';
+
+  let kept = history.slice(-10);
+  if (countTokens(kept) > 4000) {
+    const old = history.slice(0, -10);
+    const summary = await summarize(old);
+    kept = [{ role: 'system', content: `早期对话摘要：${summary}` }, ...kept];
+  }
+
+  return [
+    { role: 'system', content: SYSTEM_PROMPT + (memSlice ? `\n\n${memSlice}` : '') },
+    ...kept,
+    { role: 'user', content: userInput },
+  ];
+}
+
+async function extractAndUpdate(userId: string, userMsg: string) {
+  const facts = await llm.extract(userMsg, ['偏好', '约束', '目标']);
+  await mergeMemory(userId, facts);
+}
+```
+
+### 常见误区
+
+- 把所有历史都塞进 prompt：成本爆炸 + lost-in-the-middle
+- 只用滑窗：长会话里用户上次说的偏好 5 轮后就忘了
+- memory 不可删除：合规风险
+
+### 追问
+
+- 怎么避免 memory 之间冲突（"用户上周说喜欢深色，今天说喜欢浅色"）？
+- 摘要本身会丢信息，怎么取舍？
+- 多 agent 怎么共享 / 隔离 memory？
+
+### 延伸
+
+- 进阶：参考 LangChain `ConversationSummaryBufferMemory` / Mem0 等开源记忆方案
+- 工程化：memory 写入做异步双写（DB + 向量），保证主流程不阻塞
+
+## llm-agent-architecture
+
+title: AI Agent 架构：从单 LLM 到多步骤工具协作
+difficulty: 资深
+tags: [Agent, 架构]
+
+### 一句话
+
+Agent = LLM + 工具 + 记忆 + 控制循环；典型架构 ReAct / Plan-Execute / Multi-Agent；前端要展现"规划 / 执行 / 反思"三段，并允许人工接管 (Human-in-the-Loop)。
+
+### 题目
+
+设计一个能"读文档 → 写代码 → 跑测试 → 修 bug"的 AI Agent，前端如何参与？
+
+### 答案要点
+
+- **核心循环**：Observe（看上下文）→ Think（规划）→ Act（调工具）→ Observe（看工具返回）→ ...
+- 经典模式：
+  - **ReAct**：交替 reasoning + action，每步 LLM 决定下一步
+  - **Plan-Execute**：先生成完整 plan，再逐步执行（更可控但不灵活）
+  - **Multi-Agent**：planner / coder / critic / executor 角色分离，互相审阅
+- **前端责任**：
+  - 渲染**执行轨迹（trace）**：每步工具名 / 入参 / 输出 / 耗时
+  - **人工接管**：关键步骤暂停等审批（删数据、付款、发邮件）
+  - **回溯调试**：能从某步 fork 出新分支重跑（time-travel）
+  - **可中断**：abort 当前步骤、回退、重做
+- **失败处理**：单步失败要决定继续 / 重试 / 升级人工；最大步数兜底防死循环
+- **可观测**：工具调用、token、耗时、决策点都打 span，OpenTelemetry 友好
+
+### 代码示例
+
+```ts
+type Step = {
+  id: string;
+  type: 'plan' | 'tool' | 'reflect' | 'final';
+  input: unknown;
+  output?: unknown;
+  status: 'pending' | 'ok' | 'fail';
+};
+
+class Agent {
+  steps: Step[] = [];
+  maxSteps = 12;
+
+  async run(goal: string, onStep: (s: Step) => void) {
+    for (let i = 0; i < this.maxSteps; i++) {
+      const decision = await this.llm.decide({ goal, steps: this.steps });
+      if (decision.type === 'final') {
+        this.push({ id: uuid(), type: 'final', input: decision, status: 'ok' }, onStep);
+        return decision.answer;
+      }
+      const step: Step = { id: uuid(), type: 'tool', input: decision.tool, status: 'pending' };
+      this.push(step, onStep);
+      try {
+        if (decision.tool.requireApproval) await this.requestHumanApproval(step);
+        step.output = await this.tools[decision.tool.name](decision.tool.args);
+        step.status = 'ok';
+      } catch (e) {
+        step.status = 'fail';
+        step.output = String(e);
+      }
+      onStep(step);
+    }
+    throw new Error('max steps exceeded');
+  }
+  push(s: Step, onStep: (s: Step) => void) {
+    this.steps.push(s);
+    onStep(s);
+  }
+}
+```
+
+### 常见误区
+
+- 让 Agent 无限循环：必须设最大步数 + 死循环检测（重复相同 action）
+- 隐藏 trace 只展示最终答案：用户无法判断对错，也无法干预
+- 工具结果直接进 prompt 不裁剪：很容易把 context 撑爆
+
+### 追问
+
+- 怎么让 Agent 决定"何时停止 / 答案足够好"？
+- multi-agent 如何避免互相内卷？
+- Agent 涉及副作用（删除 / 付款）时如何设计 confirm？
+
+### 延伸
+
+- 进阶：LangGraph / Mastra / OpenAI Swarm 等编排框架的差异
+- 工程化：Agent trace 持久化做"可重放"以便调试和回归
+
+## llm-tool-design-and-router
+
+title: 工具（Function）设计原则与多工具路由
+difficulty: 资深
+tags: [Tool, 路由]
+
+### 一句话
+
+工具应该原子、幂等、有 schema、有清晰 description；多工具时按"能力域"分组并用 router LLM 先选组再选具体工具，避免长 tool list 拖累准确率。
+
+### 题目
+
+当工具数量超过 30 个时，模型选错工具的概率明显上升。如何设计工具系统？
+
+### 答案要点
+
+- **工具单一职责**：一个工具做一件事，参数明确，避免"什么都能干"的万能函数
+- **强 schema**：JSON Schema 类型 + description，每个参数有例子
+- **幂等**：同样输入应得到同样输出；副作用工具要带 idempotency_key
+- **错误明确**：返回 `{ ok, data | error: { code, message, hint } }`，error 给模型可据之纠正
+- **命名规范**：`<resource>_<action>` 如 `order_search` / `order_cancel`，避免歧义
+- **超过 ~20 个工具时**：用**两阶段路由**
+  - 第一阶段：让 LLM 选"工具组"（如：搜索类 / 修改类 / 查询类）
+  - 第二阶段：只把该组的工具列表给 LLM
+- 也可以用 **embedding 检索工具描述**：用户问题向量 → 召回 top-K 工具 → 注入 prompt
+- 前端做工具的"测试台"：每个工具都有 sample input / output 文档，便于调试
+
+### 代码示例
+
+```ts
+const TOOL_GROUPS = {
+  query: ['order_search', 'user_get', 'product_get'],
+  mutate: ['order_cancel', 'order_refund', 'user_update'],
+  intel: ['rag_search', 'kb_lookup'],
+};
+
+async function route(userInput: string, allTools: ToolDef[]) {
+  const groupRes = await llm.classify({
+    input: userInput,
+    options: Object.keys(TOOL_GROUPS),
+    description: '把请求归到一个工具组。',
+  });
+  const group = groupRes.label;
+  const toolNames = TOOL_GROUPS[group as keyof typeof TOOL_GROUPS];
+  const tools = allTools.filter((t) => toolNames.includes(t.name));
+  return openai.chat.completions.create({
+    model: 'gpt-4o-mini',
+    messages,
+    tools,
+    tool_choice: 'auto',
+  });
+}
+```
+
+### 常见误区
+
+- 一次给模型 50+ 工具：选错率显著上升，且占大量输入 token
+- 工具描述写"获取数据"：太模糊，模型不知道何时用
+- 副作用工具不带二次确认：模型可能把测试请求执行成生产删除
+
+### 追问
+
+- 怎么用 embedding 检索工具？冷启动如何处理？
+- 工具内部调用别的工具，是否要让模型知道？
+- 怎么把人工审批节点嵌入工具调用流程？
+
+### 延伸
+
+- 进阶：MCP（Model Context Protocol）——一个标准化"工具协议"
+- 工程化：工具版本化（v1/v2 并存），灰度切换
+
+## llm-rag-recall-quality
+
+title: RAG 召回质量：从 chunk 切分到 reranker
+difficulty: 资深
+tags: [RAG, 召回]
+
+### 一句话
+
+RAG 的瓶颈不是 LLM 而是"召回质量"；提升路径：合理 chunk → 多路召回（向量+关键字+metadata）→ reranker 精排 → 控制注入 prompt 的密度与多样性。
+
+### 题目
+
+RAG 系统答案不准，但 LLM 没换。怎么从前到后排查并提升召回质量？
+
+### 答案要点
+
+- **chunk 策略**：
+  - 按语义边界切（章节 / 标题），避免句子被切断
+  - 大小 200-1000 token 之间，加 50-100 token overlap
+  - 每个 chunk 携带 metadata（文档名、章节、时间戳）
+- **多路召回（hybrid）**：
+  - 向量（语义） + BM25（关键字） + metadata 过滤
+  - 每路各 top-K，再合并去重
+- **Reranker**：用 cross-encoder（如 Cohere Rerank、bge-reranker）对召回 top-50 重排，输出 top-5
+- **prompt 注入**：
+  - 限制注入 chunk 数（避免 lost-in-the-middle）
+  - 每个 chunk 标编号 [1] [2]，要求模型引用
+  - 多样性：相同主题 chunk 只保留一个
+- **闭环评估**：用 RAGAs / TruLens 等工具评 faithfulness（忠实度）/ answer_relevance / context_recall
+- **前端**：把"参考来源"显式渲染（带文档跳转），让用户判断
+
+### 代码示例
+
+```ts
+async function ragQuery(question: string) {
+  const [vec, kw] = await Promise.all([vectorSearch(question, 30), bm25Search(question, 30)]);
+  const merged = dedupById([...vec, ...kw]).slice(0, 50);
+
+  const reranked = await cohere.rerank({
+    query: question,
+    documents: merged.map((m) => m.content),
+    top_n: 5,
+  });
+
+  const ctx = reranked.results
+    .map((r, i) => `[${i + 1}] (来源：${merged[r.index].meta.source})\n${merged[r.index].content}`)
+    .join('\n\n');
+
+  return openai.chat.completions.create({
+    model: 'gpt-4o',
+    messages: [
+      { role: 'system', content: '仅基于以下材料回答，逐句标注引用 [1] [2]：' },
+      { role: 'user', content: `材料：\n${ctx}\n\n问题：${question}` },
+    ],
+  });
+}
+```
+
+### 常见误区
+
+- 只用向量召回：关键字精确匹配（产品代号、ID）召不回
+- chunk 太大：召回看似全但 LLM 找不到重点
+- 不用 reranker：向量近似最近邻误差较大，top-K 噪声多
+- 不上引用：用户无法判断回答可信度
+
+### 追问
+
+- 文档更新了，向量库怎么增量同步？
+- 多语言文档怎么 RAG？（混合语言问答）
+- 怎么衡量某个 chunk 真的"被用上"了？
+
+### 延伸
+
+- 进阶：HyDE（让模型先假设答案，再用假设去检索）
+- 工程化：RAG eval pipeline 和 prompt 版本绑定回归
+
+## llm-multi-model-router
+
+title: 多模型路由：按任务复杂度 / 成本动态选模型
+difficulty: 资深
+tags: [模型路由, 成本]
+
+### 一句话
+
+不同任务最优模型不同；用"任务分类器 + 规则 + 成本预算"做路由：简单意图小模型、复杂推理大模型、降级链兜底；前端透明呈现并允许用户上调。
+
+### 题目
+
+设计一个多模型路由系统，让简单任务走便宜模型、复杂任务走 GPT-4 / Claude 3.5，且不让用户察觉。
+
+### 答案要点
+
+- **路由维度**：
+  - 任务类型：闲聊 / 代码 / 推理 / 多模态 / 工具调用
+  - 用户分层：免费 / 付费 / 企业（不同模型上限）
+  - 当前负载：高峰期降级
+  - 成本预算：本月剩余预算决定模型档次
+- **路由方式**：
+  - **规则**：根据 keyword / category 直接选（最快，但覆盖有限）
+  - **小分类器**：用 GPT-4o-mini 或 fine-tune 的 BERT 分类
+  - **embedding + 历史**：拿历史相似 case 推断
+- **降级链**：主模型失败 → 备用模型 → 缓存 → 静态回复
+- **路由透明度**：UI 显示当前模型 + 允许用户"升级到旗舰模型"
+- 监控：每路由分支的 P50/P95 延迟、错误率、人工反馈
+- 不要用大模型路由小问题：路由判断本身的成本要可控
+
+### 代码示例
+
+```ts
+interface RouteResult {
+  model: string;
+  reason: string;
+}
+
+const POLICY = [
+  { match: (s: string) => /^(你好|hi|hello|测试)/i.test(s), model: 'gpt-4o-mini', reason: '招呼' },
+  { match: (s: string) => s.length < 80, model: 'gpt-4o-mini', reason: '简单问答' },
+  { match: (s: string) => /(证明|推导|算法|复杂度|架构)/.test(s), model: 'gpt-4o', reason: '推理' },
+  { match: (s: string) => /(图|画|视频)/.test(s), model: 'gpt-4o', reason: '多模态' },
+];
+
+async function route(
+  userInput: string,
+  ctx: { tier: 'free' | 'pro'; budgetLeft: number },
+): Promise<RouteResult> {
+  if (ctx.budgetLeft < 0.01) return { model: 'gpt-4o-mini', reason: '预算耗尽，强制降级' };
+  if (ctx.tier === 'pro') {
+    for (const p of POLICY) {
+      if (p.match(userInput)) return { model: p.model, reason: p.reason };
+    }
+  }
+  return { model: 'gpt-4o-mini', reason: '默认' };
+}
+```
+
+### 常见误区
+
+- 永远走 GPT-4：成本高，无差异化
+- 永远走 mini：复杂任务质量差
+- 路由器本身用 GPT-4：路由成本超过实际任务成本
+- 切换模型不通知用户：付费用户感知到"质量下降"会投诉
+
+### 追问
+
+- 多模型回答如何确保"风格一致"？
+- 同一对话中可以切模型吗？历史怎么处理？
+- 企业级的 model gateway 应该具备哪些能力？
+
+### 延伸
+
+- 进阶：训练一个轻量分类器（DistilBERT）部署在边缘做路由
+- 工程化：把路由策略做成可热更新的配置（feature flag）
+
+## llm-output-streaming-with-tools
+
+title: 流式 + 工具调用怎么协同：边讲边查、边查边讲
+difficulty: 资深
+tags: [流式, Tool]
+
+### 一句话
+
+模型流式输出工具调用时，参数会逐 token 拼接（"打字机参数"）；前端要识别 tool_call 增量、执行工具、把结果作为新 user 消息回灌、再继续流式；UI 要直观展现"思考-调用-继续"循环。
+
+### 题目
+
+模型边流式输出边调用工具，前端怎么处理 SSE 中混合的"文本 delta"和"tool_call delta"？
+
+### 答案要点
+
+- OpenAI 流式 chunk 结构：
+  - 文本：`choices[0].delta.content`
+  - 工具：`choices[0].delta.tool_calls[i].function.{ name, arguments }`，arguments 是字符串增量
+- 前端要在内存里**按 index 累计每个 tool_call 的 arguments 字符串**，直到 `finish_reason: 'tool_calls'`
+- 拿到完整 arguments → JSON.parse（容错）→ 执行工具 → 拿到结果
+- 把工具结果作为 `role: 'tool'` 消息插入 history → 再发起新 chat completion
+- 这是**多轮**：可能模型继续调下一个工具；要循环直到 `finish_reason: 'stop'`
+- UI 设计：
+  - 文本 delta 直接 append
+  - 工具显示成"卡片"：调用名 + 入参 / 等待中 / 结果
+  - 多轮间用分隔符标识"模型继续"
+- 中途用户中断：要 abort 流 + 已执行的工具不可撤销（要警告）
+
+### 代码示例
+
+```ts
+type ToolBuffer = { id: string; name: string; argsStr: string };
+const tools: Record<number, ToolBuffer> = {};
+
+for await (const chunk of stream) {
+  const d = chunk.choices[0].delta;
+  if (d.content) appendText(d.content);
+  if (d.tool_calls) {
+    for (const tc of d.tool_calls) {
+      const buf = (tools[tc.index] ??= { id: tc.id ?? '', name: '', argsStr: '' });
+      if (tc.id) buf.id = tc.id;
+      if (tc.function?.name) buf.name = tc.function.name;
+      if (tc.function?.arguments) {
+        buf.argsStr += tc.function.arguments;
+        renderToolCardArgs(buf.id, buf.argsStr);
+      }
+    }
+  }
+  if (chunk.choices[0].finish_reason === 'tool_calls') {
+    const results = await Promise.all(
+      Object.values(tools).map(async (b) => {
+        const args = safeParseJson(b.argsStr);
+        const result = await executeTool(b.name, args);
+        return { tool_call_id: b.id, role: 'tool' as const, content: JSON.stringify(result) };
+      }),
+    );
+    history.push(...results);
+    return continueChat(history);
+  }
+}
+```
+
+### 常见误区
+
+- 把 arguments delta 直接 JSON.parse：早期分片必然不完整
+- 没按 `index` 区分多个并发 tool_call：参数会拼错
+- 工具异步未等就继续：history 顺序乱掉
+
+### 追问
+
+- 多个 tool_call 并发执行还是顺序执行？
+- 工具执行很慢，怎么让用户看到进度？
+- 怎么做"工具调用回放"用于 debug？
+
+### 延伸
+
+- 进阶：把工具执行也做成 stream（如 SQL 边查边返回行）
+- 工程化：tool span 进 OpenTelemetry trace，链路完整
+
+## llm-streaming-ui-state-machine
+
+title: 流式聊天的 UI 状态机
+difficulty: 资深
+tags: [UI, 状态机]
+
+### 一句话
+
+流式聊天涉及 idle / pending / streaming / tool_calling / waiting_human / aborted / errored 等多状态；用 XState 或显式 reducer 管理，避免布尔字段相互冲突。
+
+### 题目
+
+ChatGPT 风格 UI 看起来简单，但实现时一堆 race condition。怎么用状态机把它做对？
+
+### 答案要点
+
+- 用一组互斥状态而非散落的 boolean：
+  - `idle` → `pending`（请求中，未收到首字）
+  - `pending` → `streaming`（正在输出文本）
+  - `streaming` ↔ `tool_calling`（流式中调用工具，工具结束回到 streaming）
+  - `streaming` → `waiting_human`（如果工具需要审批）
+  - 任何状态 → `aborted`（用户停止）/ `errored`（异常）→ `idle`
+- 每个状态决定 UI：输入框是否可用、停止按钮是否显示、tool card 状态
+- 用 reducer 或 XState 管理；React 18 / Vue 3 用 useReducer / 自实现
+- **race 防护**：每次新请求生成 nonce，旧请求的 delta 收到要 ignore
+- 持久化：streaming 中刷新页面，应能恢复 partial 内容（IndexedDB）
+- 错误恢复：errored 状态显示"重试"按钮 + 错误详情
+
+### 代码示例
+
+```ts
+type ChatState =
+  | { status: 'idle' }
+  | { status: 'pending'; nonce: string; abort: AbortController }
+  | { status: 'streaming'; nonce: string; partial: string; abort: AbortController }
+  | { status: 'tool_calling'; nonce: string; tools: ToolCall[]; abort: AbortController }
+  | { status: 'waiting_human'; nonce: string; pendingApproval: ToolCall }
+  | { status: 'errored'; error: Error }
+  | { status: 'aborted' };
+
+function reducer(state: ChatState, action: Action): ChatState {
+  switch (action.type) {
+    case 'send':
+      if (state.status !== 'idle') return state;
+      return { status: 'pending', nonce: action.nonce, abort: action.abort };
+    case 'firstChunk':
+      if (state.status !== 'pending' || state.nonce !== action.nonce) return state;
+      return { status: 'streaming', nonce: state.nonce, partial: action.text, abort: state.abort };
+    case 'delta':
+      if (state.status !== 'streaming' || state.nonce !== action.nonce) return state;
+      return { ...state, partial: state.partial + action.text };
+    case 'abort':
+      if ('abort' in state) state.abort.abort();
+      return { status: 'aborted' };
+    // ...
+  }
+}
+```
+
+### 常见误区
+
+- 用 isLoading + isStreaming + hasError 三个 boolean：组合爆炸 + 不一致
+- 忘记处理"切走又回来"：旧 stream 的 delta 仍然 push 到当前会话
+- 状态切换时不清理资源：内存泄漏 / 重复请求
+
+### 追问
+
+- 怎么测试一个状态机覆盖所有路径？
+- 多 tab 共享同一个对话 stream 怎么协调？
+- 状态机本身怎么持久化和恢复？
+
+### 延伸
+
+- 进阶：用 XState visualizer 画出对话状态图给团队评审
+- 工程化：把状态切换打成 metric 上报，监控异常路径
+
+## llm-prompt-versioning
+
+title: Prompt 版本管理：让 prompt 像代码一样可控
+difficulty: 资深
+tags: [Prompt, 工程化, 版本化]
+
+### 一句话
+
+Prompt 不是文案而是关键资产；用 git + 模板 + 变量分离 + 版本号 + 评测分数管理；上线走灰度发布；保证可回滚、可对比、可审计。
+
+### 题目
+
+团队几十个 prompt，每改一次就有人抱怨"以前的回答更好"。如何工程化管理 prompt？
+
+### 答案要点
+
+- **Prompt 即代码**：放仓库、走 PR、写 changelog、必须 review
+- **结构化存储**：每个 prompt 一个文件（或一行 DB 记录），含
+  - id / version / template / variables_schema（zod）/ owner / created_at / model_compat
+- **模板引擎**：用 Jinja2 / Handlebars / 自定义占位符，变量与文本分离
+- **版本号**：semver（major.minor.patch），破坏性改 major
+- **评测分数**：每个版本附测试集得分，回归低于阈值禁止发布
+- **运行时获取**：prompt 服务（DB / Edge KV）支持按用户分组返回不同版本（A/B）
+- **回滚机制**：一键 revert 到上一个稳定版本；记录 revert 原因
+- **可观测**：日志带 prompt_id + version；分版本看错误率 / 用户反馈
+- 工具：PromptLayer / Langfuse / Helicone / 自建
+
+### 代码示例
+
+```ts
+interface PromptDef {
+  id: string;
+  version: string;
+  template: string;
+  schema: z.ZodType;
+  owner: string;
+  modelCompat: string[];
+  evalScore?: number;
+}
+
+const prompts: Record<string, PromptDef> = {
+  'order/extract@1.2.0': {
+    id: 'order/extract',
+    version: '1.2.0',
+    template: '把以下用户输入抽取为 JSON：{{userInput}}\n输出格式：{{schema}}',
+    schema: z.object({ userInput: z.string(), schema: z.string() }),
+    owner: 'data-team',
+    modelCompat: ['gpt-4o', 'gpt-4o-mini'],
+    evalScore: 0.92,
+  },
+};
+
+function render(id: string, vars: Record<string, unknown>) {
+  const def = prompts[id];
+  def.schema.parse(vars);
+  return def.template.replace(/\{\{(\w+)\}\}/g, (_, k) => String(vars[k]));
+}
+```
+
+### 常见误区
+
+- 把 prompt 写在代码字符串里：搜不到、改了不留痕
+- 没有 schema：换人改时变量名飘移
+- 改 prompt 不评测就上线：结果质量回退发现晚
+- "prompt 工程师"权限太宽：任何 PR 都能修生产 prompt
+
+### 追问
+
+- prompt 的 i18n 怎么做？
+- 不同模型对同一 prompt 表现差异大，是否要每模型一个版本？
+- 历史版本能否保留几年（合规审计需要）？
+
+### 延伸
+
+- 进阶：用 zod schema 同时校验输入变量和模型输出
+- 工程化：prompt 放 OpenTelemetry attribute，trace 里直接看到当前用的是哪个版本
+
+## llm-eval-pipeline
+
+title: AI 功能的 Eval Pipeline：单测 / 回归 / 在线评测
+difficulty: 资深
+tags: [Eval, 测试, 工程化]
+
+### 一句话
+
+AI 输出有不确定性，传统 assertEqual 不够；用 LLM-as-judge / 关键字 / schema / 业务指标多维度 eval；CI 跑离线集 + 上线后跑在线采样，不通过阈值阻塞发布。
+
+### 题目
+
+prompt 改了一个字，怎么知道质量没回退？设计完整的 eval pipeline。
+
+### 答案要点
+
+- **Eval 集分层**：
+  - **黄金集（Golden）**：~50 条人工精修，每条有期望输出，回归必跑
+  - **挑战集（Hard cases）**：从历史 bug / 投诉积累，必须通过
+  - **采样集（Sampling）**：从生产实时随机采样，做 A/B 对比
+- **评测维度**：
+  - **结构正确**：JSON schema、字段必填、枚举合法
+  - **关键字 / 否定词**：必须包含 / 不能出现
+  - **语义相似**：embedding cosine vs 期望
+  - **LLM-as-judge**：用 GPT-4 给输出打 1-5 分，附理由
+  - **业务指标**：用户点赞率、人工接管率、二次提问率
+- **CI 集成**：PR 上跑黄金集，得分回退 > X% 阻塞合并
+- **在线 eval**：每天抽样 1% 真实流量，跑 LLM judge，看是否漂移
+- **可视化**：每个 prompt × 模型 × 版本 的得分趋势图
+- 工具：promptfoo / Langfuse / OpenAI Evals / 自建
+
+### 代码示例
+
+```ts
+import { z } from 'zod';
+
+interface EvalCase {
+  input: string;
+  expected: {
+    schema?: z.ZodType;
+    mustContain?: string[];
+    mustNotContain?: string[];
+    reference?: string;
+  };
+}
+
+async function runEval(promptId: string, cases: EvalCase[]) {
+  let pass = 0,
+    total = 0;
+  for (const c of cases) {
+    total++;
+    const out = await callLLM(promptId, c.input);
+    let ok = true;
+    if (c.expected.schema) {
+      try {
+        c.expected.schema.parse(JSON.parse(out));
+      } catch {
+        ok = false;
+      }
+    }
+    for (const w of c.expected.mustContain ?? []) if (!out.includes(w)) ok = false;
+    for (const w of c.expected.mustNotContain ?? []) if (out.includes(w)) ok = false;
+    if (c.expected.reference) {
+      const score = await llmJudge(out, c.expected.reference);
+      if (score < 4) ok = false;
+    }
+    if (ok) pass++;
+  }
+  return { score: pass / total, total, pass };
+}
+
+async function llmJudge(output: string, reference: string): Promise<number> {
+  const res = await openai.chat.completions.create({
+    model: 'gpt-4o',
+    messages: [
+      {
+        role: 'system',
+        content: '给"被评估输出"和"参考答案"的相似度打分 1-5（语义层面）。仅返回数字。',
+      },
+      { role: 'user', content: `参考：${reference}\n被评估：${output}` },
+    ],
+  });
+  return Number(res.choices[0].message.content?.trim() ?? '3');
+}
+```
+
+### 常见误区
+
+- 只用关键字匹配：模型可能换种说法，召回失效
+- 只用 LLM-as-judge：评测器自身有偏差，要人工抽样校验 judge
+- 只跑离线 eval：上线后用户 prompt 分布变了发现不了
+- eval 集不更新：长期用的 case 早被模型记住，分数虚高
+
+### 追问
+
+- LLM-as-judge 用什么模型？要不要比被评测模型更强？
+- 如何防止 eval 集被污染（被加入训练）？
+- 评测结果"我打 4 分但 GPT-4 打 5 分"如何调和？
+
+### 延伸
+
+- 进阶：human-in-the-loop 持续标注产出新黄金集
+- 工程化：eval 报告以 PR comment 形式展示，diff 可视化
+
+## llm-ab-testing-and-rollout
+
+title: AI 功能的 A/B 测试与灰度发布
+difficulty: 资深
+tags: [A/B, 灰度, 工程化]
+
+### 一句话
+
+AI 输出有随机性，A/B 显著性需要更长样本周期；按 user_id hash 分桶；指标除了点击率还要看人工接管率 / token 成本 / 投诉率；灰度阶段必须可一键回滚。
+
+### 题目
+
+你想把客服 bot 的 prompt v1.2 切到 v1.3，怎么科学发布？
+
+### 答案要点
+
+- **分桶策略**：按 `hash(user_id) % 100` 或 feature flag，保证用户进入同一版本（可重现）
+- **核心指标分层**：
+  - **正面**：CTR、采纳率（用户点了"满意"）、停留时长、复购
+  - **负面**：人工接管率、投诉率、退出率、错误率
+  - **成本**：每会话 token 数 / 美元、平均延迟
+- **样本量**：因为 LLM 输出方差大，比传统 UI 实验需要更多样本（数千到数万）
+- **统计方法**：双尾 t 检验 / 贝叶斯 A/B；至少 95% 置信
+- **灰度阶梯**：1% → 10% → 50% → 100%，每阶段观察 1-3 天
+- **熔断**：核心指标恶化超过阈值（如人工接管率 +3pp）自动回滚
+- **影响隔离**：不同实验不要交叉，避免互相干扰
+- **工程层**：feature flag 系统（LaunchDarkly / Unleash / 自建）+ 实时仪表盘
+
+### 代码示例
+
+```ts
+function pickVariant(
+  userId: string,
+  exp: { id: string; variants: { name: string; ratio: number }[] },
+) {
+  const h = hash(userId + exp.id) % 100;
+  let acc = 0;
+  for (const v of exp.variants) {
+    acc += v.ratio;
+    if (h < acc) return v.name;
+  }
+  return exp.variants[0].name;
+}
+
+const variant = pickVariant(currentUser.id, {
+  id: 'cs-prompt-v1.3',
+  variants: [
+    { name: 'control', ratio: 90 },
+    { name: 'treatment', ratio: 10 },
+  ],
+});
+
+const promptId = variant === 'treatment' ? 'cs/main@1.3.0' : 'cs/main@1.2.0';
+
+emitMetric('ai.session.start', { variant, promptId });
+emitMetric('ai.session.tokens', { variant, value: tokens });
+emitMetric('ai.session.handover', { variant, value: handover ? 1 : 0 });
+```
+
+### 常见误区
+
+- 按"次"分桶：同一用户两次看到不同版本，结果不可解释
+- 只看转化率：可能转化高但成本翻倍
+- 灰度直接 100%：出问题影响面最大
+- 没设熔断：人盯着仪表盘容易错过
+
+### 追问
+
+- AI 输出主观性强，怎么和老版本"严格对比"？
+- 用户感知到 AI 切版本会不会影响数据？
+- 多个实验同时跑会有何风险？
+
+### 延伸
+
+- 进阶：interleaving 实验（同一用户左右对比两版本）
+- 工程化：实验配置 + prompt 版本 + eval 分数三者关联看板
+
+## llm-cost-governance
+
+title: AI 成本治理：从看不见到可控
+difficulty: 资深
+tags: [成本, 治理, 工程化]
+
+### 一句话
+
+按"用户 / 功能 / 模型 / prompt"四维归因；建立每日 / 每周 budget 报警；高成本路径优化点：缓存命中、模型降级、上下文裁剪、批处理；月底有人对账。
+
+### 题目
+
+老板说"上月 AI 账单 $5 万，砍一半"。你怎么定位和优化？
+
+### 答案要点
+
+- **归因体系**（缺一不可）：
+  - 每次调用打 tag：`user_id` / `feature` / `model` / `prompt_id` / `is_cache_hit`
+  - 入数仓 / Clickhouse，按各维度切片看花费
+- **快速下手**：
+  - **prompt caching** 命中（前文已述），输入 token 5-10 折
+  - **模型降级**（多模型路由）：80% 任务用 mini 模型
+  - **batch API**（OpenAI batch 接口 5 折，24h 内异步）适合非实时
+  - **去重缓存**：相同 prompt 24h 内直返结果
+  - **截断历史**：避免长上下文反复发送
+- **预算控制**：
+  - 每用户 / 每功能日 budget，超出限流或降级
+  - 总账户日 budget，超出报警 + 限流
+- **谈判**：与厂商谈量价、用 Azure OpenAI / Bedrock 拿企业折扣
+- **每月对账**：业务团队对自己功能的成本负责（chargeback model）
+
+### 代码示例
+
+```ts
+async function trackedCall(opts: {
+  userId: string;
+  feature: string;
+  promptId: string;
+  model: string;
+  messages: ChatMessage[];
+}) {
+  const t0 = Date.now();
+  const res = await openai.chat.completions.create({ model: opts.model, messages: opts.messages });
+  const usage = res.usage!;
+  const cost =
+    usage.prompt_tokens * priceTable[opts.model].input +
+    usage.completion_tokens * priceTable[opts.model].output;
+
+  emitMetric('ai.call.cost_usd', {
+    user_id: opts.userId,
+    feature: opts.feature,
+    prompt_id: opts.promptId,
+    model: opts.model,
+    cache_hit_tokens: usage.prompt_tokens_details?.cached_tokens ?? 0,
+    latency_ms: Date.now() - t0,
+    value: cost,
+  });
+
+  return res;
+}
+```
+
+### 常见误区
+
+- 没有归因，老板问哪个功能花最多答不上
+- 只看总账单：单月暴涨找不到根因
+- 限流策略一刀切：核心付费用户被误伤
+- 把 cost 优化等同于"全部用最便宜模型"：核心场景体验差
+
+### 追问
+
+- 怎么发现"某用户疯狂刷免费额度"的滥用模式？
+- 缓存命中率多少算健康？
+- 多团队共用模型，怎么 chargeback？
+
+### 延伸
+
+- 进阶：边缘小模型（DistilBERT）兜底简单任务
+- 工程化：cost dashboard 接 Slack 告警，超阈值自动 page
+
+## llm-observability-and-tracing
+
+title: AI 应用的可观测性：trace / log / metric 三件套
+difficulty: 资深
+tags: [可观测性, OpenTelemetry, 工程化]
+
+### 一句话
+
+AI 调用是分布式的：模型 / 工具 / RAG / Memory 横跨多服务；用 OpenTelemetry 把每步打成 span（带 prompt / output / token 等 attribute），再分别送到 trace / log / metric 后端，问题可一键回放。
+
+### 题目
+
+线上某用户的 AI 答非所问，怎么从生产日志一路定位到具体哪一步出了问题？
+
+### 答案要点
+
+- **三大支柱**：
+  - **Trace（链路）**：完整调用链，每个 span 是一次 LLM / 工具调用
+  - **Log（日志）**：详细 input/output/error，结构化，关联 trace_id
+  - **Metric（指标）**：延迟、成功率、token 数、成本
+- **每个 LLM span 必带 attribute**：
+  - `gen_ai.system`（openai/anthropic/local）/ `gen_ai.request.model` / `gen_ai.response.model`
+  - `gen_ai.usage.input_tokens` / `output_tokens` / `cached_tokens`
+  - `gen_ai.prompt`（脱敏，留摘要 / hash）/ `gen_ai.response`（同）
+  - `gen_ai.prompt_id` + `version` / `gen_ai.experiment_variant`
+- **隐私 vs 调试**：生产日志不能存原始用户输入；用 hash + 抽样保留
+- **跨进程传递**：HTTP 请求 inject trace headers (`traceparent`)
+- **重放（replay）**：trace 收集足够多，能复现整个 agent 运行
+- 工具：OpenTelemetry + Langfuse / Datadog / Jaeger / Honeycomb
+
+### 代码示例
+
+```ts
+import { trace, SpanStatusCode } from '@opentelemetry/api';
+
+const tracer = trace.getTracer('kap-ai');
+
+async function llmCall(opts: { promptId: string; messages: ChatMessage[]; model: string }) {
+  return tracer.startActiveSpan('llm.chat', async (span) => {
+    span.setAttributes({
+      'gen_ai.system': 'openai',
+      'gen_ai.request.model': opts.model,
+      'gen_ai.prompt_id': opts.promptId,
+      'gen_ai.prompt.hash': sha256(JSON.stringify(opts.messages)).slice(0, 16),
+      'gen_ai.prompt.length': JSON.stringify(opts.messages).length,
+    });
+    try {
+      const res = await openai.chat.completions.create({
+        model: opts.model,
+        messages: opts.messages,
+      });
+      span.setAttributes({
+        'gen_ai.usage.input_tokens': res.usage!.prompt_tokens,
+        'gen_ai.usage.output_tokens': res.usage!.completion_tokens,
+        'gen_ai.usage.cached_tokens': res.usage!.prompt_tokens_details?.cached_tokens ?? 0,
+        'gen_ai.response.length': res.choices[0].message.content?.length ?? 0,
+      });
+      return res;
+    } catch (e) {
+      span.recordException(e as Error);
+      span.setStatus({ code: SpanStatusCode.ERROR });
+      throw e;
+    } finally {
+      span.end();
+    }
+  });
+}
+```
+
+### 常见误区
+
+- 只打 log 不打 metric：要查"昨天平均延迟"全靠捞日志
+- 把 prompt 全文 / 用户消息原文进日志：合规风险
+- 没串 trace_id：跨服务调用看不到全貌
+- 工具调用不打 span：agent 失败时只能看到"最后一步崩了"
+
+### 追问
+
+- 怎么把"AI 输出语义不正确"也作为可观测信号？
+- 流式调用的 span 起止时间怎么界定（首字 / 末字）？
+- 海量 trace 存储成本高，怎么采样？
+
+### 延伸
+
+- 进阶：把 trace 重放成"prompt + tool call"的可交互调试界面
+- 工程化：异常 span 自动转工单 + 关联到 git commit
+
+## llm-incident-and-replay
+
+title: AI 故障分类、回放与持续改进
+difficulty: 资深
+tags: [故障, 回放, 工程化]
+
+### 一句话
+
+AI 故障分四类：模型上游 / 自家代码 / prompt 逻辑 / 用户输入；每类有不同处置；建立"故障 → 回放 case → 加进 eval 集 → 修复 → 上线 + 回归"闭环。
+
+### 题目
+
+线上 AI 答非所问被用户截图发到群里，你怎么处置？
+
+### 答案要点
+
+- **故障分类**：
+  - **上游故障**：OpenAI 5xx / 限流 → 看 status page、切备用模型
+  - **自家代码**：参数拼接 bug / 解析失败 → 修代码 + 加单测
+  - **Prompt 逻辑**：模型理解错意图 → 改 prompt + 加 eval case
+  - **用户输入**：长尾 / 注入 / 滥用 → 加防御 / 用户教育
+- **应急三步**：
+  - 立即恢复（回滚 prompt / 切模型 / 降级）
+  - 用 trace 定位根因
+  - 把 case 加进黄金集 / 挑战集，永远不再犯
+- **复盘文档**：时间线、影响、根因、临时方案、长期方案、Action Items
+- **回放系统**：从 trace 重放整个会话（同 prompt + 同输入），验证修复
+- **持续改进**：每周 review top 失败 case → 转化为 prompt 改进 / 新工具 / eval
+
+### 代码示例
+
+```ts
+async function replaySession(traceId: string) {
+  const trace = await fetchTrace(traceId);
+  const llmSpans = trace.spans.filter((s) => s.name === 'llm.chat');
+
+  for (const span of llmSpans) {
+    const messages = await fetchPromptByHash(span.attrs['gen_ai.prompt.hash']);
+    const res = await llmCall({
+      promptId: span.attrs['gen_ai.prompt_id'],
+      model: span.attrs['gen_ai.request.model'],
+      messages,
+    });
+    console.log(`Replay ${span.spanId}:`, res.choices[0].message.content);
+  }
+}
+
+interface FailureCase {
+  traceId: string;
+  category: 'upstream' | 'code' | 'prompt' | 'input';
+  rootCause: string;
+  fixedIn: string;
+  evalCaseId?: string;
+}
+```
+
+### 常见误区
+
+- "改完就完事"：没加 eval case，下次回退发现不了
+- 只关注严重故障：长尾低频问题积累成口碑伤害
+- 没复盘文档：同样的坑踩第二次
+
+### 追问
+
+- 怎么平衡"快速止血"和"找根因"的精力？
+- 用户截图的 case 没 trace_id 怎么定位？
+- 高频低危 vs 低频高危故障，处理优先级？
+
+### 延伸
+
+- 进阶：自动化"自愈"——上游 5xx 时无人值守降级
+- 工程化：故障复盘录入数据库，定期统计分类占比
+
+## llm-safety-guardrails-and-moderation
+
+title: 输入输出双向 Guardrails：安全与合规一体化
+difficulty: 资深
+tags: [安全, Moderation, 工程化]
+
+### 一句话
+
+输入做 prompt injection 检测、PII 脱敏、敏感词过滤；输出做 moderation API 检查、policy 校验、强制 schema；多层并联失败拒绝，关键场景双模型交叉校验。
+
+### 题目
+
+设计一套 guardrails，让 AI 系统既不被注入攻击劫持也不输出违规内容。
+
+### 答案要点
+
+- **输入侧**：
+  - **PII 脱敏**：手机号 / 身份证 / 信用卡正则替换为占位
+  - **Prompt Injection 检测**：模型分类器 / 关键字（"忽略上文"、"现在你是" 等）
+  - **敏感词 / 黑名单**
+  - **长度限制**（防 DoS）+ rate limit
+- **模型侧**：
+  - System prompt 强约束（"只能回答 X 主题"）
+  - 工具调用前确认意图（"你确认要删除订单 1234 吗？"）
+- **输出侧**：
+  - **Moderation API**（OpenAI moderation / Anthropic policy / Azure Content Safety）
+  - **Schema 校验**：严格 JSON / 字段白名单
+  - **二次审核**：用另一个模型 / 规则检查首模型输出
+  - **业务规则**：金额合法、SQL 非破坏、URL 在允许域内
+- **失败处理**：
+  - **拒绝**：返回兜底文本，不暴露内部细节
+  - **降级**：换更保守的 prompt 重试
+  - **审计**：所有命中 guardrail 的请求都打日志，定期 review
+- **可控降级**：检测到注入时记录但不一定阻断，UI 标记"已忽略指令"
+- 工具：Llama Guard、NeMo Guardrails、Anthropic policy、OpenAI mod
+
+### 代码示例
+
+```ts
+async function safeChat(userInput: string, history: ChatMessage[]) {
+  const sanitized = redactPII(userInput);
+  const injectionRisk = await detectInjection(sanitized);
+  if (injectionRisk.score > 0.85) {
+    return { error: '检测到可疑指令', code: 'PROMPT_INJECTION' };
+  }
+
+  const modIn = await openai.moderations.create({ input: sanitized });
+  if (modIn.results[0].flagged) {
+    return { error: '输入违规', code: 'MOD_INPUT', categories: modIn.results[0].categories };
+  }
+
+  const res = await openai.chat.completions.create({
+    model: 'gpt-4o',
+    messages: [...history, { role: 'user', content: sanitized }],
+  });
+  const out = res.choices[0].message.content ?? '';
+
+  const modOut = await openai.moderations.create({ input: out });
+  if (modOut.results[0].flagged) {
+    log('output_flagged', { traceId: getTraceId(), categories: modOut.results[0].categories });
+    return { error: '输出违规，已拦截', code: 'MOD_OUTPUT' };
+  }
+
+  return { content: out };
+}
+
+function redactPII(text: string) {
+  return text
+    .replace(/\b1[3-9]\d{9}\b/g, '[PHONE]')
+    .replace(/\b\d{15}|\d{18}\b/g, '[ID]')
+    .replace(/\b\d{4}\s?\d{4}\s?\d{4}\s?\d{4}\b/g, '[CARD]');
+}
+```
+
+### 常见误区
+
+- 仅靠 system prompt 防注入：用户一句"忽略上面"就破了
+- moderation 只查输入：模型可能输出违规内容
+- 拒绝太严格：误伤正常请求，体验差
+- guardrail 报错信息暴露内部规则：被攻击者拿来逆向
+
+### 追问
+
+- 海外业务 GDPR / 国内合规 / 不同地区敏感词列表怎么维护？
+- 误判率高怎么调阈值？
+- 用户故意试探 guardrail 怎么处置？
+
+### 延伸
+
+- 进阶：训练一个轻量分类器实时识别 injection（FT BERT）
+- 工程化：guardrail 命中率 / 误判率上线大盘
+
+## llm-data-pipeline-and-finetuning-frontend
+
+title: 用户反馈数据回流：从产品到数据集到 Fine-tune
+difficulty: 资深
+tags: [数据回流, Fine-tune, 工程化]
+
+### 一句话
+
+线上 AI 输出 + 用户反馈（点赞 / 改写 / 重答）就是最有价值的数据；前端要内置反馈控件，后端做去重 / 标注 / 脱敏，定期 fine-tune 或 distill 自家小模型。
+
+### 题目
+
+怎么从产品反馈构建一个持续优化 AI 输出的 data pipeline？
+
+### 答案要点
+
+- **采集**：每条 AI 输出旁边放 👍/👎 + "改一下" 输入框；同步采集隐式信号（用户复制 / 关闭 / 二次提问）
+- **关联 trace**：反馈关联到 trace_id + prompt_version + model，归因到具体配置
+- **去重 + 抽样**：相同 input 多次反馈合并；抽样人工标注精修
+- **脱敏**：用户原始消息要 PII 脱敏后才能进入数据集
+- **三种用法**：
+  - **Few-shot 例子**：把高质量 (input, output) 加进 prompt（增量上线最快）
+  - **RAG 知识**：把高频 Q&A 入向量库，召回时直接给模型参考
+  - **Fine-tune / Distill**：≥ 1000 条高质量数据可训自家小模型，提质降本
+- **闭环**：反馈 → 数据集 → 评测集 → fine-tune → eval → 上线 → 新反馈
+- **合规 / 用户授权**：UI 必须有"提交反馈即同意改进模型"的隐私说明
+- 工具：Argilla / Label Studio / Snorkel / OpenAI fine-tuning API
+
+### 代码示例
+
+```ts
+async function submitFeedback(opts: {
+  traceId: string;
+  rating: 1 | 2 | 3 | 4 | 5;
+  correction?: string;
+  category?: 'wrong' | 'irrelevant' | 'unsafe' | 'great';
+}) {
+  await fetch('/api/ai/feedback', {
+    method: 'POST',
+    body: JSON.stringify({
+      ...opts,
+      ts: Date.now(),
+      userAgent: navigator.userAgent,
+    }),
+  });
+}
+
+interface DatasetEntry {
+  id: string;
+  traceId: string;
+  promptId: string;
+  promptVersion: string;
+  model: string;
+  input: string;
+  output: string;
+  correction?: string;
+  rating: number;
+  reviewedBy?: string;
+  approvedAt?: number;
+}
+
+async function exportFineTune(entries: DatasetEntry[]) {
+  return entries
+    .filter((e) => e.rating >= 4 || (e.rating <= 2 && e.correction))
+    .map((e) => ({
+      messages: [
+        { role: 'system', content: '...' },
+        { role: 'user', content: e.input },
+        { role: 'assistant', content: e.correction ?? e.output },
+      ],
+    }));
+}
+```
+
+### 常见误区
+
+- 只看 👍 不看 👎：丢掉最有价值的"模型错在哪"信号
+- 用户没授权就拿数据训练：合规重大风险
+- 数据集不审核直接训：把垃圾输入也"教"给模型
+- Fine-tune 后没做对比 eval：以为提升了实际可能退步
+
+### 追问
+
+- few-shot vs RAG vs fine-tune，何时选哪个？
+- 用户改写后的 correction 怎么验证质量？
+- distill 一个小模型替代 GPT-4 的成本测算？
+
+### 延伸
+
+- 进阶：DPO / RLHF 让模型直接学习"哪个回答更好"
+- 工程化：数据集像 git 一样可版本化、可 diff、可回滚
+
+## llm-multi-tenant-isolation
+
+title: 多租户 AI 平台的隔离：数据 / 模型 / 配额
+difficulty: 资深
+tags: [多租户, 隔离, 工程化]
+
+### 一句话
+
+SaaS AI 平台必须做严格租户隔离：数据（向量库、memory）按 tenant 分区；prompt / 工具 / 模型按租户配置；配额按租户计费；任何跨租户数据泄漏都是重大事故。
+
+### 题目
+
+设计一个 SaaS 形态的 AI 助手，让每个企业客户有独立的知识库和模型偏好，前后端怎么做隔离？
+
+### 答案要点
+
+- **数据隔离层级**：
+  - 强隔离：每租户独立 DB / 向量 namespace（成本高，安全）
+  - 弱隔离：共享 DB，行级 `tenant_id` 过滤（成本低，依赖代码）
+  - 关键路径必须双重校验：API 鉴权 + 查询条件
+- **prompt / 工具配置**：每租户独立 system prompt、工具白名单、moderation 规则
+- **模型选择**：租户可自带 Key（BYOK）/ 用平台 Key（按用量计费）
+- **配额 & 计费**：
+  - 按租户日 / 月 token 预算
+  - 区分**平台成本**（Key 费用）和**客户付费**（订阅 + 额度）
+- **审计日志**：每次调用记录 tenant_id + user_id + 操作内容，租户可下载
+- **前端**：URL 不暴露 tenant_id（用 subdomain 或 path），UI 仅展示当前租户内容
+- **租户切换**：一个用户属多个租户时切换要清空 cache / session
+- 攻击面：避免 prompt injection 让模型输出别的租户数据（即使 RAG 库分了）
+
+### 代码示例
+
+```ts
+async function tenantRagQuery(tenantId: string, userId: string, question: string) {
+  if (!(await canAccess(userId, tenantId))) throw new Error('FORBIDDEN');
+
+  const embedding = await embed(question);
+  const docs = await vectorStore.search({
+    namespace: `tenant_${tenantId}`,
+    vector: embedding,
+    topK: 5,
+    filter: { tenant_id: tenantId },
+  });
+
+  const tenantConf = await loadTenantConf(tenantId);
+  const messages = [
+    { role: 'system', content: tenantConf.systemPrompt },
+    {
+      role: 'user',
+      content: `材料：\n${docs.map((d) => d.text).join('\n\n')}\n\n问题：${question}`,
+    },
+  ];
+
+  const res = await callLLM({
+    model: tenantConf.preferredModel,
+    apiKey: tenantConf.byokKey ?? PLATFORM_KEY,
+    messages,
+  });
+
+  await audit({ tenantId, userId, action: 'rag_query', tokens: res.usage });
+  return res;
+}
+```
+
+### 常见误区
+
+- 用 system prompt 写"只回答 X 公司问题"：模型可能被注入越界
+- 向量库只用 prefix 区分：相似度搜索仍可能跨租户匹配
+- BYOK 但不限速：恶意租户用便宜 Key 大量请求拖垮服务
+- 审计日志和业务库混存：租户拿不到日志副本
+
+### 追问
+
+- BYOK 时怎么防止租户输入恶意 baseUrl 钓鱼？
+- 跨租户共享的"通用知识"怎么处理？
+- 怎么测试隔离没漏洞（红队演练）？
+
+### 延伸
+
+- 进阶：Confidential Computing（TEE）做端到端的数据隔离
+- 工程化：每租户独立 OpenTelemetry namespace，互不干扰
+
+## llm-ci-cd-and-canary
+
+title: AI 应用的 CI/CD：把 prompt / model / eval 一起发布
+difficulty: 资深
+tags: [CI/CD, 灰度, 工程化]
+
+### 一句话
+
+AI 应用的发布单元 = code + prompt + model + eval；CI 跑 lint + typecheck + 单测 + eval 黄金集；CD 走 canary 灰度、关键指标熔断、快速回滚；prompt 改动也要走 PR review。
+
+### 题目
+
+为什么传统前端 CI/CD 直接套到 AI 应用上不够用？设计一个 AI 友好的 CI/CD pipeline。
+
+### 答案要点
+
+- **CI 阶段（PR 级别）**：
+  - 传统：lint / typecheck / unit test
+  - 新增：**prompt schema 校验**（zod）+ **eval 黄金集**（如 50 case，回归 < 5%）
+  - 新增：**成本回归**（同 prompt 在 cache 命中下成本是否上涨）
+- **CD 阶段（合并到 main）**：
+  - 部署 code + prompt 版本到 staging
+  - 跑**挑战集 + 大样本 eval**（数百 case）
+  - 通过 → canary 1% 真实流量
+  - 监控 5-30 分钟 → 看核心指标（错误率、人工接管率、延迟、成本）
+  - 阶梯：1% → 10% → 50% → 100%，每阶段熔断
+- **回滚**：一键回滚 = 切回上版本 prompt + 上版本代码（用 feature flag 解耦）
+- **数据库迁移**：AI 用的 schema 变更必须**向前向后兼容**两个版本以平滑回滚
+- **release notes**：自动生成 prompt diff + eval 分数变化 + token 用量变化
+- **环境隔离**：dev / staging / prod 各自的 prompt 仓库 + 数据库
+
+### 代码示例
+
+```yaml
+name: ai-ci
+on:
+  pull_request:
+    branches: [main]
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: pnpm i
+      - run: pnpm lint && pnpm typecheck && pnpm test
+      - name: Validate prompts
+        run: pnpm prompts:validate
+      - name: Run golden eval
+        run: pnpm ai:eval --suite=golden
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+      - name: Comment eval diff
+        run: pnpm ai:eval:comment-pr
+```
+
+```ts
+const score = await runEval('golden');
+const baseline = await getBaselineScore('main');
+if (score.value < baseline - 0.05) {
+  console.error(`Eval regressed: ${score.value} (baseline ${baseline})`);
+  process.exit(1);
+}
+```
+
+### 常见误区
+
+- prompt 不走 PR：被业务运营直接改生产，谁改的不知道
+- staging 不连真实模型：grpc / 请求结构差异，到生产才暴雷
+- canary 期太短：AI 输出多样性需要更长样本
+- 回滚时只回代码不回 prompt：留下"半成品"
+
+### 追问
+
+- 模型厂商升级（GPT-4o → GPT-4.1）怎么对待？
+- canary 阶段发现 1% 流量数据不够显著怎么办？
+- 紧急 hotfix 该走 canary 还是直接全量？
+
+### 延伸
+
+- 进阶：把 prompt 当作 ML model 一样用 MLflow 管理 experiment
+- 工程化：prompt + eval 的"绿色发布"看板，全公司都看
+
+## llm-frontend-security-checklist
+
+title: AI 前端安全清单：从 XSS 到 SSRF
+difficulty: 资深
+tags: [安全, 工程化]
+
+### 一句话
+
+AI 输出的 HTML / Markdown 要 sanitize；流式渲染要防 XSS；用户填的 baseUrl 要白名单；工具调用要确认副作用；浏览器存储 Key 要加显式提示和清除入口。
+
+### 题目
+
+列出 AI 前端在安全上必须做的检查项。
+
+### 答案要点
+
+- **输出渲染**：
+  - 模型输出 markdown → HTML 必须用 DOMPurify sanitize
+  - 流式增量插入要每段都 sanitize（不是只末尾）
+  - `<script>` / `<iframe>` / `on*` 全屏蔽；`<img onerror=...>` 是经典坑
+- **用户配置**：
+  - 自带 baseUrl 必须 https + 域名白名单（防 SSRF / 钓鱼）
+  - API Key 存 localStorage 要 UI 显著提示 + 一键清除
+  - 不要把 Key 放 URL 或 query 参数
+- **工具调用**：
+  - 副作用工具二次确认 + 显示完整入参
+  - 把工具结果再灌进 prompt 时 sanitize（防"工具结果里含 prompt injection"）
+  - 工具白名单按 user / role 控制
+- **浏览器内 LLM**：
+  - WASM / WebGPU 模型加载用 SRI 校验
+  - 不要把模型权重加密存 localStorage（容量限制）
+- **第三方组件**：
+  - markdown / 高亮 / 代码沙盒库定期升级，关注 CVE
+- **错误暴露**：
+  - 错误消息不泄漏内部 prompt / API 细节
+  - log 中 PII 脱敏
+- **CSP**：限制 connect-src / script-src，禁 eval
+
+### 代码示例
+
+```ts
+import DOMPurify from 'dompurify';
+import MarkdownIt from 'markdown-it';
+
+const md = new MarkdownIt({ html: false, linkify: true });
+
+export function renderAiMarkdown(text: string): string {
+  const html = md.render(text);
+  return DOMPurify.sanitize(html, {
+    ALLOWED_TAGS: [
+      'p',
+      'br',
+      'strong',
+      'em',
+      'code',
+      'pre',
+      'ul',
+      'ol',
+      'li',
+      'a',
+      'h1',
+      'h2',
+      'h3',
+      'blockquote',
+      'table',
+      'thead',
+      'tbody',
+      'tr',
+      'th',
+      'td',
+    ],
+    ALLOWED_ATTR: ['href', 'class'],
+    ALLOWED_URI_REGEXP: /^(https?|mailto):/,
+    ADD_ATTR: ['target', 'rel'],
+  });
+}
+
+const ALLOW_BASE_URLS = [
+  /^https:\/\/api\.openai\.com\b/,
+  /^https:\/\/api\.anthropic\.com\b/,
+  /^https:\/\/[\w.-]+\.example\.com\b/,
+];
+
+function validateBaseUrl(url: string) {
+  if (!ALLOW_BASE_URLS.some((re) => re.test(url))) {
+    throw new Error('BaseURL 不在允许列表');
+  }
+}
+```
+
+### 常见误区
+
+- v-html / dangerouslySetInnerHTML 直接渲染模型输出
+- 信任 anthropic.com 但不卡 https，被 mitm
+- 工具结果不 sanitize，工具被攻击者污染后 prompt 被劫持
+- 错误消息原文 throw 给前端，含内部 stack
+
+### 追问
+
+- AI 输出包含可执行代码（用户问"写个 todo"），怎么安全展示但又能复制运行？
+- 多用户共享 baseUrl 时怎么防"我用别人的 Key"？
+- WebGPU 本地模型加载的安全风险有哪些？
+
+### 延伸
+
+- 进阶：Trusted Types API 让所有 HTML 渲染必须经过策略
+- 工程化：把安全检查清单做成自动化扫描（snyk / git secrets）

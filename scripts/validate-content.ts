@@ -14,17 +14,64 @@ if (!files.length) {
 
 const VALID_DIFFICULTY = new Set(['基础', '进阶', '资深']);
 const VALID_SECTIONS = new Set([
-  '一句话', '题目', '答案要点', '代码示例', '常见误区', '追问', '延伸',
+  '一句话',
+  '题目',
+  '答案要点',
+  '代码示例',
+  '常见误区',
+  '追问',
+  '延伸',
 ]);
 const VALID_LANGS = new Set([
-  'js', 'javascript', 'ts', 'typescript', 'jsx', 'tsx',
-  'vue', 'html', 'markup', 'css', 'scss', 'sass', 'less',
-  'bash', 'shell', 'sh', 'zsh',
-  'json', 'jsonc', 'yaml', 'yml', 'toml', 'xml',
-  'rust', 'go', 'python', 'py', 'java', 'kotlin', 'swift', 'wgsl', 'glsl', 'dart',
-  'svelte', 'astro',
-  'sql', 'graphql', 'diff', 'plaintext', 'text', 'plain', 'md', 'markdown',
-  'dockerfile', 'nginx', 'http', 'mermaid', 'env', 'ini',
+  'js',
+  'javascript',
+  'ts',
+  'typescript',
+  'jsx',
+  'tsx',
+  'vue',
+  'html',
+  'markup',
+  'css',
+  'scss',
+  'sass',
+  'less',
+  'bash',
+  'shell',
+  'sh',
+  'zsh',
+  'json',
+  'jsonc',
+  'yaml',
+  'yml',
+  'toml',
+  'xml',
+  'rust',
+  'go',
+  'python',
+  'py',
+  'java',
+  'kotlin',
+  'swift',
+  'wgsl',
+  'glsl',
+  'dart',
+  'svelte',
+  'astro',
+  'sql',
+  'graphql',
+  'diff',
+  'plaintext',
+  'text',
+  'plain',
+  'md',
+  'markdown',
+  'dockerfile',
+  'nginx',
+  'http',
+  'mermaid',
+  'env',
+  'ini',
 ]);
 
 const seenIds = new Set<string>();
@@ -49,6 +96,7 @@ function scanQuestions(file: string, content: string): QuestionScan[] {
   let cur: QuestionScan | null = null;
   let curSection: string | null = null;
   let inFence = false;
+  let inFenceMarker = '';
 
   const flush = () => {
     if (cur) out.push(cur);
@@ -99,13 +147,15 @@ function scanQuestions(file: string, content: string): QuestionScan[] {
       if (name === '答案要点') cur.hasAnswer = true;
       continue;
     }
-    const fence = ln.match(/^```\s*(\S*)\s*$/);
+    const fence = ln.match(/^(`{3,})\s*(\S*)\s*$/);
     if (fence) {
       if (!inFence) {
         inFence = true;
-        cur.codeBlocks.push({ lang: fence[1] || '', line: i + 1 });
-      } else {
+        inFenceMarker = fence[1];
+        cur.codeBlocks.push({ lang: fence[2] || '', line: i + 1 });
+      } else if (fence[1].length >= inFenceMarker.length && !fence[2]) {
         inFence = false;
+        inFenceMarker = '';
       }
       continue;
     }

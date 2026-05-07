@@ -1,5 +1,19 @@
 # Changelog
 
+## 0.16.0
+
+- fix（运行时）：修复 `loadContent() called before initContent() resolved` 报错
+  - `useContent.ts` 模块顶层不再调用 `loadContent()`，改为函数体内调用
+  - 删除模块级 `allTags` 求值（实际未被任何 .vue 引用）
+- feat：**AI 前端题库工程化升级（18 → 48 题）**
+  - 新增基础 8 题：Token / 计费 / 采样参数 / 上下文窗口 / 三种 role / Embedding / 流式协议 / 幻觉 / Chat·Completion·Reasoning
+  - 新增进阶 6 题：重试退避 / 限流配额 / 流式中断与续写 / Prompt Caching / JSON 输出容错 / 多轮记忆模式
+  - 新增资深 6 题：Agent 架构 / 工具设计与路由 / RAG 召回质量 / 多模型路由 / 流式 + 工具协同 / UI 状态机
+  - 新增工程化 10 题：Prompt 版本管理 / Eval Pipeline / A/B 测试灰度 / 成本治理 / 可观测性 trace/log/metric / 故障分类与回放 / Guardrails / 数据回流 fine-tune / 多租户隔离 / CI·CD canary / AI 前端安全清单
+  - 每题完整 7 段（一句话 / 题目 / 答案要点 / 代码示例 / 常见误区 / 追问 / 延伸），代码示例真实可跑
+  - AI 分类难度分布：基础 9 / 进阶 16 / 资深 23（覆盖入门到架构师全梯度）
+- chore：validate-content 脚本支持 4 个反引号嵌套 fence
+
 ## 0.15.0
 
 - perf：**首屏主 bundle 392KB → 11.5KB gzip（–97%）**
