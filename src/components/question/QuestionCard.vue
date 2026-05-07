@@ -11,6 +11,7 @@ import { exportQuestionMarkdown } from '@/composables/useExport';
 import { buildPrompt, chatGptUrl } from '@/lib/ai';
 import ShareDialog from '@/components/share/ShareDialog.vue';
 import CodeRunner from '@/components/runner/CodeRunner.vue';
+import AppIcon from '@/components/icon/AppIcon.vue';
 
 const props = defineProps<{
   question: Question;
@@ -117,25 +118,52 @@ defineExpose({ toggle });
           </div>
 
           <div class="actions question-actions">
-            <button class="btn" :class="{ 'btn-primary': status === 'mastered' }" @click="setStatus('mastered')">
-              ✅ 记得 (m)
+            <button
+              class="btn"
+              :class="{ 'btn-primary': status === 'mastered' }"
+              @click="setStatus('mastered')"
+            >
+              <AppIcon name="checkCircle" /> 记得 <kbd>m</kbd>
             </button>
-            <button class="btn" :class="{ 'btn-primary': status === 'fuzzy' }" @click="setStatus('fuzzy')">
-              🤔 模糊
+            <button
+              class="btn"
+              :class="{ 'btn-primary': status === 'fuzzy' }"
+              @click="setStatus('fuzzy')"
+            >
+              <AppIcon name="question" /> 模糊
             </button>
-            <button class="btn" :class="{ 'btn-primary': status === 'review' }" @click="setStatus('review')">
-              🔁 需复习 (r)
+            <button
+              class="btn"
+              :class="{ 'btn-primary': status === 'review' }"
+              @click="setStatus('review')"
+            >
+              <AppIcon name="reload" /> 需复习 <kbd>r</kbd>
             </button>
-            <button class="btn btn-ghost" @click="showNote = !showNote">📝 笔记 (n)</button>
-            <button class="btn btn-ghost" @click="readQuestion">🔊 朗读</button>
-            <button class="btn btn-ghost" @click="stopSpeak">⏹</button>
-            <button class="btn btn-ghost" @click="aiExplain">✨ AI 讲解</button>
-            <button class="btn btn-ghost" @click="copyPromptToClipboard">📋 复制 Prompt</button>
+            <button class="btn btn-ghost" @click="showNote = !showNote">
+              <AppIcon name="edit" /> 笔记 <kbd>n</kbd>
+            </button>
+            <button class="btn btn-ghost" @click="readQuestion">
+              <AppIcon name="sound" /> 朗读
+            </button>
+            <button class="btn btn-ghost" title="停止朗读" @click="stopSpeak">
+              <AppIcon name="pause" />
+            </button>
+            <button class="btn btn-ghost" @click="aiExplain">
+              <AppIcon name="robot" /> AI 讲解
+            </button>
+            <button class="btn btn-ghost" @click="copyPromptToClipboard">
+              <AppIcon name="copy" /> 复制 Prompt
+            </button>
             <button v-if="question.code" class="btn btn-ghost" @click="showRunner = !showRunner">
-              {{ showRunner ? '⏏️ 关闭沙盒' : '▶️ 在沙盒运行' }}
+              <AppIcon :name="showRunner ? 'close' : 'play'" />
+              {{ showRunner ? '关闭沙盒' : '在沙盒运行' }}
             </button>
-            <button class="btn btn-ghost" @click="shareOpen = true">🔗 分享</button>
-            <button class="btn btn-ghost" @click="exportQuestionMarkdown(question)">⬇️ MD</button>
+            <button class="btn btn-ghost" @click="shareOpen = true">
+              <AppIcon name="share" /> 分享
+            </button>
+            <button class="btn btn-ghost" @click="exportQuestionMarkdown(question)">
+              <AppIcon name="download" /> MD
+            </button>
           </div>
         </div>
       </Transition>
@@ -231,6 +259,20 @@ defineExpose({ toggle });
   flex-wrap: wrap;
   gap: 6px;
   margin-top: 14px;
+}
+.actions .btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+.actions kbd {
+  display: inline-block;
+  padding: 0 4px;
+  font-family: monospace;
+  font-size: 11px;
+  background: var(--c-bg-mute);
+  border-radius: 3px;
+  color: var(--c-text-mute);
 }
 .status-badge {
   font-size: 12px;

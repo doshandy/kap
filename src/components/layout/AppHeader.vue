@@ -2,6 +2,7 @@
 import { computed } from 'vue';
 import { useRouter } from 'vue-router';
 import { useSettingsStore } from '@/stores/settings';
+import AppIcon from '@/components/icon/AppIcon.vue';
 
 defineEmits<{
   (e: 'toggle-sidebar'): void;
@@ -26,7 +27,7 @@ const isDark = computed(() => {
   <header class="hdr">
     <div class="left">
       <button class="btn-ghost menu-btn" aria-label="菜单" @click="$emit('toggle-sidebar')">
-        ☰
+        <AppIcon name="list" />
       </button>
       <button class="brand" @click="router.push('/')">
         <span class="logo">KAP</span>
@@ -35,23 +36,36 @@ const isDark = computed(() => {
     </div>
     <div class="right">
       <button class="btn btn-ghost" title="搜索 (/)" @click="$emit('open-search')">
-        <span>🔍 搜索</span>
+        <AppIcon name="search" />
+        <span class="lbl">搜索</span>
         <kbd class="kbd">⌘K</kbd>
       </button>
-      <button class="btn btn-ghost" title="顺序学习" @click="router.push('/learn')">📖 顺序学习</button>
-      <button class="btn btn-ghost" title="模拟面试" @click="router.push('/quiz')">🎯 抽题</button>
-      <button class="btn btn-ghost" title="待复习" @click="router.push('/review')">🔁 复习</button>
-      <button class="btn btn-ghost" title="路线图" @click="router.push('/roadmap')">🗺️</button>
+      <button class="btn btn-ghost" title="顺序学习" @click="router.push('/learn')">
+        <AppIcon name="read" /><span class="lbl">顺序学习</span>
+      </button>
+      <button class="btn btn-ghost" title="模拟面试" @click="router.push('/quiz')">
+        <AppIcon name="experiment" /><span class="lbl">抽题</span>
+      </button>
+      <button class="btn btn-ghost" title="待复习" @click="router.push('/review')">
+        <AppIcon name="reload" /><span class="lbl">复习</span>
+      </button>
+      <button class="btn btn-ghost" title="路线图" aria-label="路线图" @click="router.push('/roadmap')">
+        <AppIcon name="compass" />
+      </button>
       <button
         class="btn btn-ghost"
         title="切换主题"
         aria-label="切换主题"
         @click="settings.toggleTheme()"
       >
-        {{ isDark ? '🌙' : '☀️' }}
+        <AppIcon :name="isDark ? 'moon' : 'sun'" />
       </button>
-      <button class="btn btn-ghost" title="设置" @click="router.push('/settings')">⚙️</button>
-      <button class="btn btn-ghost" title="快捷键 (?)" @click="$emit('open-help')">?</button>
+      <button class="btn btn-ghost" title="设置" aria-label="设置" @click="router.push('/settings')">
+        <AppIcon name="setting" />
+      </button>
+      <button class="btn btn-ghost" title="快捷键 (?)" aria-label="快捷键" @click="$emit('open-help')">
+        <AppIcon name="question" />
+      </button>
     </div>
   </header>
 </template>
@@ -105,6 +119,11 @@ const isDark = computed(() => {
   margin-left: 4px;
   color: var(--c-text-mute);
 }
+.right .btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
 @media (max-width: 768px) {
   .menu-btn {
     display: inline-flex;
@@ -112,7 +131,7 @@ const isDark = computed(() => {
   .brand-sub {
     display: none;
   }
-  .right .btn span {
+  .right .btn .lbl {
     display: none;
   }
 }

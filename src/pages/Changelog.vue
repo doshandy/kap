@@ -2,6 +2,7 @@
 import { computed } from 'vue';
 import { markdown } from '@/lib/parseMarkdown';
 import raw from '../../CHANGELOG.md?raw';
+import AppIcon from '@/components/icon/AppIcon.vue';
 
 const html = computed(() => markdown.render(raw));
 </script>
@@ -9,7 +10,7 @@ const html = computed(() => markdown.render(raw));
 <template>
   <div class="cl">
     <header>
-      <h1>📝 更新日志</h1>
+      <h1><AppIcon name="fileText" /> 更新日志</h1>
     </header>
     <div class="markdown-body" v-html="html" />
   </div>
@@ -23,5 +24,8 @@ const html = computed(() => markdown.render(raw));
 header h1 {
   font-size: 22px;
   margin-bottom: 12px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
 }
 </style>

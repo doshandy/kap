@@ -44,7 +44,11 @@ function gotoOffset(d: number) {
       <button class="btn" @click="gotoOffset(1)">下一题 → (j)</button>
     </div>
   </div>
-  <div v-else class="empty">题目不存在</div>
+  <div v-else class="empty">
+    <p>该题目不存在，可能是链接拼错或题目已重命名。</p>
+    <p class="hint">分享时请使用页面右上角的"分享"按钮自动生成正确链接。</p>
+    <RouterLink to="/" class="btn btn-primary">回到总览</RouterLink>
+  </div>
 </template>
 
 <style scoped>
@@ -66,8 +70,15 @@ function gotoOffset(d: number) {
   margin-top: 16px;
 }
 .empty {
-  padding: 60px;
+  padding: 60px 20px;
   text-align: center;
   color: var(--c-text-mute);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+.empty .hint {
+  font-size: 12px;
 }
 </style>

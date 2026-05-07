@@ -48,6 +48,9 @@
   <url><loc>https://doshandy.github.io/kap/q/01-javascript/structured-clone</loc><lastmod>2026-05-07</lastmod></url>
   <url><loc>https://doshandy.github.io/kap/q/01-javascript/tagged-template-literal</loc><lastmod>2026-05-07</lastmod></url>
   <url><loc>https://doshandy.github.io/kap/q/01-javascript/weak-collection</loc><lastmod>2026-05-07</lastmod></url>
+  <url><loc>https://doshandy.github.io/kap/q/01-javascript/bind-call-apply</loc><lastmod>2026-05-07</lastmod></url>
+  <url><loc>https://doshandy.github.io/kap/q/01-javascript/new-operator</loc><lastmod>2026-05-07</lastmod></url>
+  <url><loc>https://doshandy.github.io/kap/q/01-javascript/promise-all-allsettled-race-any</loc><lastmod>2026-05-07</lastmod></url>
   <url><loc>https://doshandy.github.io/kap/q/02-typescript/any-vs-unknown</loc><lastmod>2026-05-07</lastmod></url>
   <url><loc>https://doshandy.github.io/kap/q/02-typescript/generic-constraints</loc><lastmod>2026-05-07</lastmod></url>
   <url><loc>https://doshandy.github.io/kap/q/02-typescript/type-vs-interface</loc><lastmod>2026-05-07</lastmod></url>
@@ -80,6 +83,9 @@
   <url><loc>https://doshandy.github.io/kap/q/03-vue/nuxt3-overview</loc><lastmod>2026-05-07</lastmod></url>
   <url><loc>https://doshandy.github.io/kap/q/03-vue/vapor-mode</loc><lastmod>2026-05-07</lastmod></url>
   <url><loc>https://doshandy.github.io/kap/q/03-vue/vue-perf-deep</loc><lastmod>2026-05-07</lastmod></url>
+  <url><loc>https://doshandy.github.io/kap/q/03-vue/vue3-vs-vue2-reactivity</loc><lastmod>2026-05-07</lastmod></url>
+  <url><loc>https://doshandy.github.io/kap/q/03-vue/vue-component-communication</loc><lastmod>2026-05-07</lastmod></url>
+  <url><loc>https://doshandy.github.io/kap/q/03-vue/vue-async-component-suspense</loc><lastmod>2026-05-07</lastmod></url>
   <url><loc>https://doshandy.github.io/kap/q/04-css/box-bfc</loc><lastmod>2026-05-07</lastmod></url>
   <url><loc>https://doshandy.github.io/kap/q/04-css/stacking-context</loc><lastmod>2026-05-07</lastmod></url>
   <url><loc>https://doshandy.github.io/kap/q/04-css/flex-grid</loc><lastmod>2026-05-07</lastmod></url>
@@ -99,6 +105,9 @@
   <url><loc>https://doshandy.github.io/kap/q/05-browser/devtools-memory</loc><lastmod>2026-05-07</lastmod></url>
   <url><loc>https://doshandy.github.io/kap/q/05-browser/v8-engine</loc><lastmod>2026-05-07</lastmod></url>
   <url><loc>https://doshandy.github.io/kap/q/05-browser/webgpu-overview</loc><lastmod>2026-05-07</lastmod></url>
+  <url><loc>https://doshandy.github.io/kap/q/05-browser/reflow-vs-repaint</loc><lastmod>2026-05-07</lastmod></url>
+  <url><loc>https://doshandy.github.io/kap/q/05-browser/browser-cache-strategy</loc><lastmod>2026-05-07</lastmod></url>
+  <url><loc>https://doshandy.github.io/kap/q/05-browser/cookie-localstorage-indexeddb</loc><lastmod>2026-05-07</lastmod></url>
   <url><loc>https://doshandy.github.io/kap/q/06-network/tcp-tls-http</loc><lastmod>2026-05-07</lastmod></url>
   <url><loc>https://doshandy.github.io/kap/q/06-network/http1-http2-http3</loc><lastmod>2026-05-07</lastmod></url>
   <url><loc>https://doshandy.github.io/kap/q/06-network/caching</loc><lastmod>2026-05-07</lastmod></url>
@@ -108,6 +117,9 @@
   <url><loc>https://doshandy.github.io/kap/q/06-network/dns-cdn</loc><lastmod>2026-05-07</lastmod></url>
   <url><loc>https://doshandy.github.io/kap/q/06-network/webrtc-basic</loc><lastmod>2026-05-07</lastmod></url>
   <url><loc>https://doshandy.github.io/kap/q/06-network/quic-http3-deep</loc><lastmod>2026-05-07</lastmod></url>
+  <url><loc>https://doshandy.github.io/kap/q/06-network/https-handshake</loc><lastmod>2026-05-07</lastmod></url>
+  <url><loc>https://doshandy.github.io/kap/q/06-network/websocket-vs-sse-vs-polling</loc><lastmod>2026-05-07</lastmod></url>
+  <url><loc>https://doshandy.github.io/kap/q/06-network/cors-and-preflight</loc><lastmod>2026-05-07</lastmod></url>
   <url><loc>https://doshandy.github.io/kap/q/07-engineering/vite-principle</loc><lastmod>2026-05-07</lastmod></url>
   <url><loc>https://doshandy.github.io/kap/q/07-engineering/bundler-ecosystem</loc><lastmod>2026-05-07</lastmod></url>
   <url><loc>https://doshandy.github.io/kap/q/07-engineering/package-manager</loc><lastmod>2026-05-07</lastmod></url>
@@ -275,6 +287,9 @@
   <url><loc>https://doshandy.github.io/kap/q/22-react/react-19-features</loc><lastmod>2026-05-07</lastmod></url>
   <url><loc>https://doshandy.github.io/kap/q/22-react/react-typescript-patterns</loc><lastmod>2026-05-07</lastmod></url>
   <url><loc>https://doshandy.github.io/kap/q/22-react/react-testing</loc><lastmod>2026-05-07</lastmod></url>
+  <url><loc>https://doshandy.github.io/kap/q/22-react/react-key-warning</loc><lastmod>2026-05-07</lastmod></url>
+  <url><loc>https://doshandy.github.io/kap/q/22-react/react-controlled-vs-uncontrolled</loc><lastmod>2026-05-07</lastmod></url>
+  <url><loc>https://doshandy.github.io/kap/q/22-react/react-portal-error-boundary</loc><lastmod>2026-05-07</lastmod></url>
   <url><loc>https://doshandy.github.io/kap/q/23-framework-compare/reactivity-models</loc><lastmod>2026-05-07</lastmod></url>
   <url><loc>https://doshandy.github.io/kap/q/23-framework-compare/rendering-strategy</loc><lastmod>2026-05-07</lastmod></url>
   <url><loc>https://doshandy.github.io/kap/q/23-framework-compare/bundle-runtime-cost</loc><lastmod>2026-05-07</lastmod></url>

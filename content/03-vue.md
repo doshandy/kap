@@ -949,3 +949,143 @@ const dataset = shallowRef(markRaw(hugeStaticDataset));
 ### 延伸
 - 真实生产环境性能问题大多是"首屏阻塞 + 列表渲染过大 + 接口慢"组合，不要只盯前端
 - 性能优化要立项做长期规划，加预算和监控；零散修复很快会被新需求冲掉
+
+## vue3-vs-vue2-reactivity
+title: Vue 3 的 Proxy 响应式相比 Vue 2 的 defineProperty 解决了什么
+difficulty: 进阶
+tags: [响应式, Vue3]
+
+### 题目
+Vue 3 的响应式系统相比 Vue 2 的 Object.defineProperty 有哪些根本性改进？
+
+### 答案要点
+- Vue 2：递归遍历对象给每个 key 加 getter/setter；新增/删除属性需要 `Vue.set / Vue.delete`；数组靠 7 个变异方法 hack
+- Vue 3：Proxy 拦截整个对象，**惰性递归**（访问到才代理子对象），新增/删除/数组下标全部可监听
+- Vue 3 还把依赖结构换成 `WeakMap<target, Map<key, Set<effect>>>`，依赖收集和触发都更高效
+- `ref` 处理基本类型（用 `.value` 包装）；`reactive` 处理对象（不能解构，需要 `toRefs`）
+- 副作用统一为 `effect`，`computed` / `watch` 都是其上层封装
+
+### 代码示例
+```js
+function reactive(obj) {
+  const dep = new Map();
+  return new Proxy(obj, {
+    get(t, k, r) {
+      track(dep, k);
+      const v = Reflect.get(t, k, r);
+      return v && typeof v === 'object' ? reactive(v) : v;
+    },
+    set(t, k, v, r) {
+      const ok = Reflect.set(t, k, v, r);
+      trigger(dep, k);
+      return ok;
+    },
+  });
+}
+
+let activeEffect = null;
+function effect(fn) {
+  activeEffect = fn;
+  fn();
+  activeEffect = null;
+}
+function track(dep, k) {
+  if (!activeEffect) return;
+  if (!dep.has(k)) dep.set(k, new Set());
+  dep.get(k).add(activeEffect);
+}
+function trigger(dep, k) {
+  dep.get(k)?.forEach((f) => f());
+}
+```
+
+### 延伸
+- Proxy 不能监听到原始类型的赋值，所以才需要 ref
+- `shallowRef` / `shallowReactive` 用于性能场景，避免深层代理开销
+- Vue 3.4+ 引入更高效的 v-bind 优化与基于编译时的响应式追踪
+
+## vue-component-communication
+title: Vue 3 组件之间通信有哪些方式
+difficulty: 基础
+tags: [组件, Vue3]
+
+### 题目
+父子、兄弟、跨层级组件分别怎么通信，各自适合什么场景？
+
+### 答案要点
+- **父→子**：`props`（推荐）
+- **子→父**：`emit`（声明式 `defineEmits` 强类型）
+- **双向**：`v-model`（默认 modelValue + update:modelValue，可定义多个）
+- **跨层级（祖→后代）**：`provide / inject`（适合主题、i18n、表单）
+- **任意组件**：Pinia / 全局事件总线（mitt） / `useGlobalState`
+- **组件实例引用**：`ref` + `defineExpose`（适合命令式调用，如表单 validate）
+- **插槽**：作用域插槽传数据给父组件渲染
+
+### 代码示例
+```vue
+<script setup lang="ts">
+const props = defineProps<{ value: number }>();
+const emit = defineEmits<{ 'update:value': [v: number] }>();
+
+import { provide } from 'vue';
+provide('theme', { color: 'blue' });
+
+import { useGlobalStore } from '@/stores';
+const store = useGlobalStore();
+
+defineExpose({ focus: () => inputEl.value?.focus() });
+</script>
+```
+
+### 延伸
+- Pinia 是 Vuex 4 的官方继任者，组合式 API 设计
+- 组件库通常用 provide/inject 共享配置（如 ConfigProvider）
+- 大量跨组件状态用 mitt 比事件总线更轻量
+
+## vue-async-component-suspense
+title: Vue 3 异步组件 + Suspense 怎么做骨架屏与错误兜底
+difficulty: 进阶
+tags: [异步, 性能]
+
+### 题目
+defineAsyncComponent 和 Suspense 如何配合实现优雅的加载体验？
+
+### 答案要点
+- `defineAsyncComponent` 包装动态 import，可指定 loading / error / delay / timeout
+- `<Suspense>` 内置组件，等待异步 setup() 完成；提供 `#default` 与 `#fallback`
+- Suspense 适配 SSR 流式渲染（streaming hydration）
+- 错误边界用 `onErrorCaptured` 或 `<Suspense @resolve @fallback>` 事件
+- 路由级懒加载：`component: () => import('./X.vue')` 已自动支持
+
+### 代码示例
+```vue
+<script setup lang="ts">
+import { defineAsyncComponent } from 'vue';
+import Skeleton from './Skeleton.vue';
+import ErrorBox from './ErrorBox.vue';
+
+const Heavy = defineAsyncComponent({
+  loader: () => import('./Heavy.vue'),
+  loadingComponent: Skeleton,
+  errorComponent: ErrorBox,
+  delay: 200,
+  timeout: 5000,
+});
+</script>
+
+<template>
+  <Suspense>
+    <template #default>
+      <Heavy />
+    </template>
+    <template #fallback>
+      <Skeleton />
+    </template>
+  </Suspense>
+</template>
+```
+
+### 延伸
+- Suspense 仍是 experimental，但生产中已被广泛使用
+- Nuxt 3 完全基于 Suspense + asyncData
+- 大型路由可结合 webpack/vite 的 prefetch / preload 提示

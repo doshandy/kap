@@ -513,3 +513,108 @@ new PerformanceObserver((list) => {
 ### 延伸
 - HTTP/3 收益最明显的是中等延迟 + 抖动场景（跨国、移动网）
 - 强制走 H3 不一定更稳定，建议保留 H2 fallback，做 A/B
+
+## https-handshake
+title: HTTPS 握手过程，TLS 1.2 vs 1.3 有什么区别
+difficulty: 进阶
+tags: [TLS, 安全]
+
+### 题目
+请描述一次完整的 HTTPS 握手过程，TLS 1.3 相比 1.2 优化了什么？
+
+### 答案要点
+- **TLS 1.2**：2-RTT 握手（ClientHello → ServerHello + Cert + KeyExchange → ClientKeyExchange + Finished → Finished）
+- **TLS 1.3**：1-RTT 握手；客户端 Hello 同时携带 KeyShare，服务端 Hello + Cert 一次返回；后续应用数据
+- TLS 1.3 还支持 0-RTT（PSK / Session Ticket），但有重放风险
+- 移除了不安全算法（RC4、MD5、SHA-1、CBC、RSA 密钥交换）
+- 默认 ECDHE + AEAD（GCM/ChaCha20-Poly1305），前向保密
+- 证书验证：链路验证、CN/SAN 匹配、CT 透明度日志
+
+### 代码示例
+```bash
+openssl s_client -connect doshandy.github.io:443 -tls1_3 -showcerts
+
+curl --tls13 https://example.com -v
+```
+
+### 延伸
+- HTTP/3 基于 QUIC（UDP），将 TLS 1.3 内嵌到传输层握手中
+- mTLS 在企业内网常用：客户端也提供证书
+- HSTS（Strict-Transport-Security）防止降级攻击
+
+## websocket-vs-sse-vs-polling
+title: 长轮询 / WebSocket / SSE 怎么选
+difficulty: 进阶
+tags: [实时, 推送]
+
+### 题目
+做一个聊天 / 推送 / 实时仪表盘，应该选哪种通信方式？
+
+### 答案要点
+- **轮询（Polling）**：简单粗暴；定时请求；浪费带宽，延迟取决于间隔
+- **长轮询（Long Polling）**：服务器 hold 住请求直到有数据；HTTP/1.1 兼容性好
+- **SSE（Server-Sent Events）**：基于 HTTP 的单向推送（服务器→客户端）；自动重连、事件 ID 续传；不支持二进制
+- **WebSocket**：双向，二进制/文本，握手后是 TCP 长连接；低延迟、协议轻
+- **WebTransport（QUIC）**：双向 + 多流 + 不可靠（datagram），新一代选项
+- 选型：仪表盘只读 → SSE；聊天/游戏/协作 → WebSocket；超低延迟（VR/RTC）→ WebTransport / WebRTC
+
+### 代码示例
+```js
+const es = new EventSource('/stream');
+es.onmessage = (e) => console.log('msg:', e.data);
+es.addEventListener('price', (e) => updatePrice(JSON.parse(e.data)));
+
+const ws = new WebSocket('wss://example.com/chat');
+ws.onopen = () => ws.send(JSON.stringify({ type: 'hello' }));
+ws.onmessage = (e) => render(JSON.parse(e.data));
+ws.onclose = () => setTimeout(reconnect, 1000);
+```
+
+### 延伸
+- AI 流式响应一般用 SSE（OpenAI / Anthropic / DeepSeek 都是）
+- WebSocket 必须自己处理心跳与重连（socket.io 帮忙做了）
+- 反向代理（Nginx / Cloudflare）需要 `Connection: upgrade` 配置
+
+## cors-and-preflight
+title: 跨域与 CORS 预检，谁触发了 OPTIONS
+difficulty: 进阶
+tags: [CORS, 安全]
+
+### 题目
+请说说同源策略、CORS 的工作机制，以及哪些请求会触发预检。
+
+### 答案要点
+- 同源 = 协议 + 域名 + 端口完全相同；同源策略限制 cookie / DOM / Ajax
+- 简单请求条件：方法 ∈ {GET, HEAD, POST}；Content-Type ∈ {text/plain, application/x-www-form-urlencoded, multipart/form-data}；不含自定义头
+- 触发预检（OPTIONS）的情况：自定义头、PUT/DELETE/PATCH、application/json
+- 预检响应必须带 `Access-Control-Allow-Methods / Headers / Origin`，可用 `Access-Control-Max-Age` 缓存
+- 携带 cookie 需要 `Access-Control-Allow-Credentials: true` 且服务端不能 `*` 通配
+- 备选：JSONP（已淘汰）、postMessage（跨窗口）、Nginx 反向代理
+
+### 代码示例
+```js
+fetch('/api/users', {
+  method: 'POST',
+  credentials: 'include',
+  headers: { 'Content-Type': 'application/json', 'X-Trace-Id': 'abc' },
+  body: JSON.stringify({ name: 'kap' }),
+});
+```
+
+```nginx
+location /api/ {
+  add_header Access-Control-Allow-Origin $http_origin always;
+  add_header Access-Control-Allow-Credentials true always;
+  add_header Access-Control-Allow-Headers 'Content-Type,X-Trace-Id' always;
+  add_header Access-Control-Allow-Methods 'GET,POST,PUT,DELETE,OPTIONS' always;
+  if ($request_method = OPTIONS) {
+    add_header Access-Control-Max-Age 600;
+    return 204;
+  }
+}
+```
+
+### 延伸
+- Chrome 强制 SameSite=Lax，跨域 cookie 需 Secure + SameSite=None
+- Private Network Access（CORS-RFC1918）会进一步收紧本地网络的跨源访问
+- 推荐用 BFF/网关代理减少跨域复杂度

@@ -1,0 +1,136 @@
+<script setup lang="ts">
+/**
+ * 统一封装 Ant Design Icons，避免每个使用点都 import。
+ * 对没有合适 antd icon 的位置（如 emoji 表情），保留原 emoji 即可。
+ */
+import {
+  AppstoreOutlined,
+  ArrowDownOutlined,
+  ArrowLeftOutlined,
+  ArrowRightOutlined,
+  ArrowUpOutlined,
+  BellOutlined,
+  BookOutlined,
+  BugOutlined,
+  BulbFilled,
+  BulbOutlined,
+  CalendarOutlined,
+  CheckCircleOutlined,
+  CheckOutlined,
+  ClearOutlined,
+  CloseOutlined,
+  CodeOutlined,
+  CompassOutlined,
+  CopyOutlined,
+  DashboardOutlined,
+  DeleteOutlined,
+  DownloadOutlined,
+  EditOutlined,
+  ExperimentOutlined,
+  EyeInvisibleOutlined,
+  EyeOutlined,
+  FileTextOutlined,
+  FilterOutlined,
+  FireOutlined,
+  FolderOpenOutlined,
+  GithubOutlined,
+  HomeOutlined,
+  ImportOutlined,
+  InfoCircleOutlined,
+  LinkOutlined,
+  PauseCircleOutlined,
+  PieChartOutlined,
+  PlayCircleOutlined,
+  PrinterOutlined,
+  QrcodeOutlined,
+  QuestionCircleOutlined,
+  ReadOutlined,
+  ReloadOutlined,
+  RobotOutlined,
+  RocketOutlined,
+  SearchOutlined,
+  SettingOutlined,
+  ShareAltOutlined,
+  SoundOutlined,
+  StarOutlined,
+  SwapOutlined,
+  ThunderboltOutlined,
+  TrophyOutlined,
+  UnorderedListOutlined,
+  UploadOutlined,
+} from '@ant-design/icons-vue';
+
+const map = {
+  appstore: AppstoreOutlined,
+  arrowDown: ArrowDownOutlined,
+  arrowLeft: ArrowLeftOutlined,
+  arrowRight: ArrowRightOutlined,
+  arrowUp: ArrowUpOutlined,
+  bell: BellOutlined,
+  book: BookOutlined,
+  bug: BugOutlined,
+  calendar: CalendarOutlined,
+  check: CheckOutlined,
+  checkCircle: CheckCircleOutlined,
+  clear: ClearOutlined,
+  close: CloseOutlined,
+  code: CodeOutlined,
+  compass: CompassOutlined,
+  copy: CopyOutlined,
+  dashboard: DashboardOutlined,
+  delete: DeleteOutlined,
+  download: DownloadOutlined,
+  edit: EditOutlined,
+  experiment: ExperimentOutlined,
+  eye: EyeOutlined,
+  eyeInvisible: EyeInvisibleOutlined,
+  fileText: FileTextOutlined,
+  filter: FilterOutlined,
+  fire: FireOutlined,
+  folderOpen: FolderOpenOutlined,
+  github: GithubOutlined,
+  home: HomeOutlined,
+  import: ImportOutlined,
+  info: InfoCircleOutlined,
+  link: LinkOutlined,
+  list: UnorderedListOutlined,
+  moon: BulbFilled,
+  pause: PauseCircleOutlined,
+  pieChart: PieChartOutlined,
+  play: PlayCircleOutlined,
+  printer: PrinterOutlined,
+  qrcode: QrcodeOutlined,
+  question: QuestionCircleOutlined,
+  read: ReadOutlined,
+  reload: ReloadOutlined,
+  robot: RobotOutlined,
+  rocket: RocketOutlined,
+  search: SearchOutlined,
+  setting: SettingOutlined,
+  share: ShareAltOutlined,
+  sound: SoundOutlined,
+  star: StarOutlined,
+  sun: BulbOutlined,
+  swap: SwapOutlined,
+  thunderbolt: ThunderboltOutlined,
+  trophy: TrophyOutlined,
+  upload: UploadOutlined,
+} as const;
+
+export type IconName = keyof typeof map;
+
+defineProps<{ name: IconName }>();
+</script>
+
+<template>
+  <component :is="map[name]" class="app-icon" />
+</template>
+
+<style scoped>
+.app-icon {
+  display: inline-flex;
+  align-items: center;
+  font-size: inherit;
+  vertical-align: -0.125em;
+}
+</style>

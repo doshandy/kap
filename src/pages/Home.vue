@@ -14,6 +14,7 @@ import { CanvasRenderer } from 'echarts/renderers';
 import { useContent } from '@/composables/useContent';
 import { useProgressStore } from '@/stores/progress';
 import { useReviewStore } from '@/stores/review';
+import AppIcon from '@/components/icon/AppIcon.vue';
 
 echarts.use([
   PieChart,
@@ -118,30 +119,51 @@ function getHeatmapOption() {
   const map = progress.heatmap;
   const points = Object.entries(map).map(([d, v]) => [d, v]);
   const max = Math.max(1, ...points.map((p) => p[1] as number));
-  const year = new Date().getFullYear();
+  const today = new Date();
+  const end = today.toISOString().slice(0, 10);
+  const startDate = new Date(today);
+  startDate.setMonth(startDate.getMonth() - 11);
+  startDate.setDate(1);
+  const start = startDate.toISOString().slice(0, 10);
   return {
-    tooltip: { formatter: (p: any) => `${p.value[0]}：${p.value[1]} 题` },
+    tooltip: {
+      formatter: (p: { value: [string, number] }) =>
+        `${p.value[0]}：${p.value[1] || 0} 题`,
+    },
     visualMap: {
       min: 0,
       max,
       orient: 'horizontal',
       left: 'center',
       top: 0,
+      itemWidth: 14,
+      itemHeight: 12,
+      textStyle: { color: isDark() ? '#cbd5e1' : '#475569', fontSize: 11 },
       inRange: { color: ['#e0f2fe', '#0ea5e9', '#1e3a8a'] },
     },
     calendar: {
-      top: 60,
+      top: 50,
       left: 40,
       right: 20,
-      range: year,
-      cellSize: ['auto', 16],
+      bottom: 10,
+      range: [start, end],
+      cellSize: [16, 16],
       splitLine: { show: false },
       itemStyle: { borderColor: isDark() ? '#0b1220' : '#fff', borderWidth: 1 },
       yearLabel: { show: false },
       monthLabel: { color: isDark() ? '#cbd5e1' : '#475569', fontSize: 11 },
-      dayLabel: { color: isDark() ? '#cbd5e1' : '#475569', fontSize: 10, firstDay: 1 },
+      dayLabel: {
+        color: isDark() ? '#cbd5e1' : '#475569',
+        fontSize: 10,
+        firstDay: 1,
+        nameMap: ['日', '一', '二', '三', '四', '五', '六'],
+      },
     },
-    series: { type: 'heatmap', coordinateSystem: 'calendar', data: points },
+    series: {
+      type: 'heatmap',
+      coordinateSystem: 'calendar',
+      data: points.length ? points : [[end, 0]],
+    },
   };
 }
 
@@ -218,12 +240,19 @@ watch(() => [totalDone.value, dueCount.value, document.documentElement.className
       <h1>👋 欢迎来到 KAP</h1>
       <p class="subtitle">Vue 前端工程师知识图谱 · 自查 · 面试 · 复习一站式</p>
       <div class="quick">
-        <RouterLink class="btn btn-primary" to="/learn">📖 顺序学习（从第 1 题开始）</RouterLink>
-        <RouterLink class="btn" to="/quiz">🎯 抽题模拟</RouterLink>
-        <RouterLink class="btn" to="/review">
-          🔁 待复习 <b v-if="dueCount">{{ dueCount }}</b>
+        <RouterLink class="btn btn-primary" to="/learn">
+          <AppIcon name="read" /> 顺序学习（从第 1 题开始）
         </RouterLink>
-        <RouterLink class="btn" to="/roadmap">🗺️ 学习路线</RouterLink>
+        <RouterLink class="btn" to="/quiz">
+          <AppIcon name="experiment" /> 抽题模拟
+        </RouterLink>
+        <RouterLink class="btn" to="/review">
+          <AppIcon name="reload" /> 待复习
+          <b v-if="dueCount">{{ dueCount }}</b>
+        </RouterLink>
+        <RouterLink class="btn" to="/roadmap">
+          <AppIcon name="compass" /> 学习路线
+        </RouterLink>
       </div>
       <div class="kpi">
         <div>
@@ -273,6 +302,11 @@ watch(() => [totalDone.value, dueCount.value, document.documentElement.className
 }
 .hero {
   padding: 24px 28px;
+}
+.quick .btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
 }
 .hero h1 {
   font-size: 28px;
@@ -332,8 +366,8 @@ watch(() => [totalDone.value, dueCount.value, document.documentElement.className
   min-height: 200px;
 }
 .chart-box.heat {
-  height: 220px;
-  min-width: 760px;
+  height: 200px;
+  min-width: 880px;
 }
 .chart.heat-wrap {
   overflow-x: auto;

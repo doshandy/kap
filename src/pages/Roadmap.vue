@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 import { useContent } from '@/composables/useContent';
+import AppIcon from '@/components/icon/AppIcon.vue';
 
 const { categories } = useContent();
 
@@ -63,7 +64,7 @@ function catCount(id: string) {
 <template>
   <div class="rm">
     <header>
-      <h1>🗺️ 学习路线图</h1>
+      <h1><AppIcon name="compass" /> 学习路线图</h1>
       <p class="muted">三种典型路径，按需切换。每条路径会按推荐顺序列出分类。</p>
     </header>
     <div class="tabs">
@@ -81,8 +82,12 @@ function catCount(id: string) {
       {{ paths.find((p) => p.id === active)?.desc }}
     </p>
     <div class="cta">
-      <RouterLink to="/learn" class="cta-btn">📖 从第 1 题开始顺序学习</RouterLink>
-      <RouterLink to="/quiz" class="cta-btn ghost">🎯 直接抽题模拟</RouterLink>
+      <RouterLink to="/learn" class="cta-btn">
+        <AppIcon name="read" /> 从第 1 题开始顺序学习
+      </RouterLink>
+      <RouterLink to="/quiz" class="cta-btn ghost">
+        <AppIcon name="experiment" /> 直接抽题模拟
+      </RouterLink>
     </div>
     <ol v-if="(paths.find((p) => p.id === active)?.ordering || []).length" class="path">
       <li
@@ -107,6 +112,14 @@ function catCount(id: string) {
 }
 header h1 {
   font-size: 22px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+.cta-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
 }
 .muted {
   color: var(--c-text-mute);

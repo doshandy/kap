@@ -612,3 +612,128 @@ setTimeout(() => {
 ### 延伸
 - WeakRef / FinalizationRegistry 行为依赖 GC 时机，跨引擎 / 跨设备表现不一致，业务侧不要依赖具体时序
 - React Compiler 的依赖追踪在内部也用 WeakMap 关联组件实例和缓存
+
+## bind-call-apply
+title: bind / call / apply 的区别与手写实现
+difficulty: 进阶
+tags: [this, 函数]
+
+### 题目
+说说 bind / call / apply 的区别，并手写一个 myBind。
+
+### 答案要点
+- `call(thisArg, ...args)`：立即调用，参数依次传
+- `apply(thisArg, [args])`：立即调用，参数为数组
+- `bind(thisArg, ...args)`：返回新函数，可继续传参（柯里化）
+- bind 后再被 new 调用时，绑定的 this 失效（new 的优先级更高）
+- 三者都不会修改原函数
+
+### 代码示例
+```js
+Function.prototype.myBind = function (ctx, ...preset) {
+  if (typeof this !== 'function') throw new TypeError('not callable');
+  const fn = this;
+  function bound(...args) {
+    if (this instanceof bound) {
+      return fn.apply(this, [...preset, ...args]);
+    }
+    return fn.apply(ctx, [...preset, ...args]);
+  }
+  bound.prototype = Object.create(fn.prototype);
+  return bound;
+};
+
+function greet(greeting, name) {
+  return `${greeting}, ${name}, I am ${this.role}`;
+}
+const hi = greet.myBind({ role: 'dev' }, 'Hi');
+console.log(hi('Alice'));
+```
+
+### 延伸
+- 箭头函数没有自己的 this，bind/call/apply 对它无效
+- bind 链式调用只第一次绑定生效
+
+## new-operator
+title: new 操作符做了哪些事，怎么手写
+difficulty: 进阶
+tags: [对象, 函数]
+
+### 题目
+`new Foo(args)` 内部的执行步骤是什么？请用 myNew 实现。
+
+### 答案要点
+1. 创建一个空对象 obj
+2. 将 obj 的 `[[Prototype]]` 指向 `Foo.prototype`
+3. 以 obj 为 this 执行 Foo
+4. 如果构造函数返回的是对象则返回该对象，否则返回 obj
+- class 内部基本等价于 new；箭头函数不能 new
+
+### 代码示例
+```js
+function myNew(Ctor, ...args) {
+  if (typeof Ctor !== 'function') throw new TypeError('not constructor');
+  const obj = Object.create(Ctor.prototype);
+  const ret = Ctor.apply(obj, args);
+  return (ret && typeof ret === 'object') || typeof ret === 'function' ? ret : obj;
+}
+
+class Point {
+  constructor(x, y) {
+    this.x = x;
+    this.y = y;
+  }
+  toString() {
+    return `(${this.x}, ${this.y})`;
+  }
+}
+const p = myNew(Point, 1, 2);
+console.log(p.toString(), p instanceof Point);
+```
+
+### 延伸
+- 显式返回原始值（如 `return 1`）会被忽略
+- 箭头函数被 new 时抛 TypeError
+- ES6 Reflect.construct 是底层 API，可用于继承场景
+
+## promise-all-allsettled-race-any
+title: Promise.all / allSettled / race / any 的差异和典型用法
+difficulty: 进阶
+tags: [异步, Promise]
+
+### 题目
+四个静态方法分别什么时候 resolve / reject？日常怎么选？
+
+### 答案要点
+- `Promise.all(iter)`：全部 fulfilled 才 fulfilled，任一 rejected 立即 reject（适合并发依赖）
+- `Promise.allSettled(iter)`：等所有都结束，永不 reject，返回 `{status, value/reason}[]`（批量上报）
+- `Promise.race(iter)`：最先 settle 的决定结果（超时控制）
+- `Promise.any(iter)`：任一 fulfilled 立即返回，全部 rejected 抛 AggregateError（多源容灾）
+
+### 代码示例
+```js
+function withTimeout(p, ms) {
+  return Promise.race([
+    p,
+    new Promise((_, rej) => setTimeout(() => rej(new Error('timeout')), ms)),
+  ]);
+}
+
+async function fetchAllUsers(ids) {
+  const results = await Promise.allSettled(ids.map((id) => fetch('/u/' + id)));
+  return results.map((r, i) => ({
+    id: ids[i],
+    ok: r.status === 'fulfilled',
+    data: r.status === 'fulfilled' ? r.value : r.reason,
+  }));
+}
+
+async function fastestCDN(urls) {
+  return Promise.any(urls.map((u) => fetch(u)));
+}
+```
+
+### 延伸
+- 在 Node 18+/现代浏览器中 4 个方法都已稳定支持
+- 处理「成功一个就够」用 any；处理「等所有完成才汇总」用 allSettled
+- 注意 `Promise.all` 的 fail-fast：如果有一个 reject，其他请求其实仍会继续跑（无法 abort）。需要 AbortController 配合

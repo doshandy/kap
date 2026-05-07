@@ -3,6 +3,7 @@ import { computed, onUnmounted, ref } from 'vue';
 import { useContent } from '@/composables/useContent';
 import { useProgressStore } from '@/stores/progress';
 import QuestionCard from '@/components/question/QuestionCard.vue';
+import AppIcon from '@/components/icon/AppIcon.vue';
 import type { Difficulty, Question } from '@/types/content';
 
 const { categories, allQuestions } = useContent();
@@ -76,7 +77,7 @@ const fmt = (s: number) => `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '
 <template>
   <div class="quiz">
     <header class="head">
-      <h1>🎯 模拟面试 / 随机抽题</h1>
+      <h1><AppIcon name="experiment" /> 模拟面试 / 随机抽题</h1>
       <p class="muted">从知识库中随机抽题，模拟限时面试场景。</p>
     </header>
 
@@ -113,14 +114,16 @@ const fmt = (s: number) => `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '
         </div>
       </div>
       <div class="row">
-        <button class="btn btn-primary" @click="start">开始 ▶</button>
+        <button class="btn btn-primary" @click="start">
+          <AppIcon name="play" /> 开始
+        </button>
       </div>
     </section>
 
     <section v-else>
       <div class="hud">
         <span>第 {{ current + 1 }} / {{ queue.length }} 题</span>
-        <span>⏱ {{ fmt(elapsed) }}</span>
+        <span class="time"><AppIcon name="calendar" /> {{ fmt(elapsed) }}</span>
         <button class="btn btn-ghost" @click="end">结束</button>
       </div>
       <QuestionCard
@@ -137,7 +140,7 @@ const fmt = (s: number) => `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '
       </div>
 
       <div v-if="finished" class="card result">
-        <h3>📊 答题结果</h3>
+        <h3><AppIcon name="pieChart" /> 答题结果</h3>
         <p>用时：{{ fmt(elapsed) }}</p>
         <p>掌握：{{ result.mastered }} / {{ result.total }}</p>
         <p>需复习：{{ result.review }}</p>
@@ -210,6 +213,17 @@ const fmt = (s: number) => `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '
   margin-bottom: 12px;
   background: var(--c-bg-soft);
   border-radius: var(--radius);
+}
+.hud .time {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-family: monospace;
+}
+.head h1 {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
 }
 .paging {
   display: flex;

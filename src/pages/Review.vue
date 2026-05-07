@@ -3,6 +3,7 @@ import { computed } from 'vue';
 import { useReviewStore } from '@/stores/review';
 import { useContent } from '@/composables/useContent';
 import QuestionCard from '@/components/question/QuestionCard.vue';
+import AppIcon from '@/components/icon/AppIcon.vue';
 
 const review = useReviewStore();
 const { questionMap } = useContent();
@@ -30,15 +31,17 @@ const fmtDate = (ts: number) => {
 <template>
   <div class="rv">
     <header>
-      <h1>🔁 间隔复习</h1>
+      <h1><AppIcon name="reload" /> 间隔复习</h1>
       <p class="muted">
-        基于 SM-2 算法计算下次复习时间。在题目卡里点 ✅记得 / 🤔模糊 / 🔁需复习 进行打分。
+        基于 SM-2 算法计算下次复习时间。在题目卡里点 "记得 / 模糊 / 需复习" 给出反馈即可。
       </p>
     </header>
 
     <section>
       <h3>今日待复习（{{ dueQuestions.length }}）</h3>
-      <div v-if="!dueQuestions.length" class="empty">🎉 今天没有待复习题，你可以去抽题或学新知识。</div>
+      <div v-if="!dueQuestions.length" class="empty">
+        <AppIcon name="trophy" /> 今天没有待复习题，你可以去抽题或学新知识。
+      </div>
       <QuestionCard v-for="(q, i) in dueQuestions" :key="q.id" :question="q" :index="i + 1" />
     </section>
 
@@ -67,6 +70,9 @@ const fmtDate = (ts: number) => {
 }
 header h1 {
   font-size: 22px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
 }
 .muted {
   color: var(--c-text-mute);

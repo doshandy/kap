@@ -562,3 +562,142 @@ test('登录成功后展示欢迎语', async () => {
 ### 延伸
 - 不要追求 100% 行覆盖，要看"关键业务分支覆盖"
 - 视觉回归交给 Playwright + 截图比对，单测层不要做像素比较
+
+## react-key-warning
+title: 列表渲染中 key 的作用与使用陷阱
+difficulty: 基础
+tags: [Diff, key]
+
+### 题目
+React 中的 key 是干什么用的，为什么不要用 index？
+
+### 答案要点
+- key 帮助 React 在 reconcile 时识别哪些元素是「同一个」，决定复用、移动还是销毁
+- 同层 key 必须唯一且稳定，跨层级无要求
+- 用数组 index 作为 key 在「插入/删除/排序」时会导致状态错位（输入框内容跑到错误的行上）
+- 静态、不可重排的列表用 index 没问题，但建议用业务 ID
+- key 改变会触发组件销毁重建，可用于强制重置（如重置表单）
+
+### 代码示例
+```jsx
+function Bad({ items }) {
+  return items.map((it, i) => <Row key={i} item={it} />);
+}
+
+function Good({ items }) {
+  return items.map((it) => <Row key={it.id} item={it} />);
+}
+
+function ResetForm() {
+  const [seed, setSeed] = useState(0);
+  return (
+    <>
+      <Form key={seed} />
+      <button onClick={() => setSeed((s) => s + 1)}>Reset</button>
+    </>
+  );
+}
+```
+
+### 延伸
+- React 19 起，列表 diff 性能进一步优化但 key 仍然必须
+- key 不会作为 prop 传给组件，需自己再传一份
+- 与 Vue 的 key 行为一致
+
+## react-controlled-vs-uncontrolled
+title: 受控组件 vs 非受控组件，性能边界在哪
+difficulty: 进阶
+tags: [表单, 性能]
+
+### 题目
+什么时候用受控、什么时候用非受控？大表单怎么避免每次输入都重渲染整个页面？
+
+### 答案要点
+- 受控：value + onChange，组件自身不存储状态，便于校验/联动
+- 非受控：用 ref + defaultValue，性能好，但无法实时联动
+- 大表单优化：拆分组件 + memo / useFormState（react-hook-form）非受控、状态外包至库
+- React 19 新增 `<form action>` + useActionState，简化提交流程
+- `useDeferredValue` / `useTransition` 把昂贵渲染降级
+
+### 代码示例
+```jsx
+function Controlled() {
+  const [v, setV] = useState('');
+  return <input value={v} onChange={(e) => setV(e.target.value)} />;
+}
+
+function Uncontrolled() {
+  const ref = useRef(null);
+  return (
+    <form onSubmit={(e) => { e.preventDefault(); console.log(ref.current.value); }}>
+      <input ref={ref} defaultValue="" />
+      <button>提交</button>
+    </form>
+  );
+}
+
+import { useForm } from 'react-hook-form';
+function FastForm() {
+  const { register, handleSubmit } = useForm();
+  return (
+    <form onSubmit={handleSubmit(console.log)}>
+      <input {...register('email')} />
+    </form>
+  );
+}
+```
+
+### 延伸
+- react-hook-form / formik 都基于非受控思想
+- `useDeferredValue` 适合昂贵的下游渲染（图表、大列表）
+- React Compiler（实验中）可自动 memoize，未来可能改变受控开销
+
+## react-portal-error-boundary
+title: Portal、Error Boundary、Suspense 的协作方式
+difficulty: 进阶
+tags: [架构, 错误处理]
+
+### 题目
+渲染弹窗、捕获组件错误、处理异步 loading，这三个能力分别怎么用？
+
+### 答案要点
+- **Portal**：`createPortal(children, document.body)`，把子树渲染到任意 DOM，但事件冒泡仍按 React 树
+- **Error Boundary**：class 组件实现 `getDerivedStateFromError` + `componentDidCatch`；只能捕获子树渲染错误，事件 / 异步要 try-catch
+- **Suspense**：用于异步组件 / 数据加载（与 React Query / Relay / RSC 配合），fallback 显示骨架屏
+- 推荐组合：Suspense → 包裹 ErrorBoundary → 包裹业务组件
+- React 19 提供 `useErrorBoundary`（计划），也支持 onCaughtError / onUncaughtError 回调
+
+### 代码示例
+```jsx
+class ErrorBoundary extends React.Component {
+  state = { err: null };
+  static getDerivedStateFromError(err) { return { err }; }
+  componentDidCatch(err, info) { reportError(err, info); }
+  render() {
+    if (this.state.err) return this.props.fallback ?? <p>出错了</p>;
+    return this.props.children;
+  }
+}
+
+function Modal({ children }) {
+  return createPortal(
+    <div className="overlay">{children}</div>,
+    document.body
+  );
+}
+
+function App() {
+  return (
+    <ErrorBoundary fallback={<Crash />}>
+      <Suspense fallback={<Skeleton />}>
+        <UserPanel />
+      </Suspense>
+    </ErrorBoundary>
+  );
+}
+```
+
+### 延伸
+- 第三方库 react-error-boundary 提供 hook 风格 API
+- Next.js 自带 error.tsx / loading.tsx 文件级约定
+- Sentry 可以一键接入 ErrorBoundary 上报错误

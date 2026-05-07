@@ -2,6 +2,7 @@
 import { ref, watch } from 'vue';
 import QRCode from 'qrcode';
 import type { Question } from '@/types/content';
+import AppIcon from '@/components/icon/AppIcon.vue';
 
 const props = defineProps<{ open: boolean; question: Question }>();
 const emit = defineEmits<{ (e: 'update:open', v: boolean): void }>();
@@ -14,7 +15,7 @@ watch(
   () => props.open,
   async (v) => {
     if (!v) return;
-    const base = window.location.origin + window.location.pathname.replace(/\/$/, '');
+    const base = window.location.origin + import.meta.env.BASE_URL.replace(/\/$/, '');
     link.value = `${base}/q/${props.question.categoryId}/${props.question.slug}`;
     qrUrl.value = await QRCode.toDataURL(link.value, { margin: 1, width: 220 });
     copied.value = false;
@@ -37,8 +38,10 @@ function close() {
     <div v-if="props.open" class="overlay" @click.self="close">
       <div class="card panel">
         <header>
-          <h3>🔗 分享题目</h3>
-          <button class="btn-ghost" @click="close">✕</button>
+          <h3><AppIcon name="share" /> 分享题目</h3>
+          <button class="btn-ghost close" aria-label="关闭" @click="close">
+            <AppIcon name="close" />
+          </button>
         </header>
         <div class="content">
           <img v-if="qrUrl" :src="qrUrl" alt="QR" class="qr" />

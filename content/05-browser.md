@@ -516,3 +516,114 @@ const pipeline = device.createComputePipeline({
 ### 延伸
 - 引擎层（Three.js、Babylon.js、PIXI v8、TensorFlow.js）已支持 WebGPU 后端，业务层切换成本不大
 - 没有 WebGPU 时回退 WebGL2 / WASM SIMD 是常见的做法
+
+## reflow-vs-repaint
+title: 回流（reflow）和重绘（repaint）的区别与触发条件
+difficulty: 进阶
+tags: [渲染, 性能]
+
+### 题目
+回流和重绘分别是什么？哪些操作会触发它们？怎么减少？
+
+### 答案要点
+- 重绘（repaint）：只改变外观（颜色、背景、可见性），不影响布局
+- 回流（reflow / layout）：几何属性变化，浏览器需要重新计算布局
+- 回流一定会重绘，重绘不一定回流
+- 触发回流：尺寸/位置变化（width / height / margin / padding / top / left / font-size）、添加/移除 DOM、display 切换、读取 offset/scroll/client/getComputedStyle
+- 触发重绘：color、background、visibility、box-shadow、outline
+- 优化：批量 DOM 改动、使用 transform/opacity（合成层）、避免强制同步布局、使用 requestAnimationFrame
+
+### 代码示例
+```js
+const el = document.querySelector('.box');
+
+el.style.width = '100px';
+const h = el.offsetHeight;
+el.style.width = '200px';
+const w = el.offsetWidth;
+
+requestAnimationFrame(() => {
+  el.style.cssText = 'width:200px;height:100px;';
+});
+
+el.style.transform = 'translate3d(0,0,0)';
+el.style.willChange = 'transform';
+```
+
+### 延伸
+- Chrome DevTools → Performance → Layout/Paint 火焰图可定位
+- composite-only 属性：transform / opacity / filter（合成线程处理，不阻塞主线程）
+
+## browser-cache-strategy
+title: 浏览器缓存的完整链路是什么样的
+difficulty: 进阶
+tags: [缓存, 性能, HTTP]
+
+### 题目
+从内存到磁盘，从强缓存到协商缓存，请描述浏览器请求资源时缓存命中的完整流程。
+
+### 答案要点
+- 优先级：Service Worker → Memory Cache → Disk Cache → Push Cache（HTTP/2） → 网络
+- 强缓存：`Cache-Control: max-age=31536000, immutable` / `Expires`，命中直接返回 200 (from cache)
+- 协商缓存：强缓存失效后带 `If-None-Match` (ETag) / `If-Modified-Since`；服务端 304 不带 body
+- `Cache-Control` 关键值：`no-cache`（必须协商）、`no-store`（不缓存）、`public/private`、`stale-while-revalidate`
+- 静态资源最佳实践：文件名带 hash + `Cache-Control: max-age=31536000, immutable`；HTML 用 `no-cache`
+- Service Worker 自定义缓存策略：cache-first / network-first / stale-while-revalidate
+
+### 代码示例
+```js
+self.addEventListener('fetch', (e) => {
+  const req = e.request;
+  if (req.destination === 'image') {
+    e.respondWith(
+      caches.open('imgs').then(async (cache) => {
+        const hit = await cache.match(req);
+        if (hit) return hit;
+        const res = await fetch(req);
+        cache.put(req, res.clone());
+        return res;
+      })
+    );
+  }
+});
+```
+
+### 延伸
+- 大公司常用 SWR（stale-while-revalidate）：先返回缓存再后台刷新
+- 注意 chrome 强制刷新（Ctrl+Shift+R）会跳过强缓存但仍可能命中协商缓存
+- HTTP/2 Push Cache 使用率低，已被 103 Early Hints + preload 取代
+
+## cookie-localstorage-indexeddb
+title: Cookie / localStorage / sessionStorage / IndexedDB 选哪个
+difficulty: 基础
+tags: [存储, 安全]
+
+### 题目
+不同的客户端存储场景下应该如何选择，安全性怎么保障？
+
+### 答案要点
+- Cookie：4KB，每个请求自动携带（适合鉴权 token），可设 HttpOnly / Secure / SameSite
+- localStorage：5-10MB，同源持久存储，同步 API，纯字符串
+- sessionStorage：与 localStorage 相同 API，但生命周期=Tab
+- IndexedDB：可存数百 MB，异步，结构化数据 / 二进制 Blob，事务支持
+- Cache Storage：用于 Service Worker，存 Request/Response 对
+- 安全：用户敏感数据 → Cookie + HttpOnly + Secure + SameSite=Lax/Strict；XSS 风险 → 不要在 localStorage 存 JWT
+
+### 代码示例
+```js
+document.cookie = 'session=xxx; HttpOnly; Secure; SameSite=Lax; Max-Age=86400';
+
+const req = indexedDB.open('app', 1);
+req.onupgradeneeded = () => {
+  req.result.createObjectStore('drafts', { keyPath: 'id' });
+};
+req.onsuccess = () => {
+  const tx = req.result.transaction('drafts', 'readwrite');
+  tx.objectStore('drafts').put({ id: 1, content: 'hello' });
+};
+```
+
+### 延伸
+- localStorage 同步阻塞主线程，不适合频繁写入
+- 复杂应用首选 IndexedDB（用 idb-keyval / Dexie 简化）
+- 跨子域共享存储用 cookie；跨主域用 postMessage + iframe

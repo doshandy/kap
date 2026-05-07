@@ -3,6 +3,7 @@ import { computed } from 'vue';
 import { useRoute } from 'vue-router';
 import { useContent } from '@/composables/useContent';
 import { useProgressStore } from '@/stores/progress';
+import AppIcon from '@/components/icon/AppIcon.vue';
 
 const props = defineProps<{ open: boolean }>();
 const emit = defineEmits<{ (e: 'close'): void }>();
@@ -31,7 +32,9 @@ function onNavClick() {
 <template>
   <aside class="sb" :class="{ open: props.open }">
     <div class="sb-head">
-      <RouterLink to="/" class="home-link" @click="onNavClick">📚 总览</RouterLink>
+      <RouterLink to="/" class="home-link" @click="onNavClick">
+        <AppIcon name="dashboard" /> 总览
+      </RouterLink>
       <div class="overall">
         <div class="bar">
           <div
@@ -71,9 +74,11 @@ function onNavClick() {
       </RouterLink>
     </nav>
     <div class="sb-foot">
-      <RouterLink to="/changelog" class="foot-link" @click="onNavClick">📝 更新日志</RouterLink>
+      <RouterLink to="/changelog" class="foot-link" @click="onNavClick">
+        <AppIcon name="fileText" /> 更新日志
+      </RouterLink>
       <a class="foot-link" href="https://github.com/doshandy/kap" target="_blank" rel="noopener">
-        ⭐ GitHub
+        <AppIcon name="github" /> GitHub
       </a>
     </div>
     <div v-if="props.open" class="mask" @click="emit('close')" />

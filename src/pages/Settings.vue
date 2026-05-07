@@ -3,6 +3,7 @@ import { ref } from 'vue';
 import { useSettingsStore } from '@/stores/settings';
 import { backupJSON, restoreJSON } from '@/composables/useExport';
 import { clearAll } from '@/stores/persist';
+import AppIcon from '@/components/icon/AppIcon.vue';
 
 const settings = useSettingsStore();
 const fileRef = ref<HTMLInputElement | null>(null);
@@ -26,7 +27,7 @@ function onClear() {
 
 <template>
   <div class="st">
-    <h1>⚙️ 设置</h1>
+    <h1><AppIcon name="setting" /> 设置</h1>
 
     <section class="card grp">
       <h3>外观</h3>
@@ -64,8 +65,12 @@ function onClear() {
       <h3>数据备份</h3>
       <p class="muted">所有进度、笔记、复习状态都保存在本地。建议定期备份，或在切换浏览器时迁移。</p>
       <div class="row">
-        <button class="btn btn-primary" @click="backupJSON">⬇️ 导出 JSON 备份</button>
-        <button class="btn" @click="fileRef?.click()">⬆️ 导入备份</button>
+        <button class="btn btn-primary" @click="backupJSON">
+          <AppIcon name="download" /> 导出 JSON 备份
+        </button>
+        <button class="btn" @click="fileRef?.click()">
+          <AppIcon name="upload" /> 导入备份
+        </button>
         <input ref="fileRef" type="file" accept="application/json" hidden @change="onFile" />
       </div>
       <div v-if="message" class="msg">{{ message }}</div>
@@ -73,7 +78,9 @@ function onClear() {
 
     <section class="card grp danger">
       <h3>危险操作</h3>
-      <button class="btn" @click="onClear">🗑️ 清除所有本地数据</button>
+      <button class="btn" @click="onClear">
+        <AppIcon name="delete" /> 清除所有本地数据
+      </button>
     </section>
   </div>
 </template>
@@ -86,6 +93,14 @@ function onClear() {
 h1 {
   font-size: 22px;
   margin-bottom: 12px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+.row .btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
 }
 .grp {
   padding: 16px 20px;

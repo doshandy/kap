@@ -89,7 +89,7 @@ pnpm preview
 
 ## 🗺 分类清单
 
-当前题库按以下 26 个分类组织（合计 268 题）：
+当前题库按以下 26 个分类组织（合计 288 题）：
 
 1. `01-javascript` JavaScript 核心
 2. `02-typescript` TypeScript 进阶

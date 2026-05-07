@@ -4,6 +4,7 @@ import { useRoute, useRouter } from 'vue-router';
 import { useContent } from '@/composables/useContent';
 import { useProgressStore } from '@/stores/progress';
 import QuestionCard from '@/components/question/QuestionCard.vue';
+import AppIcon from '@/components/icon/AppIcon.vue';
 
 const route = useRoute();
 const router = useRouter();
@@ -87,7 +88,7 @@ onUnmounted(() => window.removeEventListener('keydown', onKey));
   <div class="learn">
     <header class="hd">
       <div class="title-row">
-        <h1>📖 顺序学习</h1>
+        <h1><AppIcon name="read" /> 顺序学习</h1>
         <span class="muted">从第 1 题到第 {{ total }} 题，按目录顺序逐题攻克。</span>
       </div>
       <div class="meta">
@@ -104,11 +105,15 @@ onUnmounted(() => window.removeEventListener('keydown', onKey));
     </header>
 
     <div class="actions">
-      <button class="btn" :disabled="indexParam <= 1" @click="go(-1)">← 上一题 (←/k)</button>
-      <button class="btn primary" :disabled="indexParam >= total" @click="go(1)">
-        下一题 (→/j) →
+      <button class="btn" :disabled="indexParam <= 1" @click="go(-1)">
+        <AppIcon name="arrowLeft" /> 上一题 <kbd>k</kbd>
       </button>
-      <button class="btn" @click="resumeFromLastUnfinished">⏭ 跳到下一道未掌握</button>
+      <button class="btn primary" :disabled="indexParam >= total" @click="go(1)">
+        下一题 <kbd>j</kbd> <AppIcon name="arrowRight" />
+      </button>
+      <button class="btn" @click="resumeFromLastUnfinished">
+        <AppIcon name="thunderbolt" /> 跳到下一道未掌握
+      </button>
       <label class="jump">
         跳转到第
         <input
@@ -132,15 +137,19 @@ onUnmounted(() => window.removeEventListener('keydown', onKey));
     <div v-else class="empty">暂无题目可学习</div>
 
     <footer class="ft">
-      <button class="btn" :disabled="indexParam <= 1" @click="go(-1)">← 上一题</button>
+      <button class="btn" :disabled="indexParam <= 1" @click="go(-1)">
+        <AppIcon name="arrowLeft" /> 上一题
+      </button>
       <RouterLink v-if="current" :to="`/c/${current.categoryId}`" class="btn">
-        在分类中查看：{{ currentCategory?.title }}
+        <AppIcon name="folderOpen" /> 在分类中查看：{{ currentCategory?.title }}
       </RouterLink>
-      <button class="btn primary" :disabled="indexParam >= total" @click="go(1)">下一题 →</button>
+      <button class="btn primary" :disabled="indexParam >= total" @click="go(1)">
+        下一题 <AppIcon name="arrowRight" />
+      </button>
     </footer>
 
     <section class="catnav">
-      <h3>📚 分类快速跳转</h3>
+      <h3><AppIcon name="appstore" /> 分类快速跳转</h3>
       <ul>
         <li v-for="c in categories" :key="c.id">
           <button
@@ -212,6 +221,24 @@ onUnmounted(() => window.removeEventListener('keydown', onKey));
   flex-wrap: wrap;
   align-items: center;
   margin-bottom: 14px;
+}
+.actions .btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+.actions kbd {
+  display: inline-block;
+  padding: 0 4px;
+  background: rgba(0, 0, 0, 0.08);
+  border-radius: 3px;
+  font-size: 11px;
+  font-family: monospace;
+}
+.hd h1 {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
 }
 .btn {
   padding: 8px 14px;

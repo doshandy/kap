@@ -1,5 +1,28 @@
 # Changelog
 
+## 0.5.0
+
+- 修复：复习热力图在小屏 / 切页时空白
+  - 改用近 12 个月滚动窗口（更紧凑，月份齐全可见）
+  - 固定 cellSize、加大最小宽度，避免 visualMap 单独显示而方块全无
+- 修复：分享链接拼错路径
+  - 旧逻辑用 `window.location.pathname`，在分类页生成链接时会出现 `/c/xx/q/yy/zz` 错路径
+  - 改为 `import.meta.env.BASE_URL`，永远生成 `/kap/q/<categoryId>/<slug>` 这样的稳定深链
+- 修复：代码沙盒"运行"按钮无效
+  - 重写 CodeRunner：用 DOM 解析获取代码（而非乱去标签），支持 JS/TS/JSX/TSX
+  - 加了轻量 TS→JS 转译（去掉 import / 类型注解 / 泛型），TS 题也能直接跑
+  - 检测语言、不可执行时给提示而不是无声失败；多代码块可选择
+  - 控制台 log/info/warn/error 都能转发到运行面板
+- 全站 Ant Design Icons 化（用 `@ant-design/icons-vue`）
+  - 顶栏、侧栏、问题卡操作、设置、Quiz/Review/Learn/Roadmap/Changelog 主图标全部替换
+  - emoji 仅在分类自身的视觉标识、Hero 图标等少量场景保留
+- 内容扩展（+20 题，总数从 268 → 288）：
+  - JavaScript：bind/call/apply 与手写 myBind、new 操作符与手写 myNew、Promise.all/allSettled/race/any
+  - Vue：Vue3 Proxy 响应式 vs Vue2、组件通信全景、异步组件 + Suspense
+  - React：列表 key 陷阱、受控/非受控与大表单性能、Portal/ErrorBoundary/Suspense 协作
+  - 浏览器：reflow/repaint、完整缓存链路、Cookie/localStorage/IndexedDB 选型
+  - 网络：HTTPS 握手与 TLS 1.2/1.3、长轮询/SSE/WebSocket/WebTransport、CORS 与预检
+
 ## 0.4.0
 
 - 修复：复习热力图在路由切换 / 容器尺寸变化后错位、留白；改用 `ResizeObserver` + `onActivated` 自动 resize，并对实例 `dispose` 做健壮处理

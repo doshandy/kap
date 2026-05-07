@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import AppIcon from '@/components/icon/AppIcon.vue';
+
 const props = defineProps<{ open: boolean }>();
 const emit = defineEmits<{ (e: 'update:open', v: boolean): void }>();
 
@@ -34,7 +36,9 @@ function close() {
       <div class="card panel">
         <header>
           <h3>快捷键</h3>
-          <button class="btn-ghost" @click="close">✕</button>
+          <button class="btn-ghost" aria-label="关闭" @click="close">
+            <AppIcon name="close" />
+          </button>
         </header>
         <div v-for="g in groups" :key="g.title" class="group">
           <h4>{{ g.title }}</h4>
