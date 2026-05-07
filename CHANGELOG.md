@@ -1,5 +1,16 @@
 # Changelog
 
+## 0.13.0
+
+- feat：站内 AI 讲解 / 模拟面试官（用户自带 Key）
+  - 新 store `useAIStore`：可选启用，支持 OpenAI 兼容 / Anthropic / 自定义 baseUrl
+  - 新 composable `useAIChat`：流式 SSE 解析（OpenAI 协议 + Anthropic 协议自动适配）、可中断、错误兜底
+  - 新组件 `AIChatPanel`：嵌入题卡，预设 4 种问法（简单讲讲 / 面试官追问 / 极简要点 / 反例）+ 自由输入
+  - QuestionCard 区分「站内 AI 讲解」和「外部 ChatGPT 讲解」两个按钮，前者出现在配置完毕后
+  - 三种系统角色：资深导师 / 严格面试官 / 极简助手
+  - **隐私**：所有请求由用户浏览器直接发送目标 API；KAP 服务端不经手 Key 或对话内容
+  - Settings 新增 AI 配置区（Provider / BaseURL / Key / Model / Role / Temperature）
+
 ## 0.12.0
 
 - feat：高频题段落补全 + Quiz/Dashboard 升级 + 单元测试体系建立

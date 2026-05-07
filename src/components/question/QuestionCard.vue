@@ -12,7 +12,9 @@ import { exportQuestionMarkdown } from '@/composables/useExport';
 import { buildPrompt, chatGptUrl } from '@/lib/ai';
 import ShareDialog from '@/components/share/ShareDialog.vue';
 import CodeRunner from '@/components/runner/CodeRunner.vue';
+import AIChatPanel from '@/components/ai/AIChatPanel.vue';
 import AppIcon from '@/components/icon/AppIcon.vue';
+import { useAIStore } from '@/stores/ai';
 
 const props = defineProps<{
   question: Question;
@@ -31,6 +33,8 @@ const open = ref<boolean>(!!props.defaultOpen || settings.state.showAnswerByDefa
 const showNote = ref(false);
 const shareOpen = ref(false);
 const showRunner = ref(false);
+const showAIPanel = ref(false);
+const aiStore = useAIStore();
 
 const status = computed(() => progress.get(props.question.id).status);
 
@@ -139,6 +143,8 @@ defineExpose({ toggle });
 
           <CodeRunner v-if="showRunner" :code-html="question.code || ''" />
 
+          <AIChatPanel v-if="showAIPanel" :question="question" />
+
           <div v-if="showNote" class="note-box">
             <textarea
               v-model="noteText"
@@ -184,8 +190,17 @@ defineExpose({ toggle });
               <AppIcon :name="isSpeaking ? 'pause' : 'sound'" />
               {{ isSpeaking ? '停止朗读' : '朗读' }}
             </button>
+            <button
+              v-if="aiStore.isReady"
+              class="btn btn-ghost"
+              :class="{ active: showAIPanel }"
+              :title="showAIPanel ? '收起 AI 站内讲解' : '展开 AI 站内讲解（流式）'"
+              @click="showAIPanel = !showAIPanel"
+            >
+              <AppIcon name="robot" /> AI 讲解（站内）
+            </button>
             <button class="btn btn-ghost" title="用 ChatGPT 打开预设 Prompt 求讲解" @click="aiExplain">
-              <AppIcon name="robot" /> AI 讲解
+              <AppIcon name="robot" /> AI 讲解（外部）
             </button>
             <button class="btn btn-ghost" title="复制 AI 讲解的 Prompt 到剪贴板" @click="copyPromptToClipboard">
               <AppIcon name="copy" /> 复制 Prompt

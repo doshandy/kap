@@ -11,9 +11,11 @@ import { clearAll } from '@/stores/persist';
 import { useContent } from '@/composables/useContent';
 import { useMarksStore } from '@/stores/marks';
 import { useProgressStore } from '@/stores/progress';
+import { useAIStore } from '@/stores/ai';
 import AppIcon from '@/components/icon/AppIcon.vue';
 
 const settings = useSettingsStore();
+const ai = useAIStore();
 const fileRef = ref<HTMLInputElement | null>(null);
 const message = ref('');
 
@@ -128,6 +130,61 @@ function onExportAnki() {
     </section>
 
     <section class="card grp">
+      <h3>AI 讲解（可选）</h3>
+      <p class="muted">
+        配置后可在题目页内嵌 AI 流式讲解 / 模拟面试官追问。所有请求由你的浏览器直接发往
+        OpenAI / Anthropic / 兼容 API；KAP 服务端永远不会经手 API Key 或对话内容。
+      </p>
+      <div class="row">
+        <label>启用：</label>
+        <input v-model="ai.state.enabled" type="checkbox" />
+      </div>
+      <div class="row">
+        <label>提供方：</label>
+        <select v-model="ai.state.provider">
+          <option value="openai">OpenAI 兼容（GPT、DeepSeek、Kimi、SiliconFlow 等）</option>
+          <option value="anthropic">Anthropic Claude</option>
+          <option value="custom">自定义</option>
+        </select>
+      </div>
+      <div class="row">
+        <label>Base URL：</label>
+        <input v-model="ai.state.baseUrl" placeholder="https://api.openai.com" />
+      </div>
+      <div class="row">
+        <label>API Key：</label>
+        <input v-model="ai.state.apiKey" type="password" placeholder="sk-..." />
+      </div>
+      <div class="row">
+        <label>模型：</label>
+        <input v-model="ai.state.model" placeholder="gpt-4o-mini / claude-3-5-sonnet-..." />
+      </div>
+      <div class="row">
+        <label>角色：</label>
+        <select v-model="ai.state.systemRole">
+          <option value="mentor">资深导师（讲解为主）</option>
+          <option value="interviewer">严格面试官（追问为主）</option>
+          <option value="concise">极简助手（要点为主）</option>
+        </select>
+      </div>
+      <div class="row">
+        <label>Temperature：</label>
+        <input
+          v-model.number="ai.state.temperature"
+          type="number"
+          min="0"
+          max="1"
+          step="0.1"
+          style="width: 80px"
+        />
+        <span class="hint">0 严谨 → 1 发散</span>
+      </div>
+      <p v-if="!ai.state.apiKey && ai.state.enabled" class="warn-msg">
+        ⚠ 启用了 AI 但还没填 API Key，题目页将仍提示"未启用"。
+      </p>
+    </section>
+
+    <section class="card grp">
       <h3>导出题库 / 面试小抄</h3>
       <p class="muted">
         把题目导出为 Markdown 小抄方便打印 / 阅读，或导出 Anki 卡片做间隔重复。
@@ -212,5 +269,14 @@ select {
 }
 .danger {
   border-left: 3px solid var(--c-danger);
+}
+.hint {
+  font-size: 11px;
+  color: var(--c-text-mute);
+}
+.warn-msg {
+  margin-top: 8px;
+  font-size: 12px;
+  color: var(--c-warning, #d97706);
 }
 </style>
