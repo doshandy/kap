@@ -17,7 +17,29 @@
     <meta name="twitter:card" content="summary_large_image" />
     <title>KAP - 前端知识自查</title>
     <script>
-      // SPA fallback restore: 把 404.html 编码进 query 的路径还原回 history
+      (function () {
+        if ('serviceWorker' in navigator) {
+          var KEY = 'kap-sw-cleanup-v2';
+          if (!localStorage.getItem(KEY)) {
+            navigator.serviceWorker.getRegistrations().then(function (regs) {
+              var hadOld = regs.length > 0;
+              return Promise.all(regs.map(function (r) { return r.unregister(); })).then(function () {
+                if (window.caches && caches.keys) {
+                  return caches.keys().then(function (keys) {
+                    return Promise.all(keys.map(function (k) { return caches.delete(k); }));
+                  }).then(function () { return hadOld; });
+                }
+                return hadOld;
+              });
+            }).then(function (hadOld) {
+              localStorage.setItem(KEY, '1');
+              if (hadOld) location.reload();
+            });
+          }
+        }
+      })();
+    </script>
+    <script>
       (function () {
         var l = window.location;
         if (l.search.indexOf('?p=/') === 0 || l.search.indexOf('&p=/') !== -1) {
