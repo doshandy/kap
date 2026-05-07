@@ -74,6 +74,17 @@ export default function versionInject(): Plugin {
 }
 ```
 
+
+### 常见误区
+- 把 dev 表现照搬到 prod：dev 用 ESM 直接喂浏览器没打包，prod 走 Rollup 打包
+- 大量裸 import 会触发 Vite 的依赖预构建（esbuild）—— 第一次启动慢是正常
+- 配 alias 后没在 tsconfig.paths 同步 → tsc 报错
+
+### 追问
+- 为什么 Vite 的 HMR 比 Webpack 快
+- Rolldown / Rspack / Turbopack 各自定位
+- esbuild 比 swc 快还是慢？哪个用得多
+
 ### 延伸
 - "Vite 快"不只因为 esbuild，更因为开发时避免了整包重编译
 - 插件通常需要分别考虑 dev transform 和 build 行为

@@ -36,6 +36,17 @@ function area(s: Shape) {
 }
 ```
 
+
+### 常见误区
+- 全用 `any` 把类型系统当摆设，等于回到 JS
+- `unknown` 想当成 any 用：必须先 narrow 才能访问属性
+- `as` 断言滥用，把错误硬塞过去——上线就 NPE
+
+### 追问
+- never 是什么？什么场景会用到
+- 函数签名里 `unknown` 和 `any` 怎么选
+- `as const` 干什么用（字面量类型 + readonly）
+
 ### 延伸
 - `--noImplicitAny`、`strict`、`exactOptionalPropertyTypes` 是工程必开
 - `unknown` + 运行时校验（zod / valibot）才是真正可靠的边界
@@ -97,6 +108,17 @@ const b: Box = { x: 1, y: 2 };
 type Result<T> = { ok: true; data: T } | { ok: false; err: Error };
 ```
 
+
+### 常见误区
+- 以为 interface 不能写联合类型——其实是 type 才能；interface 不能直接 `interface A = B | C`
+- interface 同名声明会**自动合并**，type 不会；做 module augmentation 必须用 interface
+- 性能上：长链 type 别名会拖慢 tsc，interface 更友好
+
+### 追问
+- 给一个第三方库的 module 加属性怎么做
+- 联合类型加 discriminant 字段为什么能让 narrow 成立
+- declare module '*.svg' 这种用法是什么原理
+
 ### 延伸
 - `satisfies` 可保留字面量类型同时验证形状
 - 推荐尽量"声明对象用 interface，组合用 type"
@@ -126,6 +148,17 @@ type Record2<K extends keyof any, V> = { [P in K]: V };
 type NonNullable2<T> = T extends null | undefined ? never : T;
 type ReturnType2<F> = F extends (...a: any[]) => infer R ? R : never;
 ```
+
+
+### 常见误区
+- `Partial<T>` 不会递归 → 嵌套对象的字段还是必填；要 `DeepPartial`
+- `Pick / Omit` 用错 key 名编译期能提示，但运行时还是要严格
+- `Record<K, V>` 当 K 是 string 时会被认为「key 全可枚举」，可能不是你想要的
+
+### 追问
+- 实现 DeepPartial / DeepReadonly
+- Required<T> 和 NonNullable<T> 区别
+- 实现 PickByValue（按值类型筛选 key）
 
 ### 延伸
 - `DeepPartial`、`DeepReadonly` 需要递归映射

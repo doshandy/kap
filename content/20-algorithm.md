@@ -386,6 +386,17 @@ async function pLimit<T>(tasks: (() => Promise<T>)[], limit = 3): Promise<T[]> {
 }
 ```
 
+
+### 常见误区
+- then 必须返回新 Promise（链式），别在原 Promise 上挂
+- resolve 不只接受值，也接受 thenable / Promise，要 unwrap
+- 状态只能从 pending 变到 fulfilled/rejected 一次
+
+### 追问
+- 实现 Promise.allSettled
+- Promise.any 和 race 区别
+- async/await 是基于 Promise 实现的吗
+
 ### 延伸
 - 文件分片上传、批量请求 API 都需要并发限流
 - `p-limit` / `p-queue` 是工业实现，支持优先级、超时、重试
@@ -849,6 +860,17 @@ c.get('a'); // 1，"a" 变最新
 c.put('c', 3); // 容量超了，淘汰 "b"
 console.log(c.get('b')); // -1
 ```
+
+
+### 常见误区
+- 用 Object 当 hash 表 + 数组保顺序：每次 get 要 O(n) 找位置；用 Map 利用其插入顺序
+- 忘记 update 时删掉旧位置再插入：相当于没更新顺序
+- 容量为 1 / 0 的边界条件
+
+### 追问
+- LRU 的数据结构经典实现（双向链表 + 哈希表）
+- LFU 和 LRU 区别
+- Map 的迭代顺序为什么是插入序
 
 ### 延伸
 - 改造支持 TTL 过期：put 时记录 `expireAt`，get 时检查

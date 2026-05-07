@@ -99,6 +99,17 @@ async function fetchMany(urls: string[]) {
 }
 ```
 
+
+### 常见误区
+- HTTP/2 解决了 HTTP/1.1 的应用层 head-of-line，但 TCP 层 HOL 仍在；HTTP/3（QUIC）才彻底解决
+- HTTP/2 的 Server Push 已被弃用，转向 103 Early Hints
+- HTTP/3 跑 UDP，企业内网防火墙可能拦——必须有 HTTP/2 fallback
+
+### 追问
+- 队头阻塞（HOL）的具体含义
+- QUIC 的 0-RTT 是什么，有什么风险（重放攻击）
+- 多大并发请求时 HTTP/2 收益最明显
+
 ### 延伸
 - "升级 HTTP/2/3"不等于一定更快，还要看 CDN、客户端支持、资源组织方式
 - HTTP/2 的 Server Push 虽然在协议层存在过，但现代浏览器和生态里基本已不再作为主流优化手段
@@ -162,6 +173,17 @@ location = /index.html {
   add_header Cache-Control "no-cache, must-revalidate";
 }
 ```
+
+
+### 常见误区
+- 强缓存（max-age）和协商缓存（ETag/Last-Modified）混着用——max-age 没过期不会发请求，何谈协商
+- 用 `no-cache` 误以为「不缓存」——它是「每次都要 revalidate」；真不缓存用 `no-store`
+- Service Worker 的缓存独立于 HTTP 缓存，发生版本不一致时极难排查
+
+### 追问
+- 强缓存 vs 协商缓存触发顺序
+- ETag 的强校验和弱校验差别
+- immutable 这个 Cache-Control 指令做什么用
 
 ### 延伸
 - hash 命名 + immutable 是静态资源治理核心套路
@@ -235,6 +257,17 @@ export default {
   },
 };
 ```
+
+
+### 常见误区
+- 简单请求和预检请求的判定经常被记错（GET/POST + 简单头 + 简单 Content-Type）
+- 带 cookie 跨域要 server 设 `Access-Control-Allow-Credentials: true`，且 origin 不能是 `*`
+- 预检请求被缓存——本以为改了 server 不生效，其实是 304，要清
+
+### 追问
+- 预检的 Access-Control-Max-Age 一般设多久
+- CORS 和 CSRF 谁防谁，能互相替代吗
+- 跨域字体（@font-face）为什么要 crossorigin 属性
 
 ### 延伸
 - JSONP 只能 GET 且有安全和维护成本，现在更多是历史题

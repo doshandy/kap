@@ -1,12 +1,12 @@
 {
   "name": "kap",
   "private": true,
-  "version": "0.11.0",
+  "version": "0.12.0",
   "type": "module",
   "description": "前端工程师知识自查交互站",
   "scripts": {
     "dev": "vite",
-    "build": "run-s validate:content lint typecheck generate:sitemap build:only",
+    "build": "run-s validate:content lint typecheck test generate:sitemap build:only",
     "build:only": "vite build",
     "preview": "vite preview",
     "typecheck": "vue-tsc --noEmit",
@@ -17,6 +17,9 @@
     "format": "prettier --write \"**/*.{ts,tsx,vue,css,scss,json,md}\"",
     "generate:sitemap": "tsx scripts/gen-sitemap.ts",
     "validate:content": "tsx scripts/validate-content.ts",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:ui": "vitest --ui",
     "prepare": "husky || true"
   },
   "dependencies": {
@@ -43,11 +46,13 @@
     "@typescript-eslint/eslint-plugin": "^8.16.0",
     "@typescript-eslint/parser": "^8.16.0",
     "@vitejs/plugin-vue": "^5.2.1",
+    "@vitest/ui": "^4.1.5",
     "@vue/repl": "^4.4.2",
     "@vue/tsconfig": "^0.7.0",
     "eslint": "^9.16.0",
     "eslint-plugin-vue": "^9.32.0",
     "husky": "^9.1.7",
+    "jsdom": "^29.1.1",
     "lint-staged": "^15.2.10",
     "npm-run-all2": "^7.0.1",
     "postcss-html": "^1.8.0",
@@ -58,6 +63,7 @@
     "typescript": "~5.6.3",
     "vite": "^6.0.1",
     "vite-plugin-pwa": "^0.21.1",
+    "vitest": "^4.1.5",
     "vue-eslint-parser": "^9.4.3",
     "vue-tsc": "^2.1.10"
   },

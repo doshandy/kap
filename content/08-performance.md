@@ -108,6 +108,17 @@ new PerformanceObserver(list => {
 <div style="aspect-ratio: 16/9"><img src="hero.webp" /></div>
 ```
 
+
+### 常见误区
+- 只优化 LCP 元素本身（图片）忽略阻塞 CSS / JS
+- INP 误以为是首屏指标——它衡量的是「整次会话中最慢的交互响应时间」
+- CLS 出问题往往是图片 / 广告位没占位，不是字体闪屏
+
+### 追问
+- TBT（Total Blocking Time）和 INP 关系
+- Web Vitals 的 P75 阈值各自是多少（LCP/INP/CLS）
+- 怎么衡量「长任务」（Long Tasks API）
+
 ### 延伸
 - INP 取代 FID，是因为它更能反映整个页面生命周期内真实交互体验
 - 只盯实验室数据不够，必须结合真实用户监控
@@ -239,6 +250,17 @@ export default {
   ],
 };
 ```
+
+
+### 常见误区
+- 一上来就开 SSR——但只是营销页，CSR + 静态 HTML 就够
+- 路由懒加载切得太碎，反而带来更多 HTTP 请求开销
+- 为了「图片不抖」加 placeholder，但 placeholder 自己还得请求才看到
+
+### 追问
+- 关键 CSS 内联和 Above-the-fold 区别
+- preload as=font 和 link rel=stylesheet 哪个先
+- 304 和 200 (from cache) 的差别
 
 ### 延伸
 - "上 SSR"不是银弹，水合错误、缓存、边缘部署都会带来新复杂度

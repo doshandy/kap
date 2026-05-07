@@ -51,6 +51,17 @@ addEventListener('load', () => {
 });
 ```
 
+
+### 常见误区
+- DNS 查询不只是浏览器一层：操作系统、路由器、ISP 都有 cache
+- TCP 三次握手只在没复用连接时发生；HTTP/2 多路复用同 TCP
+- 渲染管线里 layout 和 paint 不是每次都触发——只读样式（getBoundingClientRect）会强制 reflow
+
+### 追问
+- HTTPS 握手具体几个 RTT，TLS 1.3 优化了什么
+- preconnect / dns-prefetch / preload 的执行顺序
+- LCP 的衡量对象通常是哪些元素
+
 ### 延伸
 - 首屏性能优化的本质，就是缩短这条关键路径上的阻塞链
 - 真正的"可交互"不等于"首屏内容出现"
@@ -103,6 +114,17 @@ el.animate(
   { duration: 300, easing: 'ease-out', fill: 'forwards' },
 );
 ```
+
+
+### 常见误区
+- transform / opacity 通常 GPU 合成，不会触发 layout/paint，但**`will-change` 滥用反而让 layer 数量爆炸**
+- 改 width / height 会 layout；改 background-image 会 paint；改 transform 只 composite
+- `display: none` → 完全脱离渲染树，不再 layout；`visibility: hidden` 仍占位
+
+### 追问
+- contain 属性能做什么
+- content-visibility: auto 和 IntersectionObserver 区别
+- 强制同步布局（layout thrashing）怎么排查
 
 ### 延伸
 - 读取布局信息（如 `offsetHeight`）可能强制浏览器同步刷新布局
@@ -300,6 +322,17 @@ import type { Api } from './worker';
 const api = Comlink.wrap<Api>(new Worker(new URL('./worker', import.meta.url), { type: 'module' }));
 const rows = await api.parseCSV(largeText);   // 像调用本地异步函数
 ```
+
+
+### 常见误区
+- Worker 里没有 DOM、window、document，访问就报错
+- 主线程 → Worker postMessage 是结构化克隆（不是引用），大数据要用 Transferable
+- requestAnimationFrame 在 inactive tab 不跑（Chrome 暂停渲染）
+
+### 追问
+- requestIdleCallback 兼容性如何，什么时候用
+- SharedArrayBuffer 能跨线程零拷贝，需要哪些 HTTP 头
+- web worker 和 service worker 区别
 
 ### 延伸
 - 结构化克隆有成本，大数据频繁传输未必划算

@@ -41,6 +41,20 @@ Object.getPrototypeOf(Animal.prototype) === Object.prototype; // true
 Object.getPrototypeOf(Object.prototype) === null;     // true
 ```
 
+
+### 常见误区
+- 把 `__proto__`、`prototype`、`[[Prototype]]` 三个混着用：
+  - `__proto__` 是非标准遗留属性，用 `Object.getPrototypeOf` / `Object.setPrototypeOf`
+  - `prototype` 只在**函数**上有，是 `new` 时给实例用的
+  - `[[Prototype]]` 是规范里的内部槽
+- 以为 `instanceof` 检查「是不是这个类」，其实它检查的是「原型链上是否出现过该构造函数的 prototype」
+- 用 `obj.hasOwnProperty(k)` 不安全：如果 obj 自己就有一个叫 `hasOwnProperty` 的属性会被覆盖。改用 `Object.hasOwn(obj, k)`
+
+### 追问
+- 为什么 `Object.create(null)` 创建的对象更适合做「纯字典」？
+- 修改原型链（`Object.setPrototypeOf`）为什么是性能反模式？
+- ES6 `class` 和原型继承能 100% 等价吗？类字段、私有字段（`#x`）有什么不同？
+
 ### 延伸
 - `Object.create(null)` 可创建无原型的纯字典对象，适合存储不受保留字干扰的键
 - `__proto__` 已废弃，使用 `Object.getPrototypeOf` / `Object.setPrototypeOf`
@@ -81,6 +95,18 @@ const arrow = () => this;
 arrow.call({ a: 1 }); // 仍是外层 this，不会被改变
 ```
 
+
+### 常见误区
+- 箭头函数里写 `this.xxx` 期望它是某个对象——它永远是定义时外层的 this，不会被 `.call/.apply/.bind` 改变
+- `setTimeout(obj.fn, 0)` 里 `this` 不再是 obj（隐式绑定丢失）
+- React class 组件方法没绑定就传 `onClick={this.handle}`，`this` 是 undefined（要么用箭头函数声明，要么 bind）
+- DOM 事件 handler 用箭头函数，里面 `this` 不是 currentTarget
+
+### 追问
+- new 调用一个箭头函数会怎样？为什么
+- bind 之后还能再 bind 吗？再调用 call 呢？
+- 严格模式下默认绑定的 this 是什么？为什么这么设计
+
 ### 延伸
 - 类字段（class fields）写成箭头函数 `onClick = () => {}` 是常见的 React 绑定写法，但每个实例都新建一份函数
 - Vue 3 `<script setup>` 中无 `this`，组合式 API 取消了 this 心智负担
@@ -117,6 +143,16 @@ const c = counter();
 c.inc(); c.inc();
 c.get(); // 2，n 始终被两个闭包共享
 ```
+
+
+### 常见误区
+- 经典坑：`for (var i = 0; i < 5; i++) setTimeout(() => console.log(i))` 全部输出 5——闭包共享同一个 `i`；改成 `let` 即可
+- 闭包里持有大对象但没释放：典型内存泄漏来源
+- 闭包并不一定意味着「有性能开销」——V8 优化得很好，不要因为怕闭包而瞎写
+
+### 追问
+- IIFE（立即执行函数）和闭包的关系
+- 模块模式（私有变量）现在还需要靠闭包吗？ESM 是否替代了它
 
 ### 延伸
 - React `useEffect` 中读到旧的 state，本质是闭包捕获了渲染时的 state 快照，需用 ref 或函数式更新
@@ -159,6 +195,18 @@ function block() {
 }
 // 这会让浏览器一直忙于清空微任务，直到栈溢出
 ```
+
+
+### 常见误区
+- 把「宏任务/微任务」和「同步/异步」混为一谈：同步代码走完才会执行任何任务
+- 以为 `setTimeout(fn, 0)` 是「立即执行」——它至少要等一轮 tick + 浏览器节流
+- Promise then 是微任务，会在当前宏任务结束前清空整个微任务队列；如果你在 then 里又 schedule 微任务可能「饿死」渲染
+- requestAnimationFrame 不是微任务也不是宏任务，是渲染前的特殊队列
+
+### 追问
+- Node 的事件循环和浏览器有什么差异？setImmediate vs setTimeout
+- `queueMicrotask`、`Promise.resolve().then` 哪个先执行
+- async/await 在 Event Loop 中的实际表现（每个 await 等价于一次微任务调度）
 
 ### 延伸
 - Node.js 事件循环阶段更复杂：timers / pending / poll / check / close，`setImmediate` vs `setTimeout(0)` 在 I/O 回调中顺序更容易观察到差异
@@ -222,6 +270,18 @@ class MyPromise<T = unknown> {
   }
 }
 ```
+
+
+### 常见误区
+- `Promise.all` 一个失败全失败：要全部完成结果改用 `Promise.allSettled`
+- then 里返回一个 thenable 不会立即转成 Promise，要走「unwrap」流程
+- 没 catch 的 Promise 会触发 `unhandledrejection`，浏览器和 Node 表现不同
+- new Promise 的 executor 是同步执行的，不要在里面写「等等再 resolve」逻辑
+
+### 追问
+- 实现一个简易 Promise.all（已在算法专题里）
+- Promise 链中抛错会在哪一环被捕获
+- 为什么说 async/await 是 Promise 的语法糖？有什么差异（堆栈、异常）
 
 ### 延伸
 - `Promise.all` 短路失败，`Promise.allSettled` 永不失败，`Promise.any` 短路成功，`Promise.race` 第一个 settle 即返回
@@ -311,6 +371,18 @@ function throttle<T extends (...a: any[]) => any>(fn: T, wait = 200) {
 }
 ```
 
+
+### 常见误区
+- 实现里漏了 `this` 透传：`fn.apply(this, args)` 不能写成 `fn(...args)`
+- debounce 的「立即执行」语义没想清——是首次立即还是末尾再执行
+- 卸载组件时没 cancel：定时器仍然会触发，造成 setState 报警告 / 内存泄漏
+- 非常高频场景（mousemove）用 debounce 容易感觉「卡了」，应该用 throttle
+
+### 追问
+- 如何实现「前沿+后沿」都触发的 throttle
+- requestAnimationFrame 实现的 throttle 和 setTimeout 实现有何差异
+- React 里如何用 useRef 实现稳定的 debounce 函数（避免每次 render 重新创建）
+
 ### 延伸
 - VueUse 的 `useDebounceFn` / `useThrottleFn` 已有完善实现
 - React 中用 `useRef` 持有定时器避免重新创建
@@ -358,6 +430,17 @@ function deepClone<T>(value: T, seen = new WeakMap()): T {
 }
 ```
 
+
+### 常见误区
+- `JSON.parse(JSON.stringify(x))` 会丢失：函数、Symbol、undefined、循环引用、Date 变字符串、Map/Set 变空对象
+- 自己写递归：忘记处理循环引用 → 栈溢出；忘记处理 Map/Set/Date/RegExp → 类型丢失
+- structuredClone 现代浏览器内置，几乎是首选；但跑 web worker postMessage 也走它的算法
+
+### 追问
+- structuredClone 和 lodash cloneDeep 哪个全？哪个快
+- 拷贝一个含 DOM 节点的对象会怎样
+- 写一个支持循环引用的简易深拷贝（用 WeakMap 备忘）
+
 ### 延伸
 - 性能更好的方案：`structuredClone(obj)`（HTML 标准 API）
 - 序列化派 `JSON.parse(JSON.stringify(x))` 丢失 undefined/Symbol/循环引用/Date 转字符串
@@ -391,6 +474,18 @@ console.log(count); // 0
 inc();
 console.log(count); // 1（live binding）
 ```
+
+
+### 常见误区
+- CJS 的 `module.exports = x` 和 `exports.x = ...` 差别：前者整体替换，后者添加属性
+- ESM 是静态的，不能用变量做 `import`；CJS 的 `require` 是运行时
+- ESM 默认走 strict mode，`this` 顶层是 undefined
+- 同一个包既给 CJS 又给 ESM 用要小心 dual package hazard（各 require 一份单例就有两份）
+
+### 追问
+- 为什么 ESM 能 tree-shake，CJS 通常不能
+- import 一个 CJS 模块时 default 怎么映射
+- Node 怎么决定 `.js` 是 ESM 还是 CJS（package.json 的 type 字段、`.mjs`）
 
 ### 延伸
 - Vite 利用 ESM 实现按需加载和 HMR
@@ -431,6 +526,18 @@ onMounted(() => {
   });
 });
 ```
+
+
+### 常见误区
+- 把 DOM 引用放到全局 / 模块顶层变量里，组件卸载后还活着
+- 定时器 / 监听器忘记清——SPA 切路由后旧组件死循环跑
+- 闭包里持有大对象但其实不用
+- WeakMap 用错：把 string 当 key（WeakMap 只能 object key）
+
+### 追问
+- 排查内存泄漏的标准流程（三次 Heap snapshot 对比）
+- WeakRef 的真实使用场景
+- React 里 useEffect 没 return cleanup 会怎样
 
 ### 延伸
 - WeakMap/WeakSet/WeakRef 不阻止 GC，适合做缓存或 DOM 关联数据

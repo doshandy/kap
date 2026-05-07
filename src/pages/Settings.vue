@@ -1,13 +1,44 @@
 <script setup lang="ts">
-import { ref } from 'vue';
+import { computed, ref } from 'vue';
 import { useSettingsStore } from '@/stores/settings';
-import { backupJSON, restoreJSON } from '@/composables/useExport';
+import {
+  backupJSON,
+  exportQuestionsToAnkiTSV,
+  exportQuestionsToMarkdown,
+  restoreJSON,
+} from '@/composables/useExport';
 import { clearAll } from '@/stores/persist';
+import { useContent } from '@/composables/useContent';
+import { useMarksStore } from '@/stores/marks';
+import { useProgressStore } from '@/stores/progress';
 import AppIcon from '@/components/icon/AppIcon.vue';
 
 const settings = useSettingsStore();
 const fileRef = ref<HTMLInputElement | null>(null);
 const message = ref('');
+
+const { allQuestions } = useContent();
+const marks = useMarksStore();
+const progress = useProgressStore();
+
+type ExportSource = 'all' | 'starred' | 'review' | 'mastered';
+const exportSource = ref<ExportSource>('starred');
+
+const exportTarget = computed(() => {
+  switch (exportSource.value) {
+    case 'starred':
+      return allQuestions.value.filter((q) => marks.isStarred(q.id));
+    case 'review':
+      return allQuestions.value.filter((q) => {
+        const s = progress.get(q.id).status;
+        return s === 'review' || s === 'fuzzy';
+      });
+    case 'mastered':
+      return allQuestions.value.filter((q) => progress.get(q.id).status === 'mastered');
+    default:
+      return allQuestions.value;
+  }
+});
 
 async function onFile(e: Event) {
   const f = (e.target as HTMLInputElement).files?.[0];
@@ -22,6 +53,26 @@ function onClear() {
     clearAll();
     location.reload();
   }
+}
+
+function onExportMarkdown() {
+  const list = exportTarget.value;
+  if (!list.length) {
+    message.value = '⚠ 选中范围内没有题目可导出';
+    return;
+  }
+  exportQuestionsToMarkdown(list, `kap-cheatsheet-${exportSource.value}.md`);
+  message.value = `✅ 已导出 ${list.length} 道题（Markdown 小抄）`;
+}
+
+function onExportAnki() {
+  const list = exportTarget.value;
+  if (!list.length) {
+    message.value = '⚠ 选中范围内没有题目可导出';
+    return;
+  }
+  exportQuestionsToAnkiTSV(list, `kap-anki-${exportSource.value}.tsv`);
+  message.value = `✅ 已导出 ${list.length} 张 Anki 卡片（TSV，可直接导入 Anki）`;
 }
 </script>
 
@@ -74,6 +125,30 @@ function onClear() {
         <input ref="fileRef" type="file" accept="application/json" hidden @change="onFile" />
       </div>
       <div v-if="message" class="msg">{{ message }}</div>
+    </section>
+
+    <section class="card grp">
+      <h3>导出题库 / 面试小抄</h3>
+      <p class="muted">
+        把题目导出为 Markdown 小抄方便打印 / 阅读，或导出 Anki 卡片做间隔重复。
+      </p>
+      <div class="row">
+        <label>导出范围：</label>
+        <select v-model="exportSource">
+          <option value="starred">仅收藏（{{ allQuestions.filter((q) => marks.isStarred(q.id)).length }}）</option>
+          <option value="review">仅复习 / 模糊</option>
+          <option value="mastered">仅已掌握</option>
+          <option value="all">全部题目（{{ allQuestions.length }}）</option>
+        </select>
+      </div>
+      <div class="row">
+        <button class="btn btn-primary" :disabled="!exportTarget.length" @click="onExportMarkdown">
+          <AppIcon name="fileText" /> 导出 Markdown（{{ exportTarget.length }}）
+        </button>
+        <button class="btn" :disabled="!exportTarget.length" @click="onExportAnki">
+          <AppIcon name="copy" /> 导出 Anki TSV
+        </button>
+      </div>
     </section>
 
     <section class="card grp danger">

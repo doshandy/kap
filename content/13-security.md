@@ -48,6 +48,17 @@ const safe = DOMPurify.sanitize(richHtml, {
 // <div v-html="DOMPurify.sanitize(content)" />
 ```
 
+
+### 常见误区
+- 把 `innerHTML` 当成「省事的 textContent」，输入只要带 `<img onerror>` 就中招
+- React/Vue 的 `dangerouslySetInnerHTML` / `v-html` 是 XSS 第一来源
+- URL 参数直接 echo 到页面也算 XSS 入口（reflected）
+
+### 追问
+- 区分 stored / reflected / DOM-based XSS
+- 什么是 Trusted Types，浏览器支持度
+- CSP 的 `script-src 'self'` 能拦住所有 XSS 吗
+
 ### 延伸
 - XSS 防御不是"靠一个库兜底"，而是模板、组件、渲染链路的整体设计
 
@@ -151,6 +162,17 @@ async function postWithCsrf(url: string, body: any) {
 // 服务端校验 Cookie 中的 csrf_token == Header X-CSRF-Token
 // 攻击者跨站发起请求时，无法读取受害者的 cookie，也就无法构造正确 Header
 ```
+
+
+### 常见误区
+- 以为 CSRF 只能对 form 发生——AJAX 也可以，只要带 Cookie
+- 同站同域下也能 clickjacking——因为 iframe 本就和父页同域
+- SameSite=Lax 不能完全防 CSRF（GET 仍有风险）
+
+### 追问
+- CSRF Token 双提交（cookie + header）原理
+- X-Frame-Options 和 CSP frame-ancestors 区别
+- SameSite=Strict 会带来什么用户体验问题
 
 ### 延伸
 - SameSite 能显著降低风险，但不应替代真正的业务鉴权与幂等防护

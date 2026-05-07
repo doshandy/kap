@@ -1,0 +1,150 @@
+{
+  "01-javascript/prototype-chain": {
+    "pitfall": "- 把 `__proto__`、`prototype`、`[[Prototype]]` 三个混着用：\n  - `__proto__` 是非标准遗留属性，用 `Object.getPrototypeOf` / `Object.setPrototypeOf`\n  - `prototype` 只在**函数**上有，是 `new` 时给实例用的\n  - `[[Prototype]]` 是规范里的内部槽\n- 以为 `instanceof` 检查「是不是这个类」，其实它检查的是「原型链上是否出现过该构造函数的 prototype」\n- 用 `obj.hasOwnProperty(k)` 不安全：如果 obj 自己就有一个叫 `hasOwnProperty` 的属性会被覆盖。改用 `Object.hasOwn(obj, k)`",
+    "followup": "- 为什么 `Object.create(null)` 创建的对象更适合做「纯字典」？\n- 修改原型链（`Object.setPrototypeOf`）为什么是性能反模式？\n- ES6 `class` 和原型继承能 100% 等价吗？类字段、私有字段（`#x`）有什么不同？"
+  },
+  "01-javascript/this-binding": {
+    "pitfall": "- 箭头函数里写 `this.xxx` 期望它是某个对象——它永远是定义时外层的 this，不会被 `.call/.apply/.bind` 改变\n- `setTimeout(obj.fn, 0)` 里 `this` 不再是 obj（隐式绑定丢失）\n- React class 组件方法没绑定就传 `onClick={this.handle}`，`this` 是 undefined（要么用箭头函数声明，要么 bind）\n- DOM 事件 handler 用箭头函数，里面 `this` 不是 currentTarget",
+    "followup": "- new 调用一个箭头函数会怎样？为什么\n- bind 之后还能再 bind 吗？再调用 call 呢？\n- 严格模式下默认绑定的 this 是什么？为什么这么设计"
+  },
+  "01-javascript/closure": {
+    "pitfall": "- 经典坑：`for (var i = 0; i < 5; i++) setTimeout(() => console.log(i))` 全部输出 5——闭包共享同一个 `i`；改成 `let` 即可\n- 闭包里持有大对象但没释放：典型内存泄漏来源\n- 闭包并不一定意味着「有性能开销」——V8 优化得很好，不要因为怕闭包而瞎写",
+    "followup": "- IIFE（立即执行函数）和闭包的关系\n- 模块模式（私有变量）现在还需要靠闭包吗？ESM 是否替代了它"
+  },
+  "01-javascript/event-loop": {
+    "pitfall": "- 把「宏任务/微任务」和「同步/异步」混为一谈：同步代码走完才会执行任何任务\n- 以为 `setTimeout(fn, 0)` 是「立即执行」——它至少要等一轮 tick + 浏览器节流\n- Promise then 是微任务，会在当前宏任务结束前清空整个微任务队列；如果你在 then 里又 schedule 微任务可能「饿死」渲染\n- requestAnimationFrame 不是微任务也不是宏任务，是渲染前的特殊队列",
+    "followup": "- Node 的事件循环和浏览器有什么差异？setImmediate vs setTimeout\n- `queueMicrotask`、`Promise.resolve().then` 哪个先执行\n- async/await 在 Event Loop 中的实际表现（每个 await 等价于一次微任务调度）"
+  },
+  "01-javascript/promise-aplus": {
+    "pitfall": "- `Promise.all` 一个失败全失败：要全部完成结果改用 `Promise.allSettled`\n- then 里返回一个 thenable 不会立即转成 Promise，要走「unwrap」流程\n- 没 catch 的 Promise 会触发 `unhandledrejection`，浏览器和 Node 表现不同\n- new Promise 的 executor 是同步执行的，不要在里面写「等等再 resolve」逻辑",
+    "followup": "- 实现一个简易 Promise.all（已在算法专题里）\n- Promise 链中抛错会在哪一环被捕获\n- 为什么说 async/await 是 Promise 的语法糖？有什么差异（堆栈、异常）"
+  },
+  "01-javascript/deep-clone": {
+    "pitfall": "- `JSON.parse(JSON.stringify(x))` 会丢失：函数、Symbol、undefined、循环引用、Date 变字符串、Map/Set 变空对象\n- 自己写递归：忘记处理循环引用 → 栈溢出；忘记处理 Map/Set/Date/RegExp → 类型丢失\n- structuredClone 现代浏览器内置，几乎是首选；但跑 web worker postMessage 也走它的算法",
+    "followup": "- structuredClone 和 lodash cloneDeep 哪个全？哪个快\n- 拷贝一个含 DOM 节点的对象会怎样\n- 写一个支持循环引用的简易深拷贝（用 WeakMap 备忘）"
+  },
+  "01-javascript/debounce-throttle": {
+    "pitfall": "- 实现里漏了 `this` 透传：`fn.apply(this, args)` 不能写成 `fn(...args)`\n- debounce 的「立即执行」语义没想清——是首次立即还是末尾再执行\n- 卸载组件时没 cancel：定时器仍然会触发，造成 setState 报警告 / 内存泄漏\n- 非常高频场景（mousemove）用 debounce 容易感觉「卡了」，应该用 throttle",
+    "followup": "- 如何实现「前沿+后沿」都触发的 throttle\n- requestAnimationFrame 实现的 throttle 和 setTimeout 实现有何差异\n- React 里如何用 useRef 实现稳定的 debounce 函数（避免每次 render 重新创建）"
+  },
+  "01-javascript/esm-vs-cjs": {
+    "pitfall": "- CJS 的 `module.exports = x` 和 `exports.x = ...` 差别：前者整体替换，后者添加属性\n- ESM 是静态的，不能用变量做 `import`；CJS 的 `require` 是运行时\n- ESM 默认走 strict mode，`this` 顶层是 undefined\n- 同一个包既给 CJS 又给 ESM 用要小心 dual package hazard（各 require 一份单例就有两份）",
+    "followup": "- 为什么 ESM 能 tree-shake，CJS 通常不能\n- import 一个 CJS 模块时 default 怎么映射\n- Node 怎么决定 `.js` 是 ESM 还是 CJS（package.json 的 type 字段、`.mjs`）"
+  },
+  "01-javascript/memory-leak": {
+    "pitfall": "- 把 DOM 引用放到全局 / 模块顶层变量里，组件卸载后还活着\n- 定时器 / 监听器忘记清——SPA 切路由后旧组件死循环跑\n- 闭包里持有大对象但其实不用\n- WeakMap 用错：把 string 当 key（WeakMap 只能 object key）",
+    "followup": "- 排查内存泄漏的标准流程（三次 Heap snapshot 对比）\n- WeakRef 的真实使用场景\n- React 里 useEffect 没 return cleanup 会怎样"
+  },
+  "02-typescript/any-vs-unknown": {
+    "pitfall": "- 全用 `any` 把类型系统当摆设，等于回到 JS\n- `unknown` 想当成 any 用：必须先 narrow 才能访问属性\n- `as` 断言滥用，把错误硬塞过去——上线就 NPE",
+    "followup": "- never 是什么？什么场景会用到\n- 函数签名里 `unknown` 和 `any` 怎么选\n- `as const` 干什么用（字面量类型 + readonly）"
+  },
+  "02-typescript/type-vs-interface": {
+    "pitfall": "- 以为 interface 不能写联合类型——其实是 type 才能；interface 不能直接 `interface A = B | C`\n- interface 同名声明会**自动合并**，type 不会；做 module augmentation 必须用 interface\n- 性能上：长链 type 别名会拖慢 tsc，interface 更友好",
+    "followup": "- 给一个第三方库的 module 加属性怎么做\n- 联合类型加 discriminant 字段为什么能让 narrow 成立\n- declare module '*.svg' 这种用法是什么原理"
+  },
+  "02-typescript/utility-types": {
+    "pitfall": "- `Partial<T>` 不会递归 → 嵌套对象的字段还是必填；要 `DeepPartial`\n- `Pick / Omit` 用错 key 名编译期能提示，但运行时还是要严格\n- `Record<K, V>` 当 K 是 string 时会被认为「key 全可枚举」，可能不是你想要的",
+    "followup": "- 实现 DeepPartial / DeepReadonly\n- Required<T> 和 NonNullable<T> 区别\n- 实现 PickByValue（按值类型筛选 key）"
+  },
+  "03-vue/reactivity-core": {
+    "pitfall": "- 用 `ref` 拿到的不是值，模板里自动解包，但在 `<script setup>` 里要 `.value`\n- 给 reactive 对象解构出某字段，原始字段失去响应性 → 用 `toRefs`\n- shallowRef 包裹大对象，但内部某字段变化界面不更新——shallow 只追踪顶层\n- 把响应式对象塞进非响应式数据结构（Map）里取出来后丢响应",
+    "followup": "- 为什么 Vue 3 用 Proxy 而不是 defineProperty 还需要「特殊处理」集合\n- ref 内部其实是怎么实现的（getter/setter + dep）\n- `markRaw` 用在哪里"
+  },
+  "03-vue/computed-watch": {
+    "pitfall": "- computed 里改其他响应式数据 → 触发其他依赖的副作用，容易死循环\n- watch 给数组 / 对象时默认浅监听，要 `deep: true`\n- watchEffect 自动追踪，但条件分支里访问了不一定每次都跑——依赖会变化\n- 在 watch 回调里再发起异步请求，没做「取消上一次」会有竞态",
+    "followup": "- watchEffect 和 watch 何时选哪个\n- 怎么实现「立即执行 + 后续异步取消」的 watch（参考 useFetch）\n- computed 是 lazy 的吗？什么时候算「计算时机」"
+  },
+  "03-vue/diff-optimization": {
+    "pitfall": "- key 用 index 当兜底——列表插入/删除时复用错位\n- 给 v-for 顶层渲染条件元素而不是 fragment\n- 不必要的 deep watch 让 patchFlag 优化白费",
+    "followup": "- React 的 fiber 算法和 Vue 的 diff 思路有什么不同\n- patchFlag 在编译期是怎么决定的（举几个 flag）\n- LIS（最长递增子序列）在 Vue diff 里解决什么问题"
+  },
+  "03-vue/sfc-compile": {
+    "pitfall": "- `<script setup>` 顶层声明都自动暴露给模板，但**不带 .value**——模板里自动解包，脚本里不行\n- 用了 macro（defineProps / defineEmits）后却显式 import 它们 → 编译报错\n- style scoped 实现「按属性选择器隔离」，深度选择子组件用 `:deep()`",
+    "followup": "- defineProps 在 ts 模式下和 js 模式下有什么差异\n- script setup 编译产物大致长什么样\n- v-bind 在 style 里的用法"
+  },
+  "04-css/box-bfc": {
+    "pitfall": "- margin 折叠场景多到怀疑人生：父子之间、相邻兄弟、空块也会折叠\n- 高度坍塌（浮动子元素 → 父没高度），可用 `overflow: hidden` 触发 BFC\n- box-sizing 不写默认 content-box，padding 会撑大盒子",
+    "followup": "- 写 5 种触发 BFC 的方式\n- inline-block 之间的「鬼影空白」如何消除\n- 圣杯布局 / 双飞翼布局现在还有意义吗（vs Flex/Grid）"
+  },
+  "04-css/flex-grid": {
+    "pitfall": "- flex: 1 = `flex: 1 1 0`（basis 0），不是 `1 1 auto`，用错会出现「内容长就撑满」\n- justify-content 控的是 main 轴，align-items 控 cross 轴，方向反了一切失灵\n- Grid 里 minmax(0, 1fr) 才能让长内容收缩；只写 `1fr` 大长字符串会撑爆",
+    "followup": "- Grid 的 implicit vs explicit grid\n- subgrid 解决了什么问题（Firefox 早就支持，Chrome 117+）\n- gap 是 Flex 还是 Grid 的属性"
+  },
+  "05-browser/url-to-render": {
+    "pitfall": "- DNS 查询不只是浏览器一层：操作系统、路由器、ISP 都有 cache\n- TCP 三次握手只在没复用连接时发生；HTTP/2 多路复用同 TCP\n- 渲染管线里 layout 和 paint 不是每次都触发——只读样式（getBoundingClientRect）会强制 reflow",
+    "followup": "- HTTPS 握手具体几个 RTT，TLS 1.3 优化了什么\n- preconnect / dns-prefetch / preload 的执行顺序\n- LCP 的衡量对象通常是哪些元素"
+  },
+  "05-browser/render-pipeline": {
+    "pitfall": "- transform / opacity 通常 GPU 合成，不会触发 layout/paint，但**`will-change` 滥用反而让 layer 数量爆炸**\n- 改 width / height 会 layout；改 background-image 会 paint；改 transform 只 composite\n- `display: none` → 完全脱离渲染树，不再 layout；`visibility: hidden` 仍占位",
+    "followup": "- contain 属性能做什么\n- content-visibility: auto 和 IntersectionObserver 区别\n- 强制同步布局（layout thrashing）怎么排查"
+  },
+  "05-browser/event-loop-worker": {
+    "pitfall": "- Worker 里没有 DOM、window、document，访问就报错\n- 主线程 → Worker postMessage 是结构化克隆（不是引用），大数据要用 Transferable\n- requestAnimationFrame 在 inactive tab 不跑（Chrome 暂停渲染）",
+    "followup": "- requestIdleCallback 兼容性如何，什么时候用\n- SharedArrayBuffer 能跨线程零拷贝，需要哪些 HTTP 头\n- web worker 和 service worker 区别"
+  },
+  "06-network/http1-http2-http3": {
+    "pitfall": "- HTTP/2 解决了 HTTP/1.1 的应用层 head-of-line，但 TCP 层 HOL 仍在；HTTP/3（QUIC）才彻底解决\n- HTTP/2 的 Server Push 已被弃用，转向 103 Early Hints\n- HTTP/3 跑 UDP，企业内网防火墙可能拦——必须有 HTTP/2 fallback",
+    "followup": "- 队头阻塞（HOL）的具体含义\n- QUIC 的 0-RTT 是什么，有什么风险（重放攻击）\n- 多大并发请求时 HTTP/2 收益最明显"
+  },
+  "06-network/caching": {
+    "pitfall": "- 强缓存（max-age）和协商缓存（ETag/Last-Modified）混着用——max-age 没过期不会发请求，何谈协商\n- 用 `no-cache` 误以为「不缓存」——它是「每次都要 revalidate」；真不缓存用 `no-store`\n- Service Worker 的缓存独立于 HTTP 缓存，发生版本不一致时极难排查",
+    "followup": "- 强缓存 vs 协商缓存触发顺序\n- ETag 的强校验和弱校验差别\n- immutable 这个 Cache-Control 指令做什么用"
+  },
+  "06-network/cors-cross-origin": {
+    "pitfall": "- 简单请求和预检请求的判定经常被记错（GET/POST + 简单头 + 简单 Content-Type）\n- 带 cookie 跨域要 server 设 `Access-Control-Allow-Credentials: true`，且 origin 不能是 `*`\n- 预检请求被缓存——本以为改了 server 不生效，其实是 304，要清",
+    "followup": "- 预检的 Access-Control-Max-Age 一般设多久\n- CORS 和 CSRF 谁防谁，能互相替代吗\n- 跨域字体（@font-face）为什么要 crossorigin 属性"
+  },
+  "07-engineering/vite-principle": {
+    "pitfall": "- 把 dev 表现照搬到 prod：dev 用 ESM 直接喂浏览器没打包，prod 走 Rollup 打包\n- 大量裸 import 会触发 Vite 的依赖预构建（esbuild）—— 第一次启动慢是正常\n- 配 alias 后没在 tsconfig.paths 同步 → tsc 报错",
+    "followup": "- 为什么 Vite 的 HMR 比 Webpack 快\n- Rolldown / Rspack / Turbopack 各自定位\n- esbuild 比 swc 快还是慢？哪个用得多"
+  },
+  "08-performance/core-web-vitals": {
+    "pitfall": "- 只优化 LCP 元素本身（图片）忽略阻塞 CSS / JS\n- INP 误以为是首屏指标——它衡量的是「整次会话中最慢的交互响应时间」\n- CLS 出问题往往是图片 / 广告位没占位，不是字体闪屏",
+    "followup": "- TBT（Total Blocking Time）和 INP 关系\n- Web Vitals 的 P75 阈值各自是多少（LCP/INP/CLS）\n- 怎么衡量「长任务」（Long Tasks API）"
+  },
+  "08-performance/initial-load": {
+    "pitfall": "- 一上来就开 SSR——但只是营销页，CSR + 静态 HTML 就够\n- 路由懒加载切得太碎，反而带来更多 HTTP 请求开销\n- 为了「图片不抖」加 placeholder，但 placeholder 自己还得请求才看到",
+    "followup": "- 关键 CSS 内联和 Above-the-fold 区别\n- preload as=font 和 link rel=stylesheet 哪个先\n- 304 和 200 (from cache) 的差别"
+  },
+  "10-architecture/microfrontend": {
+    "pitfall": "- 上来就上 qiankun / Module Federation，但其实只是几个独立路由——是过度工程\n- 多个子应用各自带自己的 React → 体积爆炸；MF 用 shared 配置共享 vendor\n- 子应用 CSS 互相污染——用 CSS Modules / Shadow DOM 隔离",
+    "followup": "- single-spa、qiankun、Module Federation 区别\n- 微前端最容易出问题的是哪一块（路由 / 共享状态 / 样式）\n- 子应用之间通信方案（自定义 Event / Pub-Sub / 全局 store）"
+  },
+  "13-security/xss": {
+    "pitfall": "- 把 `innerHTML` 当成「省事的 textContent」，输入只要带 `<img onerror>` 就中招\n- React/Vue 的 `dangerouslySetInnerHTML` / `v-html` 是 XSS 第一来源\n- URL 参数直接 echo 到页面也算 XSS 入口（reflected）",
+    "followup": "- 区分 stored / reflected / DOM-based XSS\n- 什么是 Trusted Types，浏览器支持度\n- CSP 的 `script-src 'self'` 能拦住所有 XSS 吗"
+  },
+  "13-security/csrf-clickjacking": {
+    "pitfall": "- 以为 CSRF 只能对 form 发生——AJAX 也可以，只要带 Cookie\n- 同站同域下也能 clickjacking——因为 iframe 本就和父页同域\n- SameSite=Lax 不能完全防 CSRF（GET 仍有风险）",
+    "followup": "- CSRF Token 双提交（cookie + header）原理\n- X-Frame-Options 和 CSP frame-ancestors 区别\n- SameSite=Strict 会带来什么用户体验问题"
+  },
+  "20-algorithm/promise-handwritten": {
+    "pitfall": "- then 必须返回新 Promise（链式），别在原 Promise 上挂\n- resolve 不只接受值，也接受 thenable / Promise，要 unwrap\n- 状态只能从 pending 变到 fulfilled/rejected 一次",
+    "followup": "- 实现 Promise.allSettled\n- Promise.any 和 race 区别\n- async/await 是基于 Promise 实现的吗"
+  },
+  "20-algorithm/lru-cache-impl": {
+    "pitfall": "- 用 Object 当 hash 表 + 数组保顺序：每次 get 要 O(n) 找位置；用 Map 利用其插入顺序\n- 忘记 update 时删掉旧位置再插入：相当于没更新顺序\n- 容量为 1 / 0 的边界条件",
+    "followup": "- LRU 的数据结构经典实现（双向链表 + 哈希表）\n- LFU 和 LRU 区别\n- Map 的迭代顺序为什么是插入序"
+  },
+  "21-interview-special/handwrite-deep-clone-circular": {
+    "pitfall": "- 用 JSON 法直接挂在循环引用上\n- 用 Map 不用 WeakMap：被克隆对象不会被释放\n- 没处理 Date / RegExp / Map / Set / Symbol key",
+    "followup": "- 原生 structuredClone 内部是怎么实现的\n- 跨 iframe 的对象 deep clone 有什么坑\n- 拷贝带 prototype 的对象（如 class 实例）怎么保留原型链"
+  },
+  "21-interview-special/design-monitoring-sdk": {
+    "pitfall": "- onerror 拿不到跨域 script 的真实信息——脚本要加 crossorigin\n- sendBeacon 数据有大小限制（一般 64KB）\n- 错误去重：相同堆栈反复上报会刷屏，要做指纹采样",
+    "followup": "- 怎么把 source map 安全地放到内网做反解\n- session replay 的隐私字段是怎么屏蔽的\n- 怎么衡量 SDK 自身的性能开销（自监控）"
+  },
+  "22-react/use-effect-pitfalls": {
+    "pitfall": "- 依赖数组少写 → 闭包持有过期的 state（「stale closure」）\n- 在 effect 里 setState 触发死循环——条件没收敛\n- 把异步函数直接传给 useEffect（return 不是 cleanup 而是 Promise）\n- 严格模式下 effect 跑两次，是 React 主动让你发现幂等问题，不是 bug",
+    "followup": "- useEffect 和 useLayoutEffect 何时选哪个\n- React 18 自动批处理对 effect 的影响\n- useRef + useEffect 模拟「上一次值」的写法"
+  },
+  "22-react/react-server-components": {
+    "pitfall": "- RSC 里不能用 `useState`、`useEffect`、`window`——它在服务端跑\n- 把 'use client' 写到入口反而把整个子树都 client 化\n- RSC payload 不是 JSON 是行级流（避免字符串解析阻塞）",
+    "followup": "- Server Action 和 RSC 关系\n- 为什么 RSC 能减小 client bundle\n- 老 SPA 怎么平滑迁移到 RSC"
+  },
+  "24-fullstack-meta/next-app-router": {
+    "pitfall": "- 默认所有组件是 Server Component；想用 hooks 必须 'use client'\n- 服务端获取数据用 `await fetch(url, { cache: 'force-cache' })`，但**修改后没 revalidate** 会一直拿旧数据\n- middleware 跑在 edge runtime，部分 Node API 不可用",
+    "followup": "- App Router 的四层缓存（fetch / data / route / router）\n- Server Action 和 Route Handler 区别\n- streaming SSR 是怎么工作的（loading.tsx）"
+  }
+}

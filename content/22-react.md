@@ -138,6 +138,18 @@ function User({ id }: { id: string }) {
 }
 ```
 
+
+### 常见误区
+- 依赖数组少写 → 闭包持有过期的 state（「stale closure」）
+- 在 effect 里 setState 触发死循环——条件没收敛
+- 把异步函数直接传给 useEffect（return 不是 cleanup 而是 Promise）
+- 严格模式下 effect 跑两次，是 React 主动让你发现幂等问题，不是 bug
+
+### 追问
+- useEffect 和 useLayoutEffect 何时选哪个
+- React 18 自动批处理对 effect 的影响
+- useRef + useEffect 模拟「上一次值」的写法
+
 ### 延伸
 - React 官方的「You Might Not Need an Effect」是必读，大量场景其实不需要 effect
 - 数据请求建议交给 React Query / SWR / RSC，比手写 effect 稳定得多
@@ -242,6 +254,17 @@ export function Comments({ postId }: { postId: string }) {
   );
 }
 ```
+
+
+### 常见误区
+- RSC 里不能用 `useState`、`useEffect`、`window`——它在服务端跑
+- 把 'use client' 写到入口反而把整个子树都 client 化
+- RSC payload 不是 JSON 是行级流（避免字符串解析阻塞）
+
+### 追问
+- Server Action 和 RSC 关系
+- 为什么 RSC 能减小 client bundle
+- 老 SPA 怎么平滑迁移到 RSC
 
 ### 延伸
 - RSC 在大型应用收益更明显（电商详情页、Dashboard），小型站点提升不一定超过复杂度成本

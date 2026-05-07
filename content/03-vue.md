@@ -84,6 +84,18 @@ const editor = shallowRef<Editor | null>(null);
 const exposed = readonly(state);
 ```
 
+
+### 常见误区
+- 用 `ref` 拿到的不是值，模板里自动解包，但在 `<script setup>` 里要 `.value`
+- 给 reactive 对象解构出某字段，原始字段失去响应性 → 用 `toRefs`
+- shallowRef 包裹大对象，但内部某字段变化界面不更新——shallow 只追踪顶层
+- 把响应式对象塞进非响应式数据结构（Map）里取出来后丢响应
+
+### 追问
+- 为什么 Vue 3 用 Proxy 而不是 defineProperty 还需要「特殊处理」集合
+- ref 内部其实是怎么实现的（getter/setter + dep）
+- `markRaw` 用在哪里
+
 ### 延伸
 - `ref` 包对象时内部仍会走深层响应式
 - 组合式函数若直接返回 `reactive` 对象，调用方解构时要么 `toRefs`，要么提醒不要裸解构
@@ -203,6 +215,18 @@ watchEffect(async () => {
 });
 ```
 
+
+### 常见误区
+- computed 里改其他响应式数据 → 触发其他依赖的副作用，容易死循环
+- watch 给数组 / 对象时默认浅监听，要 `deep: true`
+- watchEffect 自动追踪，但条件分支里访问了不一定每次都跑——依赖会变化
+- 在 watch 回调里再发起异步请求，没做「取消上一次」会有竞态
+
+### 追问
+- watchEffect 和 watch 何时选哪个
+- 怎么实现「立即执行 + 后续异步取消」的 watch（参考 useFetch）
+- computed 是 lazy 的吗？什么时候算「计算时机」
+
 ### 延伸
 - 需要精确控制依赖、比对 old/new、节流防抖时优先 `watch`
 - 只是模板里用到的派生值，不要用 watch 回写另一个 ref，应优先 computed
@@ -282,6 +306,17 @@ function getSequence(arr: number[]): number[] {
 }
 ```
 
+
+### 常见误区
+- key 用 index 当兜底——列表插入/删除时复用错位
+- 给 v-for 顶层渲染条件元素而不是 fragment
+- 不必要的 deep watch 让 patchFlag 优化白费
+
+### 追问
+- React 的 fiber 算法和 Vue 的 diff 思路有什么不同
+- patchFlag 在编译期是怎么决定的（举几个 flag）
+- LIS（最长递增子序列）在 Vue diff 里解决什么问题
+
 ### 延伸
 - `key` 的语义是"稳定身份"，不是"消除 warning"
 - 错误的 key（比如索引）会让组件状态复用出错，尤其在表单和动画场景
@@ -320,6 +355,17 @@ export default {
   },
 };
 ```
+
+
+### 常见误区
+- `<script setup>` 顶层声明都自动暴露给模板，但**不带 .value**——模板里自动解包，脚本里不行
+- 用了 macro（defineProps / defineEmits）后却显式 import 它们 → 编译报错
+- style scoped 实现「按属性选择器隔离」，深度选择子组件用 `:deep()`
+
+### 追问
+- defineProps 在 ts 模式下和 js 模式下有什么差异
+- script setup 编译产物大致长什么样
+- v-bind 在 style 里的用法
 
 ### 延伸
 - 宏函数不能放进条件分支里，因为编译器需要静态分析

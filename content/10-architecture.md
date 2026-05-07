@@ -514,6 +514,17 @@ export default {
 const RemoteWidget = defineAsyncComponent(() => import('remoteApp/Widget'));
 ```
 
+
+### 常见误区
+- 上来就上 qiankun / Module Federation，但其实只是几个独立路由——是过度工程
+- 多个子应用各自带自己的 React → 体积爆炸；MF 用 shared 配置共享 vendor
+- 子应用 CSS 互相污染——用 CSS Modules / Shadow DOM 隔离
+
+### 追问
+- single-spa、qiankun、Module Federation 区别
+- 微前端最容易出问题的是哪一块（路由 / 共享状态 / 样式）
+- 子应用之间通信方案（自定义 Event / Pub-Sub / 全局 store）
+
 ### 延伸
 - 如果一个团队只是想"代码分模块"，通常组件化、monorepo、模块化路由就够了
 

@@ -50,6 +50,17 @@ export async function POST(req: Request) {
 }
 ```
 
+
+### 常见误区
+- 默认所有组件是 Server Component；想用 hooks 必须 'use client'
+- 服务端获取数据用 `await fetch(url, { cache: 'force-cache' })`，但**修改后没 revalidate** 会一直拿旧数据
+- middleware 跑在 edge runtime，部分 Node API 不可用
+
+### 追问
+- App Router 的四层缓存（fetch / data / route / router）
+- Server Action 和 Route Handler 区别
+- streaming SSR 是怎么工作的（loading.tsx）
+
 ### 延伸
 - 不同路由可以混用：稳定模块上 App Router，复杂遗留页留在 Pages Router 渐进迁移
 - App Router 的缓存模型有 4 层（Request Memoization / Data Cache / Full Route Cache / Router Cache），出问题先排查这条线

@@ -239,6 +239,17 @@ function deepClone<T>(value: T, seen = new WeakMap()): T {
 }
 ```
 
+
+### 常见误区
+- 用 JSON 法直接挂在循环引用上
+- 用 Map 不用 WeakMap：被克隆对象不会被释放
+- 没处理 Date / RegExp / Map / Set / Symbol key
+
+### 追问
+- 原生 structuredClone 内部是怎么实现的
+- 跨 iframe 的对象 deep clone 有什么坑
+- 拷贝带 prototype 的对象（如 class 实例）怎么保留原型链
+
 ### 延伸
 - 现代浏览器原生 `structuredClone(obj)` 已能处理循环引用，但不支持函数与 DOM
 - `JSON.parse(JSON.stringify(x))` 丢失 undefined / Symbol / Date / 循环引用
@@ -477,6 +488,17 @@ class Monitor {
   }
 }
 ```
+
+
+### 常见误区
+- onerror 拿不到跨域 script 的真实信息——脚本要加 crossorigin
+- sendBeacon 数据有大小限制（一般 64KB）
+- 错误去重：相同堆栈反复上报会刷屏，要做指纹采样
+
+### 追问
+- 怎么把 source map 安全地放到内网做反解
+- session replay 的隐私字段是怎么屏蔽的
+- 怎么衡量 SDK 自身的性能开销（自监控）
 
 ### 延伸
 - Sentry 工业实现：source map 上传、采样、breadcrumb、Session Replay

@@ -19,6 +19,7 @@ const router = createRouter({
     { path: '/learn', name: 'learn', component: () => import('@/pages/Learn.vue') },
     { path: '/quiz', name: 'quiz', component: () => import('@/pages/Quiz.vue') },
     { path: '/review', name: 'review', component: () => import('@/pages/Review.vue') },
+    { path: '/marks', name: 'marks', component: () => import('@/pages/Marks.vue') },
     { path: '/roadmap', name: 'roadmap', component: () => import('@/pages/Roadmap.vue') },
     { path: '/changelog', name: 'changelog', component: () => import('@/pages/Changelog.vue') },
     { path: '/settings', name: 'settings', component: () => import('@/pages/Settings.vue') },

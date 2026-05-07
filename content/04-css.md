@@ -30,6 +30,17 @@ tags: [盒模型, BFC, 布局]
 }
 ```
 
+
+### 常见误区
+- margin 折叠场景多到怀疑人生：父子之间、相邻兄弟、空块也会折叠
+- 高度坍塌（浮动子元素 → 父没高度），可用 `overflow: hidden` 触发 BFC
+- box-sizing 不写默认 content-box，padding 会撑大盒子
+
+### 追问
+- 写 5 种触发 BFC 的方式
+- inline-block 之间的「鬼影空白」如何消除
+- 圣杯布局 / 双飞翼布局现在还有意义吗（vs Flex/Grid）
+
 ### 延伸
 - `flow-root` 是现代语义化触发 BFC 的首选
 - 不要滥用 `overflow: hidden` 只为清浮动，容易裁掉阴影和 popover
@@ -104,6 +115,17 @@ tags: [Flex, Grid]
   gap: 16px;
 }
 ```
+
+
+### 常见误区
+- flex: 1 = `flex: 1 1 0`（basis 0），不是 `1 1 auto`，用错会出现「内容长就撑满」
+- justify-content 控的是 main 轴，align-items 控 cross 轴，方向反了一切失灵
+- Grid 里 minmax(0, 1fr) 才能让长内容收缩；只写 `1fr` 大长字符串会撑爆
+
+### 追问
+- Grid 的 implicit vs explicit grid
+- subgrid 解决了什么问题（Firefox 早就支持，Chrome 117+）
+- gap 是 Flex 还是 Grid 的属性
 
 ### 延伸
 - `auto-fill` 保留空轨道，`auto-fit` 会把空轨道折叠

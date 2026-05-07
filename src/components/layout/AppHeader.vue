@@ -49,6 +49,9 @@ const isDark = computed(() => {
       <button class="btn btn-ghost" title="待复习" @click="router.push('/review')">
         <AppIcon name="reload" /><span class="lbl">复习</span>
       </button>
+      <button class="btn btn-ghost" title="收藏 / 跳过" @click="router.push('/marks')">
+        <AppIcon name="star" /><span class="lbl">收藏</span>
+      </button>
       <button class="btn btn-ghost" title="路线图" aria-label="路线图" @click="router.push('/roadmap')">
         <AppIcon name="compass" />
       </button>
