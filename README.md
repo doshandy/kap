@@ -5,7 +5,7 @@
 
 ## ✨ 特性
 
-- **21 个分类**：覆盖 JS / TS / Vue / CSS / 浏览器 / 网络 / 性能 / 工程化 / Node / 架构 / 安全 / 测试 / 可观测 / 构建发布 / 跨端 / 可视化 / 算法 / AI 前端 / 面试专题 / 软技能 / a11y-i18n
+- **28 个分类 / 405+ 题**：覆盖 JS / TS / Vue / React / CSS / 浏览器 / 网络 / 性能 / 工程化 / Node / 架构 / 安全 / 测试 / 可观测 / 构建发布 / 跨端 / 可视化 / 算法 / AI 前端 / 面试专题 / 软技能 / a11y-i18n / 全栈 Meta / Rust+WASM / 浏览器扩展 / 数据平台案例 / 客服 IM 实战
 - **目录与跳转**：侧边栏分类目录，点击题号直达详情，URL 可深链接分享
 - **隐藏 / 展示答案**：默认折叠，Space 一键展开
 - **状态分类**：未做 / 已掌握 / 模糊 / 需复习，本地持久化
@@ -31,13 +31,18 @@
 - 构建：Vite 6 + Vue 3.5 + TypeScript
 - 状态：Pinia
 - 路由：Vue Router 4（history 模式 + 404.html SPA fallback）
-- 内容：Markdown（gray-matter + markdown-it + Prism）
+- 内容：Markdown（gray-matter + markdown-it + Prism，按需异步 chunk）
 - 搜索：Fuse.js
-- 图表：ECharts 5（Pie / Bar / Heatmap）
-- PDF / 截图导出：html2canvas + jspdf
+- 图表：ECharts 5（懒加载，仅 Home 用）
 - 二维码：qrcode
 - PWA：vite-plugin-pwa
+- 测试：Vitest + jsdom
 - 内容脚本：tsx + gray-matter
+
+> 部署侧建议（GitHub Pages / Cloudflare / Netlify）：
+> 由于本站 AI 模块支持用户自定义任意 base url，建议在反向代理层补充 CSP，至少限定：
+> `default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; connect-src 'self' https:; frame-ancestors 'none'`
+> 如果完全自托管，可关闭 AI 模块再收紧 connect-src。
 
 ## 🚀 启动步骤
 
@@ -136,27 +141,32 @@ description: 可选的简短描述
 ---
 
 ## proxy-vs-defineproperty
+
 title: Vue3 为什么用 Proxy 替代 Object.defineProperty
 difficulty: 进阶
 tags: [响应式, 原理]
 
 ### 题目
+
 请说明 Vue3 响应式系统替换为 Proxy 的核心动机与代价。
 
 ### 答案要点
+
 - defineProperty 无法监听新增/删除、数组索引、Map/Set
 - Proxy 拦截 13 种操作，配合 Reflect 保证 receiver
 - 代价：IE 不兼容；嵌套对象按需代理（Lazy）
 
 ### 代码示例
+
 \`\`\`ts
 const reactive = <T extends object>(t: T) => new Proxy(t, {
-  get(t, k, r) { track(t, k); return Reflect.get(t, k, r) },
-  set(t, k, v, r) { const ok = Reflect.set(t, k, v, r); trigger(t, k); return ok }
+get(t, k, r) { track(t, k); return Reflect.get(t, k, r) },
+set(t, k, v, r) { const ok = Reflect.set(t, k, v, r); trigger(t, k); return ok }
 })
 \`\`\`
 
 ### 延伸
+
 - 与 React useState immutable 模型对比
 - ref 与 reactive 的取舍
 ```

@@ -1,34 +1,42 @@
 <script setup lang="ts">
 import { computed, nextTick, onActivated, onBeforeUnmount, onMounted, ref, watch } from 'vue';
-import * as echarts from 'echarts/core';
-import { PieChart, BarChart, HeatmapChart } from 'echarts/charts';
-import {
-  TitleComponent,
-  TooltipComponent,
-  LegendComponent,
-  GridComponent,
-  VisualMapComponent,
-  CalendarComponent,
-} from 'echarts/components';
-import { CanvasRenderer } from 'echarts/renderers';
 import { useContent } from '@/composables/useContent';
 import { useProgressStore } from '@/stores/progress';
 import { useReviewStore } from '@/stores/review';
 import { useMarksStore } from '@/stores/marks';
 import AppIcon from '@/components/icon/AppIcon.vue';
 
-echarts.use([
-  PieChart,
-  BarChart,
-  HeatmapChart,
-  TitleComponent,
-  TooltipComponent,
-  LegendComponent,
-  GridComponent,
-  VisualMapComponent,
-  CalendarComponent,
-  CanvasRenderer,
-]);
+type EChartsModule = typeof import('echarts/core');
+let echarts: EChartsModule | null = null;
+let echartsReady: Promise<EChartsModule> | null = null;
+
+async function loadECharts(): Promise<EChartsModule> {
+  if (echarts) return echarts;
+  if (echartsReady) return echartsReady;
+  echartsReady = (async () => {
+    const [core, charts, components, renderers] = await Promise.all([
+      import('echarts/core'),
+      import('echarts/charts'),
+      import('echarts/components'),
+      import('echarts/renderers'),
+    ]);
+    core.use([
+      charts.PieChart,
+      charts.BarChart,
+      charts.HeatmapChart,
+      components.TitleComponent,
+      components.TooltipComponent,
+      components.LegendComponent,
+      components.GridComponent,
+      components.VisualMapComponent,
+      components.CalendarComponent,
+      renderers.CanvasRenderer,
+    ]);
+    echarts = core;
+    return core;
+  })();
+  return echartsReady;
+}
 
 const { categories, allQuestions } = useContent();
 const progress = useProgressStore();
@@ -195,8 +203,7 @@ function getHeatmapOption() {
   const start = startDate.toISOString().slice(0, 10);
   return {
     tooltip: {
-      formatter: (p: { value: [string, number] }) =>
-        `${p.value[0]}：${p.value[1] || 0} 题`,
+      formatter: (p: { value: [string, number] }) => `${p.value[0]}：${p.value[1] || 0} 题`,
     },
     visualMap: {
       min: 0,
@@ -235,27 +242,30 @@ function getHeatmapOption() {
   };
 }
 
-let pie: echarts.ECharts | null = null;
-let bar: echarts.ECharts | null = null;
-let heat: echarts.ECharts | null = null;
+type EChartsInstance = ReturnType<EChartsModule['init']>;
+
+let pie: EChartsInstance | null = null;
+let bar: EChartsInstance | null = null;
+let heat: EChartsInstance | null = null;
 let ro: ResizeObserver | null = null;
 
 function ensureChart(
   el: HTMLElement | null,
-  inst: echarts.ECharts | null,
+  inst: EChartsInstance | null,
   getOpt: () => unknown,
-): echarts.ECharts | null {
-  if (!el) return inst;
+): EChartsInstance | null {
+  if (!el || !echarts) return inst;
   let chart = inst;
   if (!chart || chart.isDisposed()) {
     chart = echarts.init(el);
   }
-  chart.setOption(getOpt() as Parameters<echarts.ECharts['setOption']>[0], true);
+  chart.setOption(getOpt() as Parameters<EChartsInstance['setOption']>[0], true);
   chart.resize();
   return chart;
 }
 
-function renderAll() {
+async function renderAll() {
+  await loadECharts();
   pie = ensureChart(pieRef.value, pie, getOption);
   bar = ensureChart(barRef.value, bar, getBarOption);
   heat = ensureChart(heatRef.value, heat, getHeatmapOption);
@@ -272,20 +282,20 @@ function onWinResize() {
 }
 
 onMounted(() => {
-  renderAll();
+  void renderAll().then(() => {
+    if (typeof ResizeObserver !== 'undefined') {
+      ro = new ResizeObserver(() => resizeAll());
+      if (pieRef.value) ro.observe(pieRef.value);
+      if (barRef.value) ro.observe(barRef.value);
+      if (heatRef.value) ro.observe(heatRef.value);
+    }
+  });
   window.addEventListener('resize', onWinResize);
-  if (typeof ResizeObserver !== 'undefined') {
-    ro = new ResizeObserver(() => resizeAll());
-    if (pieRef.value) ro.observe(pieRef.value);
-    if (barRef.value) ro.observe(barRef.value);
-    if (heatRef.value) ro.observe(heatRef.value);
-  }
 });
 
 onActivated(() => {
   nextTick(() => {
-    renderAll();
-    resizeAll();
+    void renderAll().then(() => resizeAll());
   });
 });
 
@@ -299,7 +309,12 @@ onBeforeUnmount(() => {
   pie = bar = heat = null;
 });
 
-watch(() => [totalDone.value, dueCount.value, document.documentElement.className], renderAll);
+watch(
+  () => [totalDone.value, dueCount.value, document.documentElement.className],
+  () => {
+    void renderAll();
+  },
+);
 </script>
 
 <template>
@@ -311,16 +326,12 @@ watch(() => [totalDone.value, dueCount.value, document.documentElement.className
         <RouterLink class="btn btn-primary" to="/learn">
           <AppIcon name="read" /> 顺序学习（从第 1 题开始）
         </RouterLink>
-        <RouterLink class="btn" to="/quiz">
-          <AppIcon name="experiment" /> 抽题模拟
-        </RouterLink>
+        <RouterLink class="btn" to="/quiz"> <AppIcon name="experiment" /> 抽题模拟 </RouterLink>
         <RouterLink class="btn" to="/review">
           <AppIcon name="reload" /> 待复习
           <b v-if="dueCount">{{ dueCount }}</b>
         </RouterLink>
-        <RouterLink class="btn" to="/roadmap">
-          <AppIcon name="compass" /> 学习路线
-        </RouterLink>
+        <RouterLink class="btn" to="/roadmap"> <AppIcon name="compass" /> 学习路线 </RouterLink>
       </div>
       <div class="kpi">
         <div>
@@ -378,16 +389,24 @@ watch(() => [totalDone.value, dueCount.value, document.documentElement.className
           </div>
         </div>
         <ul class="readiness-tips">
-          <li>已掌握 / 总题：<b>{{ totalDone }}</b> / {{ totalQuestions }}</li>
-          <li>收藏：<b>{{ starredCount }}</b> · 待复习：<b>{{ dueCount }}</b></li>
+          <li>
+            已掌握 / 总题：<b>{{ totalDone }}</b> / {{ totalQuestions }}
+          </li>
+          <li>
+            收藏：<b>{{ starredCount }}</b> · 待复习：<b>{{ dueCount }}</b>
+          </li>
         </ul>
       </div>
 
       <div class="card rhythm">
         <h3><AppIcon name="thunderbolt" /> 学习节奏（近 14 天）</h3>
         <div class="rhythm-summary">
-          <span>总完成 <b>{{ rhythmTotal }}</b> 次</span>
-          <span>活跃天数 <b>{{ rhythmActiveDays }}</b> / 14</span>
+          <span
+            >总完成 <b>{{ rhythmTotal }}</b> 次</span
+          >
+          <span
+            >活跃天数 <b>{{ rhythmActiveDays }}</b> / 14</span
+          >
         </div>
         <div class="rhythm-bars" role="img" :aria-label="`近14天每日完成数`">
           <div
@@ -636,14 +655,20 @@ watch(() => [totalDone.value, dueCount.value, document.documentElement.className
   padding: 6px 0;
   border-bottom: 1px dashed var(--c-border);
 }
-.weak-list li:last-child { border-bottom: 0; }
-.weak-icon { font-size: 16px; }
+.weak-list li:last-child {
+  border-bottom: 0;
+}
+.weak-icon {
+  font-size: 16px;
+}
 .weak-title {
   color: var(--c-text);
   text-decoration: none;
   font-size: 13px;
 }
-.weak-title:hover { color: var(--c-primary); }
+.weak-title:hover {
+  color: var(--c-primary);
+}
 .weak-bar {
   height: 8px;
   background: var(--c-bg-mute);
@@ -661,5 +686,8 @@ watch(() => [totalDone.value, dueCount.value, document.documentElement.className
   color: var(--c-text-soft);
   text-align: right;
 }
-.muted.small { font-size: 12px; color: var(--c-text-mute); }
+.muted.small {
+  font-size: 12px;
+  color: var(--c-text-mute);
+}
 </style>

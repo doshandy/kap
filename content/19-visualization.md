@@ -7,22 +7,27 @@ description: Canvas、SVG、ECharts、D3、WebGL 与图形性能优化。
 ---
 
 ## canvas-svg
+
 title: Canvas 与 SVG 如何选
 difficulty: 基础
 tags: [Canvas, SVG]
 
 ### 一句话
+
 SVG 是声明式 DOM 图形，适合中小规模、可交互、可访问、样式化需求强的图形；Canvas 是像素画布，适合频繁重绘、大量元素、游戏和复杂粒子效果；SVG 易调试、易事件绑定；Canvas 原始性能通常更好，但语义和可访问性更弱。
 
 ### 题目
+
 同样是画图，Canvas 和 SVG 的核心差异是什么？分别适合哪些场景？
 
 ### 答案要点
+
 - SVG 是声明式 DOM 图形，适合中小规模、可交互、可访问、样式化需求强的图形
 - Canvas 是像素画布，适合频繁重绘、大量元素、游戏和复杂粒子效果
 - SVG 易调试、易事件绑定；Canvas 原始性能通常更好，但语义和可访问性更弱
 
 ### 代码示例
+
 ```ts
 // 1. SVG：声明式，每个图元都是 DOM
 function renderSvg(points: { x: number; y: number }[]) {
@@ -30,9 +35,9 @@ function renderSvg(points: { x: number; y: number }[]) {
     <svg viewBox="0 0 800 400" xmlns="http://www.w3.org/2000/svg">
       <polyline
         fill="none" stroke="#0ea5e9" stroke-width="2"
-        points="${points.map(p => `${p.x},${p.y}`).join(' ')}"
+        points="${points.map((p) => `${p.x},${p.y}`).join(' ')}"
       />
-      ${points.map(p => `<circle cx="${p.x}" cy="${p.y}" r="3" fill="#0ea5e9" />`).join('')}
+      ${points.map((p) => `<circle cx="${p.x}" cy="${p.y}" r="3" fill="#0ea5e9" />`).join('')}
     </svg>
   `;
 }
@@ -54,16 +59,17 @@ function renderCanvas(canvas: HTMLCanvasElement, points: any[]) {
   ctx.strokeStyle = '#0ea5e9';
   ctx.lineWidth = 2;
   ctx.beginPath();
-  points.forEach((p, i) => i === 0 ? ctx.moveTo(p.x, p.y) : ctx.lineTo(p.x, p.y));
+  points.forEach((p, i) => (i === 0 ? ctx.moveTo(p.x, p.y) : ctx.lineTo(p.x, p.y)));
   ctx.stroke();
 }
 ```
 
 ```ts
 // 3. Canvas 上事件命中：自己实现（区域遍历或 Path2D + isPointInPath）
-canvas.addEventListener('click', e => {
+canvas.addEventListener('click', (e) => {
   const rect = canvas.getBoundingClientRect();
-  const x = e.clientX - rect.left, y = e.clientY - rect.top;
+  const x = e.clientX - rect.left,
+    y = e.clientY - rect.top;
   for (const p of points) {
     const path = new Path2D();
     path.arc(p.x, p.y, 5, 0, Math.PI * 2);
@@ -76,49 +82,61 @@ canvas.addEventListener('click', e => {
 ```
 
 ### 延伸
+
 - 不是"Canvas 一定快"，而是看图元数量、更新频率和交互复杂度
 
 ## chart-performance
+
 title: ECharts 大数据渲染优化思路
 difficulty: 进阶
 tags: [ECharts, 性能]
 
 ### 一句话
+
 数据采样、聚合、分层展示、虚拟滚动；开启渐进式渲染、data。
 
 ### 题目
+
 图表数据量很大时，前端有哪些常见优化手段？
 
 ### 答案要点
-- 数据采样、聚合、分层展示、虚拟滚动
-- 开启渐进式渲染、dataZoom、按需 tooltip 和标签
-- 降低初始渲染量，把细节放到交互展开阶段
+
+- **数据层**：采样（LTTB 算法保趋势）、按时间聚合、分层（缩放级别越大越粗）
+- **渲染层**：用 canvas 而非 svg；关闭动画 `animation: false`；隐藏每点的 symbol
+- **渐进式渲染**：`progressive: 1000` + `progressiveThreshold: 3000` 让首屏先出来
+- **交互层**：dataZoom 控制可见区间；tooltip 按需触发；hover 时再算细节
+- **数据传输**：分块加载 + 懒加载未滚到的图表；用 typed array 减少内存
+- 极端场景（百万级点）考虑 **WebGL renderer**（echarts-gl）或 deck.gl
+- 衡量：用 Performance 看 long task；目标 fps 60 / TBT < 200ms
 
 ### 代码示例
+
 ```ts
 import * as echarts from 'echarts';
 
 const chart = echarts.init(container, null, {
-  renderer: 'canvas',          // 大数据强烈推荐 canvas（svg 图元过多会卡）
+  renderer: 'canvas', // 大数据强烈推荐 canvas（svg 图元过多会卡）
 });
 
 chart.setOption({
-  animation: false,             // 大数据关闭动画
+  animation: false, // 大数据关闭动画
   dataset: { source: largeData }, // 用 dataset 减少二次拷贝
 
-  series: [{
-    type: 'line',
-    showSymbol: false,           // 不画每个点的标记
-    sampling: 'lttb',            // 大数据采样：保留趋势点
-    progressive: 1000,           // 渐进式渲染：每帧 1000 个点
-    progressiveThreshold: 3000,  // 超过 3000 个点开启渐进
-    large: true,                 // canvas 大数据模式
-    largeThreshold: 2000,
-  }],
+  series: [
+    {
+      type: 'line',
+      showSymbol: false, // 不画每个点的标记
+      sampling: 'lttb', // 大数据采样：保留趋势点
+      progressive: 1000, // 渐进式渲染：每帧 1000 个点
+      progressiveThreshold: 3000, // 超过 3000 个点开启渐进
+      large: true, // canvas 大数据模式
+      largeThreshold: 2000,
+    },
+  ],
 
   dataZoom: [
     { type: 'inside' },
-    { type: 'slider', start: 90, end: 100 },  // 默认显示最近 10%
+    { type: 'slider', start: 90, end: 100 }, // 默认显示最近 10%
   ],
 
   tooltip: {
@@ -144,21 +162,27 @@ function lttbSample(data: [number, number][], threshold: number): [number, numbe
     const rangeStart = Math.floor((i + 1) * every) + 1;
     const rangeEnd = Math.floor((i + 2) * every) + 1;
 
-    let avgX = 0, avgY = 0;
+    let avgX = 0,
+      avgY = 0;
     for (let j = rangeStart; j < Math.min(rangeEnd, data.length); j++) {
       avgX += data[j][0];
       avgY += data[j][1];
     }
     const cnt = Math.min(rangeEnd, data.length) - rangeStart;
-    avgX /= cnt; avgY /= cnt;
+    avgX /= cnt;
+    avgY /= cnt;
 
-    let maxArea = -1, maxIdx = a + 1;
+    let maxArea = -1,
+      maxIdx = a + 1;
     for (let j = Math.floor(i * every) + 1; j < Math.floor((i + 1) * every) + 1; j++) {
       const area = Math.abs(
         (data[a][0] - avgX) * (data[j][1] - data[a][1]) -
-        (data[a][0] - data[j][0]) * (avgY - data[a][1]),
+          (data[a][0] - data[j][0]) * (avgY - data[a][1]),
       );
-      if (area > maxArea) { maxArea = area; maxIdx = j; }
+      if (area > maxArea) {
+        maxArea = area;
+        maxIdx = j;
+      }
     }
     sampled.push(data[maxIdx]);
     a = maxIdx;
@@ -169,35 +193,47 @@ function lttbSample(data: [number, number][], threshold: number): [number, numbe
 ```
 
 ### 延伸
+
 - 用户不一定需要"所有点都同时可见"，更重要的是快速读出趋势和异常
 
 ## d3-thinking
+
 title: D3 的核心思想不是“画图库”，而是数据驱动映射
 difficulty: 进阶
 tags: [D3, 数据映射]
 
 ### 一句话
+
 D3 更底层，强调比例尺、坐标映射、数据绑定和图元组合；ECharts 更偏配置驱动，开箱快但自由度相对受约束；D3 更适合定制可视化和非标准图形。
 
 ### 题目
+
 为什么很多人学 D3 会觉得难？它和 ECharts 的心智模型有什么不同？
 
 ### 答案要点
-- D3 更底层，强调比例尺、坐标映射、数据绑定和图元组合
-- ECharts 更偏配置驱动，开箱快但自由度相对受约束
-- D3 更适合定制可视化和非标准图形
+
+- D3 是**底层映射工具集**，强调"**比例尺 → 数据绑定 → 图元生成**"三段心智
+- ECharts 是**高层配置驱动库**，传 option 即出图，自由度低但开发快
+- D3 的核心 API：`d3.scale*`（比例尺）/ `d3.selection`（数据绑定）/ `d3.axis`（坐标轴）
+- 数据绑定模式：**enter / update / exit**——数据变化时只增删差异部分（虚拟 DOM 思想的鼻祖）
+- D3 适合：自定义可视化、非标准图形（force layout、地图、桑基图、网络图）
+- 选型经验：**80% 业务图表用 ECharts**（性价比最高），定制图形或学术图用 D3
+- 现代趋势：D3 + React（visx / react-vis）把 D3 的数学逻辑保留，渲染交给 React
 
 ### 代码示例
+
 ```ts
 import * as d3 from 'd3';
 
 // 1. 比例尺：把数据域映射到屏幕域
-const x = d3.scaleLinear()
-  .domain([0, d3.max(data, d => d.value)!])      // 数据范围
-  .range([0, 600]);                                // 屏幕范围
+const x = d3
+  .scaleLinear()
+  .domain([0, d3.max(data, (d) => d.value)!]) // 数据范围
+  .range([0, 600]); // 屏幕范围
 
-const y = d3.scaleBand()
-  .domain(data.map(d => d.label))
+const y = d3
+  .scaleBand()
+  .domain(data.map((d) => d.label))
   .range([0, 400])
   .padding(0.1);
 
@@ -208,19 +244,23 @@ const svg = d3.select('#chart');
 const bars = svg.selectAll('rect').data(data, (d: any) => d.label);
 
 // Enter：新数据进入
-bars.enter()
+bars
+  .enter()
   .append('rect')
   .attr('x', 0)
-  .attr('y', d => y(d.label)!)
+  .attr('y', (d) => y(d.label)!)
   .attr('height', y.bandwidth())
-  .attr('width', 0)                                // 初始为 0
-  .attr('fill', d => color(d.label))
-  .transition().duration(500)
-  .attr('width', d => x(d.value));                 // 动画到目标宽度
+  .attr('width', 0) // 初始为 0
+  .attr('fill', (d) => color(d.label))
+  .transition()
+  .duration(500)
+  .attr('width', (d) => x(d.value)); // 动画到目标宽度
 
 // Update：已存在数据更新
-bars.transition().duration(500)
-  .attr('width', d => x(d.value));
+bars
+  .transition()
+  .duration(500)
+  .attr('width', (d) => x(d.value));
 
 // Exit：数据离开则移除
 bars.exit().transition().duration(300).attr('width', 0).remove();
@@ -228,38 +268,54 @@ bars.exit().transition().duration(300).attr('width', 0).remove();
 
 ```ts
 // 3. 配合自定义图表：力导向图
-const simulation = d3.forceSimulation(nodes)
-  .force('link', d3.forceLink(links).id((d: any) => d.id).distance(80))
+const simulation = d3
+  .forceSimulation(nodes)
+  .force(
+    'link',
+    d3
+      .forceLink(links)
+      .id((d: any) => d.id)
+      .distance(80),
+  )
   .force('charge', d3.forceManyBody().strength(-200))
   .force('center', d3.forceCenter(width / 2, height / 2))
   .on('tick', () => {
     // 每帧更新位置
-    nodeSelection.attr('cx', d => d.x).attr('cy', d => d.y);
-    linkSelection.attr('x1', d => d.source.x).attr('y1', d => d.source.y)
-                 .attr('x2', d => d.target.x).attr('y2', d => d.target.y);
+    nodeSelection.attr('cx', (d) => d.x).attr('cy', (d) => d.y);
+    linkSelection
+      .attr('x1', (d) => d.source.x)
+      .attr('y1', (d) => d.source.y)
+      .attr('x2', (d) => d.target.x)
+      .attr('y2', (d) => d.target.y);
   });
 ```
 
 ### 延伸
+
 - 学 D3 的关键不是 API，而是"从数据到图形映射"的思维方式
 
 ## animation-raf
+
 title: requestAnimationFrame 与图形动画节奏控制
 difficulty: 进阶
 tags: [动画, RAF]
 
 ### 一句话
+
 requestAnimationFrame 与浏览器刷新节奏同步，更省电、更平滑；页面后台时会自动降频；可结合时间差 deltaTime 做与帧率无关的动画速度控制。
 
 ### 题目
+
 为什么图形动画通常基于 `requestAnimationFrame` 而不是 `setInterval`？
 
 ### 答案要点
+
 - `requestAnimationFrame` 与浏览器刷新节奏同步，更省电、更平滑
 - 页面后台时会自动降频
 - 可结合时间差 `deltaTime` 做与帧率无关的动画速度控制
 
 ### 代码示例
+
 ```ts
 // 1. 基于 deltaTime 的与帧率无关动画
 class Animator {
@@ -270,7 +326,7 @@ class Animator {
     const tick = (now: number) => {
       const dt = this.lastTime ? (now - this.lastTime) / 1000 : 0;
       this.lastTime = now;
-      update(dt);                  // dt 单位：秒
+      update(dt); // dt 单位：秒
       this.rafId = requestAnimationFrame(tick);
     };
     this.rafId = requestAnimationFrame(tick);
@@ -287,7 +343,7 @@ const animator = new Animator();
 let x = 0;
 const SPEED = 200; // 像素 / 秒
 
-animator.start(dt => {
+animator.start((dt) => {
   x += SPEED * dt;
   ball.style.transform = `translateX(${x}px)`;
 });
@@ -298,11 +354,11 @@ animator.start(dt => {
 const easings = {
   linear: (t: number) => t,
   easeOutCubic: (t: number) => 1 - Math.pow(1 - t, 3),
-  easeInOutQuad: (t: number) => t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2,
+  easeInOutQuad: (t: number) => (t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2),
 };
 
 function tween(from: number, to: number, duration: number, ease = easings.easeOutCubic) {
-  return new Promise<void>(resolve => {
+  return new Promise<void>((resolve) => {
     const start = performance.now();
     function step(now: number) {
       const t = Math.min(1, (now - start) / duration);
@@ -332,25 +388,31 @@ function loop(now: number) {
 ```
 
 ### 延伸
+
 - 高帧率动画的关键不只是"每帧跑"，更是每帧做多少工作
 
 ## webgl-webgpu
+
 title: WebGL 与 WebGPU 的前端视角
 difficulty: 进阶
 tags: [WebGL, WebGPU]
 
 ### 一句话
+
 WebGL 适合 3D、地图、大规模粒子、GPU 加速渲染；Three.js 提供更高层抽象，适合业务快速落地；WebGPU 代表更现代的 GPU 能力模型，潜力更强，但浏览器支持、调试工具和生态成熟度仍需单独评估。
 
 ### 题目
+
 什么时候应该考虑 WebGL/Three.js，什么时候又要关注 WebGPU？
 
 ### 答案要点
+
 - WebGL 适合 3D、地图、大规模粒子、GPU 加速渲染
 - Three.js 提供更高层抽象，适合业务快速落地
 - WebGPU 代表更现代的 GPU 能力模型，潜力更强，但浏览器支持、调试工具和生态成熟度仍需单独评估
 
 ### 代码示例
+
 ```ts
 // Three.js：3D 场景的最小例子
 import * as THREE from 'three';
@@ -411,11 +473,14 @@ async function initWebGPU(canvas: HTMLCanvasElement) {
 
   const encoder = device.createCommandEncoder();
   const pass = encoder.beginRenderPass({
-    colorAttachments: [{
-      view: ctx.getCurrentTexture().createView(),
-      clearValue: { r: 0, g: 0, b: 0, a: 1 },
-      loadOp: 'clear', storeOp: 'store',
-    }],
+    colorAttachments: [
+      {
+        view: ctx.getCurrentTexture().createView(),
+        clearValue: { r: 0, g: 0, b: 0, a: 1 },
+        loadOp: 'clear',
+        storeOp: 'store',
+      },
+    ],
   });
   pass.setPipeline(pipeline);
   pass.draw(3);
@@ -425,25 +490,31 @@ async function initWebGPU(canvas: HTMLCanvasElement) {
 ```
 
 ### 延伸
+
 - 不是所有"炫酷"效果都值得上 GPU，维护与兼容成本要算进去
 
 ## dashboard-adaptation
+
 title: 大屏适配与多分辨率设计
 difficulty: 进阶
 tags: [大屏, 适配]
 
 ### 一句话
+
 大屏常用固定设计稿比例缩放，但会带来字体、坐标、清晰度问题；更稳的方案是布局响应式 + 局部按比例缩放 + 图表自适应重算；需要特别处理 DPR、字体渲染和图表容器尺寸变更。
 
 ### 题目
+
 数据大屏为什么经常在不同分辨率下变形？有哪些常见适配策略？
 
 ### 答案要点
+
 - 大屏常用固定设计稿比例缩放，但会带来字体、坐标、清晰度问题
 - 更稳的方案是布局响应式 + 局部按比例缩放 + 图表自适应重算
 - 需要特别处理 DPR、字体渲染和图表容器尺寸变更
 
 ### 代码示例
+
 ```ts
 // 1. 等比缩放方案（设计稿 1920x1080）
 const DESIGN_W = 1920;
@@ -462,7 +533,10 @@ function scaleToFit(container: HTMLElement) {
   `;
 }
 
-addEventListener('resize', debounce(() => scaleToFit(rootEl), 100));
+addEventListener(
+  'resize',
+  debounce(() => scaleToFit(rootEl), 100),
+);
 scaleToFit(rootEl);
 
 // 优势：开发体验好（按设计稿写）
@@ -496,14 +570,16 @@ scaleToFit(rootEl);
 ```ts
 // 3. ECharts 容器尺寸变化时重算
 const chart = echarts.init(container);
-const ro = new ResizeObserver(debounce(entries => {
-  for (const entry of entries) {
-    chart.resize({
-      width: entry.contentRect.width,
-      height: entry.contentRect.height,
-    });
-  }
-}, 100));
+const ro = new ResizeObserver(
+  debounce((entries) => {
+    for (const entry of entries) {
+      chart.resize({
+        width: entry.contentRect.width,
+        height: entry.contentRect.height,
+      });
+    }
+  }, 100),
+);
 ro.observe(container);
 
 // 4. 高 DPR 屏幕清晰度
@@ -512,20 +588,25 @@ const chart2 = echarts.init(container, null, { devicePixelRatio: dpr });
 ```
 
 ### 延伸
+
 - 大屏适配不是单纯缩放一层容器，信息密度和可读性同样重要
 
 ## chart-interaction-tooltip
+
 title: 图表交互的几个关键点（联动 / hover / brush / 缩放）
 difficulty: 进阶
 tags: [可视化, 交互]
 
 ### 一句话
+
 节流：mousemove / wheel 事件每秒上百次，要 rAF 节流；联动：跨图表共享 cursor 状态，建议用 store / EventBus 广播 hover 索引；Brush：选区交互需要支持 keyboard ESC 取消、双击重置。
 
 ### 题目
+
 做一个有"hover、联动、刷选、滚轮缩放"的多图表 dashboard，前端要解决什么问题？
 
 ### 答案要点
+
 - 节流：mousemove / wheel 事件每秒上百次，要 rAF 节流
 - 联动：跨图表共享 cursor 状态，建议用 store / EventBus 广播 hover 索引
 - Brush：选区交互需要支持 keyboard ESC 取消、双击重置
@@ -535,6 +616,7 @@ tags: [可视化, 交互]
 - 可访问性：图表也要支持键盘焦点 + screen reader 文本备份
 
 ### 代码示例
+
 ```ts
 const charts = [chart1, chart2, chart3];
 
@@ -561,21 +643,26 @@ charts.forEach((c) => {
 ```
 
 ### 延伸
+
 - 大屏多图联动建议在外部用 RxJS / Pinia 集中状态，比让每个图自己 listen 干净
 - ECharts / Highcharts / G2 都有内置的联动接口，先看官方再考虑自己造
 
 ## d3-force-network
+
 title: D3 力导向图（Force-directed Graph）实战要点
 difficulty: 资深
 tags: [D3, 力导向, 图]
 
 ### 一句话
+
 物理仿真：d3-force 默认 N²，节点过千就会卡；用 simulation.alphaDecay 加快收敛；渲染：节点多用 Canvas / WebGL（pixi）替代 SVG，节省 DOM 节点；分层：固定核心节点位置，外围节点用聚类合并展示。
 
 ### 题目
+
 用 D3 做一张几千节点的关系图，怎么做才能不卡？
 
 ### 答案要点
+
 - 物理仿真：`d3-force` 默认 N²，节点过千就会卡；用 `simulation.alphaDecay` 加快收敛
 - 渲染：节点多用 Canvas / WebGL（pixi）替代 SVG，节省 DOM 节点
 - 分层：固定核心节点位置，外围节点用聚类合并展示
@@ -584,17 +671,34 @@ tags: [D3, 力导向, 图]
 - 异步：仿真放 Web Worker，主线程只负责绘制
 
 ### 代码示例
+
 ```ts
 import * as d3 from 'd3';
 
-interface Node { id: string; group: number; x?: number; y?: number; vx?: number; vy?: number }
-interface Link { source: string | Node; target: string | Node }
+interface Node {
+  id: string;
+  group: number;
+  x?: number;
+  y?: number;
+  vx?: number;
+  vy?: number;
+}
+interface Link {
+  source: string | Node;
+  target: string | Node;
+}
 
 export function buildSimulation(nodes: Node[], links: Link[], canvas: HTMLCanvasElement) {
   const ctx = canvas.getContext('2d')!;
   const sim = d3
     .forceSimulation(nodes)
-    .force('link', d3.forceLink<Node, Link>(links).id((d) => d.id).distance(40))
+    .force(
+      'link',
+      d3
+        .forceLink<Node, Link>(links)
+        .id((d) => d.id)
+        .distance(40),
+    )
     .force('charge', d3.forceManyBody().strength(-30))
     .force('center', d3.forceCenter(canvas.width / 2, canvas.height / 2))
     .alphaDecay(0.05);
@@ -622,21 +726,26 @@ export function buildSimulation(nodes: Node[], links: Link[], canvas: HTMLCanvas
 ```
 
 ### 延伸
+
 - "好用的图可视化"通常不是技术难，而是布局设计难，要和业务一起迭代
 - 节点超过 5 万考虑 Cytoscape.js / Sigma.js / 自研 GPU 着色
 
 ## canvas-vs-svg-vs-webgl
+
 title: Canvas / SVG / WebGL 怎么选，性能边界在哪
 difficulty: 进阶
 tags: [Canvas, SVG, WebGL]
 
 ### 一句话
+
 图表 / 动画且元素可点击 → SVG（DOM，但 1 万节点会卡）；像素操作、游戏、大量元素 → Canvas 2D；3D / GPU 算力 → WebGL / WebGPU。
 
 ### 题目
+
 请对比 Canvas、SVG、WebGL 在渲染模型、交互、性能上的差异。
 
 ### 答案要点
+
 - **SVG**
   - DOM 元素，原生支持事件、CSS 样式、可访问性
   - 适合数据可视化（< 1k 节点）、图标、动画 path
@@ -653,6 +762,7 @@ tags: [Canvas, SVG, WebGL]
 - **性能边界经验值**：SVG 千级节点、Canvas 万级、WebGL 百万级
 
 ### 代码示例
+
 ```js
 const canvas = new OffscreenCanvas(800, 600);
 const ctx = canvas.getContext('2d');
@@ -662,7 +772,7 @@ const blob = await canvas.convertToBlob();
 
 import * as THREE from 'three';
 const scene = new THREE.Scene();
-const cam = new THREE.PerspectiveCamera(75, 16/9, 0.1, 1000);
+const cam = new THREE.PerspectiveCamera(75, 16 / 9, 0.1, 1000);
 const renderer = new THREE.WebGLRenderer();
 const cube = new THREE.Mesh(
   new THREE.BoxGeometry(),
@@ -672,23 +782,27 @@ scene.add(cube);
 ```
 
 ### 延伸
+
 - ECharts 4 默认 Canvas，5 同时支持 SVG，可在小图场景切回 SVG 节省内存
 - AntV / G2 / G6 都基于 Canvas / WebGL，G2 高版本支持 GPU 加速
 - WebGPU 是更现代的接口，2025 起主流浏览器全面铺开
 
-
 ## map-visualization
+
 title: 地图可视化怎么做？数据点 / 热力图 / 行政区划
 difficulty: 进阶
 tags: [可视化, 地图, 高频]
 
 ### 一句话
+
 底图选 mapbox-gl / maplibre-gl（矢量瓦片，可换样式）或国产高德 / 百度（合规）；点位 < 1 万用 Marker；> 1 万用 Canvas / WebGL 图层（deck.gl）；行政区划用 GeoJSON + topojson 压缩；热力图用 heatmap layer 内置渲染。
 
 ### 题目
+
 要做一个全国订单分布大屏：1. 标记 5 万订单点 2. 城市级热力 3. 省级行政区划着色。技术怎么选？
 
 ### 答案要点
+
 - **底图选型**
   - **mapbox-gl-js / maplibre-gl**：矢量瓦片、样式可定制、性能好；mapbox 收费，maplibre 是其开源 fork
   - **leaflet**：轻量但栅格瓦片为主，量大较卡
@@ -719,6 +833,7 @@ tags: [可视化, 地图, 高频]
   - 一些国家的边界政治敏感，按部署地区切样式
 
 ### 代码示例
+
 ```ts
 import maplibregl from 'maplibre-gl';
 import { ScatterplotLayer } from '@deck.gl/layers';
@@ -762,22 +877,27 @@ map.on('load', () => {
 ```
 
 ### 延伸
+
 - 实时点位（车辆 / 配送）：WebSocket 推 + 增量更新 layer data
 - 3D 地图：deck.gl 的 ColumnLayer / TripsLayer，立体感强
 - 离线场景：自部署矢量瓦片服务（Tegola / Tippecanoe）
 
 ## chart-export-printing
+
 title: 图表 / 看板怎么导出图片 / PDF？
 difficulty: 进阶
 tags: [可视化, 导出, PDF]
 
 ### 一句话
+
 **单图导出**用框架自带 API（ECharts.getDataURL / Highcharts exportChart）—— 矢量友好；**整页导出**用 html2canvas 截屏 → jsPDF 拼 PDF，或者 Puppeteer 服务端渲染（最佳质量）；移动端 / 内嵌设备性能差时只能服务端。
 
 ### 题目
+
 看板要支持"导出当前页为 PDF / PNG"。性能 / 清晰度 / 字体 / 跨域图片各种坑怎么解？
 
 ### 答案要点
+
 - **单图导出**
   - ECharts：`chart.getDataURL({ type: 'png', pixelRatio: 2, backgroundColor: '#fff' })`
   - 或 SVG 模式直接导出 svg 字符串（矢量，缩放无损）
@@ -809,6 +929,7 @@ tags: [可视化, 导出, PDF]
   - 颜色用 CMYK 不可能（浏览器只支持 RGB），但确保深色文字 + 浅色背景对比足
 
 ### 代码示例
+
 ```ts
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
@@ -842,23 +963,27 @@ async function exportPdf() {
 ```
 
 ### 延伸
+
 - 服务端方案对 SEO / 邮件订阅 dashboard 截图很合适
 - iText / wkhtmltopdf 老牌方案，但 CSS3 / Web Font 支持不如 Puppeteer
 - Excel 导出：SheetJS / exceljs，图表导出为图片嵌入
 
-
 ## chart-library-choice-basic
+
 title: ECharts、AntV、D3、Chart.js、Plotly 怎么选？
 difficulty: 基础
 tags: [可视化, 选型, 基础]
 
 ### 一句话
+
 通用图表 → ECharts / Chart.js；地图 + 大屏 + 业务图 → ECharts / AntV；自由度高 / 学术风 → D3；交互探索 → Plotly；纯前端 + 包小 → Chart.js。
 
 ### 题目
+
 列举常见图表库的定位差异，怎么挑？
 
 ### 答案要点
+
 - **ECharts**：百度/Apache 出品，国产业务大屏标配；地图、3D、热力图、关系图全；体积偏大（按需打包能压到 200KB-）
 - **AntV**（@antv/g2 / g6 / x6）：蚂蚁出品，组合性好，关系图（G6）和流程图（X6）领先
 - **D3**：低层 SVG/Canvas 工具集，从坐标轴到颜色都自己拼，自由度极高，曲线学陡
@@ -867,6 +992,7 @@ tags: [可视化, 选型, 基础]
 - **Recharts / Visx**：React 生态，组件式，适合产品级 dashboard
 
 ### 代码示例
+
 ```ts
 import * as echarts from 'echarts/core';
 import { LineChart } from 'echarts/charts';
@@ -884,16 +1010,18 @@ chart.setOption({
 ```
 
 ### 常见误区
+
 - 大屏用 D3 从零写——开发成本太高
 - ECharts 一把梭包进 vendor —— 没按需打包，bundle 直接 +900KB
 - 复杂关系图用 ECharts graph —— 不如 G6 顺手
 
 ### 追问
+
 - 上万点散点图卡顿怎么办（WebGL / Canvas 替代 SVG / 抽样）
 - 图表交互（tooltip / brush / linked view）怎么设计
 - 图表性能基线（首屏渲染 200ms）怎么保
 
 ### 延伸
+
 - 现代趋势：Apache ECharts 5 + WebGPU；Visx 2.x 在 React 19 表现良好
 - D3 + Observable 是图表设计师的好工具链
-

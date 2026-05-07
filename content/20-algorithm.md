@@ -7,65 +7,81 @@ description: 前端高频算法题、数据结构手写实现、复杂度分析�
 ---
 
 ## complexity
+
 title: 时间复杂度与前端真实意义
 difficulty: 基础
 tags: [复杂度, 方法论]
 
 ### 一句话
+
 列表渲染、搜索建议、树遍历、diff、埋点聚合都可能因复杂度失控而卡主线程；O(n²) 在 100 条数据无感，但 1 万条上是 1 亿次操作 → 直接长任务；浏览器主线程一旦阻塞 50ms 即影响 INP，长期阻塞会触发卡顿监控。
 
 ### 题目
+
 为什么前端工程师也必须对复杂度敏感？以"渲染 1 万条评论"为例说明。
 
 ### 答案要点
+
 - 列表渲染、搜索建议、树遍历、diff、埋点聚合都可能因复杂度失控而卡主线程
 - `O(n²)` 在 100 条数据无感，但 1 万条上是 1 亿次操作 → 直接长任务
 - 浏览器主线程一旦阻塞 50ms 即影响 INP，长期阻塞会触发卡顿监控
 - 空间复杂度同样关键：缓存、闭包、中间数组都可能压垮低端设备
 
 ### 代码示例
+
 ```ts
 // 反例：O(n²) 找重复评论
 function dupSlow(arr: string[]) {
   const out: string[] = [];
   for (let i = 0; i < arr.length; i++)
-    for (let j = i + 1; j < arr.length; j++)
-      if (arr[i] === arr[j]) out.push(arr[i]);
+    for (let j = i + 1; j < arr.length; j++) if (arr[i] === arr[j]) out.push(arr[i]);
   return out;
 }
 // 正解：O(n) 哈希表
 function dupFast(arr: string[]) {
-  const seen = new Set<string>(), dup = new Set<string>();
+  const seen = new Set<string>(),
+    dup = new Set<string>();
   for (const s of arr) (seen.has(s) ? dup : seen).add(s);
   return [...dup];
 }
 ```
 
 ### 延伸
+
 - 估算复杂度的能力 > 背题
 - 浏览器 Long Task API（`PerformanceObserver` 监听 `longtask` 类型）可在线发现 > 50ms 的任务
 
 ## two-pointer-sliding-window
+
 title: 双指针与滑动窗口模板
 difficulty: 进阶
 tags: [双指针, 滑动窗口]
 
 ### 一句话
+
 滑动窗口：右指针扩张，遇到重复时左指针收缩，保持窗口内合法；用 Map 记录字符上次出现位置，左指针直接跳过去；每个字符最多被左右指针各访问一次，O(n)。
 
 ### 题目
+
 手写"无重复字符的最长子串"（LeetCode 3），并说明为什么是 O(n)。
 
 ### 答案要点
-- 滑动窗口：右指针扩张，遇到重复时左指针收缩，保持窗口内合法
-- 用 Map 记录字符上次出现位置，左指针直接跳过去
-- 每个字符最多被左右指针各访问一次，O(n)
+
+- **双指针**：左右两个游标朝同一/相反方向移动，避免暴力 O(n²) 的嵌套循环
+- **滑动窗口**模板：右指针扩张，违反约束时左指针收缩，过程中维护窗口内统计量
+- 用 **Map 记录字符上次出现位置**，遇到重复直接把左指针跳到 `lastIndex + 1`
+- 时间复杂度 **O(n)**：每个字符最多被左右指针各访问一次（amortized 分析）
+- 空间复杂度 O(min(n, charset))：窗口最多容纳字符集大小
+- 变体题：最小覆盖子串、长度为 k 的子串最多包含 m 个不同字符、和大于 K 的最短子数组
+- 模板心法："**右扩 + 左缩，过程中更新答案**"，几乎 90% 滑窗题都套这个
 
 ### 代码示例
+
 ```ts
 function lengthOfLongestSubstring(s: string): number {
   const last = new Map<string, number>();
-  let left = 0, max = 0;
+  let left = 0,
+    max = 0;
   for (let right = 0; right < s.length; right++) {
     const c = s[right];
     if (last.has(c) && last.get(c)! >= left) left = last.get(c)! + 1;
@@ -85,26 +101,32 @@ function removeDuplicates(nums: number[]): number {
 ```
 
 ### 延伸
+
 - 滑动窗口三件套：扩张条件、收缩条件、记录答案位置
 - 前端实战：搜索建议节流去重、虚拟列表的可视区间维护
 
 ## prefix-sum
+
 title: 前缀和与差分数组
 difficulty: 进阶
 tags: [前缀和]
 
 ### 一句话
+
 预处理 prefix[i] = a[0]+...+a[i-1]；查询 [l, r] = prefix[r+1] - prefix[l]；前端场景：埋点聚合、热力图、统计图表的区间求和。
 
 ### 题目
+
 设计一个 NumArray，支持频繁查询区间和，要求 query O(1)。
 
 ### 答案要点
+
 - 预处理 `prefix[i] = a[0]+...+a[i-1]`
 - 查询 `[l, r]` = `prefix[r+1] - prefix[l]`
 - 前端场景：埋点聚合、热力图、统计图表的区间求和
 
 ### 代码示例
+
 ```ts
 class NumArray {
   prefix: number[];
@@ -120,42 +142,66 @@ class NumArray {
 // 差分数组：区间批量加
 function rangeAdd(n: number, ops: [number, number, number][]) {
   const diff = new Array(n + 1).fill(0);
-  for (const [l, r, v] of ops) { diff[l] += v; diff[r + 1] -= v; }
+  for (const [l, r, v] of ops) {
+    diff[l] += v;
+    diff[r + 1] -= v;
+  }
   const arr: number[] = [];
   let cur = 0;
-  for (let i = 0; i < n; i++) { cur += diff[i]; arr.push(cur); }
+  for (let i = 0; i < n; i++) {
+    cur += diff[i];
+    arr.push(cur);
+  }
   return arr;
 }
 ```
 
 ### 延伸
+
 - 二维前缀和处理矩阵区间和（图像处理、热力图）
 - 树状数组（Fenwick Tree）/ 线段树支持单点修改 + 区间求和
 
 ## linked-list-classics
+
 title: 链表经典题：反转、合并、环检测
 difficulty: 进阶
 tags: [链表, 双指针]
 
 ### 一句话
+
 反转：用 prev/cur/next 三指针滚动；递归则借助新头节点；合并：dummy 头节点简化边界；比较小者依次接入；判圈：快慢指针，相遇则有环；找入口需要数学推导（再走 head 同步）。
 
 ### 题目
+
 手写：单链表反转（迭代+递归）、合并两个有序链表、Floyd 判圈算法。
 
 ### 答案要点
+
 - 反转：用 prev/cur/next 三指针滚动；递归则借助新头节点
 - 合并：dummy 头节点简化边界；比较小者依次接入
 - 判圈：快慢指针，相遇则有环；找入口需要数学推导（再走 head 同步）
 
 ### 代码示例
+
 ```ts
-class ListNode { val: number; next: ListNode | null = null; constructor(v: number) { this.val = v; } }
+class ListNode {
+  val: number;
+  next: ListNode | null = null;
+  constructor(v: number) {
+    this.val = v;
+  }
+}
 
 // 反转（迭代）
 function reverse(head: ListNode | null): ListNode | null {
-  let prev: ListNode | null = null, cur = head;
-  while (cur) { const next = cur.next; cur.next = prev; prev = cur; cur = next; }
+  let prev: ListNode | null = null,
+    cur = head;
+  while (cur) {
+    const next = cur.next;
+    cur.next = prev;
+    prev = cur;
+    cur = next;
+  }
   return prev;
 }
 
@@ -173,8 +219,13 @@ function merge(a: ListNode | null, b: ListNode | null): ListNode | null {
   const dummy = new ListNode(0);
   let tail = dummy;
   while (a && b) {
-    if (a.val <= b.val) { tail.next = a; a = a.next; }
-    else { tail.next = b; b = b.next; }
+    if (a.val <= b.val) {
+      tail.next = a;
+      a = a.next;
+    } else {
+      tail.next = b;
+      b = b.next;
+    }
     tail = tail.next!;
   }
   tail.next = a ?? b;
@@ -183,7 +234,8 @@ function merge(a: ListNode | null, b: ListNode | null): ListNode | null {
 
 // 判圈（Floyd 龟兔赛跑）
 function hasCycle(head: ListNode | null): boolean {
-  let slow = head, fast = head;
+  let slow = head,
+    fast = head;
   while (fast && fast.next) {
     slow = slow!.next;
     fast = fast.next.next;
@@ -194,29 +246,42 @@ function hasCycle(head: ListNode | null): boolean {
 ```
 
 ### 延伸
+
 - 找环入口：相遇后让一个指针回到 head，同步前进，再次相遇即入口
 - 前端场景：撤销重做栈、版本时间线（双向链表）
 
 ## tree-traversal
+
 title: 二叉树遍历：递归、迭代、Morris
 difficulty: 进阶
 tags: [树, DFS, BFS]
 
 ### 一句话
+
 前/中/后序的递归本质相同，区别只是访问根节点的时机；迭代版需要显式栈模拟递归；层序使用队列 BFS，按层入队记录每层节点。
 
 ### 题目
+
 手写二叉树的前/中/后序遍历（递归+迭代）和层序遍历。
 
 ### 答案要点
+
 - 前/中/后序的递归本质相同，区别只是访问根节点的时机
 - 迭代版需要显式栈模拟递归
 - 层序使用队列 BFS，按层入队记录每层节点
 - Morris 遍历可达 O(1) 空间，但写法较复杂
 
 ### 代码示例
+
 ```ts
-class TreeNode { val: number; left: TreeNode | null = null; right: TreeNode | null = null; constructor(v: number) { this.val = v; } }
+class TreeNode {
+  val: number;
+  left: TreeNode | null = null;
+  right: TreeNode | null = null;
+  constructor(v: number) {
+    this.val = v;
+  }
+}
 
 // 前序递归
 function preorder(root: TreeNode | null, out: number[] = []) {
@@ -229,10 +294,14 @@ function preorder(root: TreeNode | null, out: number[] = []) {
 
 // 中序迭代（栈模拟）
 function inorder(root: TreeNode | null): number[] {
-  const out: number[] = [], stack: TreeNode[] = [];
+  const out: number[] = [],
+    stack: TreeNode[] = [];
   let cur = root;
   while (cur || stack.length) {
-    while (cur) { stack.push(cur); cur = cur.left; }
+    while (cur) {
+      stack.push(cur);
+      cur = cur.left;
+    }
     cur = stack.pop()!;
     out.push(cur.val);
     cur = cur.right;
@@ -243,9 +312,11 @@ function inorder(root: TreeNode | null): number[] {
 // 层序（BFS）
 function levelOrder(root: TreeNode | null): number[][] {
   if (!root) return [];
-  const out: number[][] = [], q: TreeNode[] = [root];
+  const out: number[][] = [],
+    q: TreeNode[] = [root];
   while (q.length) {
-    const size = q.length, level: number[] = [];
+    const size = q.length,
+      level: number[] = [];
     for (let i = 0; i < size; i++) {
       const n = q.shift()!;
       level.push(n.val);
@@ -259,27 +330,33 @@ function levelOrder(root: TreeNode | null): number[][] {
 ```
 
 ### 延伸
+
 - Morris 遍历用 O(1) 空间，借助叶子节点的 right 指针建立"线索"
 - 前端场景：菜单树、组织架构、AST 遍历、Vue 模板编译的 transform
 
 ## debounce-throttle-handwritten
+
 title: 手写防抖与节流（含 cancel/leading/trailing）
 difficulty: 进阶
 tags: [手写, 高频]
 
 ### 一句话
+
 防抖：每次触发清除上次定时器，到达 wait 后才执行；leading 表示首次立即触发；节流：固定时间窗口内最多执行一次；trailing 表示结束补一次；都要支持 cancel 释放 timer，避免内存泄漏与组件卸载后还触发。
 
 ### 题目
+
 实现防抖、节流，支持 leading（首次立即）、trailing（结束触发）、cancel。
 
 ### 答案要点
+
 - 防抖：每次触发清除上次定时器，到达 wait 后才执行；`leading` 表示首次立即触发
 - 节流：固定时间窗口内最多执行一次；`trailing` 表示结束补一次
 - 都要支持 `cancel` 释放 timer，避免内存泄漏与组件卸载后还触发
 - 通用注意点：保留 this 与参数透传
 
 ### 代码示例
+
 ```ts
 type Fn = (...a: any[]) => any;
 
@@ -294,12 +371,21 @@ function debounce<T extends Fn>(fn: T, wait = 200, opts: { leading?: boolean } =
     }, wait);
     if (callNow) fn.apply(this, args);
   }
-  debounced.cancel = () => { clearTimeout(timer); timer = null; };
+  debounced.cancel = () => {
+    clearTimeout(timer);
+    timer = null;
+  };
   return debounced;
 }
 
-function throttle<T extends Fn>(fn: T, wait = 200, opts: { leading?: boolean; trailing?: boolean } = {}) {
-  let lastTime = 0, timer: any = null, lastArgs: any;
+function throttle<T extends Fn>(
+  fn: T,
+  wait = 200,
+  opts: { leading?: boolean; trailing?: boolean } = {},
+) {
+  let lastTime = 0,
+    timer: any = null,
+    lastArgs: any;
   const { leading = true, trailing = true } = opts;
   return function (this: any, ...args: Parameters<T>) {
     const now = Date.now();
@@ -307,7 +393,10 @@ function throttle<T extends Fn>(fn: T, wait = 200, opts: { leading?: boolean; tr
     const remain = wait - (now - lastTime);
     lastArgs = args;
     if (remain <= 0) {
-      if (timer) { clearTimeout(timer); timer = null; }
+      if (timer) {
+        clearTimeout(timer);
+        timer = null;
+      }
       lastTime = now;
       fn.apply(this, args);
     } else if (!timer && trailing) {
@@ -322,27 +411,33 @@ function throttle<T extends Fn>(fn: T, wait = 200, opts: { leading?: boolean; tr
 ```
 
 ### 延伸
+
 - VueUse 的 `useDebounceFn`/`useThrottleFn` 已包装好响应式版本
 - 防抖适合搜索输入；节流适合 scroll/mousemove；按钮防连点二者皆可
 
 ## promise-handwritten
+
 title: 手写 Promise.all / allSettled / race / 限流并发
 difficulty: 资深
 tags: [Promise, 手写, 高频]
 
 ### 一句话
+
 all：要保序、任一 reject 立即短路、空数组立即 resolve、用 Promise.resolve 兼容非 thenable；allSettled：等全部完成，分别记录 fulfilled/rejected；race：第一个落定（成功或失败）即结果。
 
 ### 题目
+
 实现 `Promise.all`、`allSettled`、`race`，再实现一个限流 N 的并发执行器。
 
 ### 答案要点
+
 - `all`：要保序、任一 reject 立即短路、空数组立即 resolve、用 `Promise.resolve` 兼容非 thenable
 - `allSettled`：等全部完成，分别记录 fulfilled/rejected
 - `race`：第一个落定（成功或失败）即结果
 - 并发限流：维护 worker 队列，循环消费 task 数组，结束后 `Promise.all` 等所有 worker
 
 ### 代码示例
+
 ```ts
 function all<T>(ps: Promise<T>[]): Promise<T[]> {
   return new Promise((resolve, reject) => {
@@ -350,25 +445,29 @@ function all<T>(ps: Promise<T>[]): Promise<T[]> {
     let cnt = 0;
     if (!ps.length) return resolve(out);
     ps.forEach((p, i) =>
-      Promise.resolve(p).then(
-        v => { out[i] = v; if (++cnt === ps.length) resolve(out); },
-        reject,
-      ),
+      Promise.resolve(p).then((v) => {
+        out[i] = v;
+        if (++cnt === ps.length) resolve(out);
+      }, reject),
     );
   });
 }
 
 function allSettled<T>(ps: Promise<T>[]) {
-  return Promise.all(ps.map(p =>
-    Promise.resolve(p).then(
-      value => ({ status: 'fulfilled' as const, value }),
-      reason => ({ status: 'rejected' as const, reason }),
+  return Promise.all(
+    ps.map((p) =>
+      Promise.resolve(p).then(
+        (value) => ({ status: 'fulfilled' as const, value }),
+        (reason) => ({ status: 'rejected' as const, reason }),
+      ),
     ),
-  ));
+  );
 }
 
 function race<T>(ps: Promise<T>[]): Promise<T> {
-  return new Promise((resolve, reject) => ps.forEach(p => Promise.resolve(p).then(resolve, reject)));
+  return new Promise((resolve, reject) =>
+    ps.forEach((p) => Promise.resolve(p).then(resolve, reject)),
+  );
 }
 
 // 并发限流（高频面试 + 真实工程）
@@ -386,37 +485,50 @@ async function pLimit<T>(tasks: (() => Promise<T>)[], limit = 3): Promise<T[]> {
 }
 ```
 
-
 ### 常见误区
+
 - then 必须返回新 Promise（链式），别在原 Promise 上挂
 - resolve 不只接受值，也接受 thenable / Promise，要 unwrap
 - 状态只能从 pending 变到 fulfilled/rejected 一次
 
 ### 追问
+
 - 实现 Promise.allSettled
 - Promise.any 和 race 区别
 - async/await 是基于 Promise 实现的吗
 
 ### 延伸
+
 - 文件分片上传、批量请求 API 都需要并发限流
 - `p-limit` / `p-queue` 是工业实现，支持优先级、超时、重试
 
 ## lru-cache
+
 title: 手写 LRU 缓存（O(1) 读写）
 difficulty: 资深
 tags: [缓存, 手写, 高频]
 
 ### 一句话
+
 哈希表 + 双向链表：哈希表 O(1) 查找节点，链表 O(1) 移动头尾；ES Map 自带"插入顺序"特性，可用一个小技巧把 Map 当 LRU。
 
 ### 题目
+
 实现 LRU 缓存，要求 get/put 均为 O(1)。
 
 ### 答案要点
-- 哈希表 + 双向链表：哈希表 O(1) 查找节点，链表 O(1) 移动头尾
-- ES Map 自带"插入顺序"特性，可用一个小技巧把 Map 当 LRU
+
+- **核心数据结构**：哈希表 + 双向链表
+  - 哈希表 O(1) 通过 key 找到链表节点
+  - 双向链表 O(1) 把节点移到头部 / 删除尾节点
+- **get(key)**：命中 → 把节点移到头部，返回 value；未命中返回 -1
+- **put(key, value)**：存在 → 更新并移到头部；不存在 → 新建并插入头部，超容量则删尾
+- **JS 简化版**：利用 `Map` 自带"按插入顺序遍历"的特性，命中时 `delete` 再 `set`
+- 经典面试陷阱：要明确 get/put 都要算"被使用过"，不能只在 put 时刷新顺序
+- 真实工程：浏览器 BFCache / V8 inline cache / DB query cache 都用 LRU 思想
 
 ### 代码示例
+
 ```ts
 class LRU<K, V> {
   private map = new Map<K, V>();
@@ -444,7 +556,10 @@ class LRUStandard<K, V> {
     this.head.next = this.tail;
     this.tail.prev = this.head;
   }
-  private remove(node: any) { node.prev.next = node.next; node.next.prev = node.prev; }
+  private remove(node: any) {
+    node.prev.next = node.next;
+    node.next.prev = node.prev;
+  }
   private addToHead(node: any) {
     node.next = this.head.next;
     node.prev = this.head;
@@ -454,12 +569,18 @@ class LRUStandard<K, V> {
   get(key: K): V | undefined {
     const node = this.map.get(key);
     if (!node) return undefined;
-    this.remove(node); this.addToHead(node);
+    this.remove(node);
+    this.addToHead(node);
     return node.val;
   }
   put(key: K, val: V) {
     let node = this.map.get(key);
-    if (node) { node.val = val; this.remove(node); this.addToHead(node); return; }
+    if (node) {
+      node.val = val;
+      this.remove(node);
+      this.addToHead(node);
+      return;
+    }
     node = { key, val };
     this.map.set(key, node);
     this.addToHead(node);
@@ -473,38 +594,46 @@ class LRUStandard<K, V> {
 ```
 
 ### 延伸
+
 - LFU 还需按"使用频次"维护多条链表
 - 浏览器的 HTTP 缓存、图片缓存、Pinia 持久化插件常用 LRU
 
 ## flatten-array
+
 title: 手写数组扁平化（多种实现 + 限制深度）
 difficulty: 进阶
 tags: [数组, 手写]
 
 ### 一句话
+
 递归 + reduce 简洁但深层数组易爆栈；栈迭代避免递归调用，适合超大嵌套；arr.flat(Infinity) 是现代最佳选项。
 
 ### 题目
+
 手写数组扁平化（含限制深度），并对比递归、栈迭代、`while+some`、原生 `flat` 各自的优缺点。
 
 ### 答案要点
+
 - 递归 + reduce 简洁但深层数组易爆栈
 - 栈迭代避免递归调用，适合超大嵌套
 - `arr.flat(Infinity)` 是现代最佳选项
 - 注意稀疏数组、非数组元素和深度参数语义
 
 ### 代码示例
+
 ```ts
 // 1. 递归
 function flat1(arr: any[], depth = 1): any[] {
-  return arr.reduce((acc, cur) =>
-    acc.concat(Array.isArray(cur) && depth > 0 ? flat1(cur, depth - 1) : cur),
-    [] as any[]);
+  return arr.reduce(
+    (acc, cur) => acc.concat(Array.isArray(cur) && depth > 0 ? flat1(cur, depth - 1) : cur),
+    [] as any[],
+  );
 }
 
 // 2. 栈迭代（避免递归爆栈）
 function flat2(arr: any[]): any[] {
-  const stack = [...arr], res: any[] = [];
+  const stack = [...arr],
+    res: any[] = [];
   while (stack.length) {
     const x = stack.pop();
     if (Array.isArray(x)) stack.push(...x);
@@ -523,29 +652,36 @@ function flat3(arr: any[]): any[] {
 ```
 
 ### 延伸
+
 - 对象扁平化：`{ a: { b: 1 } } → { 'a.b': 1 }`，常用于 antd Form 与配置管理
 - 注意大数组用方案 1 可能爆栈（V8 默认栈深 ~10k 层）
 
 ## binary-search
+
 title: 二分查找的边界陷阱
 difficulty: 进阶
 tags: [二分, 高频]
 
 ### 一句话
+
 三个易错点：循环条件 < vs <=、mid 计算溢出、left/right 更新方向；推荐统一写法：左闭右开区间 [left, right)，循环条件 left < right，命中条件用 arr[mid] < target。
 
 ### 题目
+
 为什么二分查找经常写错？请写出"最左插入位置"和"最右插入位置"。
 
 ### 答案要点
+
 - 三个易错点：循环条件 `<` vs `<=`、`mid` 计算溢出、`left/right` 更新方向
 - 推荐统一写法：左闭右开区间 `[left, right)`，循环条件 `left < right`，命中条件用 `arr[mid] < target`
 
 ### 代码示例
+
 ```ts
 // 最左插入位置（lower_bound）
 function leftBound(arr: number[], t: number): number {
-  let l = 0, r = arr.length;
+  let l = 0,
+    r = arr.length;
   while (l < r) {
     const m = (l + r) >>> 1;
     if (arr[m] < t) l = m + 1;
@@ -556,7 +692,8 @@ function leftBound(arr: number[], t: number): number {
 
 // 最右插入位置（upper_bound）
 function rightBound(arr: number[], t: number): number {
-  let l = 0, r = arr.length;
+  let l = 0,
+    r = arr.length;
   while (l < r) {
     const m = (l + r) >>> 1;
     if (arr[m] <= t) l = m + 1;
@@ -567,30 +704,37 @@ function rightBound(arr: number[], t: number): number {
 ```
 
 ### 延伸
+
 - `(l + r) / 2` 在大数组下可能溢出，用 `(l + r) >>> 1` 或 `l + ((r - l) >> 1)`
 - 前端场景：虚拟列表定位可视区间起止 index
 
 ## dp-classic
+
 title: DP 经典题：爬楼梯、最长上升子序列、编辑距离
 difficulty: 资深
 tags: [DP, 高频]
 
 ### 一句话
+
 爬楼梯：状态转移 f(n) = f(n-1) + f(n-2)，可滚动变量优化；LIS：贪心 + 二分维护尾部最小值数组，长度即 LIS 长度；编辑距离：二维 DP，分别对应增/删/改三种转移。
 
 ### 题目
+
 手写三道经典 DP：爬楼梯（O(1) 空间）、最长上升子序列（O(n log n)）、编辑距离。
 
 ### 答案要点
+
 - 爬楼梯：状态转移 `f(n) = f(n-1) + f(n-2)`，可滚动变量优化
 - LIS：贪心 + 二分维护尾部最小值数组，长度即 LIS 长度
 - 编辑距离：二维 DP，分别对应增/删/改三种转移
 
 ### 代码示例
+
 ```ts
 // 爬楼梯：滚动数组优化
 function climbStairs(n: number): number {
-  let a = 1, b = 1;
+  let a = 1,
+    b = 1;
   for (let i = 2; i <= n; i++) [a, b] = [b, a + b];
   return b;
 }
@@ -599,10 +743,12 @@ function climbStairs(n: number): number {
 function lis(nums: number[]): number {
   const tails: number[] = [];
   for (const n of nums) {
-    let l = 0, r = tails.length;
+    let l = 0,
+      r = tails.length;
     while (l < r) {
       const m = (l + r) >>> 1;
-      if (tails[m] < n) l = m + 1; else r = m;
+      if (tails[m] < n) l = m + 1;
+      else r = m;
     }
     tails[l] = n;
   }
@@ -611,48 +757,58 @@ function lis(nums: number[]): number {
 
 // 编辑距离（Levenshtein）
 function minDistance(a: string, b: string): number {
-  const m = a.length, n = b.length;
+  const m = a.length,
+    n = b.length;
   const dp = Array.from({ length: m + 1 }, (_, i) => Array(n + 1).fill(0));
   for (let i = 0; i <= m; i++) dp[i][0] = i;
   for (let j = 0; j <= n; j++) dp[0][j] = j;
   for (let i = 1; i <= m; i++)
     for (let j = 1; j <= n; j++)
-      dp[i][j] = a[i - 1] === b[j - 1]
-        ? dp[i - 1][j - 1]
-        : 1 + Math.min(dp[i - 1][j - 1], dp[i - 1][j], dp[i][j - 1]);
+      dp[i][j] =
+        a[i - 1] === b[j - 1]
+          ? dp[i - 1][j - 1]
+          : 1 + Math.min(dp[i - 1][j - 1], dp[i - 1][j], dp[i][j - 1]);
   return dp[m][n];
 }
 ```
 
 ### 延伸
+
 - LIS 也是 Vue3 diff 算法的底层（最小化移动）
 - 编辑距离用于搜索建议、拼写纠错、diff
 
 ## frontend-real-world
+
 title: 前端实战中的算法：虚拟列表 / 路由匹配 / Trie 搜索
 difficulty: 资深
 tags: [工程实战]
 
 ### 一句话
+
 虚拟列表：可视区间 + 二分定位 + 偏移量缓存；Trie：搜索建议、敏感词、自动补全；路由匹配：树或正则配合通配符，按优先级命中。
 
 ### 题目
+
 列举几个真实业务里"算法不是面试题，而是产品能力基础"的例子，并写出关键代码。
 
 ### 答案要点
+
 - 虚拟列表：可视区间 + 二分定位 + 偏移量缓存
 - Trie：搜索建议、敏感词、自动补全
 - 路由匹配：树或正则配合通配符，按优先级命中
 - Vue3 diff 用 LIS、React Fiber 调度用最小堆，都是真实算法落地
 
 ### 代码示例
+
 ```ts
 // 1. 虚拟列表的可视区间计算（二分定位起始 index）
 function findStart(offsets: number[], scrollTop: number): number {
-  let l = 0, r = offsets.length;
+  let l = 0,
+    r = offsets.length;
   while (l < r) {
     const m = (l + r) >>> 1;
-    if (offsets[m] < scrollTop) l = m + 1; else r = m;
+    if (offsets[m] < scrollTop) l = m + 1;
+    else r = m;
   }
   return Math.max(0, l - 1);
 }
@@ -677,7 +833,7 @@ class Trie {
 
 // 3. 路由 path 匹配（树结构 + 通配）
 function matchRoute(routes: Array<{ path: string }>, url: string) {
-  return routes.find(r => {
+  return routes.find((r) => {
     const re = new RegExp('^' + r.path.replace(/:\w+/g, '([^/]+)').replace(/\*/g, '.*') + '$');
     return re.test(url);
   });
@@ -685,21 +841,26 @@ function matchRoute(routes: Array<{ path: string }>, url: string) {
 ```
 
 ### 延伸
+
 - Vue3 diff 用 LIS 求最少移动；React Fiber 调度用最小堆
 - 复杂搜索还可上 Aho-Corasick（多模式匹配）、倒排索引
 
 ## graph-bfs-dfs
+
 title: 图的 BFS / DFS 与前端真实场景
 difficulty: 进阶
 tags: [图, BFS, DFS]
 
 ### 一句话
+
 BFS：层次遍历、最短路径、最少跳数；用 queue 实现；DFS：拓扑排序、检测环、深度优先生成树；递归或显式 stack；前端场景：。
 
 ### 题目
+
 图遍历在前端有哪些落地场景？BFS / DFS 怎么选？
 
 ### 答案要点
+
 - BFS：层次遍历、最短路径、最少跳数；用 queue 实现
 - DFS：拓扑排序、检测环、深度优先生成树；递归或显式 stack
 - 前端场景：
@@ -711,8 +872,12 @@ BFS：层次遍历、最短路径、最少跳数；用 queue 实现；DFS：拓�
 - 注意：用 `visited` Set 防止环；递归注意栈深度，超 10k 改迭代
 
 ### 代码示例
+
 ```ts
-interface Node { id: string; neighbors: Node[] }
+interface Node {
+  id: string;
+  neighbors: Node[];
+}
 
 export function bfsShortestPath(start: Node, target: string): string[] | null {
   const visited = new Set<string>([start.id]);
@@ -751,21 +916,26 @@ export function topologicalSort(nodes: Node[]): string[] | null {
 ```
 
 ### 延伸
-- 大型图常用 Dijkstra / A*，前端如果做地图 / 路径规划要看 priority queue
+
+- 大型图常用 Dijkstra / A\*，前端如果做地图 / 路径规划要看 priority queue
 - React Fiber 用 DFS 但分片，每个时间片处理一定数量的 fiber，再让步给浏览器
 
 ## bit-manipulation
+
 title: 位运算技巧与前端用例
 difficulty: 进阶
 tags: [位运算, 性能]
 
 ### 一句话
+
 状态标志位：把多个 bool 压成一个 number，用 & | ^ 检查 / 设置 / 翻转；整数判断：x & 1 判奇偶；(x & (x - 1)) === 0 判是否 2 的幂…。
 
 ### 题目
+
 JS 也能位运算，常见技巧有哪些？什么时候真的有用？
 
 ### 答案要点
+
 - 状态标志位：把多个 bool 压成一个 number，用 `&` `|` `^` 检查 / 设置 / 翻转
 - 整数判断：`x & 1` 判奇偶；`(x & (x - 1)) === 0` 判是否 2 的幂
 - 取反 / 取整：`~~x` ≈ `Math.trunc(x)`（仅在 32 位整数范围内安全）
@@ -774,6 +944,7 @@ JS 也能位运算，常见技巧有哪些？什么时候真的有用？
 - 注意：JS 位运算把数字转 32 位带符号整数，超过 2^31-1 就会溢出，BigInt 才支持任意位
 
 ### 代码示例
+
 ```ts
 const PERMS = {
   read: 1 << 0,
@@ -810,27 +981,33 @@ function toInt(x: number) {
 ```
 
 ### 延伸
+
 - ECMAScript 的位运算只能 32 位 + 带符号，做 IPv4 / 网卡掩码够用，更大用 BigInt
 - 真正的性能瓶颈基本不是位运算，但在内核 / 编辑器 / 引擎里还是常见
 
 ## lru-cache-impl
+
 title: 实现一个 LRU 缓存（用 Map 的简洁实现）
 difficulty: 进阶
 tags: [数据结构, 手写, 高频]
 
 ### 一句话
+
 LRU = 最近最少使用先淘汰。**用 Map**：JS 的 Map 内部按插入顺序保存键，每次访问命中就把键 delete 再 set，让它"挪到最后"；超容量删第一个键即可。
 
 ### 题目
+
 请实现一个 `LRUCache` 类，支持 `get(key)` 与 `put(key, value)`，时间复杂度 O(1)。
 
 ### 答案要点
+
 - 经典实现 = 双向链表 + 哈希表；JS 中可借助内置 `Map`（保留插入顺序）省掉链表
 - get：命中后 delete + set，让这个 key "刷新"到最近位置
 - put：先检查是否存在（存在就先删），插入；超过容量时 `Map.keys().next().value` 拿到第一个 key 删除
 - 复杂度：所有操作 O(1)（Map 内部有 O(1) 的访问与删除）
 
 ### 代码示例
+
 ```js
 class LRUCache {
   constructor(capacity) {
@@ -855,46 +1032,54 @@ class LRUCache {
 }
 
 const c = new LRUCache(2);
-c.put('a', 1); c.put('b', 2);
+c.put('a', 1);
+c.put('b', 2);
 c.get('a'); // 1，"a" 变最新
 c.put('c', 3); // 容量超了，淘汰 "b"
 console.log(c.get('b')); // -1
 ```
 
-
 ### 常见误区
+
 - 用 Object 当 hash 表 + 数组保顺序：每次 get 要 O(n) 找位置；用 Map 利用其插入顺序
 - 忘记 update 时删掉旧位置再插入：相当于没更新顺序
 - 容量为 1 / 0 的边界条件
 
 ### 追问
+
 - LRU 的数据结构经典实现（双向链表 + 哈希表）
 - LFU 和 LRU 区别
 - Map 的迭代顺序为什么是插入序
 
 ### 延伸
+
 - 改造支持 TTL 过期：put 时记录 `expireAt`，get 时检查
 - 浏览器请求缓存、React Query 的 cache、SWR 的 cache 都是 LRU 思想
 - LFU（最不经常使用）按访问次数淘汰，需要双堆或额外数据结构
 
 ## merge-intervals
+
 title: 合并区间
 difficulty: 基础
 tags: [数组, 排序, 高频]
 
 ### 一句话
+
 先按左端点排序，再依次合并：如果当前区间的左端点 ≤ 上一个的右端点就合并，否则就开一个新区间。
 
 ### 题目
+
 给定一组区间 `[[1,3],[2,6],[8,10],[15,18]]`，合并所有重叠的区间。
 
 ### 答案要点
+
 - 时间 O(n log n)，瓶颈在排序
 - 按左端点升序排序后，遍历一次即可
 - 合并条件：`current[0] <= last[1]`
 - 合并方式：`last[1] = Math.max(last[1], current[1])`
 
 ### 代码示例
+
 ```js
 function merge(intervals) {
   if (!intervals.length) return [];
@@ -912,27 +1097,43 @@ function merge(intervals) {
   return out;
 }
 
-console.log(merge([[1, 3], [2, 6], [8, 10], [15, 18]]));
-console.log(merge([[1, 4], [4, 5]]));
+console.log(
+  merge([
+    [1, 3],
+    [2, 6],
+    [8, 10],
+    [15, 18],
+  ]),
+);
+console.log(
+  merge([
+    [1, 4],
+    [4, 5],
+  ]),
+);
 ```
 
 ### 延伸
+
 - 类似题：插入区间、会议室安排、电话号码段去重
 - 区间问题大多套路：**先排序 + 一次遍历**
 
-
 ## promise-all-impl
+
 title: 手写实现 Promise.all
 difficulty: 进阶
 tags: [Promise, 手写, 高频]
 
 ### 一句话
+
 新建一个 Promise，对入参每一项调 `Promise.resolve(item).then`：成功计数到等于长度就 resolve(结果数组)，任一失败就立即 reject。
 
 ### 题目
+
 请实现 `myPromiseAll`，传入 iterable 返回 Promise，行为对齐 `Promise.all`。
 
 ### 答案要点
+
 - 兼容数组与可迭代对象（用 for...of）
 - 每个元素都用 `Promise.resolve(item)` 包裹，避免传入普通值时报错
 - 维护"完成计数 + 结果数组"，**按原始下标存放结果**（不能 push，因为顺序不固定）
@@ -940,6 +1141,7 @@ tags: [Promise, 手写, 高频]
 - 空数组立即 resolve `[]`
 
 ### 代码示例
+
 ```js
 function myPromiseAll(iterable) {
   return new Promise((resolve, reject) => {
@@ -948,13 +1150,10 @@ function myPromiseAll(iterable) {
     const out = new Array(list.length);
     let done = 0;
     list.forEach((p, i) => {
-      Promise.resolve(p).then(
-        (v) => {
-          out[i] = v;
-          if (++done === list.length) resolve(out);
-        },
-        reject,
-      );
+      Promise.resolve(p).then((v) => {
+        out[i] = v;
+        if (++done === list.length) resolve(out);
+      }, reject);
     });
   });
 }
@@ -964,28 +1163,34 @@ myPromiseAll([Promise.resolve(1), Promise.reject('err')]).catch(console.log);
 ```
 
 ### 延伸
+
 - `Promise.allSettled` 把 reject 也当作 settle 计数即可
 - `Promise.race` 谁先 settle 就谁说了算
 - `Promise.any` 第一个 fulfilled 决定结果，全部 reject 抛 AggregateError
 
 ## kth-largest
+
 title: 数组中第 K 大的元素（快速选择 / 小顶堆）
 difficulty: 进阶
 tags: [排序, 堆, 高频]
 
 ### 一句话
+
 排序 O(n log n) 是基线；要 O(n) 用快速选择（partition 一次只递归一边）；要稳定且支持流式数据用大小为 k 的小顶堆。
 
 ### 题目
+
 给定数组 nums 和整数 k，请返回数组中第 k 大的元素。
 
 ### 答案要点
+
 - **方法 1：排序**：`nums.sort((a,b)=>b-a)[k-1]`，O(n log n)
 - **方法 2：小顶堆**：维护大小为 k 的小顶堆，遍历 nums，堆 size > k 时 pop。最终堆顶就是第 k 大。时间 O(n log k)
 - **方法 3：快速选择 (Quickselect)**：基于快排 partition，期望 O(n)，最坏 O(n²)。适合一次性查找
 - 工程上经常用堆（库现成 + 流式数据可增量）；面试加分用 Quickselect
 
 ### 代码示例
+
 ```js
 function findKthLargest(nums, k) {
   nums.sort((a, b) => b - a);
@@ -998,44 +1203,61 @@ function findKthLargestHeap(nums, k) {
   const up = (i) => {
     while (i > 0) {
       const p = (i - 1) >> 1;
-      if (less(heap[i], heap[p])) { [heap[i], heap[p]] = [heap[p], heap[i]]; i = p; } else break;
+      if (less(heap[i], heap[p])) {
+        [heap[i], heap[p]] = [heap[p], heap[i]];
+        i = p;
+      } else break;
     }
   };
   const down = (i) => {
     const n = heap.length;
     while (true) {
-      const l = i * 2 + 1, r = l + 1; let s = i;
+      const l = i * 2 + 1,
+        r = l + 1;
+      let s = i;
       if (l < n && less(heap[l], heap[s])) s = l;
       if (r < n && less(heap[r], heap[s])) s = r;
-      if (s !== i) { [heap[i], heap[s]] = [heap[s], heap[i]]; i = s; } else break;
+      if (s !== i) {
+        [heap[i], heap[s]] = [heap[s], heap[i]];
+        i = s;
+      } else break;
     }
   };
   for (const x of nums) {
-    if (heap.length < k) { heap.push(x); up(heap.length - 1); }
-    else if (x > heap[0]) { heap[0] = x; down(0); }
+    if (heap.length < k) {
+      heap.push(x);
+      up(heap.length - 1);
+    } else if (x > heap[0]) {
+      heap[0] = x;
+      down(0);
+    }
   }
   return heap[0];
 }
 ```
 
 ### 延伸
+
 - LeetCode 215 经典题
 - TopK 大数据场景：小顶堆 + 流式处理，外存数据用 MapReduce + 局部 TopK 合并
 - Quickselect + 三向切分 + 随机化轴 = Bonus 加分
 
-
 ## bitwise-tricks
+
 title: 位运算高频技巧一题打尽
 difficulty: 进阶
 tags: [算法, 位运算, 高频]
 
 ### 一句话
+
 七招够用：① `n & 1` 判奇偶 ② `n & (n - 1)` 抹掉最低位 1 ③ `a ^ a = 0` 找单数 ④ `a ^ b ^ b = a` 不借第三变量交换 ⑤ `1 << k` / `n & (1 << k)` 状态压缩 ⑥ `n & -n` 取最低位 1（lowbit） ⑦ `n | (1 << k)` / `n & ~(1 << k)` 设/清某位。
 
 ### 题目
+
 位运算面试常问哪些？给出可直接背的"题目模板 → 解法"清单。
 
 ### 答案要点
+
 - **判断 / 计数**
   - 是否 2 的幂：`n > 0 && (n & (n - 1)) === 0`
   - 二进制 1 的个数（popcount）：`while (n) { n &= n - 1; cnt++; }` 或 `Number.prototype.toString(2).match(/1/g)?.length`
@@ -1057,11 +1279,15 @@ tags: [算法, 位运算, 高频]
 - **不借变量交换**：`a ^= b; b ^= a; a ^= b;`（同地址变量会清零，注意）
 
 ### 代码示例
+
 ```ts
 function popcount(n: number): number {
   let c = 0;
   let x = n >>> 0;
-  while (x) { x &= x - 1; c++; }
+  while (x) {
+    x &= x - 1;
+    c++;
+  }
   return c;
 }
 
@@ -1076,14 +1302,16 @@ function singleNumber(nums: number[]): number {
 function twoSingleNumbers(nums: number[]): [number, number] {
   const xor = nums.reduce((a, b) => a ^ b, 0);
   const diff = xor & -xor;
-  let a = 0, b = 0;
-  for (const n of nums) (n & diff) ? a ^= n : b ^= n;
+  let a = 0,
+    b = 0;
+  for (const n of nums) n & diff ? (a ^= n) : (b ^= n);
   return [a, b];
 }
 
 function subsets(arr: number[]): number[][] {
-  const n = arr.length, out: number[][] = [];
-  for (let mask = 0; mask < (1 << n); mask++) {
+  const n = arr.length,
+    out: number[][] = [];
+  for (let mask = 0; mask < 1 << n; mask++) {
     const cur: number[] = [];
     for (let i = 0; i < n; i++) if (mask & (1 << i)) cur.push(arr[i]);
     out.push(cur);
@@ -1101,21 +1329,26 @@ function* iterateOnes(n: number) {
 ```
 
 ### 延伸
+
 - 树状数组（Fenwick Tree）整个建立在 lowbit 上，`update / query` 都是 `i += i & -i`
 - 旧浏览器没有 popcount 硬件指令，热点路径用查表法（256 项）
 
 ## sliding-window-advanced
+
 title: 滑动窗口进阶：变长窗口 + 不变量维护
 difficulty: 资深
 tags: [算法, 滑动窗口, 高频]
 
 ### 一句话
+
 固定窗口好写，**变长窗口**关键是抓住"窗口内的不变量"——比如"每个字符出现次数 ≤ k"、"窗口和 ≤ target"。当不变量被破坏时 right 不动 left 收缩，恢复后再扩张；用一个 `valid` 计数避免重复扫整段。
 
 ### 题目
+
 比起"长度 K 的最大和"这种入门题，变长窗口怎么形成统一思路？讲讲常见变形。
 
 ### 答案要点
+
 - **统一框架**
   - while right < n：扩张（加入 nums[right]）→ while 不满足不变量：收缩（剔除 nums[left]）→ 更新答案 → right++
   - 答案在"扩张完且不变量满足"那一刻取
@@ -1136,10 +1369,12 @@ tags: [算法, 滑动窗口, 高频]
   - 字符集大用 Map / 对象，定长 26 / 128 用数组更快
 
 ### 代码示例
+
 ```ts
 function lengthOfLongestSubstring(s: string): number {
   const last = new Map<string, number>();
-  let left = 0, ans = 0;
+  let left = 0,
+    ans = 0;
   for (let right = 0; right < s.length; right++) {
     const c = s[right];
     if (last.has(c) && last.get(c)! >= left) left = last.get(c)! + 1;
@@ -1151,7 +1386,8 @@ function lengthOfLongestSubstring(s: string): number {
 
 function lengthOfLongestSubstringKDistinct(s: string, k: number): number {
   const cnt = new Map<string, number>();
-  let left = 0, ans = 0;
+  let left = 0,
+    ans = 0;
   for (let right = 0; right < s.length; right++) {
     cnt.set(s[right], (cnt.get(s[right]) || 0) + 1);
     while (cnt.size > k) {
@@ -1167,7 +1403,10 @@ function lengthOfLongestSubstringKDistinct(s: string, k: number): number {
 function minWindow(s: string, t: string): string {
   const need = new Map<string, number>();
   for (const c of t) need.set(c, (need.get(c) || 0) + 1);
-  let left = 0, valid = 0, start = 0, len = Infinity;
+  let left = 0,
+    valid = 0,
+    start = 0,
+    len = Infinity;
   const have = new Map<string, number>();
   for (let right = 0; right < s.length; right++) {
     const c = s[right];
@@ -1176,7 +1415,10 @@ function minWindow(s: string, t: string): string {
       if (have.get(c) === need.get(c)) valid++;
     }
     while (valid === need.size) {
-      if (right - left + 1 < len) { start = left; len = right - left + 1; }
+      if (right - left + 1 < len) {
+        start = left;
+        len = right - left + 1;
+      }
       const d = s[left++];
       if (need.has(d)) {
         if (have.get(d)! === need.get(d)) valid--;
@@ -1189,7 +1431,9 @@ function minWindow(s: string, t: string): string {
 
 function numSubarrayProductLessThanK(nums: number[], k: number): number {
   if (k <= 1) return 0;
-  let prod = 1, left = 0, ans = 0;
+  let prod = 1,
+    left = 0,
+    ans = 0;
   for (let right = 0; right < nums.length; right++) {
     prod *= nums[right];
     while (prod >= k) prod /= nums[left++];
@@ -1200,21 +1444,26 @@ function numSubarrayProductLessThanK(nums: number[], k: number): number {
 ```
 
 ### 延伸
+
 - 滑动窗口能 work 的核心：随 right 增大，"满足条件的最小 left" 也单调不降；这是双指针正确性来源
 - 不单调的场景（比如有负数累加和）：滑动窗口失效，改用前缀和 + 单调队列 / 哈希
 
 ## monotonic-stack-queue
+
 title: 单调栈 / 单调队列高频题
 difficulty: 资深
 tags: [算法, 单调栈, 单调队列, 高频]
 
 ### 一句话
+
 **下一个更大元素 / 柱状图最大矩形**用单调栈（栈内保持单调）；**滑动窗口最大值**用单调双端队列（队头总是当前窗口的最大值）。复杂度 O(n)，每个元素至多入队/入栈出队/出栈各一次。
 
 ### 题目
+
 为什么"下一个更大元素"和"滑动窗口最大值"都能 O(n)？它们的共同思想是什么？
 
 ### 答案要点
+
 - **共同思想：及时丢弃永远用不到的候选**
   - 当我们在比较 nums[i] 时，若栈/队尾元素 < nums[i]，则前者永远不可能是后续位置的"最大值候选"，直接弹掉
   - 不变量：栈 / 队列从底/头到顶/尾保持单调（递减或递增）
@@ -1236,9 +1485,11 @@ tags: [算法, 单调栈, 单调队列, 高频]
   - JS 用普通数组当栈足够（push/pop O(1)）；双端队列用 array shift/unshift 是 O(n)，必要时用环形数组或 deque 实现
 
 ### 代码示例
+
 ```ts
 function nextGreaterElements(nums: number[]): number[] {
-  const n = nums.length, ans = new Array(n).fill(-1);
+  const n = nums.length,
+    ans = new Array(n).fill(-1);
   const stack: number[] = [];
   for (let i = 0; i < 2 * n; i++) {
     const v = nums[i % n];
@@ -1296,21 +1547,26 @@ function maxSlidingWindow(nums: number[], k: number): number[] {
 ```
 
 ### 延伸
+
 - 单调栈的"出栈"瞬间是触发计算的时机，要想清"该位置的左右边界"是什么
 - 树状数组 / 线段树能处理范围最值，但常数大；单调队列在窗口移动场景下最优
 
 ## prefix-sum-difference-2d
+
 title: 前缀和 / 差分进阶：二维 + 区间更新
 difficulty: 进阶
 tags: [算法, 前缀和, 高频]
 
 ### 一句话
+
 **一维前缀和** O(1) 查询区间和；**一维差分**反过来：O(1) 区间更新 + 最后一次性还原。**二维前缀和**用容斥（左 + 上 - 左上）；**二维差分**对四个角加减。组合使用解"多次区间加 + 最后查询"。
 
 ### 题目
+
 "给一个数组做 m 次区间加，最后查询某个位置的值" 怎么 O(n + m)？二维呢？
 
 ### 答案要点
+
 - **一维前缀和**
   - 构造：`pre[i + 1] = pre[i] + a[i]`
   - 区间和：`sum(l, r) = pre[r + 1] - pre[l]`
@@ -1334,6 +1590,7 @@ tags: [算法, 前缀和, 高频]
   - 大区间累加可能溢出 32 位，JS 用 BigInt 或确保不超 2^53
 
 ### 代码示例
+
 ```ts
 class NumArray {
   pre: number[];
@@ -1354,14 +1611,18 @@ function applyRangeAdds(n: number, ops: [number, number, number][]): number[] {
   }
   const a = new Array(n);
   let cur = 0;
-  for (let i = 0; i < n; i++) { cur += diff[i]; a[i] = cur; }
+  for (let i = 0; i < n; i++) {
+    cur += diff[i];
+    a[i] = cur;
+  }
   return a;
 }
 
 class NumMatrix {
   S: number[][];
   constructor(m: number[][]) {
-    const R = m.length, C = m[0].length;
+    const R = m.length,
+      C = m[0].length;
     this.S = Array.from({ length: R + 1 }, () => new Array(C + 1).fill(0));
     for (let i = 1; i <= R; i++)
       for (let j = 1; j <= C; j++)
@@ -1372,7 +1633,11 @@ class NumMatrix {
   }
 }
 
-function applyMatrixAdds(R: number, C: number, ops: [number, number, number, number, number][]): number[][] {
+function applyMatrixAdds(
+  R: number,
+  C: number,
+  ops: [number, number, number, number, number][],
+): number[][] {
   const d = Array.from({ length: R + 1 }, () => new Array(C + 1).fill(0));
   for (const [r1, c1, r2, c2, v] of ops) {
     d[r1][c1] += v;
@@ -1391,7 +1656,7 @@ function applyMatrixAdds(R: number, C: number, ops: [number, number, number, num
 ```
 
 ### 延伸
+
 - 三维前缀和 / 高维差分：电商热度图 / 多维 OLAP 离线分析常用
 - 树上前缀和（DFS 序）：解决子树查询 / 路径查询
 - 动态区间和需要"在线 update + 查询"：换成树状数组 / 线段树
-

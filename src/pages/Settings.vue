@@ -86,7 +86,10 @@ function onExportAnki() {
       <h3>外观</h3>
       <div class="row">
         <label>主题：</label>
-        <select :value="settings.state.theme" @change="settings.setTheme(($event.target as HTMLSelectElement).value as any)">
+        <select
+          :value="settings.state.theme"
+          @change="settings.setTheme(($event.target as HTMLSelectElement).value as any)"
+        >
           <option value="auto">跟随系统</option>
           <option value="light">浅色</option>
           <option value="dark">深色</option>
@@ -116,14 +119,14 @@ function onExportAnki() {
 
     <section class="card grp">
       <h3>数据备份</h3>
-      <p class="muted">所有进度、笔记、复习状态都保存在本地。建议定期备份，或在切换浏览器时迁移。</p>
+      <p class="muted">
+        所有进度、笔记、复习状态都保存在本地。建议定期备份，或在切换浏览器时迁移。
+      </p>
       <div class="row">
         <button class="btn btn-primary" @click="backupJSON">
           <AppIcon name="download" /> 导出 JSON 备份
         </button>
-        <button class="btn" @click="fileRef?.click()">
-          <AppIcon name="upload" /> 导入备份
-        </button>
+        <button class="btn" @click="fileRef?.click()"><AppIcon name="upload" /> 导入备份</button>
         <input ref="fileRef" type="file" accept="application/json" hidden @change="onFile" />
       </div>
       <div v-if="message" class="msg">{{ message }}</div>
@@ -132,8 +135,8 @@ function onExportAnki() {
     <section class="card grp">
       <h3>AI 讲解（可选）</h3>
       <p class="muted">
-        配置后可在题目页内嵌 AI 流式讲解 / 模拟面试官追问。所有请求由你的浏览器直接发往
-        OpenAI / Anthropic / 兼容 API；KAP 服务端永远不会经手 API Key 或对话内容。
+        配置后可在题目页内嵌 AI 流式讲解 / 模拟面试官追问。所有请求由你的浏览器直接发往 OpenAI /
+        Anthropic / 兼容 API；KAP 服务端永远不会经手 API Key 或对话内容。
       </p>
       <div class="row">
         <label>启用：</label>
@@ -153,8 +156,31 @@ function onExportAnki() {
       </div>
       <div class="row">
         <label>API Key：</label>
-        <input v-model="ai.state.apiKey" type="password" placeholder="sk-..." />
+        <input
+          v-model="ai.state.apiKey"
+          type="password"
+          placeholder="sk-..."
+          autocomplete="off"
+          spellcheck="false"
+          autocapitalize="off"
+          autocorrect="off"
+          inputmode="text"
+          name="kap-ai-apikey"
+        />
+        <button
+          v-if="ai.state.apiKey"
+          type="button"
+          class="link-btn"
+          title="清除 API Key"
+          @click="ai.state.apiKey = ''"
+        >
+          清除
+        </button>
       </div>
+      <p class="muted" style="font-size: 12px; margin-top: -4px">
+        Key 仅存于浏览器
+        localStorage，不会上传到任何后端。**生产环境推荐自建代理后端**，避免在端上落 Key。
+      </p>
       <div class="row">
         <label>模型：</label>
         <input v-model="ai.state.model" placeholder="gpt-4o-mini / claude-3-5-sonnet-..." />
@@ -186,13 +212,13 @@ function onExportAnki() {
 
     <section class="card grp">
       <h3>导出题库 / 面试小抄</h3>
-      <p class="muted">
-        把题目导出为 Markdown 小抄方便打印 / 阅读，或导出 Anki 卡片做间隔重复。
-      </p>
+      <p class="muted">把题目导出为 Markdown 小抄方便打印 / 阅读，或导出 Anki 卡片做间隔重复。</p>
       <div class="row">
         <label>导出范围：</label>
         <select v-model="exportSource">
-          <option value="starred">仅收藏（{{ allQuestions.filter((q) => marks.isStarred(q.id)).length }}）</option>
+          <option value="starred">
+            仅收藏（{{ allQuestions.filter((q) => marks.isStarred(q.id)).length }}）
+          </option>
           <option value="review">仅复习 / 模糊</option>
           <option value="mastered">仅已掌握</option>
           <option value="all">全部题目（{{ allQuestions.length }}）</option>
@@ -210,9 +236,7 @@ function onExportAnki() {
 
     <section class="card grp danger">
       <h3>危险操作</h3>
-      <button class="btn" @click="onClear">
-        <AppIcon name="delete" /> 清除所有本地数据
-      </button>
+      <button class="btn" @click="onClear"><AppIcon name="delete" /> 清除所有本地数据</button>
     </section>
   </div>
 </template>
@@ -221,6 +245,17 @@ function onExportAnki() {
 .st {
   max-width: 720px;
   margin: 0 auto;
+}
+.link-btn {
+  background: transparent;
+  border: none;
+  color: var(--c-primary);
+  cursor: pointer;
+  font-size: 12px;
+  padding: 4px 8px;
+}
+.link-btn:hover {
+  text-decoration: underline;
 }
 h1 {
   font-size: 22px;

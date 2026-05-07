@@ -1,36 +1,6 @@
 import { exportAll, importAll } from '@/stores/persist';
 import type { Question } from '@/types/content';
 
-/**
- * 重型库 jspdf / html2canvas 仅在用户真正点导出时加载，
- * 避免主 bundle 中带 ~560KB 的运行时。
- */
-async function loadHeavyExporters() {
-  const [{ default: jsPDF }, { default: html2canvas }] = await Promise.all([
-    import('jspdf'),
-    import('html2canvas'),
-  ]);
-  return { jsPDF, html2canvas };
-}
-
-export async function exportElementToPDF(el: HTMLElement, filename: string): Promise<void> {
-  const { jsPDF, html2canvas } = await loadHeavyExporters();
-  const canvas = await html2canvas(el, { backgroundColor: '#ffffff', scale: 2 });
-  const imgData = canvas.toDataURL('image/png');
-  const pdf = new jsPDF('p', 'mm', 'a4');
-  const pageW = pdf.internal.pageSize.getWidth();
-  const pageH = pdf.internal.pageSize.getHeight();
-  const ratio = canvas.width / canvas.height;
-  let imgW = pageW - 16;
-  let imgH = imgW / ratio;
-  if (imgH > pageH - 16) {
-    imgH = pageH - 16;
-    imgW = imgH * ratio;
-  }
-  pdf.addImage(imgData, 'PNG', 8, 8, imgW, imgH);
-  pdf.save(filename);
-}
-
 export function exportQuestionMarkdown(q: Question): void {
   const md = q.raw;
   const blob = new Blob([md], { type: 'text/markdown' });
@@ -52,17 +22,10 @@ export function exportQuestionsToMarkdown(qs: Question[], filename = 'kap-cheats
  * 用 \t 分隔列、\n 分隔行；卡片内部换行用 <br>
  */
 export function exportQuestionsToAnkiTSV(qs: Question[], filename = 'kap-anki.tsv'): void {
-  const escape = (s: string) =>
-    s
-      .replace(/\r?\n/g, '<br>')
-      .replace(/\t/g, ' ')
-      .replace(/"/g, '""');
+  const escape = (s: string) => s.replace(/\r?\n/g, '<br>').replace(/\t/g, ' ').replace(/"/g, '""');
   const lines = qs.map((q) => {
     const front = `${q.title}（${q.categoryId}）`;
-    const back = [
-      q.summary ? '【一句话】' + stripTags(q.summary) : '',
-      stripTags(q.answer),
-    ]
+    const back = [q.summary ? '【一句话】' + stripTags(q.summary) : '', stripTags(q.answer)]
       .filter(Boolean)
       .join('<br><br>');
     return `"${escape(front)}"\t"${escape(back)}"`;
@@ -72,7 +35,10 @@ export function exportQuestionsToAnkiTSV(qs: Question[], filename = 'kap-anki.ts
 }
 
 function stripTags(html: string): string {
-  return html.replace(/<[^>]+>/g, '').replace(/\s+/g, ' ').trim();
+  return html
+    .replace(/<[^>]+>/g, '')
+    .replace(/\s+/g, ' ')
+    .trim();
 }
 
 export function backupJSON(): void {

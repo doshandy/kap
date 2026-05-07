@@ -3,7 +3,7 @@ import { onBeforeUnmount, ref } from 'vue';
 const isSpeaking = ref(false);
 let currentUtter: SpeechSynthesisUtterance | null = null;
 
-export function speak(text: string): void {
+function speak(text: string): void {
   if (typeof window === 'undefined' || !('speechSynthesis' in window)) return;
   speechSynthesis.cancel();
   const u = new SpeechSynthesisUtterance(text);
@@ -23,7 +23,7 @@ export function speak(text: string): void {
   speechSynthesis.speak(u);
 }
 
-export function stopSpeak(): void {
+function stopSpeak(): void {
   if (typeof window === 'undefined' || !('speechSynthesis' in window)) return;
   speechSynthesis.cancel();
   isSpeaking.value = false;

@@ -105,6 +105,13 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onGlobalKey));
             v-model="keyword"
             class="search-input"
             placeholder="搜索题目、标签、答案... (⌘K)"
+            role="combobox"
+            aria-expanded="true"
+            aria-controls="kap-search-listbox"
+            :aria-activedescendant="grouped.length ? `kap-search-opt-${active}` : undefined"
+            aria-label="全文搜索"
+            autocomplete="off"
+            spellcheck="false"
             @keydown="onKey"
           />
           <button v-if="keyword" class="clear-btn" title="清空" @click="keyword = ''">
@@ -124,14 +131,17 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onGlobalKey));
           </div>
         </div>
 
-        <ul class="result-list">
+        <ul id="kap-search-listbox" class="result-list" role="listbox">
           <li v-if="!grouped.length && keyword" class="empty">未找到匹配项</li>
           <li
             v-for="(r, i) in grouped"
+            :id="`kap-search-opt-${i}`"
             :key="r.item.id"
             :data-search-idx="i"
             class="result-item"
             :class="{ active: i === active }"
+            role="option"
+            :aria-selected="i === active"
             @mouseenter="active = i"
             @click="go(i)"
           >
@@ -203,7 +213,9 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onGlobalKey));
   cursor: pointer;
   padding: 4px;
 }
-.clear-btn:hover { color: var(--c-text); }
+.clear-btn:hover {
+  color: var(--c-text);
+}
 
 .history {
   padding: 10px 14px;
@@ -224,7 +236,9 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onGlobalKey));
   font-size: 11px;
   cursor: pointer;
 }
-.link-btn:hover { color: var(--c-primary); }
+.link-btn:hover {
+  color: var(--c-primary);
+}
 .chips {
   display: flex;
   flex-wrap: wrap;

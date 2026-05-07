@@ -7,23 +7,30 @@ description: 单元、组件、E2E、视觉回归、性能测试与测试策略�
 ---
 
 ## test-pyramid
+
 title: 测试金字塔为什么不是“多写单测”这么简单
 difficulty: 基础
 tags: [测试策略, 金字塔]
 
 ### 一句话
+
 单元测试验证纯逻辑和边界，反馈最快；组件测试验证组件在近真实环境中的交互和渲染语义；集成测试验证模块协作。
 
 ### 题目
+
 如何理解单元测试、组件测试、集成测试、E2E 测试的分工？
 
 ### 答案要点
-- 单元测试验证纯逻辑和边界，反馈最快
-- 组件测试验证组件在近真实环境中的交互和渲染语义
-- 集成测试验证模块协作
-- E2E 从用户路径验证真实环境下的关键业务流
+
+- **单元测试**：验证纯逻辑和边界，反馈最快（毫秒级），适合算法、reducer、format
+- **组件测试**：用 jsdom + Testing Library 在近真实环境验证组件交互/渲染语义
+- **集成测试**：验证多模块协作（路由、store、网络层），通常仍跑在 jsdom
+- **E2E**：用 Playwright/Cypress 从用户路径验证真实浏览器关键业务流，但慢且脆弱
+- 现代前端常采用"测试奖杯"模型：组件/集成层投入最多，单测和 E2E 适量
+- 反馈速度是关键：CI 上单测必须秒级，E2E 可异步跑或仅 main 跑
 
 ### 代码示例
+
 ```ts
 // 单元测试：纯函数，不依赖 DOM
 import { describe, it, expect } from 'vitest';
@@ -41,26 +48,35 @@ describe('calcTax', () => {
 ```
 
 ### 延伸
+
 - 不是每一层越多越好，而是要让风险在合适的层被最早发现
 - "组件测试"和"集成测试"在不同团队里的命名可能略有差异，关键是明确测试边界而不是纠结术语
 
 ## unit-mock-spy
+
 title: Mock、Spy、Stub 在前端测试中的边界
 difficulty: 进阶
 tags: [Mock, 单元测试]
 
 ### 一句话
+
 Mock 太多会让测试验证的只是你自己写的假世界；纯逻辑依赖、时间、随机数、网络边界适合 mock；UI 行为和领域规则尽量少 mock，保持更真实的协作关系。
 
 ### 题目
+
 为什么测试里“什么都 mock”会让测试脆弱？什么时候该 mock，什么时候不该？
 
 ### 答案要点
-- Mock 太多会让测试验证的只是你自己写的假世界
-- 纯逻辑依赖、时间、随机数、网络边界适合 mock
-- UI 行为和领域规则尽量少 mock，保持更真实的协作关系
+
+- 概念区分：**Mock**（替换实现）/ **Spy**（监视真实函数）/ **Stub**（仅返回固定值）
+- Mock 太多会让测试只验证"你自己写的假世界"，重构时大量误报或漏报
+- 适合 mock 的：**外部依赖**（网络、时间、随机数、文件系统、第三方 SDK）
+- 不适合 mock 的：自家组件交互、领域规则、内部模块协作 —— 应让真实代码跑
+- 优先用 **MSW** 拦网络请求（代替 mock fetch），保持调用链真实
+- 时间用 `vi.useFakeTimers()`；随机数 / Date 用 spy 锁定，避免测试不稳定
 
 ### 代码示例
+
 ```ts
 import { vi, describe, it, expect, beforeEach } from 'vitest';
 import { reportError } from '@/lib/monitor';
@@ -85,40 +101,51 @@ beforeEach(() => {
 });
 
 // 4. Mock 网络：fetch
-const fetchSpy = vi.spyOn(globalThis, 'fetch').mockResolvedValue(
-  new Response(JSON.stringify({ ok: true }), { status: 200 }),
-);
+const fetchSpy = vi
+  .spyOn(globalThis, 'fetch')
+  .mockResolvedValue(new Response(JSON.stringify({ ok: true }), { status: 200 }));
 
 // 5. 异步定时器测试
 it('防抖只触发一次', () => {
   const fn = vi.fn();
   const debounced = debounce(fn, 200);
-  debounced(); debounced(); debounced();
+  debounced();
+  debounced();
+  debounced();
   vi.advanceTimersByTime(200);
   expect(fn).toHaveBeenCalledTimes(1);
 });
 ```
 
 ### 延伸
+
 - 好测试不是最隔离，而是在稳定性和真实性之间找到平衡
 
 ## component-testing
+
 title: 组件测试应该站在用户视角还是实现视角
 difficulty: 进阶
 tags: [组件测试, TestingLibrary]
 
 ### 一句话
+
 用户视角的测试对重构更稳定；按 role、label、text 查询能同时逼近无障碍语义；如果测试过度依赖实现细节，组件一重构就会大面积误报。
 
 ### 题目
+
 为什么越来越多团队强调“按可见文本和可访问角色查询元素”，而不是按 class 和内部状态断言？
 
 ### 答案要点
-- 用户视角的测试对重构更稳定
-- 按 role、label、text 查询能同时逼近无障碍语义
-- 如果测试过度依赖实现细节，组件一重构就会大面积误报
+
+- 用户视角的测试**对重构更稳定**：HTML 结构变了，但 button/input 仍可见 → 测试不挂
+- 按 **role / label / text** 查询能同时逼近无障碍语义，一举两得
+- 实现视角（class 选择器、internal state）一重构就**大面积误报**，反过来阻碍重构
+- Testing Library 的 priority 顺序：`getByRole` > `getByLabelText` > `getByText` > `getByTestId`
+- `data-testid` 留给"实在没有合适语义"的兜底场景，不应该是首选
+- 配合 jest-dom matchers（`toBeInTheDocument` / `toHaveAccessibleName`）让断言更语义化
 
 ### 代码示例
+
 ```ts
 // Vue Test Utils + Testing Library 风格
 import { mount } from '@vue/test-utils';
@@ -149,25 +176,31 @@ it('密码为空时按钮禁用', () => {
 ```
 
 ### 延伸
+
 - 测试本身也在塑造组件 API 与语义质量
 
 ## e2e-visual
+
 title: E2E 与视觉回归分别覆盖什么风险
 difficulty: 进阶
 tags: [E2E, 视觉回归]
 
 ### 一句话
+
 E2E 更擅长发现流程断裂、接口联动、权限跳转、真实浏览器行为问题；视觉回归更擅长发现样式错位、主题回退、响应式破版、字号变化等 UI 偏差；两者互补，不应互相替代。
 
 ### 题目
+
 Playwright/Cypress 和 Percy/Chromatic 这类视觉对比工具，分别更擅长发现什么问题？
 
 ### 答案要点
+
 - E2E 更擅长发现流程断裂、接口联动、权限跳转、真实浏览器行为问题
 - 视觉回归更擅长发现样式错位、主题回退、响应式破版、字号变化等 UI 偏差
 - 两者互补，不应互相替代
 
 ### 代码示例
+
 ```ts
 // Playwright E2E：覆盖关键业务流
 import { test, expect } from '@playwright/test';
@@ -184,7 +217,7 @@ test('用户登录后能看到订单列表', async ({ page }) => {
 
 // 网络拦截
 test('接口失败时显示错误提示', async ({ page }) => {
-  await page.route('**/api/orders', r => r.fulfill({ status: 500 }));
+  await page.route('**/api/orders', (r) => r.fulfill({ status: 500 }));
   await page.goto('/orders');
   await expect(page.getByRole('alert')).toContainText('加载失败');
 });
@@ -211,25 +244,31 @@ export default defineConfig({
 ```
 
 ### 延伸
+
 - 视觉回归要控制截图环境，否则噪音会很大
 
 ## msw-contract
+
 title: MSW、契约测试与前后端协作
 difficulty: 进阶
 tags: [MSW, 契约测试]
 
 ### 一句话
+
 MSW 可以在浏览器和 Node 层模拟真实 HTTP，保留调用链路；契约测试让前后端围绕 schema/协议做一致性校验；关键是把 mock 数据也当成需要维护的"契约资产"。
 
 ### 题目
+
 在接口经常变动的团队里，如何让前端测试既不完全依赖真后端，又不脱离真实协议？
 
 ### 答案要点
+
 - MSW 可以在浏览器和 Node 层模拟真实 HTTP，保留调用链路
 - 契约测试让前后端围绕 schema/协议做一致性校验
 - 关键是把 mock 数据也当成需要维护的"契约资产"
 
 ### 代码示例
+
 ```ts
 // MSW (Mock Service Worker)：拦截真实 fetch
 import { setupWorker, http, HttpResponse } from 'msw';
@@ -240,8 +279,7 @@ const handlers = [
   }),
   http.post('/api/login', async ({ request }) => {
     const body = await request.json();
-    if (body.password === 'wrong')
-      return new HttpResponse(null, { status: 401 });
+    if (body.password === 'wrong') return new HttpResponse(null, { status: 401 });
     return HttpResponse.json({ token: 'mock-token' });
   }),
 ];
@@ -277,25 +315,34 @@ async function fetchUser(id: string): Promise<User> {
 ```
 
 ### 延伸
+
 - 最差的情况是：开发用一套 mock，线上协议又是一套
 
 ## coverage-ci
+
 title: 覆盖率、稳定性与 CI 中的测试门禁
 difficulty: 进阶
 tags: [覆盖率, CI]
 
 ### 一句话
+
 覆盖率只说明“执行过”，不说明“断言有价值”；更应关注关键路径、边界情况、异常处理是否被覆盖；CI 里通常分层：快速单测必须过，重型 E2E 可按主干或定时跑。
 
 ### 题目
+
 为什么覆盖率高不等于测试质量高？CI 测试门禁应如何设计？
 
 ### 答案要点
-- 覆盖率只说明“执行过”，不说明“断言有价值”
-- 更应关注关键路径、边界情况、异常处理是否被覆盖
-- CI 里通常分层：快速单测必须过，重型 E2E 可按主干或定时跑
+
+- 覆盖率只说明"执行过"，**不说明"断言有价值"**——一行代码不写断言也能 100% 覆盖
+- 关注 **mutation testing**（如 Stryker）：能否检测出代码被故意改坏，比单纯行覆盖率有意义
+- 更应关注**关键路径、边界、异常分支**是否被有效覆盖，而非追求总数
+- CI 分层门禁：快速单测**必须过**，组件测试 PR 上跑，重型 E2E 主干 / 定时 / 灰度跑
+- 关键文件单独设阈值（如 reducer、auth、payment 必须 90%+），其它放宽
+- 用 PR 上的 coverage diff 工具（codecov）展示**新增代码的覆盖率**，而非全局比例
 
 ### 代码示例
+
 ```yaml
 # .github/workflows/test.yml
 name: test
@@ -313,7 +360,7 @@ jobs:
 
   e2e:
     runs-on: ubuntu-latest
-    if: github.event.pull_request.base.ref == 'main'  # 仅主干 PR
+    if: github.event.pull_request.base.ref == 'main' # 仅主干 PR
     steps:
       - uses: actions/checkout@v4
       - run: pnpm install
@@ -345,20 +392,25 @@ export default defineConfig({
 ```
 
 ### 延伸
+
 - 稳定性差的测试比没有测试更伤团队信心
 
 ## playwright-tips
+
 title: Playwright 高级用法（trace / fixtures / projects）
 difficulty: 进阶
 tags: [Playwright, E2E]
 
 ### 一句话
+
 Trace Viewer：失败用例自动录制 dom + 网络 + 截图，定位问题极快；Fixtures：把登录态 / 测试数据封装成 fixture，跨用例复用；Projects：同一套用例在多浏览器 / 多分辨率 / 多 locale 跑。
 
 ### 题目
+
 用 Playwright 跑 E2E 时有哪些被忽视但极有用的能力？
 
 ### 答案要点
+
 - Trace Viewer：失败用例自动录制 dom + 网络 + 截图，定位问题极快
 - Fixtures：把登录态 / 测试数据封装成 fixture，跨用例复用
 - Projects：同一套用例在多浏览器 / 多分辨率 / 多 locale 跑
@@ -367,6 +419,7 @@ Trace Viewer：失败用例自动录制 dom + 网络 + 截图，定位问题极�
 - Auth state：登录一次保存 cookie，后续用例直接 `storageState` 复用
 
 ### 代码示例
+
 ```ts
 import { test as base, expect } from '@playwright/test';
 
@@ -403,21 +456,26 @@ export default {
 ```
 
 ### 延伸
+
 - CI 里把 trace 上传成 artifact，PR 失败时点开就能看完整复现
 - 用 Playwright 跑组件测试（@playwright/experimental-ct-vue）也越来越成熟
 
 ## flaky-tests
+
 title: Flaky 测试是怎么来的，怎么治理
 difficulty: 资深
 tags: [Flaky, 稳定性]
 
 ### 一句话
+
 来源：异步未等待、定时器、动画、网络抖动、并发用例数据互相污染、随机数；自动检测：CI 上做 retry，记录哪些用例频繁 retry，标记成 flaky；排查：本地 --repeat-each=20、加详细 log；隔离运行确认是不是用例间污染。
 
 ### 题目
+
 跑十次有两次失败的测试就是 flaky test，怎么定位和根治？
 
 ### 答案要点
+
 - 来源：异步未等待、定时器、动画、网络抖动、并发用例数据互相污染、随机数
 - 自动检测：CI 上做 retry，记录哪些用例频繁 retry，标记成 flaky
 - 排查：本地 `--repeat-each=20`、加详细 log；隔离运行确认是不是用例间污染
@@ -426,12 +484,15 @@ tags: [Flaky, 稳定性]
 - 度量：dashboard 展示 flaky 比例，作为质量指标对外可见
 
 ### 代码示例
+
 ```ts
 import { expect } from '@playwright/test';
 
-await expect.poll(async () => fetch('/api/order/1').then((r) => r.status), {
-  timeout: 10_000,
-}).toBe(200);
+await expect
+  .poll(async () => fetch('/api/order/1').then((r) => r.status), {
+    timeout: 10_000,
+  })
+  .toBe(200);
 
 await expect(page.getByRole('alert')).toHaveText('成功');
 ```
@@ -446,21 +507,26 @@ test.describe('orders', () => {
 ```
 
 ### 延伸
+
 - Flaky 治理的关键不是技术，而是文化：让团队认可"红色 = 必须立刻处理"
 - Code review 时关注新增用例是否依赖时间 / 顺序 / 网络
 
 ## test-pyramid-vs-trophy
+
 title: 测试金字塔 / 测试奖杯 怎么选
 difficulty: 进阶
 tags: [测试, 架构]
 
 ### 一句话
+
 传统金字塔：单测多 + 集成中 + E2E 少；前端时代变成奖杯：**集成测试**（组件测试）才是性价比最高的——既覆盖真实场景又比 E2E 快。
 
 ### 题目
+
 单元测试、集成测试、E2E 各应该怎么投入？前端有什么自己的特殊性？
 
 ### 答案要点
+
 - **单元测试**：纯函数 / Hook / 工具库；快、稳定、易定位 bug；适合纯逻辑
 - **集成 / 组件测试**：用 React Testing Library / Vue Test Utils 渲染真实组件树并模拟用户交互——前端核心战场
 - **E2E（Playwright / Cypress）**：跑真浏览器，覆盖关键用户流程（登录 / 下单 / 支付）；慢、不稳定，控制数量
@@ -470,6 +536,7 @@ tags: [测试, 架构]
 - 经验：组件测试用 RTL 强调"按用户行为测"——不要测实现细节
 
 ### 代码示例
+
 ```ts
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
@@ -496,23 +563,27 @@ test('登录跳转', async ({ page }) => {
 ```
 
 ### 延伸
+
 - Vitest 是 Vite 项目的首选，比 Jest 快、配置简单
 - 集成测试可以 mock 网络（MSW），单测 mock 函数调用
 - 关键页面 E2E 跑在 CI，可视化回归差异自动评论 PR
 
-
 ## test-data-strategy
+
 title: 测试数据怎么造？怎么避免脏数据互相干扰
 difficulty: 进阶
 tags: [测试, 数据, 高频]
 
 ### 一句话
+
 单测用 factory 函数（`makeUser({ name: 'x' })`）按需造；集成 / E2E 用每条用例独立的"种子前缀 + 随机后缀"避免冲突；运行后回滚或单独环境；不要共用线下"测试账号"。
 
 ### 题目
+
 你团队的 E2E 测试经常因为"昨天的数据没清"而挂；写单测又有人造一份巨大的 fixture，怎么治理？
 
 ### 答案要点
+
 - **分层造数据**
   - 单元 / 组件测试：用 factory 函数（builder 模式），按需覆盖字段
   - 集成 / E2E：直接调 API 造数据，跑完调 API 删；不要写死 SQL
@@ -537,6 +608,7 @@ tags: [测试, 数据, 高频]
   - E2E：按前缀清理，或定期清理 job
 
 ### 代码示例
+
 ```ts
 import { faker } from '@faker-js/faker';
 
@@ -566,21 +638,26 @@ afterAll(async () => {
 ```
 
 ### 延伸
+
 - snapshot 测试要小，超过 50 行要警惕；只对关键 DOM 树快照
 - 共享数据库环境：CI 并发跑测试时锁同一行就死锁，建议每个 worker 独立 schema
 
 ## test-async-tricks
+
 title: 异步代码 / 定时器 / Stream 怎么测？
 difficulty: 进阶
 tags: [测试, 异步, 高频]
 
 ### 一句话
+
 Promise / async 直接 `await`；setTimeout / setInterval 用 fake timer + `vi.advanceTimersByTime`；Stream 用真实流 + 收集结果再断言；DOM 异步用 `findBy*` / `waitFor`。
 
 ### 题目
+
 怎么写出**稳定**的异步测试？带 setTimeout 的代码、流式接口、组件里的 useEffect，分别什么写法？
 
 ### 答案要点
+
 - **Promise / async**
   - 直接 await，断言异常用 `await expect(fn()).rejects.toThrow()`
   - 不要 `setTimeout(done, 100)` 等异步，会 flaky
@@ -609,6 +686,7 @@ Promise / async 直接 `await`；setTimeout / setInterval 用 fake timer + `vi.a
   - 时区 / 语言：测试环境锁定 TZ='UTC' / LANG='en_US'
 
 ### 代码示例
+
 ```ts
 import { vi, test, expect } from 'vitest';
 
@@ -649,21 +727,26 @@ test('ReadableStream 切片读取', async () => {
 ```
 
 ### 延伸
+
 - Playwright 等 E2E 默认 retry，重要 case 写清等待条件
 - "时间旅行"调试 flaky：本地循环跑 100 次（`vitest --repeat 100`）
 
 ## visual-regression
+
 title: 视觉回归测试怎么做？
 difficulty: 进阶
 tags: [测试, 视觉, UI]
 
 ### 一句话
+
 渲染目标组件 / 页面截图 → 与基线对比 → 像素 diff 超阈值就 fail。本地预览 diff 后人工 review，确认是有意改动则 update baseline。常用工具：Playwright `toHaveScreenshot` / Chromatic / Percy。
 
 ### 题目
+
 组件库改了一行 CSS，哪些页面受影响很难肉眼覆盖。视觉回归怎么落地？
 
 ### 答案要点
+
 - **核心原理**
   - 第一次跑：生成 baseline 截图存 git
   - 后续跑：对比当前渲染 vs baseline，逐像素 diff
@@ -694,6 +777,7 @@ tags: [测试, 视觉, UI]
   - 在 PR 里贴评论方便 review
 
 ### 代码示例
+
 ```ts
 import { test, expect } from '@playwright/test';
 
@@ -711,23 +795,27 @@ test('product card visual', async ({ page }) => {
 ```
 
 ### 延伸
+
 - 视觉回归不能替代功能测试，互补
 - 大型组件库会自动生成几千张图，CI 时长变长 → 用 sharding 并行
 - 跨浏览器（Chromium / Firefox / WebKit）渲染差异大，按平台分别管理 baseline
 
-
 ## what-to-test-basic
+
 title: 前端到底应该测什么？测多深？
 difficulty: 基础
 tags: [测试策略, 基础]
 
 ### 一句话
+
 测"用户能感知的输入输出"：组件交互、关键业务流（登录 / 下单）、纯函数和工具库；不要测实现细节，不要追求 100% 行覆盖。
 
 ### 题目
+
 作为前端，应该测什么、不测什么？测试粒度怎么选？
 
 ### 答案要点
+
 - **必测**：核心业务路径（注册 / 支付 / 提交订单），通用工具函数（日期、金额、url 解析），自研组件库的关键交互
 - **少测**：UI 像素细节（用 visual regression），第三方库内部行为（信任就行）
 - **不测**：ts 类型本身（编译期就保了），简单 getter/setter，纯标记性 jsx
@@ -735,6 +823,7 @@ tags: [测试策略, 基础]
 - **比例**：单元 60% / 组件 30% / E2E 10%（金字塔）；UI 库可倒过来（更多组件测）
 
 ### 代码示例
+
 ```ts
 import { test, expect } from '@playwright/test';
 
@@ -749,16 +838,18 @@ test('user can login and reach dashboard', async ({ page }) => {
 ```
 
 ### 常见误区
+
 - 沉迷追求 100% 行覆盖：80% 行 + 关键路径 100% 才是性价比最高的
 - 测了实现细节："这个 hook 一定调用了 useState 3 次"——重构就崩
 - E2E 太多导致 CI 慢、flaky；其实大部分应该下沉成组件测
 
 ### 追问
+
 - 怎么处理 flaky 测试（重试、隔离、稳态等待）
 - TDD 真的能在前端业务里跑吗
 - 怎么衡量测试 ROI
 
 ### 延伸
+
 - React Testing Library 的核心理念："测用户怎么用，不测组件怎么写"
 - contract test / API mock（MSW）能取代很多 E2E
-

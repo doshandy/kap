@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed } from 'vue';
+import { computed, watchEffect } from 'vue';
 import { useRoute } from 'vue-router';
 import { useContent } from '@/composables/useContent';
 import { useFilterStore } from '@/stores/filter';
@@ -16,6 +16,10 @@ const progress = useProgressStore();
 useFilterSync();
 
 const cat = computed(() => getCategory(route.params.categoryId as string));
+
+watchEffect(() => {
+  if (cat.value) document.title = `${cat.value.title} · KAP`;
+});
 
 const tags = computed(() => {
   if (!cat.value) return [];
@@ -57,12 +61,7 @@ const filtered = computed(() => {
     </header>
     <QuestionFilters :tags="tags" />
     <div v-if="filtered.length === 0" class="empty">没有匹配的题目，调整筛选条件试试</div>
-    <QuestionCard
-      v-for="(q, i) in filtered"
-      :key="q.id"
-      :question="q"
-      :index="i + 1"
-    />
+    <QuestionCard v-for="(q, i) in filtered" :key="q.id" :question="q" :index="i + 1" />
   </div>
   <div v-else class="empty">分类不存在</div>
 </template>

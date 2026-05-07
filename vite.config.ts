@@ -2,6 +2,7 @@
 import { defineConfig } from 'vite';
 import vue from '@vitejs/plugin-vue';
 import { VitePWA } from 'vite-plugin-pwa';
+import { visualizer } from 'rollup-plugin-visualizer';
 import { fileURLToPath, URL } from 'node:url';
 
 export default defineConfig({
@@ -13,6 +14,9 @@ export default defineConfig({
   base: '/kap/',
   plugins: [
     vue(),
+    process.env.ANALYZE
+      ? visualizer({ open: false, filename: 'dist/stats.html', gzipSize: true, brotliSize: true })
+      : null,
     VitePWA({
       registerType: 'autoUpdate',
       injectRegister: 'auto',
@@ -51,6 +55,8 @@ export default defineConfig({
     rollupOptions: {
       output: {
         manualChunks(id) {
+          // 内容文件不进入主 bundle，由 import.meta.glob 异步拉取。
+          // 28 个 markdown 各自成 chunk，HTTP/2 下并发拉，PWA 增量更新友好。
           if (id.includes('node_modules')) {
             if (id.includes('echarts') || id.includes('zrender') || id.includes('tslib')) {
               return 'vendor-echarts';

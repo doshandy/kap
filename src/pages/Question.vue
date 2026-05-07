@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed } from 'vue';
+import { computed, watchEffect } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useContent } from '@/composables/useContent';
 import QuestionCard from '@/components/question/QuestionCard.vue';
@@ -13,6 +13,10 @@ const q = computed(() =>
 );
 const cat = computed(() => (q.value ? getCategory(q.value.categoryId) : undefined));
 
+watchEffect(() => {
+  if (q.value) document.title = `${q.value.title} · KAP`;
+});
+
 const idx = computed(() =>
   q.value ? allQuestions.value.findIndex((x) => x.id === q.value!.id) : -1,
 );
@@ -20,9 +24,7 @@ const idx = computed(() =>
 function gotoOffset(d: number) {
   if (idx.value < 0) return;
   const next =
-    allQuestions.value[
-      (idx.value + d + allQuestions.value.length) % allQuestions.value.length
-    ];
+    allQuestions.value[(idx.value + d + allQuestions.value.length) % allQuestions.value.length];
   router.push({ name: 'question', params: { categoryId: next.categoryId, slug: next.slug } });
 }
 </script>
@@ -32,9 +34,7 @@ function gotoOffset(d: number) {
     <nav class="crumb">
       <RouterLink to="/">总览</RouterLink>
       <span> / </span>
-      <RouterLink :to="`/c/${q.categoryId}`">
-        {{ cat?.icon }} {{ cat?.title }}
-      </RouterLink>
+      <RouterLink :to="`/c/${q.categoryId}`"> {{ cat?.icon }} {{ cat?.title }} </RouterLink>
       <span> / </span>
       <span>{{ q.title }}</span>
     </nav>

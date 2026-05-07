@@ -15,7 +15,7 @@ export interface ChatStreamHandle {
  * 调用 OpenAI 兼容 SSE 流接口（Anthropic provider 自动改路径 + 转协议）。
  * 注意：API key 直接发送到目标域；只在用户明确配置后启用。
  */
-export async function streamChat(
+async function streamChat(
   messages: ChatMessage[],
   onDelta: (text: string) => void,
   onDone?: () => void,
@@ -168,7 +168,10 @@ export function buildContextMessages(question: Question, userQuery?: string): Ch
 }
 
 function stripHtml(html: string): string {
-  return html.replace(/<[^>]+>/g, '').replace(/\s+/g, ' ').trim();
+  return html
+    .replace(/<[^>]+>/g, '')
+    .replace(/\s+/g, ' ')
+    .trim();
 }
 
 /**

@@ -7,23 +7,28 @@ description: WebView、Electron、Tauri、PWA、小程序与跨端架构取舍�
 ---
 
 ## hybrid-jsbridge
+
 title: Hybrid WebView 与 JSBridge 的核心设计点
 difficulty: 进阶
 tags: [Hybrid, JSBridge]
 
 ### 一句话
+
 约定调用协议：方法名、参数、回调、超时、版本兼容；做好白名单和来源校验，避免任意页面调用原生敏感能力；统一错误码和降级策略，避免“原生没回调就永远卡住”。
 
 ### 题目
+
 WebView + JSBridge 方案里，前端最需要关注哪些协议与安全问题？
 
 ### 答案要点
+
 - 约定调用协议：方法名、参数、回调、超时、版本兼容
 - 做好白名单和来源校验，避免任意页面调用原生敏感能力
 - 统一错误码和降级策略，避免“原生没回调就永远卡住”
 - 对 URL Scheme、桥接注入对象、消息通道都要限制暴露面，避免把过多系统能力直接交给 H5
 
 ### 代码示例
+
 ```ts
 // 通用 JSBridge 封装
 interface BridgeRequest {
@@ -78,26 +83,32 @@ const userInfo = await bridge.invoke('getUserInfo');
 ```
 
 ### 延伸
+
 - JSBridge 真正难的是演进与兼容，不是最初跑通 demo
 
 ## electron-tauri
+
 title: Electron 与 Tauri 的差异和取舍
 difficulty: 进阶
 tags: [Electron, Tauri]
 
 ### 一句话
+
 Electron 生态成熟、Node 集成强、开发体验完整，但包体和内存普遍更高；Tauri 体积小、资源占用低，后端由 Rust 驱动，但生态和团队门槛更高；选型要看功能需求、团队技能、自动更新、原生集成深度和发布时间。
 
 ### 题目
+
 如果团队要做桌面端工具，Electron 和 Tauri 应该怎么选？
 
 ### 答案要点
+
 - Electron 生态成熟、Node 集成强、开发体验完整，但包体和内存普遍更高
 - Tauri 体积小、资源占用低，后端由 Rust 驱动，但生态和团队门槛更高
 - 选型要看功能需求、团队技能、自动更新、原生集成深度和发布时间
 - Electron 通常围绕主进程、渲染进程、preload、IPC 建模；Tauri 则更强调 Web 前端 + Rust command/plugin 的边界
 
 ### 代码示例
+
 ```ts
 // Electron：主进程 / 渲染进程 / preload 三件套
 // main.ts
@@ -108,8 +119,8 @@ app.whenReady().then(() => {
   const win = new BrowserWindow({
     webPreferences: {
       preload: join(__dirname, 'preload.js'),
-      contextIsolation: true,           // ✅ 必须开启
-      nodeIntegration: false,           // ✅ 渲染进程不能直接访问 Node
+      contextIsolation: true, // ✅ 必须开启
+      nodeIntegration: false, // ✅ 渲染进程不能直接访问 Node
       sandbox: true,
     },
   });
@@ -154,26 +165,32 @@ const cfg = await invoke('read_config');
 ```
 
 ### 延伸
+
 - 桌面端方案的差异，常常不在 UI，而在系统能力与运维工具链
 
 ## electron-security-ipc
+
 title: Electron 安全边界为什么离不开 preload、contextIsolation、IPC
 difficulty: 资深
 tags: [Electron, 安全, IPC]
 
 ### 一句话
+
 渲染进程展示的是网页内容，不应直接拿到完整 Node/Electron 能力；更安全的做法是通过 preload 暴露最小必要 API；contextIsolation 的目的，是把 preload 和页面脚本放进隔离上下文…。
 
 ### 题目
+
 为什么 Electron 项目里经常强调 `preload`、`contextIsolation`、`contextBridge` 和 IPC？这些东西分别在防什么风险？
 
 ### 答案要点
+
 - 渲染进程展示的是网页内容，不应直接拿到完整 Node/Electron 能力；更安全的做法是通过 preload 暴露最小必要 API
 - `contextIsolation` 的目的，是把 preload 和页面脚本放进隔离上下文，减少页面直接碰到高权限对象的机会
 - `contextBridge` 用于把受控、白名单化的能力桥接到页面；IPC 则负责渲染进程与主进程之间的受控通信
 - 高危误区通常是直接暴露 `fs`、`shell`、任意命令执行或宽泛 IPC 通道，让 XSS 进一步升级成系统层能力滥用
 
 ### 代码示例
+
 ```ts
 // ❌ 反例：开启 nodeIntegration，渲染进程直接拿到 Node
 const win = new BrowserWindow({
@@ -186,7 +203,7 @@ const win = new BrowserWindow({
 import { contextBridge, ipcRenderer } from 'electron';
 
 const ALLOWED_CHANNELS = ['app:save-file', 'app:read-config'] as const;
-type Channel = typeof ALLOWED_CHANNELS[number];
+type Channel = (typeof ALLOWED_CHANNELS)[number];
 
 contextBridge.exposeInMainWorld('safeApi', {
   invoke(channel: Channel, ...args: any[]) {
@@ -214,33 +231,39 @@ ipcMain.handle('app:save-file', async (_e, path: string, content: string) => {
 // ⚠️ 不加载不可信远程内容
 win.webContents.on('will-navigate', (e, url) => {
   if (!url.startsWith('http://localhost') && !url.startsWith('app://')) {
-    e.preventDefault();           // 拒绝跳转
+    e.preventDefault(); // 拒绝跳转
   }
 });
 ```
 
 ### 延伸
+
 - Electron 安全不是"打开 contextIsolation 就结束了"，关键还在 API 最小化、参数校验和不加载不可信远程内容
 - 跨端桌面应用一旦把 Web 安全和本地系统能力叠在一起，攻击面会显著放大
 
 ## pwa-capacitor
+
 title: PWA、Capacitor、H5 容器化各自适合什么业务
 difficulty: 基础
 tags: [PWA, Capacitor]
 
 ### 一句话
+
 PWA 适合分发轻、安装轻、离线可用、原生能力需求不深的场景；Capacitor 用原生壳包裹 Web 应用，提供更稳定的原生能力接入；对强推送、复杂后台保活、深系统集成要求高的应用，纯 PWA 仍有限制。
 
 ### 题目
+
 PWA 能替代原生 App 吗？Capacitor 这类方案又处在什么位置？
 
 ### 答案要点
+
 - PWA 适合分发轻、安装轻、离线可用、原生能力需求不深的场景
 - Capacitor 用原生壳包裹 Web 应用，提供更稳定的原生能力接入
 - 对强推送、复杂后台保活、深系统集成要求高的应用，纯 PWA 仍有限制
 - PWA 的可用能力上限会随操作系统、浏览器和分发方式变化；涉及推送、文件系统、蓝牙、后台能力时，都应按目标平台逐项验证
 
 ### 代码示例
+
 ```json
 // PWA：manifest.webmanifest 让网页可"安装"
 {
@@ -258,8 +281,7 @@ PWA 能替代原生 App 吗？Capacitor 这类方案又处在什么位置？
 ```
 
 ```html
-<link rel="manifest" href="/manifest.webmanifest" />
-<meta name="theme-color" content="#0ea5e9" />
+<link rel="manifest" href="/manifest.webmanifest" /> <meta name="theme-color" content="#0ea5e9" />
 ```
 
 ```ts
@@ -294,25 +316,31 @@ async function subscribePush() {
 ```
 
 ### 延伸
+
 - "能不能替代"不是绝对题，关键看业务对原生能力的依赖强度
 
 ## mini-program
+
 title: 小程序与多端框架的本质是“多宿主适配”
 difficulty: 进阶
 tags: [小程序, Taro, uni-app]
 
 ### 一句话
+
 不同宿主平台的组件集、路由、生命周期、渲染模型、权限能力并不完全一致；跨端框架主要是在编译、运行时和组件适配层做“求交集 + 补差异”；真正复杂的地方往往是样式细节、性能边界和平台特性差异。
 
 ### 题目
+
 为什么小程序跨端框架很难做到 100% 一次编写到处运行？
 
 ### 答案要点
+
 - 不同宿主平台的组件集、路由、生命周期、渲染模型、权限能力并不完全一致
 - 跨端框架主要是在编译、运行时和组件适配层做“求交集 + 补差异”
 - 真正复杂的地方往往是样式细节、性能边界和平台特性差异
 
 ### 代码示例
+
 ```vue
 <!-- uni-app：一份代码多端编译 -->
 <template>
@@ -343,7 +371,9 @@ function onTap() {
 
 <style lang="scss">
 /* rpx 自动适配不同分辨率 */
-.title { font-size: 32rpx; }
+.title {
+  font-size: 32rpx;
+}
 </style>
 ```
 
@@ -371,26 +401,32 @@ export default function Index() {
 ```
 
 ### 延伸
+
 - 跨端的成本不会消失，只是从"多写代码"转移到了"维护抽象层"
 
 ## native-crossplatform-choice
+
 title: React Native、Flutter、KMP 各自解决哪一层跨端问题
 difficulty: 进阶
 tags: [ReactNative, Flutter, KMP]
 
 ### 一句话
+
 React Native 用 JavaScript/TypeScript 驱动原生组件树，优势在前端团队转入成本较低，但复杂原生能力仍常需要桥接与原生协作；Flutter 用 Dart 和自绘渲染体系追求跨平台一致性，UI 控制力强…。
 
 ### 题目
+
 如果业务已经不满足 WebView / 容器化方案，React Native、Flutter、KMP 这几条路应该怎么理解？
 
 ### 答案要点
+
 - React Native 用 JavaScript/TypeScript 驱动原生组件树，优势在前端团队转入成本较低，但复杂原生能力仍常需要桥接与原生协作
 - Flutter 用 Dart 和自绘渲染体系追求跨平台一致性，UI 控制力强，但与原生生态、包体和团队学习成本要一起评估
 - KMP 更偏“共享业务逻辑与数据层”，UI 往往仍由各端自己实现，因此它解决的不是整套前端 UI 统一，而是跨端逻辑复用
 - 选型关键不在“谁更先进”，而在你要共享的是 Web UI、原生 UI、还是跨端业务逻辑
 
 ### 代码示例
+
 ```tsx
 // React Native：原生组件 + JS/TS 驱动
 import { View, Text, FlatList, Pressable } from 'react-native';
@@ -399,7 +435,7 @@ export function Inbox({ items }: { items: any[] }) {
   return (
     <FlatList
       data={items}
-      keyExtractor={i => i.id}
+      keyExtractor={(i) => i.id}
       renderItem={({ item }) => (
         <Pressable onPress={() => navigate('Detail', { id: item.id })}>
           <View style={{ padding: 16 }}>
@@ -448,26 +484,32 @@ class Greeting {
 ```
 
 ### 延伸
+
 - 跨端技术路线的核心其实是"共享哪一层"，而不是"是否只写一份代码"
 - 如果团队缺少原生能力，再好的跨端框架也很难覆盖复杂设备能力与发布链路
 
 ## desktop-mobile-debug
+
 title: 跨端调试、自动更新与发布链路
 difficulty: 进阶
 tags: [调试, 自动更新]
 
 ### 一句话
+
 不同宿主环境的日志、网络、存储、权限、热更新方式都不一样；桌面端自动更新要处理签名、增量包、版本回滚、灰度推送；移动端容器化应用还要考虑商店审核、原生壳版本与 H5 版本兼容。
 
 ### 题目
+
 跨端项目为什么经常不是写功能最难，而是调试和发布最难？
 
 ### 答案要点
+
 - 不同宿主环境的日志、网络、存储、权限、热更新方式都不一样
 - 桌面端自动更新要处理签名、增量包、版本回滚、灰度推送
 - 移动端容器化应用还要考虑商店审核、原生壳版本与 H5 版本兼容
 
 ### 代码示例
+
 ```ts
 // Electron：自动更新（electron-updater）
 import { autoUpdater } from 'electron-updater';
@@ -477,14 +519,16 @@ autoUpdater.checkForUpdatesAndNotify();
 autoUpdater.on('update-available', () => log('发现新版本'));
 autoUpdater.on('update-downloaded', () => {
   // 提示用户重启
-  dialog.showMessageBox({
-    type: 'info',
-    title: '更新已下载',
-    message: '是否立即重启安装？',
-    buttons: ['立即重启', '稍后'],
-  }).then(r => {
-    if (r.response === 0) autoUpdater.quitAndInstall();
-  });
+  dialog
+    .showMessageBox({
+      type: 'info',
+      title: '更新已下载',
+      message: '是否立即重启安装？',
+      buttons: ['立即重启', '稍后'],
+    })
+    .then((r) => {
+      if (r.response === 0) autoUpdater.quitAndInstall();
+    });
 });
 ```
 
@@ -522,25 +566,35 @@ async function checkH5Update() {
 ```
 
 ### 延伸
+
 - 跨端交付能力的一半在工具链，不在业务代码
 
 ## crossplatform-performance
+
 title: 跨端性能与一致性为什么总在拉扯
 difficulty: 进阶
 tags: [性能, 一致性]
 
 ### 一句话
+
 渲染引擎、硬件能力、宿主限制、输入方式、网络策略都不同；一致性的代价通常是放弃部分平台最优能力；真正好的跨端方案会为不同平台保留局部差异化优化空间。
 
 ### 题目
+
 为什么同一套前端在浏览器、WebView、桌面壳里表现会差很多？
 
 ### 答案要点
-- 渲染引擎、硬件能力、宿主限制、输入方式、网络策略都不同
-- 一致性的代价通常是放弃部分平台最优能力
-- 真正好的跨端方案会为不同平台保留局部差异化优化空间
+
+- **渲染引擎差异**：Webkit/Blink/Gecko/小程序引擎；同一段 CSS 在不同 WebView 表现不同
+- **硬件能力差异**：低端 Android GPU 弱、iOS Safari 内存限制紧；动画/canvas 要按设备分级
+- **宿主限制**：小程序无 DOM、JSBridge 异步、Electron 内存大但启动慢、RN 文本测量异步
+- **输入方式**：触屏 vs 鼠标 vs 遥控器（智能电视）—— 焦点和命中区要分别设计
+- **网络策略**：客户端可启用强缓存 / 离线包 / 走自家 CDN，浏览器更受限
+- 一致性≠完全一样：好方案**保留差异化优化空间**（platform-specific 模块、能力探测）
+- 工程做法：抽象 `platform.ts` 做能力检测；性能基线按平台分别制定
 
 ### 代码示例
+
 ```ts
 // 平台特性检测：按能力差异化优化
 const ua = navigator.userAgent;
@@ -576,20 +630,25 @@ if (conn?.effectiveType === '2g' || conn?.saveData) {
 ```
 
 ### 延伸
+
 - 跨端不是"抹平所有差异"，而是"在大部分一致和少量特化之间取平衡"
 
 ## miniapp-architecture
+
 title: 微信小程序的双线程架构与性能边界
 difficulty: 进阶
 tags: [小程序, 双线程]
 
 ### 一句话
+
 渲染层：WebView 跑 WXML/WXSS，每个页面独立 WebView；逻辑层：JsCore（iOS） / V8（Android），不能访问 DOM；通信：通过 Native 桥接做 setData，所有数据都要 JSON 序列化跨进程。
 
 ### 题目
+
 小程序的逻辑层和渲染层为什么是两个线程？这种架构带来了哪些性能限制？
 
 ### 答案要点
+
 - 渲染层：WebView 跑 WXML/WXSS，每个页面独立 WebView
 - 逻辑层：JsCore（iOS） / V8（Android），不能访问 DOM
 - 通信：通过 Native 桥接做 setData，所有数据都要 JSON 序列化跨进程
@@ -599,6 +658,7 @@ tags: [小程序, 双线程]
 - 高级能力：`wxs` 在渲染层执行少量计算（避免跨线程往返）；自定义组件提速
 
 ### 代码示例
+
 ```js
 Page({
   data: { list: [] },
@@ -631,21 +691,26 @@ module.exports = { format };
 ```
 
 ### 延伸
+
 - Skyline 渲染引擎正在替代 WebView，提升性能但兼容性需评估
 - 跨平台框架（Taro / uni-app）会自动处理 setData 节流，但仍要关注大列表
 
 ## taro-uniapp-choice
+
 title: Taro / uni-app 与原生小程序如何选择
 difficulty: 进阶
 tags: [Taro, uni-app, 跨端]
 
 ### 一句话
+
 原生：性能最好、API 直接、调试方便；只能跑微信，不能复用 Web；Taro：基于 React/Vue 写一套、编译到多端（微信/支付宝/抖音/H5/RN），生态偏 React；uni-app：基于 Vue 语法，国内生态成熟、组件库多、文档中文化好。
 
 ### 题目
+
 做小程序业务时是直接写原生还是用 Taro / uni-app？各自的取舍是什么？
 
 ### 答案要点
+
 - 原生：性能最好、API 直接、调试方便；只能跑微信，不能复用 Web
 - Taro：基于 React/Vue 写一套、编译到多端（微信/支付宝/抖音/H5/RN），生态偏 React
 - uni-app：基于 Vue 语法，国内生态成熟、组件库多、文档中文化好
@@ -655,6 +720,7 @@ tags: [Taro, uni-app, 跨端]
 - 真实策略：复杂功能模块原生，常规页面跨端框架
 
 ### 代码示例
+
 ```tsx
 import { View, Text, Button } from '@tarojs/components';
 import Taro, { useState } from '@tarojs/taro';
@@ -685,21 +751,26 @@ const count = ref(0);
 ```
 
 ### 延伸
+
 - 跨端框架升级要紧跟，落后版本可能踩到平台 API 变更的坑
 - "技术统一、产品差异化"是常见策略：核心代码跨端、关键页定制
 
 ## webview-jsbridge
+
 title: WebView / JSBridge 怎么实现
 difficulty: 进阶
 tags: [JSBridge, Hybrid]
 
 ### 一句话
+
 JSBridge 是 H5 与 Native 互相调用的"通信总线"。常见三种实现：URL Scheme（已淘汰）、`prompt`/`alert` 拦截（仅 Android）、**WebView 注入对象**（推荐：Android `addJavascriptInterface`、iOS `WKScriptMessageHandler`）。
 
 ### 题目
+
 请描述 H5 与 Native 之间通信的几种方案，以及典型的 JSBridge 调用流程。
 
 ### 答案要点
+
 - **方案演进**
   - URL Scheme：H5 触发 `iframe.src = 'app://method?params'`，Native 拦截 → 兼容性好但有 8KB URL 限制
   - `prompt` / `console.log` / 截图扫描：仅个别平台可行，已不推荐
@@ -720,6 +791,7 @@ JSBridge 是 H5 与 Native 互相调用的"通信总线"。常见三种实现：
   - WebView Pool：预创建 + 缓存提升加载速度
 
 ### 代码示例
+
 ```ts
 class JSBridge {
   private callbacks = new Map<string, (res: unknown) => void>();
@@ -747,7 +819,7 @@ const user = await bridge.invoke<{ name: string }>('getUserInfo');
 ```
 
 ### 延伸
+
 - 字节、阿里、美团都开源过 JSBridge 库（`dsbridge`、`webank/JsBridge`）
 - 离线包 + JSBridge 是 Hybrid 性能优化的两驾马车
 - Web 端的 `postMessage` 通讯模型其实和 JSBridge 思想一致
-

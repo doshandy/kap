@@ -1,5 +1,34 @@
 # Changelog
 
+## 0.15.0
+
+- perf：**首屏主 bundle 392KB → 11.5KB gzip（–97%）**
+  - markdown 内容改为按需异步 chunk（`import.meta.glob` 不再 eager），主 bundle 不再 inline 全量 880KB markdown
+  - ECharts 改为 Home `onMounted` 时懒加载，未访问 Home 不会下载 1MB 的 vendor-echarts
+  - 所有 markdown 在 `main.ts` 启动期 Promise.all 并行加载完后再 mount，业务页面无感知
+- chore：清理依赖
+  - 删除完全未使用的 `@vueuse/core` / `@vue/repl` / `jspdf` / `html2canvas`
+  - 删除未使用导出 `exportElementToPDF`；收紧 `speak` / `streamChat` 等内部函数为非 export
+  - 补全 `@eslint/js` 显式声明
+- fix（安全）：CodeRunner postMessage 新增 `e.source === iframe.contentWindow` 校验，避免任意窗口注入日志
+- fix（健壮性）：
+  - `main.ts` 增加 `app.config.errorHandler` + `unhandledrejection` 全局兜底
+  - 路由 `onError` 捕获 ChunkLoadError 自动 reload（解决发布期间用户白屏问题）
+  - `index.html` 元数据更新（28 大分类 / 405 题）+ 新增 `<link rel=canonical>` / `referrer-policy` / `Permissions-Policy` / `X-Content-Type-Options`
+- feat：UX
+  - 路由 `meta.title` + `afterEach` 动态更新浏览器 tab 标题
+  - 题目 / 分类页用各自标题做 `document.title`
+  - `prefers-reduced-motion: reduce` 全局适配（关闭动画 / 平滑滚动）
+  - SearchPalette 增加 `role="combobox/listbox/option"` + `aria-activedescendant` 等 a11y 语义
+  - CodeRunner iframe / textarea 完善 title / aria-label
+- feat：CI/工程
+  - 拆分 `.github/workflows/ci.yml`（PR 跑全检）+ `deploy.yml`（master 仅部署）
+  - 新增 `.github/dependabot.yml`：每周 npm + 月度 actions 自动 PR，按生态分组
+  - 重新接通 husky pre-commit hook → lint-staged 自动跑
+  - `package.json` 注册被遗忘的 `content:summary` / `content:pitfall` 脚本
+- feat：API Key UI 加固（autocomplete=off、一键清除按钮、生产代理建议）
+- docs：22 题答案要点字数偏少警告全部清零（02-typescript / 11-ai-frontend / 12-softskills / 14-a11y-i18n / 15-testing / 17-build-publish / 18-crossplatform / 19-visualization / 20-algorithm 共 22 题补充至少 4-7 条要点 + 实战场景）
+
 ## 0.14.0
 
 - feat：客服 / IM 实战专题（针对客服平台 / IM / 智能客服 / 海外业务岗位）
@@ -107,7 +136,7 @@
   - AI Agent 流式对话渲染（SSE + 节流式 markdown + AbortController）
   - SQL Copilot Diff 接受 / 拒绝交互（Monaco decorator + executeEdits）
   - 任务调度 DAG 依赖图（dagre 布局 + 虚拟化 + 上下游高亮）
-  - 多国 / 多环境部署差异管理（__STAGE__ + 配置中心 + useStage）
+  - 多国 / 多环境部署差异管理（**STAGE** + 配置中心 + useStage）
   - 复杂权限矩阵前端落地（路由 guard + 指令 + 后端二次校验）
   - 几十万行结果集表格不卡（行 / 列虚拟化 + Object.freeze + 服务端排序）
   - 大文件分片上传（hash 秒传 + 并发池 + 断点续传）

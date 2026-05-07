@@ -105,7 +105,12 @@ function collectTopLevelNames(src: string): string[] {
         if (head.startsWith('{') || head.startsWith('[')) {
           const inner = head.replace(/[{}[\]]/g, '');
           inner.split(',').forEach((part) => {
-            const name = part.split(':').pop()!.split('=')[0].trim().replace(/^\.\.\./, '');
+            const name = part
+              .split(':')
+              .pop()!
+              .split('=')[0]
+              .trim()
+              .replace(/^\.\.\./, '');
             if (/^[A-Za-z_$][\w$]*$/.test(name)) names.add(name);
           });
         } else {
@@ -142,7 +147,9 @@ function buildDemoTail(src: string, names: string[]): string {
       lines.push(`  try {`);
       lines.push(`    var __v = ${n};`);
       lines.push(`    if (typeof __v === "function") {`);
-      lines.push(`      console.log("· ${n} =", "[Function" + (${n}.name ? " " + ${n}.name : "") + "]");`);
+      lines.push(
+        `      console.log("· ${n} =", "[Function" + (${n}.name ? " " + ${n}.name : "") + "]");`,
+      );
       lines.push(`    } else if (typeof __v === "object" && __v !== null) {`);
       lines.push(`      var __k = Object.keys(__v).slice(0, 8);`);
       lines.push(`      console.log("· ${n} =", __v);`);
@@ -153,7 +160,9 @@ function buildDemoTail(src: string, names: string[]): string {
       lines.push(`  } catch (e) {}`);
     }
   } else if (!hasConsole && !names.length) {
-    lines.push('  console.info("ℹ 该代码片段没有显式输出，多用于演示语法/类型；以下为代码摘要：");');
+    lines.push(
+      '  console.info("ℹ 该代码片段没有显式输出，多用于演示语法/类型；以下为代码摘要：");',
+    );
   }
   lines.push('} catch (e) {}');
   return lines.join('\n');
@@ -164,12 +173,36 @@ function buildDemoTail(src: string, names: string[]): string {
  */
 function summarizeCode(src: string): { lineCount: number; charCount: number; apis: string[] } {
   const KEY_APIS = [
-    'fetch', 'Promise', 'async', 'await', 'setTimeout', 'setInterval',
-    'addEventListener', 'IntersectionObserver', 'ResizeObserver', 'MutationObserver',
-    'localStorage', 'sessionStorage', 'indexedDB', 'navigator', 'document', 'window',
-    'requestAnimationFrame', 'requestIdleCallback', 'Worker', 'BroadcastChannel',
-    'Map', 'Set', 'WeakMap', 'WeakRef', 'Proxy', 'Reflect', 'Symbol',
-    'Object.', 'Array.', 'JSON.',
+    'fetch',
+    'Promise',
+    'async',
+    'await',
+    'setTimeout',
+    'setInterval',
+    'addEventListener',
+    'IntersectionObserver',
+    'ResizeObserver',
+    'MutationObserver',
+    'localStorage',
+    'sessionStorage',
+    'indexedDB',
+    'navigator',
+    'document',
+    'window',
+    'requestAnimationFrame',
+    'requestIdleCallback',
+    'Worker',
+    'BroadcastChannel',
+    'Map',
+    'Set',
+    'WeakMap',
+    'WeakRef',
+    'Proxy',
+    'Reflect',
+    'Symbol',
+    'Object.',
+    'Array.',
+    'JSON.',
   ];
   const apis = KEY_APIS.filter((k) => src.includes(k));
   return {
@@ -232,7 +265,9 @@ function run() {
   const demoTail = buildDemoTail(code, names);
   const finalSummary = [
     'try {',
-    '  console.info("✦ 摘要：" + ' + JSON.stringify(`${summary.lineCount} 行 / ${summary.charCount} 字符`) + ');',
+    '  console.info("✦ 摘要：" + ' +
+      JSON.stringify(`${summary.lineCount} 行 / ${summary.charCount} 字符`) +
+      ');',
     summary.apis.length
       ? '  console.info("✦ 涉及 API：" + ' + JSON.stringify(summary.apis.join(', ')) + ');'
       : '',
@@ -240,7 +275,9 @@ function run() {
       ? '  console.info("✦ 顶层声明：" + ' + JSON.stringify(names.join(', ')) + ');'
       : '',
     '} catch (e) {}',
-  ].filter(Boolean).join('\n');
+  ]
+    .filter(Boolean)
+    .join('\n');
 
   const closeTag = '</' + 'script>';
   const html = [
@@ -287,16 +324,20 @@ interface KapLogPayload {
   message?: string;
 }
 function onMessage(e: MessageEvent<KapLogPayload>) {
+  if (e.source !== iframeRef.value?.contentWindow) return;
   const data = e.data;
   if (!data || data.__kapLog !== true) return;
-  const prefix = ({
-    error: '❌',
-    warn: '⚠',
-    info: 'ℹ',
-    debug: '·',
-    done: '',
-    log: '›',
-  } as Record<string, string>)[data.level || 'log'] ?? '›';
+  const prefix =
+    (
+      {
+        error: '❌',
+        warn: '⚠',
+        info: 'ℹ',
+        debug: '·',
+        done: '',
+        log: '›',
+      } as Record<string, string>
+    )[data.level || 'log'] ?? '›';
   logs.value.push((prefix ? prefix + ' ' : '') + (data.message ?? ''));
 }
 
@@ -339,14 +380,17 @@ const hasMultiBlocks = computed(() => blocks.value.length > 1);
       </div>
     </header>
     <div v-if="tip" class="tip">{{ tip }}</div>
-    <textarea v-model="editable" rows="12" spellcheck="false" />
+    <textarea v-model="editable" rows="12" spellcheck="false" aria-label="代码沙盒编辑器" />
     <iframe
       ref="iframeRef"
       class="hidden-iframe"
       sandbox="allow-scripts"
-      title="sandbox"
+      title="代码运行沙盒（受限）"
+      aria-hidden="true"
     />
-    <pre class="logs">{{ logs.length ? logs.join('\n') : '点击"运行"，控制台日志会显示在这里…' }}</pre>
+    <pre class="logs">{{
+      logs.length ? logs.join('\n') : '点击"运行"，控制台日志会显示在这里…'
+    }}</pre>
   </div>
 </template>
 
