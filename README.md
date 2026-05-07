@@ -89,7 +89,7 @@ pnpm preview
 
 ## 🗺 分类清单
 
-当前题库按以下 26 个分类组织（合计 320 题，并对核心高频题补充了"一句话理解"）：
+当前题库按以下 27 个分类组织（合计 336 题，并对核心高频题补充了"一句话理解"）：
 
 1. `01-javascript` JavaScript 核心
 2. `02-typescript` TypeScript 进阶
@@ -117,6 +117,7 @@ pnpm preview
 24. `24-fullstack-meta` Next.js / Nuxt 全栈
 25. `25-rust-wasm` Rust 工具链与 WASM
 26. `26-browser-extension` 浏览器插件
+27. `27-data-platform-cases` 数据平台业务场景
 
 ## 📝 添加 / 修改题目
 

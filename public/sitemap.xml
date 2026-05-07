@@ -33,6 +33,7 @@
   <url><loc>https://doshandy.github.io/kap/c/24-fullstack-meta</loc><lastmod>2026-05-07</lastmod></url>
   <url><loc>https://doshandy.github.io/kap/c/25-rust-wasm</loc><lastmod>2026-05-07</lastmod></url>
   <url><loc>https://doshandy.github.io/kap/c/26-browser-extension</loc><lastmod>2026-05-07</lastmod></url>
+  <url><loc>https://doshandy.github.io/kap/c/27-data-platform-cases</loc><lastmod>2026-05-07</lastmod></url>
   <url><loc>https://doshandy.github.io/kap/q/01-javascript/prototype-chain</loc><lastmod>2026-05-07</lastmod></url>
   <url><loc>https://doshandy.github.io/kap/q/01-javascript/this-binding</loc><lastmod>2026-05-07</lastmod></url>
   <url><loc>https://doshandy.github.io/kap/q/01-javascript/closure</loc><lastmod>2026-05-07</lastmod></url>
@@ -51,6 +52,9 @@
   <url><loc>https://doshandy.github.io/kap/q/01-javascript/bind-call-apply</loc><lastmod>2026-05-07</lastmod></url>
   <url><loc>https://doshandy.github.io/kap/q/01-javascript/new-operator</loc><lastmod>2026-05-07</lastmod></url>
   <url><loc>https://doshandy.github.io/kap/q/01-javascript/promise-all-allsettled-race-any</loc><lastmod>2026-05-07</lastmod></url>
+  <url><loc>https://doshandy.github.io/kap/q/01-javascript/flatten-array</loc><lastmod>2026-05-07</lastmod></url>
+  <url><loc>https://doshandy.github.io/kap/q/01-javascript/event-emitter</loc><lastmod>2026-05-07</lastmod></url>
+  <url><loc>https://doshandy.github.io/kap/q/01-javascript/debounce-immediate</loc><lastmod>2026-05-07</lastmod></url>
   <url><loc>https://doshandy.github.io/kap/q/02-typescript/any-vs-unknown</loc><lastmod>2026-05-07</lastmod></url>
   <url><loc>https://doshandy.github.io/kap/q/02-typescript/generic-constraints</loc><lastmod>2026-05-07</lastmod></url>
   <url><loc>https://doshandy.github.io/kap/q/02-typescript/type-vs-interface</loc><lastmod>2026-05-07</lastmod></url>
@@ -96,6 +100,8 @@
   <url><loc>https://doshandy.github.io/kap/q/04-css/print-css</loc><lastmod>2026-05-07</lastmod></url>
   <url><loc>https://doshandy.github.io/kap/q/04-css/modern-css-features</loc><lastmod>2026-05-07</lastmod></url>
   <url><loc>https://doshandy.github.io/kap/q/04-css/css-architecture</loc><lastmod>2026-05-07</lastmod></url>
+  <url><loc>https://doshandy.github.io/kap/q/04-css/center-element</loc><lastmod>2026-05-07</lastmod></url>
+  <url><loc>https://doshandy.github.io/kap/q/04-css/position-stacking</loc><lastmod>2026-05-07</lastmod></url>
   <url><loc>https://doshandy.github.io/kap/q/05-browser/url-to-render</loc><lastmod>2026-05-07</lastmod></url>
   <url><loc>https://doshandy.github.io/kap/q/05-browser/render-pipeline</loc><lastmod>2026-05-07</lastmod></url>
   <url><loc>https://doshandy.github.io/kap/q/05-browser/storage-cookie</loc><lastmod>2026-05-07</lastmod></url>
@@ -108,6 +114,8 @@
   <url><loc>https://doshandy.github.io/kap/q/05-browser/reflow-vs-repaint</loc><lastmod>2026-05-07</lastmod></url>
   <url><loc>https://doshandy.github.io/kap/q/05-browser/browser-cache-strategy</loc><lastmod>2026-05-07</lastmod></url>
   <url><loc>https://doshandy.github.io/kap/q/05-browser/cookie-localstorage-indexeddb</loc><lastmod>2026-05-07</lastmod></url>
+  <url><loc>https://doshandy.github.io/kap/q/05-browser/web-worker-basics</loc><lastmod>2026-05-07</lastmod></url>
+  <url><loc>https://doshandy.github.io/kap/q/05-browser/browser-process-thread</loc><lastmod>2026-05-07</lastmod></url>
   <url><loc>https://doshandy.github.io/kap/q/06-network/tcp-tls-http</loc><lastmod>2026-05-07</lastmod></url>
   <url><loc>https://doshandy.github.io/kap/q/06-network/http1-http2-http3</loc><lastmod>2026-05-07</lastmod></url>
   <url><loc>https://doshandy.github.io/kap/q/06-network/caching</loc><lastmod>2026-05-07</lastmod></url>
@@ -120,6 +128,7 @@
   <url><loc>https://doshandy.github.io/kap/q/06-network/https-handshake</loc><lastmod>2026-05-07</lastmod></url>
   <url><loc>https://doshandy.github.io/kap/q/06-network/websocket-vs-sse-vs-polling</loc><lastmod>2026-05-07</lastmod></url>
   <url><loc>https://doshandy.github.io/kap/q/06-network/cors-and-preflight</loc><lastmod>2026-05-07</lastmod></url>
+  <url><loc>https://doshandy.github.io/kap/q/06-network/status-codes</loc><lastmod>2026-05-07</lastmod></url>
   <url><loc>https://doshandy.github.io/kap/q/07-engineering/vite-principle</loc><lastmod>2026-05-07</lastmod></url>
   <url><loc>https://doshandy.github.io/kap/q/07-engineering/bundler-ecosystem</loc><lastmod>2026-05-07</lastmod></url>
   <url><loc>https://doshandy.github.io/kap/q/07-engineering/package-manager</loc><lastmod>2026-05-07</lastmod></url>
@@ -133,6 +142,7 @@
   <url><loc>https://doshandy.github.io/kap/q/07-engineering/ci-cd-cache</loc><lastmod>2026-05-07</lastmod></url>
   <url><loc>https://doshandy.github.io/kap/q/07-engineering/monorepo-changesets</loc><lastmod>2026-05-07</lastmod></url>
   <url><loc>https://doshandy.github.io/kap/q/07-engineering/bundler-deep</loc><lastmod>2026-05-07</lastmod></url>
+  <url><loc>https://doshandy.github.io/kap/q/07-engineering/webpack-vs-vite</loc><lastmod>2026-05-07</lastmod></url>
   <url><loc>https://doshandy.github.io/kap/q/08-performance/methodology</loc><lastmod>2026-05-07</lastmod></url>
   <url><loc>https://doshandy.github.io/kap/q/08-performance/core-web-vitals</loc><lastmod>2026-05-07</lastmod></url>
   <url><loc>https://doshandy.github.io/kap/q/08-performance/rum-vs-lab</loc><lastmod>2026-05-07</lastmod></url>
@@ -143,6 +153,9 @@
   <url><loc>https://doshandy.github.io/kap/q/08-performance/monitoring-budget</loc><lastmod>2026-05-07</lastmod></url>
   <url><loc>https://doshandy.github.io/kap/q/08-performance/inp-deep</loc><lastmod>2026-05-07</lastmod></url>
   <url><loc>https://doshandy.github.io/kap/q/08-performance/image-modern-pipeline</loc><lastmod>2026-05-07</lastmod></url>
+  <url><loc>https://doshandy.github.io/kap/q/08-performance/core-web-vitals-explain</loc><lastmod>2026-05-07</lastmod></url>
+  <url><loc>https://doshandy.github.io/kap/q/08-performance/long-task-scheduling</loc><lastmod>2026-05-07</lastmod></url>
+  <url><loc>https://doshandy.github.io/kap/q/08-performance/bundle-split-strategy</loc><lastmod>2026-05-07</lastmod></url>
   <url><loc>https://doshandy.github.io/kap/q/09-node/node-event-loop</loc><lastmod>2026-05-07</lastmod></url>
   <url><loc>https://doshandy.github.io/kap/q/09-node/stream-backpressure</loc><lastmod>2026-05-07</lastmod></url>
   <url><loc>https://doshandy.github.io/kap/q/09-node/buffer-worker-thread</loc><lastmod>2026-05-07</lastmod></url>
@@ -152,6 +165,7 @@
   <url><loc>https://doshandy.github.io/kap/q/09-node/profiling-graceful-shutdown</loc><lastmod>2026-05-07</lastmod></url>
   <url><loc>https://doshandy.github.io/kap/q/09-node/node-test-runner</loc><lastmod>2026-05-07</lastmod></url>
   <url><loc>https://doshandy.github.io/kap/q/09-node/stream-pipeline</loc><lastmod>2026-05-07</lastmod></url>
+  <url><loc>https://doshandy.github.io/kap/q/09-node/node-event-loop-phases</loc><lastmod>2026-05-07</lastmod></url>
   <url><loc>https://doshandy.github.io/kap/q/10-architecture/layering-boundary</loc><lastmod>2026-05-07</lastmod></url>
   <url><loc>https://doshandy.github.io/kap/q/10-architecture/design-patterns</loc><lastmod>2026-05-07</lastmod></url>
   <url><loc>https://doshandy.github.io/kap/q/10-architecture/dependency-injection</loc><lastmod>2026-05-07</lastmod></url>
@@ -166,6 +180,7 @@
   <url><loc>https://doshandy.github.io/kap/q/10-architecture/lowcode-platform</loc><lastmod>2026-05-07</lastmod></url>
   <url><loc>https://doshandy.github.io/kap/q/10-architecture/design-system-engineering</loc><lastmod>2026-05-07</lastmod></url>
   <url><loc>https://doshandy.github.io/kap/q/10-architecture/error-boundaries-resilience</loc><lastmod>2026-05-07</lastmod></url>
+  <url><loc>https://doshandy.github.io/kap/q/10-architecture/monorepo-vs-multirepo</loc><lastmod>2026-05-07</lastmod></url>
   <url><loc>https://doshandy.github.io/kap/q/11-ai-frontend/streaming-ui</loc><lastmod>2026-05-07</lastmod></url>
   <url><loc>https://doshandy.github.io/kap/q/11-ai-frontend/sse-fetch-stream</loc><lastmod>2026-05-07</lastmod></url>
   <url><loc>https://doshandy.github.io/kap/q/11-ai-frontend/prompt-schema</loc><lastmod>2026-05-07</lastmod></url>
@@ -181,6 +196,7 @@
   <url><loc>https://doshandy.github.io/kap/q/11-ai-frontend/ai-moderation</loc><lastmod>2026-05-07</lastmod></url>
   <url><loc>https://doshandy.github.io/kap/q/11-ai-frontend/ai-form-copilot</loc><lastmod>2026-05-07</lastmod></url>
   <url><loc>https://doshandy.github.io/kap/q/11-ai-frontend/ai-observability</loc><lastmod>2026-05-07</lastmod></url>
+  <url><loc>https://doshandy.github.io/kap/q/11-ai-frontend/ai-prompt-engineering-front</loc><lastmod>2026-05-07</lastmod></url>
   <url><loc>https://doshandy.github.io/kap/q/12-softskills/technical-decision</loc><lastmod>2026-05-07</lastmod></url>
   <url><loc>https://doshandy.github.io/kap/q/12-softskills/upward-communication</loc><lastmod>2026-05-07</lastmod></url>
   <url><loc>https://doshandy.github.io/kap/q/12-softskills/code-review</loc><lastmod>2026-05-07</lastmod></url>
@@ -198,6 +214,8 @@
   <url><loc>https://doshandy.github.io/kap/q/13-security/source-map-secrets</loc><lastmod>2026-05-07</lastmod></url>
   <url><loc>https://doshandy.github.io/kap/q/13-security/passkeys-webauthn</loc><lastmod>2026-05-07</lastmod></url>
   <url><loc>https://doshandy.github.io/kap/q/13-security/subresource-integrity</loc><lastmod>2026-05-07</lastmod></url>
+  <url><loc>https://doshandy.github.io/kap/q/13-security/xss-csrf-defense</loc><lastmod>2026-05-07</lastmod></url>
+  <url><loc>https://doshandy.github.io/kap/q/13-security/auth-token-jwt</loc><lastmod>2026-05-07</lastmod></url>
   <url><loc>https://doshandy.github.io/kap/q/14-a11y-i18n/wcag-semantic</loc><lastmod>2026-05-07</lastmod></url>
   <url><loc>https://doshandy.github.io/kap/q/14-a11y-i18n/focus-keyboard</loc><lastmod>2026-05-07</lastmod></url>
   <url><loc>https://doshandy.github.io/kap/q/14-a11y-i18n/aria-live-errors</loc><lastmod>2026-05-07</lastmod></url>
@@ -206,6 +224,8 @@
   <url><loc>https://doshandy.github.io/kap/q/14-a11y-i18n/rtl-ssr</loc><lastmod>2026-05-07</lastmod></url>
   <url><loc>https://doshandy.github.io/kap/q/14-a11y-i18n/screen-reader-testing</loc><lastmod>2026-05-07</lastmod></url>
   <url><loc>https://doshandy.github.io/kap/q/14-a11y-i18n/intl-format-deep</loc><lastmod>2026-05-07</lastmod></url>
+  <url><loc>https://doshandy.github.io/kap/q/14-a11y-i18n/aria-roles-states</loc><lastmod>2026-05-07</lastmod></url>
+  <url><loc>https://doshandy.github.io/kap/q/14-a11y-i18n/i18n-locale-formatter</loc><lastmod>2026-05-07</lastmod></url>
   <url><loc>https://doshandy.github.io/kap/q/15-testing/test-pyramid</loc><lastmod>2026-05-07</lastmod></url>
   <url><loc>https://doshandy.github.io/kap/q/15-testing/unit-mock-spy</loc><lastmod>2026-05-07</lastmod></url>
   <url><loc>https://doshandy.github.io/kap/q/15-testing/component-testing</loc><lastmod>2026-05-07</lastmod></url>
@@ -214,6 +234,7 @@
   <url><loc>https://doshandy.github.io/kap/q/15-testing/coverage-ci</loc><lastmod>2026-05-07</lastmod></url>
   <url><loc>https://doshandy.github.io/kap/q/15-testing/playwright-tips</loc><lastmod>2026-05-07</lastmod></url>
   <url><loc>https://doshandy.github.io/kap/q/15-testing/flaky-tests</loc><lastmod>2026-05-07</lastmod></url>
+  <url><loc>https://doshandy.github.io/kap/q/15-testing/test-pyramid-vs-trophy</loc><lastmod>2026-05-07</lastmod></url>
   <url><loc>https://doshandy.github.io/kap/q/16-observability/error-capture</loc><lastmod>2026-05-07</lastmod></url>
   <url><loc>https://doshandy.github.io/kap/q/16-observability/source-map-symbolicate</loc><lastmod>2026-05-07</lastmod></url>
   <url><loc>https://doshandy.github.io/kap/q/16-observability/rum-web-vitals</loc><lastmod>2026-05-07</lastmod></url>
@@ -223,6 +244,7 @@
   <url><loc>https://doshandy.github.io/kap/q/16-observability/privacy-compliance</loc><lastmod>2026-05-07</lastmod></url>
   <url><loc>https://doshandy.github.io/kap/q/16-observability/opentelemetry-frontend</loc><lastmod>2026-05-07</lastmod></url>
   <url><loc>https://doshandy.github.io/kap/q/16-observability/frontend-feature-flag</loc><lastmod>2026-05-07</lastmod></url>
+  <url><loc>https://doshandy.github.io/kap/q/16-observability/frontend-error-monitor</loc><lastmod>2026-05-07</lastmod></url>
   <url><loc>https://doshandy.github.io/kap/q/17-build-publish/hashing-cache</loc><lastmod>2026-05-07</lastmod></url>
   <url><loc>https://doshandy.github.io/kap/q/17-build-publish/chunk-failure</loc><lastmod>2026-05-07</lastmod></url>
   <url><loc>https://doshandy.github.io/kap/q/17-build-publish/gray-release</loc><lastmod>2026-05-07</lastmod></url>
@@ -231,6 +253,7 @@
   <url><loc>https://doshandy.github.io/kap/q/17-build-publish/bundle-governance</loc><lastmod>2026-05-07</lastmod></url>
   <url><loc>https://doshandy.github.io/kap/q/17-build-publish/tree-shaking-deep</loc><lastmod>2026-05-07</lastmod></url>
   <url><loc>https://doshandy.github.io/kap/q/17-build-publish/sw-update-strategies</loc><lastmod>2026-05-07</lastmod></url>
+  <url><loc>https://doshandy.github.io/kap/q/17-build-publish/semver-release</loc><lastmod>2026-05-07</lastmod></url>
   <url><loc>https://doshandy.github.io/kap/q/18-crossplatform/hybrid-jsbridge</loc><lastmod>2026-05-07</lastmod></url>
   <url><loc>https://doshandy.github.io/kap/q/18-crossplatform/electron-tauri</loc><lastmod>2026-05-07</lastmod></url>
   <url><loc>https://doshandy.github.io/kap/q/18-crossplatform/electron-security-ipc</loc><lastmod>2026-05-07</lastmod></url>
@@ -241,6 +264,7 @@
   <url><loc>https://doshandy.github.io/kap/q/18-crossplatform/crossplatform-performance</loc><lastmod>2026-05-07</lastmod></url>
   <url><loc>https://doshandy.github.io/kap/q/18-crossplatform/miniapp-architecture</loc><lastmod>2026-05-07</lastmod></url>
   <url><loc>https://doshandy.github.io/kap/q/18-crossplatform/taro-uniapp-choice</loc><lastmod>2026-05-07</lastmod></url>
+  <url><loc>https://doshandy.github.io/kap/q/18-crossplatform/webview-jsbridge</loc><lastmod>2026-05-07</lastmod></url>
   <url><loc>https://doshandy.github.io/kap/q/19-visualization/canvas-svg</loc><lastmod>2026-05-07</lastmod></url>
   <url><loc>https://doshandy.github.io/kap/q/19-visualization/chart-performance</loc><lastmod>2026-05-07</lastmod></url>
   <url><loc>https://doshandy.github.io/kap/q/19-visualization/d3-thinking</loc><lastmod>2026-05-07</lastmod></url>
@@ -249,6 +273,7 @@
   <url><loc>https://doshandy.github.io/kap/q/19-visualization/dashboard-adaptation</loc><lastmod>2026-05-07</lastmod></url>
   <url><loc>https://doshandy.github.io/kap/q/19-visualization/chart-interaction-tooltip</loc><lastmod>2026-05-07</lastmod></url>
   <url><loc>https://doshandy.github.io/kap/q/19-visualization/d3-force-network</loc><lastmod>2026-05-07</lastmod></url>
+  <url><loc>https://doshandy.github.io/kap/q/19-visualization/canvas-vs-svg-vs-webgl</loc><lastmod>2026-05-07</lastmod></url>
   <url><loc>https://doshandy.github.io/kap/q/20-algorithm/complexity</loc><lastmod>2026-05-07</lastmod></url>
   <url><loc>https://doshandy.github.io/kap/q/20-algorithm/two-pointer-sliding-window</loc><lastmod>2026-05-07</lastmod></url>
   <url><loc>https://doshandy.github.io/kap/q/20-algorithm/prefix-sum</loc><lastmod>2026-05-07</lastmod></url>
@@ -263,6 +288,10 @@
   <url><loc>https://doshandy.github.io/kap/q/20-algorithm/frontend-real-world</loc><lastmod>2026-05-07</lastmod></url>
   <url><loc>https://doshandy.github.io/kap/q/20-algorithm/graph-bfs-dfs</loc><lastmod>2026-05-07</lastmod></url>
   <url><loc>https://doshandy.github.io/kap/q/20-algorithm/bit-manipulation</loc><lastmod>2026-05-07</lastmod></url>
+  <url><loc>https://doshandy.github.io/kap/q/20-algorithm/lru-cache-impl</loc><lastmod>2026-05-07</lastmod></url>
+  <url><loc>https://doshandy.github.io/kap/q/20-algorithm/merge-intervals</loc><lastmod>2026-05-07</lastmod></url>
+  <url><loc>https://doshandy.github.io/kap/q/20-algorithm/promise-all-impl</loc><lastmod>2026-05-07</lastmod></url>
+  <url><loc>https://doshandy.github.io/kap/q/20-algorithm/kth-largest</loc><lastmod>2026-05-07</lastmod></url>
   <url><loc>https://doshandy.github.io/kap/q/21-interview-special/handwrite-call-apply-bind</loc><lastmod>2026-05-07</lastmod></url>
   <url><loc>https://doshandy.github.io/kap/q/21-interview-special/handwrite-new-instanceof</loc><lastmod>2026-05-07</lastmod></url>
   <url><loc>https://doshandy.github.io/kap/q/21-interview-special/handwrite-curry-compose</loc><lastmod>2026-05-07</lastmod></url>
@@ -275,6 +304,7 @@
   <url><loc>https://doshandy.github.io/kap/q/21-interview-special/interview-expression</loc><lastmod>2026-05-07</lastmod></url>
   <url><loc>https://doshandy.github.io/kap/q/21-interview-special/design-rich-editor</loc><lastmod>2026-05-07</lastmod></url>
   <url><loc>https://doshandy.github.io/kap/q/21-interview-special/design-realtime-collab</loc><lastmod>2026-05-07</lastmod></url>
+  <url><loc>https://doshandy.github.io/kap/q/21-interview-special/difficult-bug-story</loc><lastmod>2026-05-07</lastmod></url>
   <url><loc>https://doshandy.github.io/kap/q/22-react/react-vs-vue-mental-model</loc><lastmod>2026-05-07</lastmod></url>
   <url><loc>https://doshandy.github.io/kap/q/22-react/react-hooks-rules</loc><lastmod>2026-05-07</lastmod></url>
   <url><loc>https://doshandy.github.io/kap/q/22-react/use-effect-pitfalls</loc><lastmod>2026-05-07</lastmod></url>
@@ -298,22 +328,41 @@
   <url><loc>https://doshandy.github.io/kap/q/23-framework-compare/angular-distinct</loc><lastmod>2026-05-07</lastmod></url>
   <url><loc>https://doshandy.github.io/kap/q/23-framework-compare/qwik-resumability</loc><lastmod>2026-05-07</lastmod></url>
   <url><loc>https://doshandy.github.io/kap/q/23-framework-compare/svelte-solid-philosophy</loc><lastmod>2026-05-07</lastmod></url>
+  <url><loc>https://doshandy.github.io/kap/q/23-framework-compare/solid-signal-finegrained</loc><lastmod>2026-05-07</lastmod></url>
   <url><loc>https://doshandy.github.io/kap/q/24-fullstack-meta/next-app-router</loc><lastmod>2026-05-07</lastmod></url>
   <url><loc>https://doshandy.github.io/kap/q/24-fullstack-meta/next-server-actions</loc><lastmod>2026-05-07</lastmod></url>
   <url><loc>https://doshandy.github.io/kap/q/24-fullstack-meta/next-cache-layers</loc><lastmod>2026-05-07</lastmod></url>
   <url><loc>https://doshandy.github.io/kap/q/24-fullstack-meta/nuxt3-overview</loc><lastmod>2026-05-07</lastmod></url>
   <url><loc>https://doshandy.github.io/kap/q/24-fullstack-meta/edge-runtime</loc><lastmod>2026-05-07</lastmod></url>
   <url><loc>https://doshandy.github.io/kap/q/24-fullstack-meta/seo-and-meta</loc><lastmod>2026-05-07</lastmod></url>
+  <url><loc>https://doshandy.github.io/kap/q/24-fullstack-meta/ssr-csr-ssg-isr</loc><lastmod>2026-05-07</lastmod></url>
   <url><loc>https://doshandy.github.io/kap/q/25-rust-wasm/why-rust-tooling</loc><lastmod>2026-05-07</lastmod></url>
   <url><loc>https://doshandy.github.io/kap/q/25-rust-wasm/wasm-fundamentals</loc><lastmod>2026-05-07</lastmod></url>
   <url><loc>https://doshandy.github.io/kap/q/25-rust-wasm/rust-wasm-toolchain</loc><lastmod>2026-05-07</lastmod></url>
   <url><loc>https://doshandy.github.io/kap/q/25-rust-wasm/wasm-perf-cases</loc><lastmod>2026-05-07</lastmod></url>
   <url><loc>https://doshandy.github.io/kap/q/25-rust-wasm/wasm-runtime-server</loc><lastmod>2026-05-07</lastmod></url>
   <url><loc>https://doshandy.github.io/kap/q/25-rust-wasm/js-rust-interop</loc><lastmod>2026-05-07</lastmod></url>
+  <url><loc>https://doshandy.github.io/kap/q/25-rust-wasm/rust-frontend-tooling</loc><lastmod>2026-05-07</lastmod></url>
   <url><loc>https://doshandy.github.io/kap/q/26-browser-extension/extension-architecture</loc><lastmod>2026-05-07</lastmod></url>
   <url><loc>https://doshandy.github.io/kap/q/26-browser-extension/manifest-v3</loc><lastmod>2026-05-07</lastmod></url>
   <url><loc>https://doshandy.github.io/kap/q/26-browser-extension/content-script-isolation</loc><lastmod>2026-05-07</lastmod></url>
   <url><loc>https://doshandy.github.io/kap/q/26-browser-extension/extension-permissions</loc><lastmod>2026-05-07</lastmod></url>
   <url><loc>https://doshandy.github.io/kap/q/26-browser-extension/userscript-tampermonkey</loc><lastmod>2026-05-07</lastmod></url>
   <url><loc>https://doshandy.github.io/kap/q/26-browser-extension/extension-publishing</loc><lastmod>2026-05-07</lastmod></url>
+  <url><loc>https://doshandy.github.io/kap/q/27-data-platform-cases/sql-workbench-architecture</loc><lastmod>2026-05-07</lastmod></url>
+  <url><loc>https://doshandy.github.io/kap/q/27-data-platform-cases/monaco-multi-pane-isolation</loc><lastmod>2026-05-07</lastmod></url>
+  <url><loc>https://doshandy.github.io/kap/q/27-data-platform-cases/sql-completion-with-worker</loc><lastmod>2026-05-07</lastmod></url>
+  <url><loc>https://doshandy.github.io/kap/q/27-data-platform-cases/metadata-cache-inflight</loc><lastmod>2026-05-07</lastmod></url>
+  <url><loc>https://doshandy.github.io/kap/q/27-data-platform-cases/indexeddb-pane-persistence</loc><lastmod>2026-05-07</lastmod></url>
+  <url><loc>https://doshandy.github.io/kap/q/27-data-platform-cases/sql-result-polling</loc><lastmod>2026-05-07</lastmod></url>
+  <url><loc>https://doshandy.github.io/kap/q/27-data-platform-cases/ai-agent-streaming-render</loc><lastmod>2026-05-07</lastmod></url>
+  <url><loc>https://doshandy.github.io/kap/q/27-data-platform-cases/sql-copilot-diff</loc><lastmod>2026-05-07</lastmod></url>
+  <url><loc>https://doshandy.github.io/kap/q/27-data-platform-cases/task-dependency-dag</loc><lastmod>2026-05-07</lastmod></url>
+  <url><loc>https://doshandy.github.io/kap/q/27-data-platform-cases/multi-stage-deployment</loc><lastmod>2026-05-07</lastmod></url>
+  <url><loc>https://doshandy.github.io/kap/q/27-data-platform-cases/permission-matrix-frontend</loc><lastmod>2026-05-07</lastmod></url>
+  <url><loc>https://doshandy.github.io/kap/q/27-data-platform-cases/big-table-virtualization</loc><lastmod>2026-05-07</lastmod></url>
+  <url><loc>https://doshandy.github.io/kap/q/27-data-platform-cases/upload-large-file</loc><lastmod>2026-05-07</lastmod></url>
+  <url><loc>https://doshandy.github.io/kap/q/27-data-platform-cases/g2-charts-perf</loc><lastmod>2026-05-07</lastmod></url>
+  <url><loc>https://doshandy.github.io/kap/q/27-data-platform-cases/release-rollback-frontend</loc><lastmod>2026-05-07</lastmod></url>
+  <url><loc>https://doshandy.github.io/kap/q/27-data-platform-cases/interview-system-design-bigreport</loc><lastmod>2026-05-07</lastmod></url>
 </urlset>

@@ -1,5 +1,26 @@
 # Changelog
 
+## 0.8.0
+
+- feat：新增「数据平台业务场景」分类，挑选自真实数据平台的复杂业务问题，模拟资深面试常问流程
+  - SQL 工作台整体架构拆分（编辑器 / 状态 / 数据服务 / 执行通道）
+  - Monaco 多 Tab 编辑器实例隔离（URI / model / Provider 注册 / viewState）
+  - SQL 自动补全 + 校验（Web Worker 解析、防抖、业务变量等长替换）
+  - 元数据接口高并发去重（TTL + inflight Promise 池）
+  - 多 Tab 编辑器 IndexedDB 投影持久化（瞬态字段排除、僵尸态防护）
+  - 长 SQL 异步执行 + 指数退避轮询、可取消、可后台运行
+  - AI Agent 流式对话渲染（SSE + 节流式 markdown + AbortController）
+  - SQL Copilot Diff 接受 / 拒绝交互（Monaco decorator + executeEdits）
+  - 任务调度 DAG 依赖图（dagre 布局 + 虚拟化 + 上下游高亮）
+  - 多国 / 多环境部署差异管理（__STAGE__ + 配置中心 + useStage）
+  - 复杂权限矩阵前端落地（路由 guard + 指令 + 后端二次校验）
+  - 几十万行结果集表格不卡（行 / 列虚拟化 + Object.freeze + 服务端排序）
+  - 大文件分片上传（hash 秒传 + 并发池 + 断点续传）
+  - 看板多图表性能（IntersectionObserver 懒加载 + ResizeObserver 节流）
+  - 前端版本灰度 + 回滚（HTML no-cache + 静态 immutable + ChunkLoadError 兜底）
+  - 系统设计：从 0 设计数据平台前端（分层架构 + 横切关注点 + 演进路线）
+- 总题量：320 → 336（+16）
+
 ## 0.7.0
 
 - 题库扩充 +22 道，总数 298 → 320，补强各分类
