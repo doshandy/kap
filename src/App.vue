@@ -9,6 +9,8 @@ import { useShortcuts } from '@/composables/useShortcuts';
 // 可以让首屏 vendor 主链路里完全不带搜索相关代码。
 const SearchPalette = defineAsyncComponent(() => import('@/components/search/SearchPalette.vue'));
 const ShortcutsHelp = defineAsyncComponent(() => import('@/components/settings/ShortcutsHelp.vue'));
+// PWA 更新提示 toast：常驻全局；未触发新版本提示时只是订阅 SW 状态，不渲染可见 DOM
+const UpdateToast = defineAsyncComponent(() => import('@/components/layout/UpdateToast.vue'));
 
 const settings = useSettingsStore();
 const sidebarOpen = ref(false);
@@ -57,6 +59,7 @@ useShortcuts({
     </main>
     <ShortcutsHelp v-if="helpOpen" v-model:open="helpOpen" />
     <SearchPalette v-if="searchOpen" v-model:open="searchOpen" />
+    <UpdateToast />
   </div>
 </template>
 

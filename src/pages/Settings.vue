@@ -13,8 +13,33 @@ import { useMarksStore } from '@/stores/marks';
 import { useProgressStore } from '@/stores/progress';
 import { useAIStore } from '@/stores/ai';
 import AppIcon from '@/components/icon/AppIcon.vue';
+import { useAppUpdate } from '@/composables/useAppUpdate';
 
 const settings = useSettingsStore();
+const update = useAppUpdate();
+const updateMsg = ref('');
+const forcing = ref(false);
+
+async function onCheckUpdate() {
+  updateMsg.value = '正在检查更新…';
+  const has = await update.checkForUpdates();
+  updateMsg.value = has
+    ? '✅ 已检测到新版本，请点击屏幕右下角的「立即更新」'
+    : '✅ 当前已经是最新版本';
+  setTimeout(() => (updateMsg.value = ''), 5000);
+}
+
+async function onForceReload() {
+  if (
+    !confirm(
+      '强制更新会卸载本地缓存（Service Worker / 离线资源）并刷新页面，本地学习数据不会丢失。是否继续？',
+    )
+  ) {
+    return;
+  }
+  forcing.value = true;
+  await update.forceReload();
+}
 const ai = useAIStore();
 const fileRef = ref<HTMLInputElement | null>(null);
 const message = ref('');
@@ -232,6 +257,29 @@ function onExportAnki() {
           <AppIcon name="copy" /> 导出 Anki TSV
         </button>
       </div>
+    </section>
+
+    <section class="card grp">
+      <h3>应用更新</h3>
+      <p class="muted">
+        KAP 是一个 PWA，离线资源会被缓存以提升加载速度。如果发现题目数量、UI
+        与最新版本不一致（例如部署后看到的还是旧版），可以在这里手动检查或强制刷新。
+      </p>
+      <div class="row">
+        <button class="btn" :disabled="update.checking.value" @click="onCheckUpdate">
+          <AppIcon name="reload" />
+          {{ update.checking.value ? '检查中…' : '检查更新' }}
+        </button>
+        <button class="btn" :disabled="forcing" @click="onForceReload">
+          <AppIcon name="warning" />
+          {{ forcing ? '正在重置…' : '强制更新（清缓存）' }}
+        </button>
+      </div>
+      <p v-if="update.needRefresh.value" class="hint">
+        当前有新版本可用，可直接点屏幕右下角的「立即更新」。
+      </p>
+      <p v-if="update.offlineReady.value" class="hint">✅ 已支持离线访问。</p>
+      <div v-if="updateMsg" class="msg">{{ updateMsg }}</div>
     </section>
 
     <section class="card grp danger">

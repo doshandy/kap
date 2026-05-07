@@ -18,8 +18,11 @@ export default defineConfig({
       ? visualizer({ open: false, filename: 'dist/stats.html', gzipSize: true, brotliSize: true })
       : null,
     VitePWA({
-      registerType: 'autoUpdate',
-      injectRegister: 'auto',
+      // 我们用 prompt 模式：检测到新版本时由前端 UI 弹 toast 让用户决定是否立即应用，
+      // 而不是 SW 自己 skipWaiting 静默刷新（避免用户操作中页面突然 reload）。
+      registerType: 'prompt',
+      // 关闭自动注入注册脚本，由 src/composables/useAppUpdate.ts 手动 import 'virtual:pwa-register' 注册
+      injectRegister: false,
       includeAssets: ['favicon.svg', 'apple-touch-icon.png', 'og.png'],
       manifest: {
         name: 'KAP - 前端知识自查',
@@ -41,8 +44,10 @@ export default defineConfig({
         globIgnores: ['**/vendor-echarts-*.js', '**/vendor-markdown-*.js', '**/vendor-icons-*.js'],
         navigateFallback: '/kap/index.html',
         cleanupOutdatedCaches: true,
-        clientsClaim: true,
-        skipWaiting: true,
+        // prompt 模式：让 SW 进入 waiting，由用户点 toast 后再 skipWaiting + 接管，
+        // 避免用户在写笔记 / 答题中突然刷新丢状态
+        clientsClaim: false,
+        skipWaiting: false,
         // 首次访问真正用到时再下载并缓存这些大 vendor / markdown 内容，
         // 后续访问命中缓存（StaleWhileRevalidate 保证版本更新）
         runtimeCaching: [

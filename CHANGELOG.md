@@ -1,5 +1,16 @@
 # Changelog
 
+## 0.18.0
+
+- feat（PWA）：**新增可见的「应用更新」机制**，告别看到旧版本只能开无痕的尴尬
+  - 新组件 `UpdateToast.vue`：检测到新版本时屏幕右下角弹出「立即更新 / 稍后」浮层（同时也显示一次性的「离线就绪」提示）
+  - 设置页新增「应用更新」区块：
+    - **检查更新**：手动触发 SW `registration.update()`，命中新版本会自动唤起上面的更新 toast
+    - **强制更新（清缓存）**：卸载所有 SW + 清空 Cache Storage + 用 `?_v=ts` 强刷，覆盖"内容已更新但页面停在旧版"的极端情况
+  - PWA 注册由"自动 skipWaiting"改为 **prompt 模式**：内容更新后 SW 进入 waiting 等用户确认，避免在你写笔记 / 答题时页面突然刷新
+  - `useAppUpdate` composable：把 `needRefresh / offlineReady / applyUpdate / forceReload / checkForUpdates` 全部 ref 化，便于其他页面接入
+  - 注册时启动 30 分钟一次的轻量 `registration.update()` 轮询，让长时间挂着标签页的用户也能收到新版本
+
 ## 0.17.0
 
 - feat：**面试真题（PCG 腾讯视频一面）题型补齐 12 题**
