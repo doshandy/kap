@@ -756,3 +756,55 @@ export function PostDetail({ id }: { id: string }) {
 - React Server Components 的 payload 是行级 JSON 流，比传统 `__INITIAL_STATE__` 更高效
 - 大型应用按需 lazy hydration，避免一次性反序列化几百 KB 数据
 
+
+## ssr-csr-spa-mpa-basic
+title: SSR / CSR / SPA / MPA / SSG / ISR 这堆词到底是什么关系？
+difficulty: 基础
+tags: [SSR, CSR, SSG, ISR, 基础]
+
+### 一句话
+按"在哪渲染"分：CSR（浏览器）/ SSR（服务器）；按"页面有多少"分：SPA（一个 HTML）/ MPA（多个 HTML）；按"何时渲染"分：SSG（构建时）/ ISR（构建 + 失效后再生）。
+
+### 题目
+请用一句话区分 CSR、SSR、SSG、ISR、SPA、MPA，并各举一个适用场景。
+
+### 答案要点
+- **CSR**（Client-Side Rendering）：HTML 是空壳，JS 拉数据再渲染。适合后台系统、富交互应用
+- **SSR**（Server-Side Rendering）：服务器拼好 HTML 直接吐给浏览器；适合 SEO 敏感、首屏快需求
+- **SSG**（Static Site Generation）：构建时就把 HTML 全生成好；适合博客、文档、营销页
+- **ISR**（Incremental Static Regeneration）：SSG + "过期后服务端按需再生"；适合电商列表页、新闻
+- **SPA**：一个 HTML，路由切换靠 JS。适合 webapp
+- **MPA**：每个路由是独立 HTML，传统模式。适合内容站
+
+### 代码示例
+```tsx
+// Next.js App Router 例子：路由四种行为
+// app/marketing/page.tsx → 默认 SSG（构建时生成）
+// app/dashboard/page.tsx + 'use client' → 客户端渲染（CSR）
+// app/news/[id]/page.tsx + revalidate=60 → ISR
+// app/realtime/page.tsx + dynamic='force-dynamic' → 每次请求 SSR
+
+export const revalidate = 60;
+export default async function Page() {
+  const res = await fetch('https://api.example.com/news', {
+    next: { revalidate: 60 },
+  });
+  const data = await res.json();
+  return <NewsList data={data} />;
+}
+```
+
+### 常见误区
+- 把 SSR = SEO 唯一解：现代搜索引擎能跑 JS，SPA + 预渲染也行
+- 以为 SSG 就是"完全静态"——它仍然可以在 client 上加交互（hydration）
+- ISR 不是 SSR：ISR 是"提前缓存 + 失效后再生"，访问时多数还是返回缓存
+
+### 追问
+- React Server Components 是 SSR 吗？（不是，是另一层）
+- SSR 的成本（服务器算力 + 复杂度）什么时候不值
+- 边缘渲染（Edge SSR）和传统 Node SSR 的差别
+
+### 延伸
+- "Streaming SSR"（边渲染边吐 HTML）+ Suspense 在 React 18 后流行
+- Astro 的 Islands 模式：默认 SSG，按需 hydration
+

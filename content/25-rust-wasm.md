@@ -452,3 +452,49 @@ __wbindgen_free(ptr, u8.length, 1);
 - Component Model：WASM 模块间标准化数据交换
 - AssemblyScript：用 TS 风格语法写 WASM，门槛低但生态没 Rust 大
 
+
+## wasm-when-to-use-basic
+title: 什么场景下前端值得用 WebAssembly？什么场景不值得？
+difficulty: 基础
+tags: [WASM, 选型, 基础]
+
+### 一句话
+WASM 适合 CPU 密集 + 算法稳定的场景（图像 / 音视频 / 编解码 / 几何计算），不适合频繁调 DOM 的业务逻辑——JS-WASM 边界跨越成本不低。
+
+### 题目
+什么样的前端需求适合用 WebAssembly 改写？什么不适合？
+
+### 答案要点
+- **适合**：图像处理（resize / filter）、音视频编解码（FFmpeg.wasm）、加密 / 哈希、3D 几何运算、压缩 / 解压（zstd / brotli）、SQL 解析器、CRDT 引擎
+- **不适合**：表单业务逻辑、DOM 操作密集（每次跨边界都有开销）、数据量小但调用频次高的场景
+- **关键约束**：JS ↔ WASM 之间通过 ArrayBuffer 复制 / 共享，复杂对象要序列化，结构化对象用 wasm-bindgen 包一层
+- **包体积**：WASM 二进制不小（几百 KB+），首屏要权衡是否值得
+
+### 代码示例
+```ts
+const { instance } = await WebAssembly.instantiateStreaming(
+  fetch('/img-resize.wasm'),
+);
+const { resize, memory } = instance.exports as any;
+const ptr = (resize as Function)(width, height);
+const out = new Uint8ClampedArray(
+  (memory as WebAssembly.Memory).buffer,
+  ptr,
+  width * height * 4,
+);
+```
+
+### 常见误区
+- 以为"WASM 一定比 JS 快"——简单算 JIT 后的 V8 也很快，WASM 优势在固定路径热代码
+- 在 main thread 跑大 WASM 任务，仍然会卡 UI；应放 Worker
+- 拉来一个 几 MB 的 WASM 替代 50KB 的 JS lib，得不偿失
+
+### 追问
+- WASI 是什么，能跑 Node 上吗
+- WebGPU 和 WASM 的关系
+- 为什么 Figma 选了 C++ → WASM 而不是 JS
+
+### 延伸
+- ffmpeg.wasm / image-magick wasm / sql.js 都是经典
+- Rust / Zig / AssemblyScript / Tinygo 是几大主流编译来源
+

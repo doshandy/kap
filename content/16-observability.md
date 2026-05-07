@@ -763,3 +763,51 @@ const onCta = () => {
 - 互斥实验组（layer）：同 layer 互斥、跨 layer 正交
 - 客户端分流的闪烁：SSR 注入 cookie 决定首次渲染版本
 
+
+## js-error-types-basic
+title: JS 错误监听都有哪几个钩子？各管什么？
+difficulty: 基础
+tags: [错误, 监听, 基础]
+
+### 一句话
+同步错误 → `window.onerror` / `window.addEventListener('error')`；Promise 未捕获 → `unhandledrejection`；资源加载失败（img/script）→ 捕获阶段的 `error`；Vue / React 还各有自己的边界。
+
+### 题目
+前端要做错误上报，有哪些原生的事件 / 钩子可以监听？分别能拿到什么信息？
+
+### 答案要点
+- `window.onerror = (msg, url, line, col, err)` —— 同步运行时错误，跨域脚本只能拿到 `Script error.`，要给 script 加 `crossorigin`
+- `window.addEventListener('error', e, true)` —— 第三个参数 true 才能在捕获阶段拿到资源（img/script/link）加载失败
+- `window.addEventListener('unhandledrejection', e)` —— 没 catch 的 Promise
+- Vue：`app.config.errorHandler`；React：ErrorBoundary（仅渲染错误，事件错误它收不到）
+- 框架外异常 + console.error 监控可补；接口报错由请求层统一封装
+
+### 代码示例
+```ts
+window.addEventListener('error', (e) => {
+  if (e.target && e.target !== window) {
+    report({ type: 'resource', src: (e.target as HTMLImageElement).src });
+  } else {
+    report({ type: 'js', message: e.message, stack: e.error?.stack });
+  }
+}, true);
+
+window.addEventListener('unhandledrejection', (e) => {
+  report({ type: 'promise', reason: String(e.reason) });
+});
+```
+
+### 常见误区
+- 只监听 `window.onerror` —— 资源错误和 Promise 错误漏报
+- 跨域 script 不加 `crossorigin` 属性 + CORS 头，只能拿到 "Script error."
+- 在 ErrorBoundary 里 setState 后又抛错 → 死循环
+
+### 追问
+- 怎么把 source map 反解到真实代码位置（云端反解 / 本地 stack-utils）
+- 上报通道选 sendBeacon 还是 fetch keepalive
+- 海量错误怎么聚合（指纹 / 采样）
+
+### 延伸
+- Sentry / Bugsnag / 自研 SDK 都基于这几个 API
+- 长任务（PerformanceLongTaskTiming）也算"非异常但需上报"的健康指标
+

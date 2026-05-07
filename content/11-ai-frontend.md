@@ -1076,3 +1076,55 @@ tags: [AI, Prompt]
 - 真实生产 prompt 应该走版本化 + AB 测试 + 评测集
 - AI 协作效率 = "让 AI 干能干好的部分 + 你做最后把关"
 
+
+## llm-basic-concepts
+title: 给前端讲清楚：LLM、Token、Context Window、Temperature 是什么？
+difficulty: 基础
+tags: [LLM, 概念, 基础]
+
+### 一句话
+LLM 把文字切成 token 一个个吐；context window 是模型一次能"看"多少 token；temperature 控制输出的随机性（0 = 严谨，1 = 发散）。
+
+### 题目
+作为前端工程师，请用通俗语言解释：什么是 LLM、token、context window、temperature、top_p、stop？
+
+### 答案要点
+- **LLM**（Large Language Model）：本质是"给定前文，预测下一个 token"的概率模型
+- **Token**：模型理解的最小单位。中文 1 字常 ≈ 1.5-2 token，英文 1 单词常 ≈ 1 token；输入 + 输出都计费
+- **Context Window**：单次请求能放下的 token 总数。GPT-4o 128K，Claude 3.5 200K，超出就要截断或 RAG
+- **Temperature**：采样温度，0 = 总选概率最高的（确定），1 = 自由发挥；写代码常 0-0.3，创作常 0.7-1
+- **top_p**（nucleus sampling）：只从累计概率前 p% 的候选词里采样，常和 temperature 二选一
+- **stop**：遇到这些字符串就停止生成，常用于结构化输出截断
+
+### 代码示例
+```ts
+const res = await fetch('https://api.openai.com/v1/chat/completions', {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${key}` },
+  body: JSON.stringify({
+    model: 'gpt-4o',
+    messages: [
+      { role: 'system', content: '你是简洁的代码助手' },
+      { role: 'user', content: '用 TS 实现 debounce' },
+    ],
+    temperature: 0.2,
+    max_tokens: 500,
+    stop: ['\n\n## '],
+  }),
+});
+```
+
+### 常见误区
+- 把 token 当成"字" —— 实际是 BPE 分词后的子词
+- 以为 max_tokens 是输入长度上限——它只是输出最大长度
+- temperature=0 还是可能不一致：浮点累计 + 模型 routing 都会扰动
+
+### 追问
+- streaming 模式下怎么计费（按返回的 token 数）
+- 同一个 prompt 多次请求，怎么得到完全可复现的结果（seed 参数 + temperature 0）
+- prompt caching 是什么，省钱多少
+
+### 延伸
+- tiktoken / @anthropic-ai/tokenizer 可以前端预估 token 数
+- 不同模型的 token 计费不同，前端可以做用量预估展示
+

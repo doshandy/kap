@@ -475,3 +475,57 @@ async function migrate() {
 - 大量历史日志（操作记录）放 IndexedDB；按日期分桶，只保留近 30 天
 - 跨扩展共享：用 `externally_connectable` + 消息传递，不直接共享 storage
 
+
+## extension-mv2-vs-mv3-basic
+title: MV2 和 MV3 关键差异，搬迁要注意什么？
+difficulty: 基础
+tags: [扩展, MV3, 基础]
+
+### 一句话
+MV3 把 background 从持久 page 换成短生命的 service worker；远程代码不能再加载；webRequest 改为 declarativeNetRequest（声明式规则）；权限粒度更细。
+
+### 题目
+MV2 → MV3 主要变了哪些点？前端开发要注意什么？
+
+### 答案要点
+- **背景脚本**：persistent background page → `service_worker`（按需启动、可休眠）
+- **远程代码**：不能再 `eval` / `<script src="远程">`，所有逻辑必须打进扩展内
+- **网络拦截**：`webRequest` blocking 模式被禁，要用 `declarativeNetRequest` 声明规则（更安全但表达力差）
+- **host_permissions**：从 `permissions` 拆出来；用户能更细粒度授权
+- **action API 合一**：browser_action / page_action → `action`
+- **CSP**：MV3 默认禁内联 + 远程脚本
+
+### 代码示例
+```json
+{
+  "manifest_version": 3,
+  "name": "MyExt",
+  "version": "1.0.0",
+  "action": { "default_popup": "popup.html" },
+  "background": { "service_worker": "background.js" },
+  "permissions": ["storage", "tabs"],
+  "host_permissions": ["https://example.com/*"],
+  "content_scripts": [
+    {
+      "matches": ["https://example.com/*"],
+      "js": ["content.js"],
+      "run_at": "document_idle"
+    }
+  ]
+}
+```
+
+### 常见误区
+- service worker 里写全局变量保存状态——它会被 GC 销毁，要用 `chrome.storage`
+- content script 想直接调页面变量——拿不到，要靠 `window.postMessage` + injected script
+- 用 alarms 触发"5 秒后做事"——MV3 alarms 最小周期 30s
+
+### 追问
+- content script 和 page world 的隔离机制
+- 怎么调试 service worker（chrome://extensions → service worker 链接）
+- 上线节奏（Chrome MV2 已弃用窗口）
+
+### 延伸
+- Firefox / Safari / Edge 各有 MV3 兼容差异
+- 浏览器扩展商店审核重点：权限合理 + 没远程脚本 + 隐私声明
+

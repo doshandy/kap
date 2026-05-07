@@ -769,3 +769,50 @@ function App() {
 - 第三方库 react-error-boundary 提供 hook 风格 API
 - Next.js 自带 error.tsx / loading.tsx 文件级约定
 - Sentry 可以一键接入 ErrorBoundary 上报错误
+
+## react-keys-list-basic
+title: React 列表为什么必须给 key？
+difficulty: 基础
+tags: [list, key, 基础]
+
+### 一句话
+key 让 React 在一组兄弟节点里准确识别"谁还在 / 谁是新加 / 谁被删"，避免把状态/DOM 错位复用到错误的元素上。
+
+### 题目
+为什么 React 列表必须写 key？key 用 index 有什么坑？
+
+### 答案要点
+- diff 算法靠 key 在同层之间做"身份匹配"。没 key 就只能按位置匹配，插入/删除前面的元素会让后面所有节点的状态错位
+- 用 index 当 key 看起来能消除警告，但只在"列表只追加、永不插入/删除"时才安全
+- key 必须在同一组兄弟里唯一；不同列表的 key 互不干扰
+- key 不会作为 props 传给子组件——读 `props.key` 拿不到
+
+### 代码示例
+```tsx
+type Item = { id: string; text: string };
+
+function TodoList({ items }: { items: Item[] }) {
+  return (
+    <ul>
+      {items.map((it) => (
+        <li key={it.id}>{it.text}</li>
+      ))}
+    </ul>
+  );
+}
+```
+
+### 常见误区
+- 用 `Math.random()` 做 key —— 每次渲染都不同，等于"全部都被销毁重建"
+- 用 index 当 key 还把表单 input 放在 `<li>` 里：插入新行后输入框值会错位
+- 给 fragment（`<>...</>`）加 key 用 `<React.Fragment key={x}>`，不能直接 `<>...</>`
+
+### 追问
+- 为什么 React 不强制要求 key 在所有数组里？
+- 写一个 demo 演示 index-as-key 导致的 bug
+- key 变化时组件会发生什么（卸载 + 重新挂载，state 丢失）
+
+### 延伸
+- key 也是 transition / animation 重新触发的 trick
+- React 19 的 useTransition 中 key 变化和 isPending 的关系
+

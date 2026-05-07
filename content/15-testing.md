@@ -715,3 +715,50 @@ test('product card visual', async ({ page }) => {
 - 大型组件库会自动生成几千张图，CI 时长变长 → 用 sharding 并行
 - 跨浏览器（Chromium / Firefox / WebKit）渲染差异大，按平台分别管理 baseline
 
+
+## what-to-test-basic
+title: 前端到底应该测什么？测多深？
+difficulty: 基础
+tags: [测试策略, 基础]
+
+### 一句话
+测"用户能感知的输入输出"：组件交互、关键业务流（登录 / 下单）、纯函数和工具库；不要测实现细节，不要追求 100% 行覆盖。
+
+### 题目
+作为前端，应该测什么、不测什么？测试粒度怎么选？
+
+### 答案要点
+- **必测**：核心业务路径（注册 / 支付 / 提交订单），通用工具函数（日期、金额、url 解析），自研组件库的关键交互
+- **少测**：UI 像素细节（用 visual regression），第三方库内部行为（信任就行）
+- **不测**：ts 类型本身（编译期就保了），简单 getter/setter，纯标记性 jsx
+- **粒度**：测行为不是测实现。例如"点了登录按钮 → 看到 dashboard"，不是"调用了 fetch 一次"
+- **比例**：单元 60% / 组件 30% / E2E 10%（金字塔）；UI 库可倒过来（更多组件测）
+
+### 代码示例
+```ts
+import { test, expect } from '@playwright/test';
+
+test('user can login and reach dashboard', async ({ page }) => {
+  await page.goto('/login');
+  await page.fill('[data-testid=username]', 'alice');
+  await page.fill('[data-testid=password]', 'secret');
+  await page.click('text=登录');
+  await expect(page).toHaveURL('/dashboard');
+  await expect(page.locator('[data-testid=user-name]')).toHaveText('Alice');
+});
+```
+
+### 常见误区
+- 沉迷追求 100% 行覆盖：80% 行 + 关键路径 100% 才是性价比最高的
+- 测了实现细节："这个 hook 一定调用了 useState 3 次"——重构就崩
+- E2E 太多导致 CI 慢、flaky；其实大部分应该下沉成组件测
+
+### 追问
+- 怎么处理 flaky 测试（重试、隔离、稳态等待）
+- TDD 真的能在前端业务里跑吗
+- 怎么衡量测试 ROI
+
+### 延伸
+- React Testing Library 的核心理念："测用户怎么用，不测组件怎么写"
+- contract test / API mock（MSW）能取代很多 E2E
+

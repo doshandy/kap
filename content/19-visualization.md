@@ -846,3 +846,54 @@ async function exportPdf() {
 - iText / wkhtmltopdf 老牌方案，但 CSS3 / Web Font 支持不如 Puppeteer
 - Excel 导出：SheetJS / exceljs，图表导出为图片嵌入
 
+
+## chart-library-choice-basic
+title: ECharts、AntV、D3、Chart.js、Plotly 怎么选？
+difficulty: 基础
+tags: [可视化, 选型, 基础]
+
+### 一句话
+通用图表 → ECharts / Chart.js；地图 + 大屏 + 业务图 → ECharts / AntV；自由度高 / 学术风 → D3；交互探索 → Plotly；纯前端 + 包小 → Chart.js。
+
+### 题目
+列举常见图表库的定位差异，怎么挑？
+
+### 答案要点
+- **ECharts**：百度/Apache 出品，国产业务大屏标配；地图、3D、热力图、关系图全；体积偏大（按需打包能压到 200KB-）
+- **AntV**（@antv/g2 / g6 / x6）：蚂蚁出品，组合性好，关系图（G6）和流程图（X6）领先
+- **D3**：低层 SVG/Canvas 工具集，从坐标轴到颜色都自己拼，自由度极高，曲线学陡
+- **Chart.js**：体积小（70KB+），配置简单，适合中小图表
+- **Plotly.js**：交互探索（滑动、缩放、3D）一流，科学计算 / Dashboard 常用，体积大
+- **Recharts / Visx**：React 生态，组件式，适合产品级 dashboard
+
+### 代码示例
+```ts
+import * as echarts from 'echarts/core';
+import { LineChart } from 'echarts/charts';
+import { GridComponent, TooltipComponent } from 'echarts/components';
+import { CanvasRenderer } from 'echarts/renderers';
+
+echarts.use([LineChart, GridComponent, TooltipComponent, CanvasRenderer]);
+
+const chart = echarts.init(document.getElementById('c')!);
+chart.setOption({
+  xAxis: { type: 'category', data: ['Mon', 'Tue', 'Wed'] },
+  yAxis: { type: 'value' },
+  series: [{ type: 'line', data: [120, 200, 150] }],
+});
+```
+
+### 常见误区
+- 大屏用 D3 从零写——开发成本太高
+- ECharts 一把梭包进 vendor —— 没按需打包，bundle 直接 +900KB
+- 复杂关系图用 ECharts graph —— 不如 G6 顺手
+
+### 追问
+- 上万点散点图卡顿怎么办（WebGL / Canvas 替代 SVG / 抽样）
+- 图表交互（tooltip / brush / linked view）怎么设计
+- 图表性能基线（首屏渲染 200ms）怎么保
+
+### 延伸
+- 现代趋势：Apache ECharts 5 + WebGPU；Visx 2.x 在 React 19 表现良好
+- D3 + Observable 是图表设计师的好工具链
+

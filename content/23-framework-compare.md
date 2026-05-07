@@ -476,3 +476,49 @@ tags: [元框架, 选型, 高频]
 - 不要为了"新"换框架；React Router v7 + Remix 思想合并是个稳健选择
 - AI / Edge 是下一阶段竞争点：Cloudflare Workers / Vercel Edge / Deno Deploy
 
+
+## react-vs-vue-positioning-basic
+title: 老板让你选 React 还是 Vue 做新项目，你怎么答？
+difficulty: 基础
+tags: [选型, 框架, 基础]
+
+### 一句话
+看团队和生态：团队有 React 经验 + 大量招聘需求 → React；上手容易 + 国内生态 + Element/Antd Vue → Vue；纯技术差异已经不大。
+
+### 题目
+作为前端 lead，怎么在 React 和 Vue 3 之间做技术选型？
+
+### 答案要点
+- **团队成本**：现有人员熟悉度是首要因素。让一个 React 老兵学 Vue3 一周能上手，反之亦然
+- **生态**：React 社区更大、招聘更容易，企业级 SDK（Stripe / Algolia 等）多 React 优先
+- **学习曲线**：Vue 模板对新人 / 设计师更友好；React 的 JSX + hooks 心智负担稍高
+- **类型友好度**：两者现在 TS 体验都很好（Vue 3.5 + Volar / React + Type Inference）
+- **元框架**：Next.js（React）成熟度领先；Nuxt 3 紧追；选 SSR/SSG 优先 Next
+- **特殊场景**：组件库 / 设计系统首选 React（生态全），轻量内嵌 Web Components 首选 Vue / Solid / Lit
+
+### 代码示例
+```ts
+const decision = {
+  '团队 80% React 经验': 'React',
+  '团队主要做后台系统 / 国内业务': 'Vue 3',
+  '需要 SSR + 全栈': 'Next.js (React)',
+  '需要快速搭原型 / 设计师参与': 'Vue 3',
+  '极致性能 / 体积': 'Solid / Svelte',
+  '渐进增强 / 多页混入': 'Vue 或 Astro Islands',
+};
+```
+
+### 常见误区
+- 用"哪个先进 / 哪个流行"替代"哪个适合团队"
+- 把 Vue 当成"简单版 React" —— 它响应式模型完全不同（getter/setter/Proxy vs immutable + diff）
+- 选了 React 又用 Pinia / Composition API 风格的 store —— 不是不行，但混合方案心智负担高
+
+### 追问
+- 选了之后怎么定团队规范（lint / 目录 / 组件粒度）
+- 渐进迁移老项目（jQuery → React vs Vue）
+- 选 SolidJS 适合什么场景
+
+### 延伸
+- 招聘市场：2025 年 React 仍占 60%+，Vue 国内 30%+
+- 大厂内部经常 React + Vue 并存，看 BU 历史
+
