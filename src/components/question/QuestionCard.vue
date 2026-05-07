@@ -6,6 +6,7 @@ import { useProgressStore } from '@/stores/progress';
 import { useNotesStore } from '@/stores/notes';
 import { useReviewStore } from '@/stores/review';
 import { useSettingsStore } from '@/stores/settings';
+import { useMarksStore } from '@/stores/marks';
 import { stripHtml, useSpeechController } from '@/composables/useSpeech';
 import { exportQuestionMarkdown } from '@/composables/useExport';
 import { buildPrompt, chatGptUrl } from '@/lib/ai';
@@ -23,6 +24,7 @@ const progress = useProgressStore();
 const notes = useNotesStore();
 const review = useReviewStore();
 const settings = useSettingsStore();
+const marks = useMarksStore();
 const router = useRouter();
 
 const open = ref<boolean>(!!props.defaultOpen || settings.state.showAnswerByDefault);
@@ -85,6 +87,22 @@ defineExpose({ toggle });
         <span v-for="t in question.tags" :key="t" class="tag">#{{ t }}</span>
       </div>
       <div class="hd-right question-actions">
+        <button
+          class="btn btn-ghost icon-btn"
+          :class="{ active: marks.isStarred(question.id) }"
+          :title="marks.isStarred(question.id) ? '取消收藏' : '收藏（标星）'"
+          @click="marks.toggleStar(question.id)"
+        >
+          <AppIcon name="star" />
+        </button>
+        <button
+          class="btn btn-ghost icon-btn"
+          :class="{ active: marks.isSkipped(question.id) }"
+          :title="marks.isSkipped(question.id) ? '取消跳过' : '跳过这道题（默认列表隐藏）'"
+          @click="marks.toggleSkip(question.id)"
+        >
+          <AppIcon name="skip" />
+        </button>
         <span v-if="status === 'mastered'" class="status-badge ok">已掌握</span>
         <span v-else-if="status === 'review' || status === 'fuzzy'" class="status-badge warn">
           需复习
@@ -106,8 +124,16 @@ defineExpose({ toggle });
         <div v-if="open" class="answer">
           <div class="markdown-body" v-html="question.answer" />
           <div v-if="question.code" class="markdown-body" v-html="question.code" />
+          <div v-if="question.pitfall" class="markdown-body block-pitfall">
+            <h4><AppIcon name="warning" /> 常见误区 / 反例</h4>
+            <div v-html="question.pitfall" />
+          </div>
+          <div v-if="question.followup" class="markdown-body block-followup">
+            <h4><AppIcon name="question" /> 面试官追问</h4>
+            <div v-html="question.followup" />
+          </div>
           <div v-if="question.extra" class="markdown-body extra-block">
-            <h4>📌 延伸</h4>
+            <h4><AppIcon name="bookmark" /> 延伸</h4>
             <div v-html="question.extra" />
           </div>
 
@@ -288,6 +314,35 @@ defineExpose({ toggle });
   font-size: 13px;
   color: var(--c-text-soft);
 }
+.block-pitfall,
+.block-followup {
+  margin-top: 10px;
+  padding: 10px 14px;
+  border-radius: var(--radius);
+  border-left: 3px solid;
+}
+.block-pitfall {
+  background: rgba(245, 158, 11, 0.08);
+  border-left-color: var(--c-warning, #f59e0b);
+}
+.block-followup {
+  background: rgba(99, 102, 241, 0.08);
+  border-left-color: #6366f1;
+}
+.block-pitfall h4,
+.block-followup h4 {
+  margin: 0 0 6px;
+  font-size: 13px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.block-pitfall h4 { color: var(--c-warning, #d97706); }
+.block-followup h4 { color: #4f46e5; }
+.block-pitfall :deep(p),
+.block-followup :deep(p) {
+  margin: 4px 0;
+}
 .note-box {
   margin-top: 12px;
 }
@@ -320,6 +375,13 @@ defineExpose({ toggle });
   color: var(--c-text-mute);
 }
 .actions .btn.active {
+  color: var(--c-primary);
+  background: var(--c-primary-soft);
+}
+.icon-btn {
+  padding: 4px 8px;
+}
+.icon-btn.active {
   color: var(--c-primary);
   background: var(--c-primary-soft);
 }

@@ -11,6 +11,9 @@ title: Hybrid WebView 与 JSBridge 的核心设计点
 difficulty: 进阶
 tags: [Hybrid, JSBridge]
 
+### 一句话
+约定调用协议：方法名、参数、回调、超时、版本兼容；做好白名单和来源校验，避免任意页面调用原生敏感能力；统一错误码和降级策略，避免“原生没回调就永远卡住”。
+
 ### 题目
 WebView + JSBridge 方案里，前端最需要关注哪些协议与安全问题？
 
@@ -81,6 +84,9 @@ const userInfo = await bridge.invoke('getUserInfo');
 title: Electron 与 Tauri 的差异和取舍
 difficulty: 进阶
 tags: [Electron, Tauri]
+
+### 一句话
+Electron 生态成熟、Node 集成强、开发体验完整，但包体和内存普遍更高；Tauri 体积小、资源占用低，后端由 Rust 驱动，但生态和团队门槛更高；选型要看功能需求、团队技能、自动更新、原生集成深度和发布时间。
 
 ### 题目
 如果团队要做桌面端工具，Electron 和 Tauri 应该怎么选？
@@ -155,6 +161,9 @@ title: Electron 安全边界为什么离不开 preload、contextIsolation、IPC
 difficulty: 资深
 tags: [Electron, 安全, IPC]
 
+### 一句话
+渲染进程展示的是网页内容，不应直接拿到完整 Node/Electron 能力；更安全的做法是通过 preload 暴露最小必要 API；contextIsolation 的目的，是把 preload 和页面脚本放进隔离上下文…。
+
 ### 题目
 为什么 Electron 项目里经常强调 `preload`、`contextIsolation`、`contextBridge` 和 IPC？这些东西分别在防什么风险？
 
@@ -218,6 +227,9 @@ win.webContents.on('will-navigate', (e, url) => {
 title: PWA、Capacitor、H5 容器化各自适合什么业务
 difficulty: 基础
 tags: [PWA, Capacitor]
+
+### 一句话
+PWA 适合分发轻、安装轻、离线可用、原生能力需求不深的场景；Capacitor 用原生壳包裹 Web 应用，提供更稳定的原生能力接入；对强推送、复杂后台保活、深系统集成要求高的应用，纯 PWA 仍有限制。
 
 ### 题目
 PWA 能替代原生 App 吗？Capacitor 这类方案又处在什么位置？
@@ -288,6 +300,9 @@ async function subscribePush() {
 title: 小程序与多端框架的本质是“多宿主适配”
 difficulty: 进阶
 tags: [小程序, Taro, uni-app]
+
+### 一句话
+不同宿主平台的组件集、路由、生命周期、渲染模型、权限能力并不完全一致；跨端框架主要是在编译、运行时和组件适配层做“求交集 + 补差异”；真正复杂的地方往往是样式细节、性能边界和平台特性差异。
 
 ### 题目
 为什么小程序跨端框架很难做到 100% 一次编写到处运行？
@@ -362,6 +377,9 @@ export default function Index() {
 title: React Native、Flutter、KMP 各自解决哪一层跨端问题
 difficulty: 进阶
 tags: [ReactNative, Flutter, KMP]
+
+### 一句话
+React Native 用 JavaScript/TypeScript 驱动原生组件树，优势在前端团队转入成本较低，但复杂原生能力仍常需要桥接与原生协作；Flutter 用 Dart 和自绘渲染体系追求跨平台一致性，UI 控制力强…。
 
 ### 题目
 如果业务已经不满足 WebView / 容器化方案，React Native、Flutter、KMP 这几条路应该怎么理解？
@@ -438,6 +456,9 @@ title: 跨端调试、自动更新与发布链路
 difficulty: 进阶
 tags: [调试, 自动更新]
 
+### 一句话
+不同宿主环境的日志、网络、存储、权限、热更新方式都不一样；桌面端自动更新要处理签名、增量包、版本回滚、灰度推送；移动端容器化应用还要考虑商店审核、原生壳版本与 H5 版本兼容。
+
 ### 题目
 跨端项目为什么经常不是写功能最难，而是调试和发布最难？
 
@@ -508,6 +529,9 @@ title: 跨端性能与一致性为什么总在拉扯
 difficulty: 进阶
 tags: [性能, 一致性]
 
+### 一句话
+渲染引擎、硬件能力、宿主限制、输入方式、网络策略都不同；一致性的代价通常是放弃部分平台最优能力；真正好的跨端方案会为不同平台保留局部差异化优化空间。
+
 ### 题目
 为什么同一套前端在浏览器、WebView、桌面壳里表现会差很多？
 
@@ -558,6 +582,9 @@ if (conn?.effectiveType === '2g' || conn?.saveData) {
 title: 微信小程序的双线程架构与性能边界
 difficulty: 进阶
 tags: [小程序, 双线程]
+
+### 一句话
+渲染层：WebView 跑 WXML/WXSS，每个页面独立 WebView；逻辑层：JsCore（iOS） / V8（Android），不能访问 DOM；通信：通过 Native 桥接做 setData，所有数据都要 JSON 序列化跨进程。
 
 ### 题目
 小程序的逻辑层和渲染层为什么是两个线程？这种架构带来了哪些性能限制？
@@ -611,6 +638,9 @@ module.exports = { format };
 title: Taro / uni-app 与原生小程序如何选择
 difficulty: 进阶
 tags: [Taro, uni-app, 跨端]
+
+### 一句话
+原生：性能最好、API 直接、调试方便；只能跑微信，不能复用 Web；Taro：基于 React/Vue 写一套、编译到多端（微信/支付宝/抖音/H5/RN），生态偏 React；uni-app：基于 Vue 语法，国内生态成熟、组件库多、文档中文化好。
 
 ### 题目
 做小程序业务时是直接写原生还是用 Taro / uni-app？各自的取舍是什么？

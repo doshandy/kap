@@ -11,6 +11,9 @@ title: Canvas 与 SVG 如何选
 difficulty: 基础
 tags: [Canvas, SVG]
 
+### 一句话
+SVG 是声明式 DOM 图形，适合中小规模、可交互、可访问、样式化需求强的图形；Canvas 是像素画布，适合频繁重绘、大量元素、游戏和复杂粒子效果；SVG 易调试、易事件绑定；Canvas 原始性能通常更好，但语义和可访问性更弱。
+
 ### 题目
 同样是画图，Canvas 和 SVG 的核心差异是什么？分别适合哪些场景？
 
@@ -79,6 +82,9 @@ canvas.addEventListener('click', e => {
 title: ECharts 大数据渲染优化思路
 difficulty: 进阶
 tags: [ECharts, 性能]
+
+### 一句话
+数据采样、聚合、分层展示、虚拟滚动；开启渐进式渲染、data。
 
 ### 题目
 图表数据量很大时，前端有哪些常见优化手段？
@@ -170,6 +176,9 @@ title: D3 的核心思想不是“画图库”，而是数据驱动映射
 difficulty: 进阶
 tags: [D3, 数据映射]
 
+### 一句话
+D3 更底层，强调比例尺、坐标映射、数据绑定和图元组合；ECharts 更偏配置驱动，开箱快但自由度相对受约束；D3 更适合定制可视化和非标准图形。
+
 ### 题目
 为什么很多人学 D3 会觉得难？它和 ECharts 的心智模型有什么不同？
 
@@ -238,6 +247,9 @@ const simulation = d3.forceSimulation(nodes)
 title: requestAnimationFrame 与图形动画节奏控制
 difficulty: 进阶
 tags: [动画, RAF]
+
+### 一句话
+requestAnimationFrame 与浏览器刷新节奏同步，更省电、更平滑；页面后台时会自动降频；可结合时间差 deltaTime 做与帧率无关的动画速度控制。
 
 ### 题目
 为什么图形动画通常基于 `requestAnimationFrame` 而不是 `setInterval`？
@@ -326,6 +338,9 @@ function loop(now: number) {
 title: WebGL 与 WebGPU 的前端视角
 difficulty: 进阶
 tags: [WebGL, WebGPU]
+
+### 一句话
+WebGL 适合 3D、地图、大规模粒子、GPU 加速渲染；Three.js 提供更高层抽象，适合业务快速落地；WebGPU 代表更现代的 GPU 能力模型，潜力更强，但浏览器支持、调试工具和生态成熟度仍需单独评估。
 
 ### 题目
 什么时候应该考虑 WebGL/Three.js，什么时候又要关注 WebGPU？
@@ -417,6 +432,9 @@ title: 大屏适配与多分辨率设计
 difficulty: 进阶
 tags: [大屏, 适配]
 
+### 一句话
+大屏常用固定设计稿比例缩放，但会带来字体、坐标、清晰度问题；更稳的方案是布局响应式 + 局部按比例缩放 + 图表自适应重算；需要特别处理 DPR、字体渲染和图表容器尺寸变更。
+
 ### 题目
 数据大屏为什么经常在不同分辨率下变形？有哪些常见适配策略？
 
@@ -501,6 +519,9 @@ title: 图表交互的几个关键点（联动 / hover / brush / 缩放）
 difficulty: 进阶
 tags: [可视化, 交互]
 
+### 一句话
+节流：mousemove / wheel 事件每秒上百次，要 rAF 节流；联动：跨图表共享 cursor 状态，建议用 store / EventBus 广播 hover 索引；Brush：选区交互需要支持 keyboard ESC 取消、双击重置。
+
 ### 题目
 做一个有"hover、联动、刷选、滚轮缩放"的多图表 dashboard，前端要解决什么问题？
 
@@ -547,6 +568,9 @@ charts.forEach((c) => {
 title: D3 力导向图（Force-directed Graph）实战要点
 difficulty: 资深
 tags: [D3, 力导向, 图]
+
+### 一句话
+物理仿真：d3-force 默认 N²，节点过千就会卡；用 simulation.alphaDecay 加快收敛；渲染：节点多用 Canvas / WebGL（pixi）替代 SVG，节省 DOM 节点；分层：固定核心节点位置，外围节点用聚类合并展示。
 
 ### 题目
 用 D3 做一张几千节点的关系图，怎么做才能不卡？

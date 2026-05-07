@@ -41,11 +41,36 @@ export default defineConfig({
   build: {
     target: 'es2022',
     sourcemap: false,
+    chunkSizeWarningLimit: 600,
     rollupOptions: {
       output: {
-        manualChunks: {
-          echarts: ['echarts'],
-          repl: ['@vue/repl'],
+        manualChunks(id) {
+          if (id.includes('node_modules')) {
+            if (id.includes('echarts') || id.includes('zrender') || id.includes('tslib')) {
+              return 'vendor-echarts';
+            }
+            if (id.includes('@vue/repl') || id.includes('monaco-editor')) {
+              return 'vendor-repl';
+            }
+            if (id.includes('jspdf') || id.includes('html2canvas')) {
+              return 'vendor-export';
+            }
+            if (id.includes('@ant-design/icons-vue')) {
+              return 'vendor-icons';
+            }
+            if (id.includes('markdown-it') || id.includes('prismjs')) {
+              return 'vendor-markdown';
+            }
+            if (id.includes('fuse.js')) {
+              return 'vendor-search';
+            }
+            if (id.includes('qrcode')) {
+              return 'vendor-share';
+            }
+            if (id.includes('vue-router') || id.includes('pinia') || id.includes('@vue/')) {
+              return 'vendor-vue';
+            }
+          }
         },
       },
     },

@@ -11,6 +11,9 @@ title: 性能优化方法论：先度量，再定位，再治理
 difficulty: 基础
 tags: [方法论, 指标]
 
+### 一句话
+先明确目标：提升首屏、交互响应、稳定性还是成本；先度量再优化：RUM、Lighthouse、Performance 面板、业务埋点；找瓶颈：网络、脚本、渲染、图片、接口、缓存、第三方脚本。
+
 ### 题目
 为什么性能优化不能靠“经验主义手改”？请给出一套可落地的方法论。
 
@@ -58,6 +61,9 @@ reportMetric('list-render', m.duration, '');
 title: LCP、INP、CLS 如何理解与治理
 difficulty: 进阶
 tags: [CWV, WebVitals]
+
+### 一句话
+LCP 衡量主要内容出现速度，重点看首屏 HTML、关键资源、服务端响应、首图/首屏块渲染；INP 衡量交互到下一帧视觉反馈的延迟，重点看长任务、主线程阻塞、重计算；CLS 衡量布局稳定性，重点防止图片/广告/异步内容无尺寸占位。
 
 ### 题目
 解释 LCP、INP、CLS 各自衡量什么，以及最常见的优化抓手。
@@ -110,6 +116,9 @@ new PerformanceObserver(list => {
 title: 实验室数据与真实用户数据为什么经常不一致
 difficulty: 进阶
 tags: [RUM, Lighthouse, WebVitals]
+
+### 一句话
+实验室数据来自受控环境，适合做回归对比和本地定位；真实用户数据反映设备、网络、地域、登录态、个性化、缓存命中等真实差异；LCP、INP 等指标在 field 和 lab 中可能明显不同…。
 
 ### 题目
 为什么 Lighthouse 跑出来很好，线上用户却依然觉得慢？实验室数据和真实用户数据该怎么一起看？
@@ -167,6 +176,9 @@ function bucket(metric: any) {
 title: 首屏优化：SSR、SSG、ISR、路由分包、Critical CSS
 difficulty: 进阶
 tags: [首屏, SSR]
+
+### 一句话
+内容稳定、SEO 重要、首屏信息密度高时，SSG/SSR 往往收益更高；高频更新但允许增量生成时可考虑 ISR；纯 SPA 也能通过路由分包、预加载、关键 CSS、骨架屏优化首屏。
 
 ### 题目
 如果首页很慢，你会怎样判断该上 SSR、SSG 还是继续优化纯 SPA？
@@ -236,6 +248,9 @@ title: 运行时优化：虚拟列表、拆长任务、批量更新
 difficulty: 进阶
 tags: [运行时, 长任务]
 
+### 一句话
+减少一次渲染要处理的节点：分页、虚拟列表、按需展开、条件卸载不可见区域；拆分长任务：把大循环切片、移入 Worker、让出主线程；减少重复计算和重复渲染：缓存派生值、合并状态更新、避免无效 watcher。
+
 ### 题目
 用户操作时页面卡顿，前端最常见的运行时优化手段有哪些？
 
@@ -303,6 +318,9 @@ title: preload、prefetch、modulepreload、preconnect 怎么用才不浪费
 difficulty: 进阶
 tags: [资源提示, 网络]
 
+### 一句话
+preload：当前导航很快就要用的关键资源；modulepreload：提前拉取模块依赖；prefetch：未来导航可能用到的低优先级资源，通常更适合同站后续页面资源。
+
 ### 题目
 说明几种常见 Resource Hints 的区别，并给出一个错误使用的例子。
 
@@ -345,6 +363,9 @@ tags: [资源提示, 网络]
 title: 图片、字体、JS 包体是最常见的三类资源瓶颈
 difficulty: 基础
 tags: [图片, 字体, 包体]
+
+### 一句话
+图片：压缩、响应式尺寸、懒加载、优先用 WebP/AVIF；字体：子集化、font-display: swap、减少变体数量；JS：路由分包、按需引入、删除无用依赖、分析第三方包体积。
 
 ### 题目
 针对图片、字体、JS 包体，分别列出 2 到 3 个最高收益优化动作。
@@ -407,6 +428,9 @@ import { debounce } from 'lodash-es';
 title: 性能预算与回归治理
 difficulty: 进阶
 tags: [预算, 监控]
+
+### 一句话
+建立性能预算：首屏 JS、图片体积、LCP/INP/CLS 阈值；在 CI 中接入 Lighthouse CI、bundle analyzer、包体阈值检查；线上持续收集 Web Vitals 和长任务数据，按页面、地区、设备分桶看趋势。
 
 ### 题目
 如何防止性能优化做完后几周内又被新需求吃回去？
@@ -481,6 +505,9 @@ title: INP 取代 FID 后，前端要怎么优化交互响应
 difficulty: 资深
 tags: [INP, 交互]
 
+### 一句话
+INP（Interaction to Next Paint）：从用户输入到下一帧渲染完成的最长延迟，整页生命周期内取 P98；FID 只看首次输入，INP 看所有交互，是更严格的指标…。
+
 ### 题目
 2024 年起 INP 取代 FID 成为 Core Web Vitals 之一，它衡量的是什么？前端如何系统性优化？
 
@@ -528,6 +555,9 @@ function onTyping(value: string) {
 title: 现代图片处理流水线（AVIF / WebP / responsive / blur-up）
 difficulty: 进阶
 tags: [图片, LCP]
+
+### 一句话
+上传：原图存对象存储，不要直接服务客户端；处理：CDN / 服务端按需生成多尺寸 + 多格式（AVIF > WebP > JPEG）；命名：/img/{id}/{w}.{format}，方便缓存和回滚。
 
 ### 题目
 做内容站的图片优化，从源图到客户端展示完整链路有哪些环节？

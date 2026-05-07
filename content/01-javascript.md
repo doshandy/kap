@@ -232,6 +232,9 @@ title: async/await 在事件循环里的真实执行顺序
 difficulty: 进阶
 tags: [async, 事件循环]
 
+### 一句话
+async 函数本身是同步开始执行，遇到 await 时挂起当前函数，返回一个未完成的 Promise；await 后面表达式立即求值（同步部分），然后将"恢复执行"作为微任务排入队列；因此：a1 → b1 → main → a2。
+
 ### 题目
 解释下面代码的输出顺序：
 
@@ -438,6 +441,9 @@ title: Proxy 与 Reflect：13 种 trap 与 receiver 正确性
 difficulty: 进阶
 tags: [Proxy, 元编程]
 
+### 一句话
+Proxy 拦截 13 种基本操作：get/set/has/deleteProperty/ownKeys/...；直接 target[key] 会丢失 receiver 信息，导致 getter 中的 this 错位（特别是继承链上）…。
+
 ### 题目
 为什么 Proxy 的 handler 内部要用 `Reflect.get/set` 而不是直接 `target[key] = value`？
 
@@ -467,6 +473,9 @@ console.log(child.x); // 2，receiver 正确指向 child
 title: 迭代器、生成器与异步迭代
 difficulty: 进阶
 tags: [迭代器, 生成器]
+
+### 一句话
+可迭代协议：对象拥有 Symbol.iterator 方法返回迭代器（含 next()），就能被 for...of、解构、扩展；生成器：function* 自动实现迭代器协议，yield 暂停让出，return 标记 done…。
 
 ### 题目
 `Symbol.iterator`、`Symbol.asyncIterator`、`function*` 是怎么协作的？什么时候该手写迭代器？
@@ -522,6 +531,9 @@ title: 结构化克隆 vs JSON 序列化
 difficulty: 进阶
 tags: [克隆, postMessage]
 
+### 一句话
+JSON：丢失 undefined / function / Symbol / Date / RegExp / Map / Set / BigInt / 循环引用；structuredClone：标准结构化克隆算法…。
+
 ### 题目
 `structuredClone`、`JSON.parse(JSON.stringify(x))`、自实现深拷贝各自的能力边界？
 
@@ -560,6 +572,9 @@ function deepCloneClass<T>(x: T, seen = new WeakMap<object, unknown>()): T {
 title: 模板字符串与标签模板的实战
 difficulty: 进阶
 tags: [模板字符串, 标签模板]
+
+### 一句话
+语法：tag 函数收到 (strings: TemplateStringsArray, ...values: unknown[])；自动转义：把用户输入插值时强制走转义（防 XSS / SQL 注入）…。
 
 ### 题目
 标签模板（tagged template）有什么实际用途？除了 styled-components 还能怎么玩？
@@ -600,6 +615,9 @@ const q = sql`SELECT * FROM users WHERE id = ${id}`;
 title: WeakMap / WeakSet / WeakRef 与垃圾回收
 difficulty: 资深
 tags: [WeakMap, GC]
+
+### 一句话
+普通 Map 强引用 key，被 Map 持有的 key 永远不会被 GC，容易内存泄漏；WeakMap：key 必须是对象，弱引用，key 被回收时条目自动消失，适合"给对象挂私有数据"；WeakSet：同理，做"对象集合的存在性检查"，不阻止回收。
 
 ### 题目
 什么时候必须用 `WeakMap`？`WeakRef` 和 `FinalizationRegistry` 又有什么用？

@@ -11,6 +11,9 @@ title: Node.js 事件循环六阶段与 nextTick 的特殊优先级
 difficulty: 进阶
 tags: [事件循环, libuv]
 
+### 一句话
+Node 基于 libuv，有 timers、pending callbacks、idle/prepare、poll、check、close callbacks 等阶段；每个阶段切换前后都会处理微任务队列；在 CommonJS 场景里…。
+
 ### 题目
 浏览器事件循环和 Node.js 事件循环最重要的差异是什么？`process.nextTick`、Promise 微任务、`setImmediate` 的优先级如何理解？
 
@@ -65,6 +68,9 @@ title: Stream、背压与 pipeline 为什么对 Node 很重要
 difficulty: 进阶
 tags: [Stream, 背压]
 
+### 一句话
+Stream 支持分块处理，降低峰值内存占用；背压可以让生产者根据消费者处理速度减速，避免内存暴涨；pipeline 统一串起可读、转换、可写流，并处理错误传递与清理。
+
 ### 题目
 为什么在 Node 里处理大文件、代理转发、日志流时，优先考虑 Stream 而不是一次性读入内存？
 
@@ -93,6 +99,9 @@ await pipeline(
 title: Buffer、Uint8Array 与 Worker Threads 的边界
 difficulty: 进阶
 tags: [Buffer, Worker]
+
+### 一句话
+Buffer 本质是 Uint8Array 的子类，加了更方便的二进制读写能力；Node 单线程执行 JS，CPU 密集任务会阻塞事件循环，影响所有请求；Worker Threads 允许在同进程多线程执行 JS，适合 hash、压缩、解析、图像处理。
 
 ### 题目
 Node 的 `Buffer` 和浏览器 `Uint8Array` 有何关系？CPU 密集型任务为什么应该优先考虑 Worker Threads？
@@ -148,6 +157,9 @@ worker.postMessage(ab, [ab]);   // 转移所有权后主线程不能再用
 title: Express、Koa、Fastify、Nest 的取舍
 difficulty: 基础
 tags: [框架, 中间件]
+
+### 一句话
+Express 生态成熟、上手快，但历史包袱较重；Koa 洋葱模型简洁，适合自己搭结构；Fastify 更强调性能、schema、插件体系。
 
 ### 题目
 给一个前端团队做 BFF，你会如何介绍 Express、Koa、Fastify、Nest 的适用边界？
@@ -207,6 +219,9 @@ title: BFF 模式的价值与反模式
 difficulty: 进阶
 tags: [BFF, 架构]
 
+### 一句话
+BFF 可以聚合后端接口、裁剪字段、封装鉴权、屏蔽多端差异、做页面级缓存；反模式包括：把 BFF 做成“大后端”、承载核心事务、与下游强耦合、无边界扩张；理想状态是让 BFF 离用户场景近、离领域规则远。
+
 ### 题目
 为什么前端团队会做 BFF？又有哪些常见失控模式？
 
@@ -256,6 +271,9 @@ app.get('/bff/dashboard', async (req: any, reply) => {
 title: SSR、Hydration 与 Edge Runtime 的关键问题
 difficulty: 进阶
 tags: [SSR, Hydration, Edge]
+
+### 一句话
+服务端和客户端输出必须一致，否则会 hydration mismatch；浏览器专属 API 不能在 SSR 阶段直接访问；数据预取、缓存键设计、流式输出、错误降级策略都会影响 SSR 体验。
 
 ### 题目
 Node 服务端渲染一个前端页面时，最容易踩的几个坑是什么？
@@ -321,6 +339,9 @@ onMounted(() => {
 title: Node 性能分析与优雅退出
 difficulty: 进阶
 tags: [性能, 运维]
+
+### 一句话
+用 clinic.js、0x、Chrome Inspector、heap snapshot 排查 CPU 和内存热点；监听 SIGTERM，停止接新请求，等待连接处理完，再关闭资源后退出；对连接池、队列消费者、定时器、日志刷盘都要做收尾。
 
 ### 题目
 线上 Node 进程 CPU 飙高、内存增长或发布重启时，你会关注哪些工程点？
@@ -396,6 +417,9 @@ title: 原生 node:test 与 Vitest / Jest 的取舍
 difficulty: 进阶
 tags: [测试, node:test]
 
+### 一句话
+node:test + node:assert：零依赖、启动快、与 Node 生态深度整合，适合纯后端 / 工具脚本；Jest：生态最大，snapshot / mock / 覆盖率开箱即用，但启动慢、对 ESM 兼容差；Vitest：基于 Vite…。
+
 ### 题目
 Node 18+ 内置了 `node:test`，还有必要再装 Jest / Vitest 吗？
 
@@ -446,6 +470,9 @@ node --test --test-reporter=spec --test-concurrency=8 src/**/*.test.ts
 title: Node Stream 实战与背压控制
 difficulty: 资深
 tags: [Stream, 背压]
+
+### 一句话
+不用 Stream：内存里一次性塞进整文件，OOM 风险；Stream 三种：Readable / Writable / Transform；通过 pipe 串联自动处理背压；背压：下游写入速度 < 上游产出速度，需要暂停上游避免缓冲膨胀…。
 
 ### 题目
 处理大文件 / 转码 / 转发请求时为什么必须用 Stream？背压 (backpressure) 是什么？

@@ -11,6 +11,9 @@ title: hash 命名、长效缓存与 HTML 短缓存是发布基础功
 difficulty: 基础
 tags: [缓存, 发布]
 
+### 一句话
+带 hash 的资源内容变化即 URL 变化，适合长缓存；HTML 是资源入口，负责引用最新 chunk，因此应短缓存甚至不缓存；这样既能高命中缓存，又能确保用户尽快拿到新版本入口。
+
 ### 题目
 为什么前端静态资源通常会带 hash，而 HTML 却常常不做长缓存？
 
@@ -61,6 +64,9 @@ export default defineConfig({
 title: 动态 import 失败与旧版本 chunk 被清理怎么处理
 difficulty: 进阶
 tags: [动态加载, 容错]
+
+### 一句话
+用户打开旧页面停留较久，后台已发布新版本并清掉旧 chunk；页面可能继续按旧 HTML 或旧运行时记录的 chunk URL 请求已不存在的文件，于是加载失败；解决思路：保留多版本静态资源、失败重试、检测版本漂移后引导刷新。
 
 ### 题目
 为什么前端发布后，偶尔会出现“刷新一下就好了”的 chunk 加载错误？怎么治理？
@@ -123,6 +129,9 @@ aws s3 sync ./dist s3://app-bucket/ --delete-removed=false
 title: 灰度发布、回滚与零停机切换
 difficulty: 进阶
 tags: [灰度, 回滚]
+
+### 一句话
+新版本可能引入接口不兼容、缓存污染、白屏、地区性异常；灰度可以按用户、cookie、比例、入口域名切流；回滚要保证旧入口和旧静态资源仍可访问，而不是只覆盖新文件。
 
 ### 题目
 前端静态站点看似“发文件就行”，为什么仍然需要灰度与回滚设计？
@@ -188,6 +197,9 @@ aws cloudfront update-distribution \
 title: Service Worker 更新策略的取舍
 difficulty: 进阶
 tags: [ServiceWorker, PWA]
+
+### 一句话
+skipWaiting 能让新 SW 更快生效，但可能打断旧页面运行中的资源一致性；clients.claim 让新 SW 立即接管现有页面，也可能改变用户当前会话行为；更稳妥的做法常是提示用户“发现新版本，点击刷新更新”。
 
 ### 题目
 `skipWaiting` 和 `clients.claim` 为什么有争议？PWA 更新提示一般怎么设计？
@@ -256,6 +268,9 @@ title: history 路由、404 fallback 与静态托管适配
 difficulty: 基础
 tags: [路由, 静态部署]
 
+### 一句话
+静态托管默认按物理文件查找路径，/q/foo 不存在就直接 404；需要服务器重写到 index.html，或像 GitHub Pages 这样用 404 fallback 技巧还原路径；hash 路由能绕开这个问题，但 URL 语义和分享体验较差。
+
 ### 题目
 为什么 SPA 用 history 路由部署到静态托管平台时，刷新子路径经常 404？
 
@@ -312,6 +327,9 @@ location / {
 title: 包体分析与发布前治理
 difficulty: 进阶
 tags: [包体治理, 分析]
+
+### 一句话
+看是否有大依赖被整包引入；看是否存在多版本重复依赖；看异步 chunk 切分是否合理，首屏是否把低频页面代码打进主包。
 
 ### 题目
 上线前为什么应该看一次 bundle 分析图？你最关注哪几类问题？
@@ -375,6 +393,9 @@ title: Tree-shaking 失效的常见原因
 difficulty: 进阶
 tags: [Tree-shaking, sideEffects]
 
+### 一句话
+库不是 ESM：CJS 不能 tree-shake，要看 package.json 是否有 "type": "module" 或 exports 提供 ESM 入口…。
+
 ### 题目
 明明用了 ESM 还是发现整个 lodash 被打进来，可能是哪些原因？
 
@@ -417,6 +438,9 @@ debounce(fn, 200);
 title: PWA Service Worker 升级策略
 difficulty: 资深
 tags: [PWA, Service Worker]
+
+### 一句话
+默认行为：新 SW 安装完后处于 waiting 状态，老 SW 关闭所有标签后才接管；skipWaiting：在 install 里调用，立即激活，但要小心新旧资源版本不一致；clientsClaim：activate 后立即接管所有 client…。
 
 ### 题目
 PWA 上线后用户访问看到的是旧版怎么办？SW 升级有哪些坑？

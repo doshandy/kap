@@ -11,6 +11,9 @@ title: 浏览器扩展的整体架构
 difficulty: 进阶
 tags: [扩展, MV3]
 
+### 一句话
+Background / Service Worker：长期任务、网络代理、定时器、消息中枢；MV3 中是 SW，无法常驻；Content Script：注入到页面，与页面共享 DOM，但运行在隔离世界，不能直接访问页面 JS 变量…。
+
 ### 题目
 一个 Chrome 扩展由哪些部分组成？它们的进程边界和通信方式是什么？
 
@@ -65,6 +68,9 @@ title: Manifest V3 带来的关键变化与坑
 difficulty: 资深
 tags: [MV3, Service Worker]
 
+### 一句话
+持久 background page → Service Worker：无法常驻，事件触发执行，定时器 / WebSocket 都要重新设计；webRequest blocking → declarativeNetRequest：请求拦截改为声明式规则…。
+
 ### 题目
 MV2 → MV3 最大的几个变化是什么？为什么很多扩展抱怨"被砍"？
 
@@ -108,6 +114,9 @@ chrome.alarms.onAlarm.addListener(async (alarm) => {
 title: Content Script 与页面 JS 怎么互通
 difficulty: 进阶
 tags: [Content Script, 通信]
+
+### 一句话
+注入 <script> 到主世界：chrome.scripting.executeScript({ world: 'MAIN' })（MV3 117+）；老办法：动态创建 <script> 标签把字符串注入，runtime 拿到后清理…。
 
 ### 题目
 Content Script 跑在隔离世界，访问不了页面 JS 的全局变量，怎么和宿主页双向通信？
@@ -157,6 +166,9 @@ title: 权限申请最小化与 host_permissions
 difficulty: 进阶
 tags: [安全, 权限]
 
+### 一句话
+权限分类：API 权限（storage, tabs, scripting）和 host 权限（要访问的域名）；optional_permissions 在 popup / options 里 chrome.permissions.request 动态申请…。
+
 ### 题目
 怎么把扩展权限做到"按需 + 最小"，避免商店审核打回？
 
@@ -188,6 +200,9 @@ document.querySelector('#enable')!.addEventListener('click', ensureGithubAccess)
 title: Tampermonkey / 用户脚本与扩展的边界
 difficulty: 进阶
 tags: [Tampermonkey, 用户脚本]
+
+### 一句话
+用户脚本：单文件 .user.js，开发部署成本极低，依赖 Tampermonkey / Violentmonkey 这类宿主；能力：可以用 GM_* API（跨域请求、菜单、存储），但本质上仍受宿主沙箱限制…。
 
 ### 题目
 什么时候选用户脚本，什么时候做正式扩展？两者能力差异是什么？
@@ -230,6 +245,9 @@ tags: [Tampermonkey, 用户脚本]
 title: 扩展发布、自动更新与企业内分发
 difficulty: 资深
 tags: [发布, EMM]
+
+### 一句话
+商店发布：注册开发者账号（含一次性 $5）→ 上传 zip → 隐私说明 → 审核 → 发布；版本：manifest 中的 version 单调递增；update_url 默认指向 store；自动更新：商店自动推送新版本，渠道分稳定 / 测试 / dev。
 
 ### 题目
 扩展怎么打包发布到 Chrome Web Store？企业内部如何强制下发？

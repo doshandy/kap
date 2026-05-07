@@ -304,6 +304,9 @@ title: Suspense 与异步数据加载
 difficulty: 资深
 tags: [Suspense, 数据加载]
 
+### 一句话
+Suspense 让组件在数据未就绪时"挂起"，由父级 fallback 渲染 spinner，无需手写 isLoading 分支；配合 use(promise) / RSC / React Query suspense mode / Relay 等…。
+
 ### 题目
 Suspense 怎么和数据请求结合？为什么说它会成为未来的主流数据加载方式？
 
@@ -343,6 +346,9 @@ export default function Page() {
 title: React Router v6.4+ 的 Data Router 与 loaders
 difficulty: 进阶
 tags: [Router, 数据加载]
+
+### 一句话
+路由级 loader 在切换前并行发起请求，配合 defer / Await 可以做"先关键内容 + 流式补齐"；action 接管表单提交，自动 revalidate 当前路由 loader，写后立即看到最新数据…。
 
 ### 题目
 React Router 的 loader / action 模式解决了什么？相比传统在组件里 fetch 有什么优势？
@@ -440,6 +446,9 @@ title: React 19 关键特性速览
 difficulty: 资深
 tags: [React 19, Actions]
 
+### 一句话
+Actions：把"提交 + pending + error + revalidate"封装成约定，配合 form / button；useFormStatus：在子组件里读取上层 form 的 pending / data…。
+
 ### 题目
 React 19 新增了 Actions、`useOptimistic`、`useFormStatus`、`use(promise)`、`<form action>` 直接绑定函数等，使用场景是什么？
 
@@ -494,6 +503,9 @@ title: React + TypeScript 常用类型模式
 difficulty: 进阶
 tags: [TypeScript, 泛型]
 
+### 一句话
+as prop（多态组件）：让组件可以渲染成不同标签 / 组件；泛型 hook：useFetch<T> 返回 T 类型数据；受控 / 非受控判别式：value & onChange 必须同时出现，可用条件类型。
+
 ### 题目
 写组件库 / 复杂 hooks 时，常用的 TS 模式有哪些？
 
@@ -545,6 +557,9 @@ const { data } = useFetch<User>('/api/user');
 title: React 组件测试要测什么、怎么测
 difficulty: 进阶
 tags: [测试, RTL]
+
+### 一句话
+"像用户一样测试"：不要测实现细节（state、私有方法），要测可见行为；优先选择器顺序：getByRole > getByLabelText > getByPlaceholderText > getByText > getByTestId…。
 
 ### 题目
 单测 / 组件测的边界在哪？React Testing Library 的核心理念和常见 API？

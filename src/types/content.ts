@@ -17,6 +17,10 @@ export interface Question {
   answer: string;
   /** HTML 后的代码块（可选） */
   code?: string;
+  /** HTML 后的常见误区 / 反例（可选） */
+  pitfall?: string;
+  /** HTML 后的面试官追问（可选） */
+  followup?: string;
   /** HTML 后的延伸内容（可选） */
   extra?: string;
   /** 原始 markdown 用于导出 */

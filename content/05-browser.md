@@ -113,6 +113,9 @@ title: Cookie、localStorage、sessionStorage、IndexedDB、Cache Storage 如何
 difficulty: 基础
 tags: [存储, Cookie]
 
+### 一句话
+Cookie 体积小、会随请求自动发送，适合会话标识；支持 HttpOnly、Secure、SameSite；localStorage 同步 API、实现简单，但配额和行为依浏览器而异；不适合存大量数据和高频写…。
+
 ### 题目
 对比浏览器常见存储方案，并说明 Cookie 的几个关键安全属性。
 
@@ -168,6 +171,9 @@ Set-Cookie: __Host-session=abc; Secure; Path=/; SameSite=Strict
 title: Service Worker 生命周期与常见缓存策略
 difficulty: 进阶
 tags: [PWA, 离线]
+
+### 一句话
+Service Worker 只在安全上下文可用（通常是 HTTPS，localhost 例外）；install 适合预缓存静态资源；activate 适合清理旧缓存、接管客户端。
 
 ### 题目
 Service Worker 的 install、activate、fetch 分别做什么？常见缓存策略有哪些？
@@ -248,6 +254,9 @@ title: 浏览器事件循环、主线程限制与 Worker
 difficulty: 进阶
 tags: [事件循环, Worker]
 
+### 一句话
+主线程同时要处理 JS、样式、布局、绘制和用户输入，长任务会直接拖慢响应；Worker 可把计算密集型任务移到后台线程，如解析大 JSON、图像处理、搜索索引；Worker 不能直接访问 DOM…。
+
 ### 题目
 为什么浏览器里的 JS 要尽量避免长任务？Web Worker 能解决哪些问题，不能解决哪些问题？
 
@@ -300,6 +309,9 @@ const rows = await api.parseCSV(largeText);   // 像调用本地异步函数
 title: Observer 家族与 Performance API 的实战用法
 difficulty: 进阶
 tags: [Observer, 性能]
+
+### 一句话
+IntersectionObserver：懒加载、曝光埋点、无限滚动；ResizeObserver：容器尺寸变化监听；MutationObserver：DOM 结构变化监听。
 
 ### 题目
 `IntersectionObserver`、`ResizeObserver`、`MutationObserver`、`PerformanceObserver` 各自适合什么场景？
@@ -375,6 +387,9 @@ title: 浏览器 DevTools 如何排查内存泄漏与卡顿
 difficulty: 进阶
 tags: [DevTools, 调试]
 
+### 一句话
+Performance 面板看长任务、掉帧、布局抖动、脚本热点；Memory 面板做 heap snapshot，对比对象增长趋势，查 detached DOM、闭包引用链；Network 看资源瀑布、缓存命中、接口阻塞。
+
 ### 题目
 如果线上页面越用越卡，你会如何利用浏览器开发者工具定位问题？
 
@@ -444,6 +459,9 @@ title: V8 引擎工作机制（Ignition / TurboFan / 隐藏类）
 difficulty: 资深
 tags: [V8, 引擎]
 
+### 一句话
+解析 → 字节码：Parser 生成 AST，Ignition 直接解释字节码运行；优化编译：热点代码进入 TurboFan，做基于类型反馈的 JIT 编译；类型不稳定会被 deopt 回 Ignition…。
+
 ### 题目
 V8 是怎么把 JS 跑得越来越快的？理解这些对前端代码有什么实际意义？
 
@@ -488,6 +506,9 @@ function callsite(o: { foo: () => void }) {
 title: WebGPU 概览与适用场景
 difficulty: 资深
 tags: [WebGPU, GPU]
+
+### 一句话
+设计目标：现代显卡 API（基于 Metal / Vulkan / DX12），多线程提交、Compute Shader；性能：相比 WebGL 减少状态机切换开销，能用 GPU 做通用计算；资源：BindGroup / Pipeline 显式声明…。
 
 ### 题目
 WebGPU 跟 WebGL 的核心差异是什么？哪些场景值得切换？

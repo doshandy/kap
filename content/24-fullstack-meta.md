@@ -11,6 +11,9 @@ title: Next.js App Router 与 Pages Router 的核心差异
 difficulty: 进阶
 tags: [Next.js, App Router]
 
+### 一句话
+文件路由：app/ 下用 page.tsx / layout.tsx / loading.tsx / error.tsx / route.ts 表达整套路由能力；默认 RSC：app/ 下组件默认服务端运行，需要交互时显式 'use client'…。
+
 ### 题目
 App Router (13+) 相比 Pages Router 改了哪些核心模型？迁移要注意什么？
 
@@ -55,6 +58,9 @@ export async function POST(req: Request) {
 title: Server Actions 是什么？什么时候该用
 difficulty: 进阶
 tags: [Server Actions, 表单]
+
+### 一句话
+写法：函数顶部 'use server'，前端 import 后就能 await 调用，不需要写 fetch / 路由；使用场景：表单提交、CRUD、startTransition 包裹的乐观更新…。
 
 ### 题目
 Server Actions 让前端可以"直接调用服务端函数"，相比 API Route 有什么优势和限制？
@@ -115,6 +121,9 @@ title: Next App Router 的四层缓存模型
 difficulty: 资深
 tags: [缓存, Next.js]
 
+### 一句话
+Request Memoization：单次渲染内同 URL 的 fetch 被自动去重（仅当请求层）；Data Cache：跨请求的服务端数据缓存，由 revalidate / tags 控制…。
+
 ### 题目
 fetch 看似简单，实际经过哪几层缓存？怎么排查"数据没更新"的问题？
 
@@ -144,6 +153,9 @@ revalidatePath('/posts/[id]', 'page');
 title: Nuxt 3 的核心特性与目录约定
 difficulty: 进阶
 tags: [Nuxt, Vue]
+
+### 一句话
+文件路由：pages/，自动生成路由表；嵌套用文件夹 / 动态路径 [id].vue；自动导入：composables/、utils/、components/ 内导出无需手动 import；数据获取：useFetch / useAsyncData…。
 
 ### 题目
 Nuxt 3 提供哪些开箱能力？目录约定怎么用？
@@ -190,6 +202,9 @@ title: Edge Runtime 与 Node Runtime 的差异
 difficulty: 资深
 tags: [Edge, Cloudflare, Vercel]
 
+### 一句话
+优势：低 cold start、离用户近、按请求计费、全球分布；API 限制：基于 V8 isolate 而非 Node，没有 fs / net / child_process，npm 包要"Edge-compatible"…。
+
 ### 题目
 Next / Nuxt 都支持把页面 / API 部署到 Edge Runtime（Cloudflare Workers / Vercel Edge），它和 Node 的差别是什么？
 
@@ -225,6 +240,9 @@ export async function GET(req: Request) {
 title: 现代框架做 SEO 的关键点
 difficulty: 进阶
 tags: [SEO, meta]
+
+### 一句话
+渲染：内容必须出现在首屏 HTML 里，避免 CSR 后才填充；meta：每页独立 <title> / <meta description> / og: / twitter:，App Router 用 generateMetadata…。
 
 ### 题目
 做面向 C 端的内容站，SEO 上 Next / Nuxt 有哪些必须做对的事？

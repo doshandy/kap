@@ -39,6 +39,9 @@ title: 层叠上下文与 z-index 为什么经常“不生效”
 difficulty: 进阶
 tags: [z-index, 层叠]
 
+### 一句话
+z-index 只在同一层叠上下文中比较；常见创建条件：定位元素且有 z-index、opacity < 1、transform、filter、will-change、isolation: isolate；一旦父元素形成新层叠上下文…。
+
 ### 题目
 解释层叠上下文的创建条件，并说明为什么子元素的 `z-index: 9999` 也可能盖不过别的元素。
 
@@ -111,6 +114,9 @@ title: 移动端适配、媒体查询与容器查询
 difficulty: 进阶
 tags: [响应式, 容器查询]
 
+### 一句话
+媒体查询关注 viewport，适合整页断点；容器查询关注组件容器尺寸，适合组件自适应；移动端常见策略：弹性布局、rem、流式栅格、视口单位、响应式图片；@container 能让卡片在侧栏/主栏复用同一组件时根据父容器宽度自动变形。
+
 ### 题目
 媒体查询和容器查询分别解决什么问题？移动端适配有哪些主流策略？
 
@@ -141,6 +147,9 @@ tags: [响应式, 容器查询]
 title: CSS Variables、深色模式与设计令牌
 difficulty: 进阶
 tags: [主题, 变量]
+
+### 一句话
+Sass 变量在编译期展开，运行时无法动态切换；CSS Variables 可在运行时被覆盖；可以把颜色、圆角、阴影、间距抽成 design tokens，组件只消费 token…。
 
 ### 题目
 为什么现代前端常用 CSS Variables 做主题系统，而不是 Sass 变量？
@@ -210,6 +219,9 @@ title: `:has()`、`:is()`、`:where()`、`:focus-visible` 怎么用
 difficulty: 进阶
 tags: [选择器, 现代 CSS]
 
+### 一句话
+:has() 是“父选择器能力”，可根据后代状态反向选中父元素；:is() 降低选择器重复；:where() 与其类似，但权重为 0；:focus-visible 只在键盘导航等真正需要时显示 focus ring，兼顾可访问性与观感。
+
 ### 题目
 说明几个现代 CSS 选择器的价值，并给出一个能真正减少 JS 的场景。
 
@@ -237,6 +249,9 @@ tags: [选择器, 现代 CSS]
 title: transition、animation、合成层与性能优化
 difficulty: 进阶
 tags: [动画, 性能]
+
+### 一句话
+通常 transform 和 opacity 更容易只触发 composite，不走 layout/paint；改 width/height/top/left 更容易触发布局与重绘；will-change 是提前向浏览器申请优化资源，滥用会增加内存和合成层数量。
 
 ### 题目
 哪些 CSS 动画更容易跑在合成线程？`will-change` 为什么不能乱开？
@@ -297,6 +312,9 @@ tags: [动画, 性能]
 title: 打印样式与网页内容导出友好性
 difficulty: 基础
 tags: [打印, 导出]
+
+### 一句话
+隐藏导航、侧栏、浮层、按钮等非内容元素；把背景、阴影、固定定位元素转为适合纸面的排版；避免代码块和长表格被截断，善用 page-break-inside: avoid。
 
 ### 题目
 给一个知识库网站做 `@media print` 时，应该优先处理哪些问题？
@@ -364,6 +382,9 @@ title: 现代 CSS 必备特性：has / nesting / cascade-layers / color-mix
 difficulty: 进阶
 tags: [现代 CSS, has, layers]
 
+### 一句话
+:has()：终于有了"父选择器"，可基于子节点状态选父，替代过去的 JS hack；CSS Nesting：原生嵌套，去掉 Sass / Less 依赖；@layer：层叠层，让设计系统、组件库、业务 CSS 优先级可控、可覆盖。
+
 ### 题目
 2024 年起浏览器对 `:has()`、CSS Nesting、`@layer`、`color-mix()`、`@scope` 等特性的支持已成熟，它们解决了哪些真实问题？
 
@@ -413,6 +434,9 @@ tags: [现代 CSS, has, layers]
 title: CSS 架构方案：BEM / CSS-in-JS / Tailwind / CSS Modules
 difficulty: 进阶
 tags: [架构, Tailwind, CSS-in-JS]
+
+### 一句话
+BEM：传统命名约定，零运行时，跨技术栈通用，但样板多；CSS Modules：构建期局部作用域，类名 hash，配合 Vue/React 都好用…。
 
 ### 题目
 不同 CSS 组织方式各自的取舍是什么？大型团队怎么选？

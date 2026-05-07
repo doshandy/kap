@@ -45,6 +45,9 @@ title: 泛型约束、默认值与条件类型
 difficulty: 进阶
 tags: [泛型]
 
+### 一句话
+泛型约束 K extends keyof T 限制类型参数；映射类型 + 条件类型 + key remapping 实现按值过滤。
+
 ### 题目
 设计一个 `pick<T, K>` 工具，要求 K 必须是 T 的属性键。再设计 `pickByValue<T, V>` 选出值类型为 V 的键。
 
@@ -133,6 +136,9 @@ title: 模板字面量类型与字符串操纵
 difficulty: 进阶
 tags: [类型, 字符串]
 
+### 一句话
+模板字面量 ${A}_${B} 配合 infer 拆解字符串；内置 Uppercase/Lowercase/Capitalize/Uncapitalize；配合分布式条件类型可以实现完整字符串变换。
+
 ### 题目
 实现 `Camelize<S>` 把 `'user_name'` 转 `'userName'`，再实现 `Trim<S>`。
 
@@ -163,6 +169,9 @@ type Trim<S extends string> =
 title: 判别联合（Tagged Union）的设计与穷尽性
 difficulty: 进阶
 tags: [类型]
+
+### 一句话
+用一个共有的字面量字段（如 type / kind）做判别；TS 会自动收窄 → 编译期保证 switch/if 处理了所有分支；缺一个分支时 never 兜底报错。
 
 ### 题目
 为什么推荐用 tagged union 设计领域模型？怎么保证穷尽匹配？
@@ -198,6 +207,9 @@ title: 品牌类型（Branded Types）实现单位/ID 隔离
 difficulty: 资深
 tags: [类型, 模式]
 
+### 一句话
+在原始类型上"贴一个不可访问的 brand 字段"；编译期区分，运行时无成本。
+
 ### 题目
 如何用类型让 `UserId` 和 `OrderId` 不能互换，即使底层都是 string？
 
@@ -225,6 +237,9 @@ title: 分布式条件类型与 Naked Type Parameter
 difficulty: 资深
 tags: [类型]
 
+### 一句话
+当 T 是裸类型参数（直接出现在 extends 左侧）且为联合时，TS 会对每个成员分别应用条件，结果再 union；用 [T] extends [U] 包裹可阻止分布。
+
 ### 题目
 为什么 `T extends U ? X : Y` 在 T 是联合类型时会"分布"？如何关掉这种分布？
 
@@ -249,6 +264,9 @@ type B = ToArrayNonDist<string | number>; // (string | number)[]
 title: tsconfig 关键字段与严格模式开启策略
 difficulty: 进阶
 tags: [工程]
+
+### 一句话
+strict: true 一组：strictNullChecks / noImplicitAny / strictBindCallApply / strictFunctionTypes / strictPropertyInitialization…。
 
 ### 题目
 列举 tsconfig 中影响项目"安全等级"的关键字段，并给出推荐配置。
@@ -285,6 +303,9 @@ title: 声明合并与模块扩展（Module Augmentation）
 difficulty: 进阶
 tags: [类型, 工程]
 
+### 一句话
+interface 自动合并；同名 namespace 也合并；模块扩展用 declare module 'xx' { interface X { ... } }…。
+
 ### 题目
 怎么给第三方库（如 `vue-router`）的类型加字段？怎么扩展全局 `Window`？
 
@@ -318,6 +339,9 @@ title: Vue 3 中 TypeScript 的最佳实践
 difficulty: 进阶
 tags: [Vue, 类型]
 
+### 一句话
+defineProps<{ }>() 泛型形式（编译期擦除，零运行时成本）；defineEmits<{ (e: 'change', v: string): void }>() 调用签名…。
+
 ### 题目
 在 `<script setup lang="ts">` 中，如何为 props/emits/slots/expose/provide-inject 标注类型？
 
@@ -344,6 +368,9 @@ const t = inject(ThemeKey); // 类型自动推断
 title: 用 infer 在条件类型里抽取类型
 difficulty: 资深
 tags: [infer, 条件类型]
+
+### 一句话
+语法：T extends Pattern<infer X> ? X : never；用途：从函数 / 类 / Promise / 数组中抽取参数 / 返回值 / 元素类型…。
 
 ### 题目
 条件类型中 `infer` 怎么用？常见的"从泛型中拆解"模式有哪些？
@@ -383,6 +410,9 @@ type N = EventName<'onClick' | 'onMouseDown'>; // "click" | "mousedown"
 title: 全局类型扩展与模块声明合并
 difficulty: 资深
 tags: [声明合并, ambient]
+
+### 一句话
+declare global { interface Window { foo: Foo } } 在某模块文件里扩展全局；第三方包扩展：declare module 'pkg-name' { ... }，会与原始声明合并…。
 
 ### 题目
 怎么给 `window`、第三方库、Vue 实例补充全局类型？三方包没有 d.ts 怎么办？
@@ -433,6 +463,9 @@ title: 品牌类型 (Branded Types) 与不透明类型
 difficulty: 资深
 tags: [类型安全, Branded]
 
+### 一句话
+TS 默认结构等价，所有 string 都互通；加一层"虚拟字段"做品牌：type UserId = string & { __brand: 'UserId' }；创建：用工厂函数做 cast，禁止外部直接 as。
+
 ### 题目
 TS 是结构化类型，怎么让 `UserId` 和 `OrderId` 在编译期不可互换？
 
@@ -477,6 +510,9 @@ sendEmail(u, 'hi');
 title: 类型体操实用模式（不只是为了炫技）
 difficulty: 资深
 tags: [类型体操, 模板字符串类型]
+
+### 一句话
+API 路径校验：/users/:id/posts/:postId 自动推导出 { id: string; postId: string }；表单字段：useField<T>('user.address.zip') 推断出嵌套字段类型…。
 
 ### 题目
 模板字符串类型 + 递归 + 分布式条件能解决哪些真实问题？

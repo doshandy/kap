@@ -11,6 +11,9 @@ title: XSS 三种类型与前端最该做的防御
 difficulty: 基础
 tags: [XSS, 输出编码]
 
+### 一句话
+存储型：恶意脚本存进数据库，访问页面时被所有用户执行；反射型：恶意参数被服务端原样拼回响应；DOM 型：前端脚本把不可信内容拼进 DOM。
+
 ### 题目
 请区分存储型、反射型、DOM 型 XSS，并说明前端侧最有效的防御策略。
 
@@ -52,6 +55,9 @@ const safe = DOMPurify.sanitize(richHtml, {
 title: CSP 与 Trusted Types 为什么是现代前端的高阶防线
 difficulty: 进阶
 tags: [CSP, TrustedTypes]
+
+### 一句话
+CSP 可以限制脚本来源、禁止内联脚本、配合 nonce/hash 管控执行入口；Trusted Types 在启用相应 CSP 指令后，可要求危险 DOM injection sink 只接收受信对象…。
 
 ### 题目
 为什么说 CSP 和 Trusted Types 能显著抬高 XSS 攻击门槛？
@@ -98,6 +104,9 @@ el.innerHTML = policy.createHTML(userContent);
 title: CSRF、点击劫持与 SameSite 的关系
 difficulty: 基础
 tags: [CSRF, SameSite, Clickjacking]
+
+### 一句话
+CSRF 利用浏览器会自动带 Cookie 的特性，诱导用户在已登录状态下发起恶意请求；SameSite 限制第三方上下文自动带 Cookie；CSRF Token 用于证明请求确实来自受信页面。
 
 ### 题目
 什么是 CSRF？`SameSite`、CSRF Token、X-Frame-Options 分别在防什么？
@@ -152,6 +161,9 @@ title: CORS、OAuth、JWT 是三回事，别混着讲
 difficulty: 进阶
 tags: [CORS, OAuth, JWT]
 
+### 一句话
+CORS 管的是浏览器是否允许前端读取响应；OAuth 解决授权流程和第三方访问委托；JWT 是令牌格式，不等于安全方案本身。
+
 ### 题目
 为什么“能跨域”和“有权限访问”是两套完全不同的问题？
 
@@ -202,6 +214,9 @@ async function genCodeChallenge(verifier: string): Promise<string> {
 title: npm 供应链攻击与前端依赖治理
 difficulty: 进阶
 tags: [供应链安全, npm]
+
+### 一句话
+固定 lockfile，避免不可控漂移；审查高权限依赖、postinstall 脚本、拼写相似包；对关键依赖做来源核验、版本升级计划和漏洞响应流程。
 
 ### 题目
 前端依赖越来越多，供应链安全应该如何做基本防线？
@@ -256,6 +271,9 @@ title: 原型链污染为什么危险，如何防
 difficulty: 进阶
 tags: [原型链污染, 对象合并]
 
+### 一句话
+攻击者通过 __proto__、constructor.prototype 等路径污染全局原型；一旦成功，可能影响权限判断、请求配置、模板渲染甚至 RCE 链条…。
+
 ### 题目
 什么是 prototype pollution？它为什么经常出现在工具函数和配置合并逻辑里？
 
@@ -308,6 +326,9 @@ title: Source Map、环境变量与前端敏感信息边界
 difficulty: 基础
 tags: [SourceMap, Secrets]
 
+### 一句话
+任何下发到浏览器的值都不能视为真正机密，包括 JS 里的 token、密钥、算法细节；sourcemap 若公开暴露，会放大逆向分析和漏洞利用难度下降的问题；环境变量里以 VITE_ 等前缀暴露到前端的内容，本质就是公开配置。
+
 ### 题目
 前端项目里哪些信息绝不能当成“前端也能保密”的秘密？
 
@@ -353,6 +374,9 @@ build:
 title: Passkeys / WebAuthn 取代密码的工程化路径
 difficulty: 资深
 tags: [Passkeys, WebAuthn]
+
+### 一句话
+原理：基于公私钥的 WebAuthn 协议，私钥存设备 / iCloud Keychain / Google Password Manager，服务端只存公钥…。
 
 ### 题目
 Passkeys 怎么工作？业务接入要做哪些事，对老用户怎么平滑迁移？
@@ -402,6 +426,9 @@ async function loginWithPasskey() {
 title: Subresource Integrity 与第三方资源篡改
 difficulty: 进阶
 tags: [SRI, CDN]
+
+### 一句话
+SRI（Subresource Integrity）：在 <script> / <link> 上加 integrity 属性指定文件的 hash，浏览器校验失败就拒绝执行；哈希算法：sha256 / sha384 / sha512…。
 
 ### 题目
 引入第三方 CDN 脚本时怎么避免被中间人篡改？SRI 怎么用？

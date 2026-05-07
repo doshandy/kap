@@ -11,6 +11,9 @@ title: 时间复杂度与前端真实意义
 difficulty: 基础
 tags: [复杂度, 方法论]
 
+### 一句话
+列表渲染、搜索建议、树遍历、diff、埋点聚合都可能因复杂度失控而卡主线程；O(n²) 在 100 条数据无感，但 1 万条上是 1 亿次操作 → 直接长任务；浏览器主线程一旦阻塞 50ms 即影响 INP，长期阻塞会触发卡顿监控。
+
 ### 题目
 为什么前端工程师也必须对复杂度敏感？以"渲染 1 万条评论"为例说明。
 
@@ -46,6 +49,9 @@ function dupFast(arr: string[]) {
 title: 双指针与滑动窗口模板
 difficulty: 进阶
 tags: [双指针, 滑动窗口]
+
+### 一句话
+滑动窗口：右指针扩张，遇到重复时左指针收缩，保持窗口内合法；用 Map 记录字符上次出现位置，左指针直接跳过去；每个字符最多被左右指针各访问一次，O(n)。
 
 ### 题目
 手写"无重复字符的最长子串"（LeetCode 3），并说明为什么是 O(n)。
@@ -87,6 +93,9 @@ title: 前缀和与差分数组
 difficulty: 进阶
 tags: [前缀和]
 
+### 一句话
+预处理 prefix[i] = a[0]+...+a[i-1]；查询 [l, r] = prefix[r+1] - prefix[l]；前端场景：埋点聚合、热力图、统计图表的区间求和。
+
 ### 题目
 设计一个 NumArray，支持频繁查询区间和，要求 query O(1)。
 
@@ -127,6 +136,9 @@ function rangeAdd(n: number, ops: [number, number, number][]) {
 title: 链表经典题：反转、合并、环检测
 difficulty: 进阶
 tags: [链表, 双指针]
+
+### 一句话
+反转：用 prev/cur/next 三指针滚动；递归则借助新头节点；合并：dummy 头节点简化边界；比较小者依次接入；判圈：快慢指针，相遇则有环；找入口需要数学推导（再走 head 同步）。
 
 ### 题目
 手写：单链表反转（迭代+递归）、合并两个有序链表、Floyd 判圈算法。
@@ -190,6 +202,9 @@ title: 二叉树遍历：递归、迭代、Morris
 difficulty: 进阶
 tags: [树, DFS, BFS]
 
+### 一句话
+前/中/后序的递归本质相同，区别只是访问根节点的时机；迭代版需要显式栈模拟递归；层序使用队列 BFS，按层入队记录每层节点。
+
 ### 题目
 手写二叉树的前/中/后序遍历（递归+迭代）和层序遍历。
 
@@ -252,6 +267,9 @@ title: 手写防抖与节流（含 cancel/leading/trailing）
 difficulty: 进阶
 tags: [手写, 高频]
 
+### 一句话
+防抖：每次触发清除上次定时器，到达 wait 后才执行；leading 表示首次立即触发；节流：固定时间窗口内最多执行一次；trailing 表示结束补一次；都要支持 cancel 释放 timer，避免内存泄漏与组件卸载后还触发。
+
 ### 题目
 实现防抖、节流，支持 leading（首次立即）、trailing（结束触发）、cancel。
 
@@ -311,6 +329,9 @@ function throttle<T extends Fn>(fn: T, wait = 200, opts: { leading?: boolean; tr
 title: 手写 Promise.all / allSettled / race / 限流并发
 difficulty: 资深
 tags: [Promise, 手写, 高频]
+
+### 一句话
+all：要保序、任一 reject 立即短路、空数组立即 resolve、用 Promise.resolve 兼容非 thenable；allSettled：等全部完成，分别记录 fulfilled/rejected；race：第一个落定（成功或失败）即结果。
 
 ### 题目
 实现 `Promise.all`、`allSettled`、`race`，再实现一个限流 N 的并发执行器。
@@ -373,6 +394,9 @@ async function pLimit<T>(tasks: (() => Promise<T>)[], limit = 3): Promise<T[]> {
 title: 手写 LRU 缓存（O(1) 读写）
 difficulty: 资深
 tags: [缓存, 手写, 高频]
+
+### 一句话
+哈希表 + 双向链表：哈希表 O(1) 查找节点，链表 O(1) 移动头尾；ES Map 自带"插入顺序"特性，可用一个小技巧把 Map 当 LRU。
 
 ### 题目
 实现 LRU 缓存，要求 get/put 均为 O(1)。
@@ -446,6 +470,9 @@ title: 手写数组扁平化（多种实现 + 限制深度）
 difficulty: 进阶
 tags: [数组, 手写]
 
+### 一句话
+递归 + reduce 简洁但深层数组易爆栈；栈迭代避免递归调用，适合超大嵌套；arr.flat(Infinity) 是现代最佳选项。
+
 ### 题目
 手写数组扁平化（含限制深度），并对比递归、栈迭代、`while+some`、原生 `flat` 各自的优缺点。
 
@@ -493,6 +520,9 @@ title: 二分查找的边界陷阱
 difficulty: 进阶
 tags: [二分, 高频]
 
+### 一句话
+三个易错点：循环条件 < vs <=、mid 计算溢出、left/right 更新方向；推荐统一写法：左闭右开区间 [left, right)，循环条件 left < right，命中条件用 arr[mid] < target。
+
 ### 题目
 为什么二分查找经常写错？请写出"最左插入位置"和"最右插入位置"。
 
@@ -533,6 +563,9 @@ function rightBound(arr: number[], t: number): number {
 title: DP 经典题：爬楼梯、最长上升子序列、编辑距离
 difficulty: 资深
 tags: [DP, 高频]
+
+### 一句话
+爬楼梯：状态转移 f(n) = f(n-1) + f(n-2)，可滚动变量优化；LIS：贪心 + 二分维护尾部最小值数组，长度即 LIS 长度；编辑距离：二维 DP，分别对应增/删/改三种转移。
 
 ### 题目
 手写三道经典 DP：爬楼梯（O(1) 空间）、最长上升子序列（O(n log n)）、编辑距离。
@@ -588,6 +621,9 @@ function minDistance(a: string, b: string): number {
 title: 前端实战中的算法：虚拟列表 / 路由匹配 / Trie 搜索
 difficulty: 资深
 tags: [工程实战]
+
+### 一句话
+虚拟列表：可视区间 + 二分定位 + 偏移量缓存；Trie：搜索建议、敏感词、自动补全；路由匹配：树或正则配合通配符，按优先级命中。
 
 ### 题目
 列举几个真实业务里"算法不是面试题，而是产品能力基础"的例子，并写出关键代码。
@@ -645,6 +681,9 @@ function matchRoute(routes: Array<{ path: string }>, url: string) {
 title: 图的 BFS / DFS 与前端真实场景
 difficulty: 进阶
 tags: [图, BFS, DFS]
+
+### 一句话
+BFS：层次遍历、最短路径、最少跳数；用 queue 实现；DFS：拓扑排序、检测环、深度优先生成树；递归或显式 stack；前端场景：。
 
 ### 题目
 图遍历在前端有哪些落地场景？BFS / DFS 怎么选？
@@ -708,6 +747,9 @@ export function topologicalSort(nodes: Node[]): string[] | null {
 title: 位运算技巧与前端用例
 difficulty: 进阶
 tags: [位运算, 性能]
+
+### 一句话
+状态标志位：把多个 bool 压成一个 number，用 & | ^ 检查 / 设置 / 翻转；整数判断：x & 1 判奇偶；(x & (x - 1)) === 0 判是否 2 的幂…。
 
 ### 题目
 JS 也能位运算，常见技巧有哪些？什么时候真的有用？

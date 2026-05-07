@@ -11,6 +11,9 @@ title: 测试金字塔为什么不是“多写单测”这么简单
 difficulty: 基础
 tags: [测试策略, 金字塔]
 
+### 一句话
+单元测试验证纯逻辑和边界，反馈最快；组件测试验证组件在近真实环境中的交互和渲染语义；集成测试验证模块协作。
+
 ### 题目
 如何理解单元测试、组件测试、集成测试、E2E 测试的分工？
 
@@ -45,6 +48,9 @@ describe('calcTax', () => {
 title: Mock、Spy、Stub 在前端测试中的边界
 difficulty: 进阶
 tags: [Mock, 单元测试]
+
+### 一句话
+Mock 太多会让测试验证的只是你自己写的假世界；纯逻辑依赖、时间、随机数、网络边界适合 mock；UI 行为和领域规则尽量少 mock，保持更真实的协作关系。
 
 ### 题目
 为什么测试里“什么都 mock”会让测试脆弱？什么时候该 mock，什么时候不该？
@@ -101,6 +107,9 @@ title: 组件测试应该站在用户视角还是实现视角
 difficulty: 进阶
 tags: [组件测试, TestingLibrary]
 
+### 一句话
+用户视角的测试对重构更稳定；按 role、label、text 查询能同时逼近无障碍语义；如果测试过度依赖实现细节，组件一重构就会大面积误报。
+
 ### 题目
 为什么越来越多团队强调“按可见文本和可访问角色查询元素”，而不是按 class 和内部状态断言？
 
@@ -146,6 +155,9 @@ it('密码为空时按钮禁用', () => {
 title: E2E 与视觉回归分别覆盖什么风险
 difficulty: 进阶
 tags: [E2E, 视觉回归]
+
+### 一句话
+E2E 更擅长发现流程断裂、接口联动、权限跳转、真实浏览器行为问题；视觉回归更擅长发现样式错位、主题回退、响应式破版、字号变化等 UI 偏差；两者互补，不应互相替代。
 
 ### 题目
 Playwright/Cypress 和 Percy/Chromatic 这类视觉对比工具，分别更擅长发现什么问题？
@@ -205,6 +217,9 @@ export default defineConfig({
 title: MSW、契约测试与前后端协作
 difficulty: 进阶
 tags: [MSW, 契约测试]
+
+### 一句话
+MSW 可以在浏览器和 Node 层模拟真实 HTTP，保留调用链路；契约测试让前后端围绕 schema/协议做一致性校验；关键是把 mock 数据也当成需要维护的"契约资产"。
 
 ### 题目
 在接口经常变动的团队里，如何让前端测试既不完全依赖真后端，又不脱离真实协议？
@@ -268,6 +283,9 @@ async function fetchUser(id: string): Promise<User> {
 title: 覆盖率、稳定性与 CI 中的测试门禁
 difficulty: 进阶
 tags: [覆盖率, CI]
+
+### 一句话
+覆盖率只说明“执行过”，不说明“断言有价值”；更应关注关键路径、边界情况、异常处理是否被覆盖；CI 里通常分层：快速单测必须过，重型 E2E 可按主干或定时跑。
 
 ### 题目
 为什么覆盖率高不等于测试质量高？CI 测试门禁应如何设计？
@@ -334,6 +352,9 @@ title: Playwright 高级用法（trace / fixtures / projects）
 difficulty: 进阶
 tags: [Playwright, E2E]
 
+### 一句话
+Trace Viewer：失败用例自动录制 dom + 网络 + 截图，定位问题极快；Fixtures：把登录态 / 测试数据封装成 fixture，跨用例复用；Projects：同一套用例在多浏览器 / 多分辨率 / 多 locale 跑。
+
 ### 题目
 用 Playwright 跑 E2E 时有哪些被忽视但极有用的能力？
 
@@ -389,6 +410,9 @@ export default {
 title: Flaky 测试是怎么来的，怎么治理
 difficulty: 资深
 tags: [Flaky, 稳定性]
+
+### 一句话
+来源：异步未等待、定时器、动画、网络抖动、并发用例数据互相污染、随机数；自动检测：CI 上做 retry，记录哪些用例频繁 retry，标记成 flaky；排查：本地 --repeat-each=20、加详细 log；隔离运行确认是不是用例间污染。
 
 ### 题目
 跑十次有两次失败的测试就是 flaky test，怎么定位和根治？

@@ -1,5 +1,23 @@
 # Changelog
 
+## 0.11.0
+
+- feat：题目结构升级 + 一句话理解全覆盖 + 搜索 / 收藏 / 工程优化
+  - **「一句话理解」覆盖率 35% → 100%**：新增 `scripts/fill-summary.ts` 半自动化补全 226 道题
+  - **新题型段落支持**：parseMarkdown 支持 `### 常见误区` / `### 追问` 两段，QuestionCard 渲染独立卡片样式
+  - **收藏 / 跳过 状态独立化**（新 store `marks.ts`）：标星与跳过和进度状态解耦
+  - **搜索增强**：
+    - 命中关键词高亮（`<mark>`），按字段（标题 / 标签 / 正文）显示来源
+    - 搜索历史 chips（最多 8 条），可一键清空
+    - 命中片段上下文截取（前后 50 字 + 省略号）
+    - 全局 `Cmd/Ctrl+K` 重新聚焦输入
+  - **导出能力扩展**（函数层）：
+    - `exportQuestionsToMarkdown`：批量"面试小抄"单文件
+    - `exportQuestionsToAnkiTSV`：Anki 卡片 TSV 导出
+    - jspdf / html2canvas 改为按需懒加载，避免主 bundle 引入
+  - **Bundle 拆分**：vite manualChunks 细分 echarts / repl / icons / markdown / search / share / vue / export
+    - 主 bundle 不再拖 useExport 系列；首屏 precache 2688KB → 2029KB（−25%）
+
 ## 0.10.0
 
 - feat：少而精专题题库 +11，361 → 372，重点补"算法专项 + 前沿 Web 平台能力"

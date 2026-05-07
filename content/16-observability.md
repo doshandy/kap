@@ -11,6 +11,9 @@ title: 前端错误捕获链路应该怎么搭
 difficulty: 基础
 tags: [错误监控, ErrorBoundary]
 
+### 一句话
+运行时脚本错误可由 window.onerror 捕获；未处理 Promise 异常由 unhandledrejection 捕获；Vue/React 组件渲染链路的异常需要框架级 error handler / Error Boundary。
+
 ### 题目
 前端有哪些常见错误来源？`window.onerror`、`unhandledrejection`、框架级错误边界各能兜到什么？
 
@@ -74,6 +77,9 @@ title: Source Map 上传与错误还原
 difficulty: 进阶
 tags: [SourceMap, Sentry]
 
+### 一句话
+生产环境代码被压缩和拆包后，堆栈只剩短变量名和偏移量；需要把构建产物版本与对应 sourcemap 上传到监控平台做符号还原；要保证发布版本、commit、产物 hash、环境信息能对齐。
+
 ### 题目
 为什么线上错误堆栈经常看不懂？Source Map 平台化接入时要注意什么？
 
@@ -122,6 +128,9 @@ Sentry.init({
 title: RUM 与 Web Vitals 才能告诉你真实用户体验
 difficulty: 进阶
 tags: [RUM, WebVitals]
+
+### 一句话
+Lighthouse 是实验室环境，不能覆盖真实网络、设备、地区和用户行为差异；RUM 适合收集 LCP、INP、CLS、TTFB、长任务、JS 错误、资源错误、页面白屏等；还应关联版本号、路由、设备、浏览器、地域、登录态等上下文。
 
 ### 题目
 为什么只看 Lighthouse 报告不够？RUM 应该收哪些最有价值的指标？
@@ -182,6 +191,9 @@ setTimeout(() => {
 title: 埋点模型设计：事件、属性、上下文、会话
 difficulty: 进阶
 tags: [埋点, 数据模型]
+
+### 一句话
+要有稳定事件命名、属性字典、用户上下文和版本上下文；事件语义必须可解释，避免一堆 click_button_1 这类不可维护命名；埋点要围绕业务问题和分析目标设计，而不是“能埋的都埋”。
 
 ### 题目
 为什么埋点经常“越埋越乱”？一个可持续的数据模型至少要包含什么？
@@ -258,6 +270,9 @@ title: Beacon、fetch keepalive 与监控上报通道怎么选
 difficulty: 进阶
 tags: [Beacon, keepalive, 上报]
 
+### 一句话
+sendBeacon() 适合页面隐藏、跳转、卸载前发送少量分析数据，浏览器会尽量异步送达；sendBeacon() 只适合小体积、POST、不关心响应内容的上报；如果需要自定义方法、请求头、读取响应，或想与现有 fetch 基础设施复用…。
+
 ### 题目
 前端监控为什么经常偏爱 `navigator.sendBeacon()`？什么时候又该改用 `fetch(..., { keepalive: true })`？
 
@@ -323,6 +338,9 @@ title: 会话回放、采样与告警阈值
 difficulty: 进阶
 tags: [SessionReplay, 告警]
 
+### 一句话
+会话回放有性能、隐私和存储成本，必须做采样和敏感信息脱敏；告警阈值太低会噪音泛滥，太高又会错过故障；常见做法是错误率、性能分位数、白屏率、接口失败率多维组合告警。
+
 ### 题目
 会话回放和告警为什么都不能“全量开最大”？
 
@@ -387,6 +405,9 @@ title: 可观测性与隐私合规的平衡
 difficulty: 进阶
 tags: [隐私合规, GDPR]
 
+### 一句话
+用户输入、URL query、错误堆栈、接口响应里都可能包含敏感信息；采集前要做脱敏、白名单、最小必要原则；不同地区对 Cookie、追踪、会话回放有不同合规要求。
+
 ### 题目
 为什么说监控系统本身也可能成为隐私风险源？
 
@@ -443,6 +464,9 @@ title: OpenTelemetry 在前端的接入
 difficulty: 资深
 tags: [OpenTelemetry, Trace]
 
+### 一句话
+SDK：@opentelemetry/sdk-trace-web + @opentelemetry/instrumentation-fetch / xml-http-request / document-load；出口：OTLP HTTP / gRPC…。
+
 ### 题目
 后端常用 OpenTelemetry 做分布式追踪，前端怎么接入并把链路打通？
 
@@ -492,6 +516,9 @@ function trackRouteChange(to: string) {
 title: 前端 A/B 测试与特性开关的工程实现
 difficulty: 进阶
 tags: [Feature Flag, A/B]
+
+### 一句话
+决策放在边缘 / SSR：避免客户端"先看到旧版再切到新版"造成 flash；SDK：第三方（LaunchDarkly / Unleash / Statsig）或自建 KV + 推送；缓存：每个 flag 在客户端有 TTL，不要每次渲染都问服务端。
 
 ### 题目
 特性开关 / A/B 实验在前端怎么做，才能既灵活又不影响性能 / 体验？

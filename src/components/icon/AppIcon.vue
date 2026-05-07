@@ -58,6 +58,13 @@ import {
   TrophyOutlined,
   UnorderedListOutlined,
   UploadOutlined,
+  WarningOutlined,
+  PushpinOutlined,
+  StopOutlined,
+  ClockCircleOutlined,
+  HighlightOutlined,
+  TagOutlined,
+  ApiOutlined,
 } from '@ant-design/icons-vue';
 
 const map = {
@@ -115,6 +122,13 @@ const map = {
   thunderbolt: ThunderboltOutlined,
   trophy: TrophyOutlined,
   upload: UploadOutlined,
+  warning: WarningOutlined,
+  bookmark: PushpinOutlined,
+  skip: StopOutlined,
+  clock: ClockCircleOutlined,
+  highlight: HighlightOutlined,
+  tag: TagOutlined,
+  api: ApiOutlined,
 } as const;
 
 export type IconName = keyof typeof map;

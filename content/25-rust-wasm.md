@@ -11,6 +11,9 @@ title: 为什么前端工具链都在被 Rust 重写
 difficulty: 进阶
 tags: [Rust, 工具链]
 
+### 一句话
+性能：原生编译、零 GC、并行更彻底，10× ~ 100× 于 Node 实现；稳定：内存安全 + 强类型，比 JS 更适合写编译器 / lexer / linter；跨平台：单一二进制，CI / Docker 容易分发…。
+
 ### 题目
 Vite 5 默认仍是 esbuild，但 SWC、Rolldown、Turbopack、Biome、Lightning CSS 等都用 Rust，它们的核心收益是什么？
 
@@ -48,6 +51,9 @@ oxlint --fix src/
 title: WebAssembly 基础与运行模型
 difficulty: 进阶
 tags: [WASM, 浏览器]
+
+### 一句话
+二进制指令格式，跑在浏览器 / Node 内的栈机虚拟机里，与 JS 共享同一事件循环；优势：可预测的性能、接近原生速度、多语言（Rust/C/C++/Go/。
 
 ### 题目
 WASM 是什么？它和 JS 的关系如何，浏览器是怎么加载和运行的？
@@ -87,6 +93,9 @@ function blurImage(rgba: Uint8ClampedArray, w: number, h: number) {
 title: 用 Rust 写浏览器 WASM 模块的完整流程
 difficulty: 资深
 tags: [Rust, wasm-bindgen]
+
+### 一句话
+cargo new --lib，Cargo.toml 添加 crate-type = ["cdylib"]，依赖 wasm-bindgen；用 wasm-pack build --target web 生成 ESM + .wasm…。
 
 ### 题目
 从 0 写一个 Rust 模块给前端调用，工具链和工程化如何组织？
@@ -136,6 +145,9 @@ title: 哪些场景上 WASM 真的能提速
 difficulty: 资深
 tags: [WASM, 性能]
 
+### 一句话
+适合：图像/视频处理、加解密 / 哈希、PDF / Office / Excel 解析、CAD / 仿真、压缩 / 转码、游戏物理；不太适合：字符串 / DOM 操作密集、调用频繁但计算量小的（互操作开销大于 JS 自身）…。
+
 ### 题目
 什么样的前端任务用 WASM 才能拿到明显收益？哪些反而会变慢？
 
@@ -170,6 +182,9 @@ console.table(performance.getEntriesByType('measure'));
 title: 服务端 / Edge 跑 WASM 的现状
 difficulty: 资深
 tags: [WASM, Edge, WASI]
+
+### 一句话
+三大优势：启动毫秒级、内存隔离强、跨语言安全沙箱；WASI（WebAssembly System Interface）让 WASM 能访问文件 / 网络 / 时钟，逼近 Node…。
 
 ### 题目
 WASM 不只是浏览器技术，它在服务端有什么落地场景？为什么 Cloudflare / Fastly / Shopify 都在押注？
@@ -207,6 +222,9 @@ wasmtime run target/wasm32-wasi/release/upper.wasm < input.txt
 title: JS 与 Rust/WASM 的数据互操作模式
 difficulty: 资深
 tags: [互操作, WASM]
+
+### 一句话
+零拷贝：直接把 Uint8Array 视图建在 wasm memory.buffer 上，原地处理；池化：复用 wasm memory 中的 buffer，避免反复 alloc / free；分块：超大输入分块送进去…。
 
 ### 题目
 图像 / 大数组传给 WASM 处理后再回到 JS，怎么做能既快又不爆内存？

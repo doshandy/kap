@@ -11,6 +11,9 @@ title: 手写 call / apply / bind
 difficulty: 进阶
 tags: [手写, this, 高频]
 
+### 一句话
+call/apply 本质：把函数挂为目标对象的临时属性 → 调用 → 删除属性；bind 返回新函数，需要支持柯里化拼参数；bind 后的函数若被 new 调用：忽略绑定的 this，仍创建新对象（构造调用优先级最高）。
+
 ### 题目
 不借助原生 `call/apply/bind`，手写它们的实现，并说明 `bind` 的几个边界。
 
@@ -56,6 +59,9 @@ title: 手写 new 与 instanceof
 difficulty: 进阶
 tags: [手写, 原型, 高频]
 
+### 一句话
+new 的四步：创建对象 → 链原型 → 执行构造（this 指向新对象） → 若构造返回对象则用之，否则返回新对象；instanceof 的本质：判断右侧 prototype 是否在左侧的原型链上。
+
 ### 题目
 不借助 `new` 关键字与原生 `instanceof`，实现 `myNew(Ctor, ...args)` 与 `myInstanceof(left, right)`。
 
@@ -90,6 +96,9 @@ function myInstanceof(left: any, right: Function): boolean {
 title: 手写 curry / compose / pipe
 difficulty: 进阶
 tags: [函数式, 手写]
+
+### 一句话
+curry：参数数量达到 fn.length 才执行，否则返回继续接收参数的函数；compose / pipe：reduce / reduceRight 串联函数，前一个的返回值喂给下一个；配合泛型可保留类型推导。
 
 ### 题目
 手写函数柯里化 `curry`，以及函数组合 `compose`（从右往左）与 `pipe`（从左往右）。
@@ -131,6 +140,9 @@ pipe(add(1), double)(3); // (3+1)*2 = 8
 title: 手写 EventEmitter（含 once / off / wildcards）
 difficulty: 进阶
 tags: [发布订阅, 手写, 高频]
+
+### 一句话
+on 注册时建立事件 → 处理器列表的映射；once 通过包装函数自动 off；emit 时复制一份监听器列表，避免遍历过程中被改动。
 
 ### 题目
 实现 `on / off / once / emit` 的发布订阅类，并说明事件回调中 `off` 自身可能引发的遍历问题。
@@ -183,6 +195,9 @@ title: 手写深拷贝（处理循环引用 + Symbol + 特殊对象）
 difficulty: 资深
 tags: [手写, 高频, 对象]
 
+### 一句话
+用 WeakMap 记录已克隆对象，遇到相同引用直接返回，避免无限递归；特殊对象需要单独构造：new Date()、new RegExp()、new Map()、new Set()…。
+
 ### 题目
 手写深拷贝，要求支持循环引用、Symbol 键、Map/Set/Date/RegExp，并说明与原生 `structuredClone` 的差异。
 
@@ -232,6 +247,9 @@ function deepClone<T>(value: T, seen = new WeakMap()): T {
 title: 手写一个简版 ajax / 带超时与重试的 fetch
 difficulty: 进阶
 tags: [网络, 手写]
+
+### 一句话
+XHR 关键事件：onload、onerror，根据 status 判断成功/失败；超时用 AbortController + setTimeout，比 XHR 的 timeout 更通用；重试需要避免对幂等性敏感的请求（如 POST 创建订单）。
 
 ### 题目
 手写一个基于 XHR 的 ajax 封装；再实现一个带超时、重试、指数退避的 fetch 包装。
@@ -285,6 +303,9 @@ async function fetchWithRetry(url: string, opts: RequestInit & { timeout?: numbe
 title: 系统设计：10 万条数据的高性能虚拟列表
 difficulty: 资深
 tags: [系统设计, 虚拟列表]
+
+### 一句话
+澄清问题：定高 / 变高 / 树形 / 分组吸顶？滚动容器是页面还是局部？是否要键盘/搜索/选择？SSR？；核心方案：；1. 计算可视区间 [start, end]，只渲染该区间 + overscan。
 
 ### 题目
 让你从零设计一个支持 10 万条数据的列表组件，怎么拆解？
@@ -342,6 +363,9 @@ function onScroll(e: Event) {
 title: 系统设计：秒传 + 断点续传 + 大文件上传组件
 difficulty: 资深
 tags: [系统设计, 上传]
+
+### 一句话
+切片：File.slice(start, end) 切成固定大小（如 5MB）；秒传：算整文件 hash → 询问服务端是否存在 → 存在则直接成功；断点续传：上传前询问"已上传分片列表"，跳过这些 chunk。
 
 ### 题目
 设计一个支持秒传、断点续传、并发限流的大文件上传组件，描述前后端协议与关键实现。
@@ -408,6 +432,9 @@ title: 系统设计：前端监控 SDK 核心模块
 difficulty: 资深
 tags: [系统设计, 监控]
 
+### 一句话
+采集：JS Error / Promise Rejection / 资源加载失败 / Vue errorHandler / 自定义业务错误；性能：FCP/LCP/INP/CLS（PerformanceObserver）/ 长任务 / 接口耗时…。
+
 ### 题目
 让你设计一个前端监控 SDK，包含哪些核心模块？如何保证稳定性、低开销、不影响业务？
 
@@ -460,6 +487,9 @@ title: 面试表达策略：先结论，后展开，再补边界
 difficulty: 基础
 tags: [表达, 面试, 软技能]
 
+### 一句话
+金字塔表达：先抛主线/结论 → 再分点展开 → 再补边界与取舍；不要"代码先行 + 默默写代码"，要"边写边讲思路+复杂度+陷阱"；系统设计题先澄清问题：场景、规模、约束，不要直接动手。
+
 ### 题目
 为什么很多人会做题但面试表现一般？回答技术题更稳的表达结构是什么？
 
@@ -487,6 +517,9 @@ tags: [表达, 面试, 软技能]
 title: 设计一个富文本编辑器
 difficulty: 资深
 tags: [系统设计, 富文本, 编辑器]
+
+### 一句话
+数据模型：放弃 contentEditable 的 DOM，用自定义 JSON tree（block + inline + marks）；选择 Slate / TipTap / Lexical / ProseMirror，各家都有 plugin 体系…。
 
 ### 题目
 让你设计 Notion / 飞书文档级别的富文本编辑器，整体架构、数据模型、协作和性能怎么考虑？
@@ -532,6 +565,9 @@ doc.on('update', (update) => {
 title: 设计一个多人实时协作系统（光标 / 编辑 / 在线状态）
 difficulty: 资深
 tags: [实时协作, 系统设计]
+
+### 一句话
+通信：WebSocket / WebRTC，长连接保活 + 心跳 + 重连；一致性：CRDT（Yjs、Automerge）首选，OT（ShareDB）次选；CRDT 不需要中心服务器仲裁…。
 
 ### 题目
 要让多人在同一文档 / 画布上实时协作（看到彼此光标、互不冲突地编辑），整体怎么设计？

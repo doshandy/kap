@@ -11,6 +11,9 @@ title: Vite 为什么开发快、构建又能稳定
 difficulty: 进阶
 tags: [Vite, 构建]
 
+### 一句话
+开发期基于原生 ESM 按需提供模块，不先把整个项目打成 bundle；依赖预构建通常用 esbuild，把 CJS/多文件依赖转换成更适合浏览器消费的 ESM；业务代码按请求即时转换，HMR 粒度细、回流范围小。
+
 ### 题目
 请解释 Vite 在 dev 和 build 两个阶段分别做了什么，为什么它的启动体验比传统打包器更快。
 
@@ -80,6 +83,9 @@ title: Webpack、Rollup、esbuild、SWC 各自擅长什么
 difficulty: 进阶
 tags: [Webpack, Rollup, esbuild, SWC]
 
+### 一句话
+Webpack 生态庞大、能力全面，适合复杂应用与历史包袱重的项目；Rollup 天然偏向 ESM 和库构建，产物更干净；esbuild / SWC 目标是极致速度，常被用于转译、压缩、预构建。
+
 ### 题目
 如何从“应用构建”和“库构建”两个角度对比主流构建工具？
 
@@ -138,6 +144,9 @@ export default {
 title: npm、yarn、pnpm 与 lockfile、peerDependencies 的本质
 difficulty: 进阶
 tags: [pnpm, 依赖管理]
+
+### 一句话
+pnpm 通过内容寻址存储和符号链接减少磁盘占用、提升安装一致性；lockfile 锁定依赖树，保证 CI/本地一致；peerDependencies 表达“宿主必须提供某依赖且版本要兼容”，常用于插件、组件库、适配器。
 
 ### 题目
 为什么大型前端团队越来越倾向 pnpm？`peerDependencies` 又是在解决什么问题？
@@ -207,6 +216,9 @@ pnpm add lodash --filter @my/web
 title: SemVer、Conventional Commits、Changesets 分别治理什么问题
 difficulty: 进阶
 tags: [SemVer, ConventionalCommits, Changesets]
+
+### 一句话
+SemVer 定义的是“版本变更对外承诺”：破坏性变更升 major，向后兼容的新功能升 minor，向后兼容修复升 patch；Conventional Commits 统一提交语义，让变更历史更易检索…。
 
 ### 题目
 为什么成熟团队会同时引入语义化版本、规范化提交和发布说明工具？这三者各自解决什么问题？
@@ -278,6 +290,9 @@ title: Source Map、Browserslist 与 Polyfill 策略
 difficulty: 进阶
 tags: [SourceMap, Polyfill]
 
+### 一句话
+sourcemap 帮助调试和错误回溯，但线上公开暴露可能泄露源码结构；语法降级由编译器处理，如可选链转低版本写法；API polyfill 则补运行时能力，如 Promise、Array.from；Browserslist 定义目标环境…。
+
 ### 题目
 前端为什么需要区分开发 sourcemap、线上 sourcemap，以及“语法降级”和“API polyfill”？
 
@@ -338,6 +353,9 @@ find dist -name "*.map" -delete
 title: Monorepo、workspace、project references 的组合打法
 difficulty: 资深
 tags: [Monorepo, TS]
+
+### 一句话
+Monorepo 适合多个包强协作、共享基础设施、需要原子改动和统一发布流程的团队；workspace 解决依赖链接与本地开发；Turborepo/Nx 解决任务缓存、增量执行、依赖图调度。
 
 ### 题目
 什么样的团队适合 Monorepo？pnpm workspace、Turborepo/Nx、TS Project References 各负责哪一层问题？
@@ -402,6 +420,9 @@ tsc --build --clean      # 清理输出
 title: ESLint、Prettier、Husky、lint-staged、CI 的职责边界
 difficulty: 基础
 tags: [规范, CI]
+
+### 一句话
+Prettier 负责格式，不负责业务正确性；ESLint 负责可疑模式、最佳实践和团队约束；Stylelint 负责样式层一致性与可疑模式；commitlint 则更偏提交语义治理。
 
 ### 题目
 代码质量工具应该如何分层，避免“本地一套、CI 一套”的混乱？
@@ -468,6 +489,9 @@ title: 前端库的产物设计：ESM/CJS/types/exports/sideEffects
 difficulty: 资深
 tags: [发布, 包设计]
 
+### 一句话
+明确入口：exports、types、必要时 main/module；标注 Tree Shaking 语义：sideEffects；提供子路径导出时，要确保运行时代码和类型定义都能对上。
+
 ### 题目
 如果你要发布一个前端工具库，`package.json` 里最关键的几个字段该怎么设计？
 
@@ -521,6 +545,9 @@ import '@my/lib/style.css';                       // 样式独立引入
 title: Webpack 5 Module Federation 的价值与边界
 difficulty: 资深
 tags: [Webpack, ModuleFederation, 微前端]
+
+### 一句话
+Module Federation 允许多个独立构建在运行时共享和消费模块，适合独立部署的微前端架构；核心角色通常包括 host、remote、shared 依赖，以及远程容器入口；它解决的是“独立发布 + 运行时共享代码”的问题，而不是自动消除架构边界成本。
 
 ### 题目
 Module Federation 为什么会被称为微前端的重要能力？它真正解决了什么，又带来了什么新复杂度？
@@ -579,6 +606,9 @@ title: exports、subpath imports 与现代包入口设计
 difficulty: 资深
 tags: [package.json, exports, imports]
 
+### 一句话
+exports 明确包的公开 API 面，能限制未声明路径被直接 import；子路径导出适合暴露稳定的细粒度入口，如 pkg/button、pkg/server；imports 更偏包内部别名和条件映射，通常服务于包自身源码组织。
+
 ### 题目
 为什么现代包更推荐用 `exports` 管理公开入口？`imports` 和子路径导入又适合什么场景？
 
@@ -635,6 +665,9 @@ import config from '#config';   // 自动按环境切换
 title: CI/CD 缓存、矩阵构建与门禁设计
 difficulty: 进阶
 tags: [CI, GitHubActions, 缓存]
+
+### 一句话
+常见瓶颈在依赖安装、浏览器下载、构建产物分析、E2E 启动与等待；缓存要围绕 lockfile、包管理器 store、测试浏览器和构建中间产物设计，避免缓存污染；矩阵构建适合多 Node 版本、多操作系统或多浏览器验证，但不该无脑展开。
 
 ### 题目
 前端 CI 为什么经常既慢又不稳定？缓存和矩阵构建该怎么设计才靠谱？
@@ -703,6 +736,9 @@ title: Monorepo 多包发版（Changesets / Nx Release / Turborepo）
 difficulty: 资深
 tags: [Monorepo, 发版]
 
+### 一句话
+选型：Changesets（手写 patch / minor / major 描述）、Nx Release、Lerna v7+ 重写版；流程：开发提交时附带 changeset 文件 → CI 合并后机器人开 PR → 合 PR 时统一 publish…。
+
 ### 题目
 一个仓库里有几十个 package，怎么处理版本号、CHANGELOG 和发布顺序？
 
@@ -756,6 +792,9 @@ jobs:
 title: Webpack / Rollup / Vite / Rolldown / Turbopack 比较
 difficulty: 资深
 tags: [打包工具, Vite]
+
+### 一句话
+打包器三件事：依赖图分析、转换、产出 bundle；Webpack：CommonJS/ESM 都吃，生态最丰富；启动慢，对大型项目升级不友好；Rollup：纯 ESM 优化好，tree-shaking 极佳，组件库首选；不擅长应用代码分包。
 
 ### 题目
 打包器都在做什么？为什么 Vite 在 dev 上能秒开，prod 却仍然要打包？

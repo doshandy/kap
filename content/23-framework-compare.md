@@ -11,6 +11,9 @@ title: 主流框架的响应式模型对比
 difficulty: 资深
 tags: [响应式, 框架]
 
+### 一句话
+React：状态变更触发整个子树重新执行函数 + diff，靠 memo 减少；React Compiler 自动 memo；Vue 3：基于 Proxy 的细粒度依赖追踪，组件级 patchFlag + 子树 hoist…。
+
 ### 题目
 React、Vue、Svelte、Solid、Qwik、Angular 的响应式模型分别是什么？各自的性能边界在哪？
 
@@ -42,6 +45,9 @@ const double = computed(() => c.value * 2);
 title: SPA / SSR / SSG / ISR / RSC / Streaming / Resumability
 difficulty: 资深
 tags: [渲染策略, SSR]
+
+### 一句话
+SPA：纯客户端渲染，简单、易部署；首屏慢、SEO 弱，适合后台 / 工具站；SSR：每次请求服务端渲染，首屏快 + SEO 好，但服务器成本高；SSG：构建期生成静态 HTML，CDN 直接吐，性价比高但内容更新需要重建。
 
 ### 题目
 做一个新项目时，怎么选 SPA、SSR、SSG、ISR、RSC、Streaming SSR、Resumability？
@@ -79,6 +85,9 @@ title: 各框架运行时体积与启动成本对比
 difficulty: 进阶
 tags: [体积, 性能]
 
+### 一句话
+运行时体积（gzip 大约）：Svelte ~2KB、Solid ~7KB、Vue 3 ~30KB、Preact ~3KB、React+ReactDOM ~40KB、Angular 较大…。
+
 ### 题目
 关心首屏 TTI 时，框架本身的运行时大小、解析 / 执行成本怎么对比？
 
@@ -113,6 +122,9 @@ title: 生态、招聘和团队工程化的取舍
 difficulty: 进阶
 tags: [选型, 团队]
 
+### 一句话
+生态广度：组件库 / 状态管理 / 路由 / SSR 框架 / IDE 插件是否齐全；招聘市场：Vue 在国内招聘量大，React 全球范围更通用，Svelte / Solid 招聘困难；学习曲线：React + TypeScript 模式多、心智重…。
+
 ### 题目
 技术选型不只看技术指标，怎么把生态成熟度、招聘难度、上下游配套也考虑进去？
 
@@ -143,6 +155,9 @@ const decisionMatrix = {
 title: 老项目迁移 / 多框架共存怎么做
 difficulty: 资深
 tags: [迁移, 微前端]
+
+### 一句话
+评估收益：迁移要算成本（人月）和收益（性能 / 可维护 / 招聘），别为迁移而迁移；分阶段：先抽公共能力（API、设计系统、登录态）成框架无关包，再按页迁移…。
 
 ### 题目
 公司里有 Vue 2、Vue 3、React 多套框架，怎么平稳迁移而不停业务？
@@ -185,6 +200,9 @@ start({ sandbox: { strictStyleIsolation: true } });
 title: Angular 的核心差异和适合场景
 difficulty: 进阶
 tags: [Angular, DI]
+
+### 一句话
+模块化 + DI：依赖注入是一等公民，适合大型业务的解耦；全家桶：CLI、Router、Forms、HttpClient、RxJS、i18n、SSR (Universal) 都官方提供；TS-first：从 v2 起就是 TS，类型体系完整。
 
 ### 题目
 为什么 Angular 在国内偏冷但在企业 / 银行场景仍然主流？它的关键特性是什么？
@@ -234,6 +252,9 @@ title: Qwik 与 Resumability 模型
 difficulty: 资深
 tags: [Qwik, Resumability]
 
+### 一句话
+Hydration 慢的根本原因：要把整个组件树在客户端再跑一次绑定事件；Resumability：Qwik 在 SSR 时把"序列化的状态机 + 事件监听描述"塞进 HTML（attributes）；浏览器无需重新执行组件代码…。
+
 ### 题目
 Qwik 主张"零 hydration"是怎么做到的？跟 Islands Architecture 有什么不同？
 
@@ -266,6 +287,9 @@ export const Counter = component$(() => {
 title: Svelte 5 与 Solid 的设计哲学
 difficulty: 资深
 tags: [Svelte, Solid, Signals]
+
+### 一句话
+Solid：运行时基于 Signals + 编译 JSX，组件函数只执行一次，依赖追踪是真正的 fine-grained；Svelte 5：Runes（$state / $derived / $effect）让响应式从语法糖回到显式…。
 
 ### 题目
 Svelte 5（Runes）和 Solid 都是"消失的框架"，它们的实现方式有什么不同？

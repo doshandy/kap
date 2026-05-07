@@ -108,6 +108,9 @@ title: 强缓存、协商缓存、Service Worker 缓存如何协同
 difficulty: 基础
 tags: [缓存, CDN]
 
+### 一句话
+强缓存命中直接不发请求：Cache-Control: max-age 优先级高于 Expires；协商缓存会发请求问服务器：ETag/If-None-Match 更精确，Last-Modified/If-Modified-Since 更轻量…。
+
 ### 题目
 说清楚 `Cache-Control`、`Expires`、`ETag`、`Last-Modified` 的关系，并补充前端资源版本化策略。
 
@@ -168,6 +171,9 @@ location = /index.html {
 title: CORS、预检请求与常见跨域方案
 difficulty: 进阶
 tags: [跨域, CORS]
+
+### 一句话
+同源策略保护用户上下文和站点数据，防止任意站点读取别站响应；简单请求满足方法/头部/content-type 限制；否则先发 OPTIONS 预检…。
 
 ### 题目
 浏览器为什么要做同源限制？CORS 的简单请求和预检请求区别是什么？
@@ -240,6 +246,9 @@ title: WebSocket、SSE、轮询怎么选
 difficulty: 进阶
 tags: [实时通信, SSE]
 
+### 一句话
+聊天通常优先 WebSocket：双向实时、交互频繁；通知流、日志流、AI 文本流很适合 SSE：服务端到客户端单向流式、浏览器原生支持 EventSource；轮询实现简单但浪费请求；长轮询是过渡方案。
+
 ### 题目
 给聊天、通知、AI 流式输出三个场景分别选通信方式，并解释原因。
 
@@ -306,6 +315,9 @@ async function streamChat(prompt: string) {
 title: 大文件上传、断点续传、Range 下载的前端设计
 difficulty: 进阶
 tags: [上传, Range]
+
+### 一句话
+前端切片，计算文件 hash，先问服务端“哪些分片已存在”；仅上传缺失分片，服务端最终合并；秒传本质是服务端发现同 hash 文件已存在，直接复用。
 
 ### 题目
 如何设计一个支持断点续传和秒传的上传组件？
@@ -376,6 +388,9 @@ title: DNS、CDN 与接入层优化的前端视角
 difficulty: 进阶
 tags: [DNS, CDN]
 
+### 一句话
+CDN 把静态资源分发到边缘节点，减少 RTT 和源站压力；未命中时会回源，回源链路和缓存键策略会影响最终性能；dns-prefetch 提前解析域名；preconnect 提前建立 TCP/TLS。
+
 ### 题目
 前端如何理解 CDN、回源、预连接和 DNS 优化？
 
@@ -434,6 +449,9 @@ title: WebRTC 基础：为什么 P2P 仍然需要服务器
 difficulty: 资深
 tags: [WebRTC, P2P]
 
+### 一句话
+Signaling 服务器：交换 SDP / ICE，但本身不传媒体；常用 WebSocket；SDP（Session Description Protocol）：协商编解码、媒体方向、加密参数…。
+
 ### 题目
 浏览器之间打 P2P 视频通话，整个流程涉及哪些角色？SDP 和 ICE 各自做什么？
 
@@ -478,6 +496,9 @@ pc.ontrack = (e) => {
 title: HTTP/3 / QUIC 在前端工程中的可见影响
 difficulty: 资深
 tags: [HTTP/3, QUIC]
+
+### 一句话
+0-RTT / 1-RTT：握手次数减少，移动网络弱信号下首请求显著快；多路复用：基于 UDP，避免 HTTP/2 的 TCP 队头阻塞；连接迁移：网络切换（WiFi → 4G）连接不丢。
 
 ### 题目
 作为前端，HTTP/3 的落地会让你哪些指标受益？踩到的坑是什么？

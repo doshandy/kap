@@ -93,6 +93,9 @@ title: Vue3 响应式系统的 track / trigger 是怎么工作的
 difficulty: 资深
 tags: [响应式, 原理]
 
+### 一句话
+当前正在执行的副作用函数会被压入 effect 栈，getter 中 track(target, key) 记录依赖；常见依赖桶结构：WeakMap<target, Map<key, Set<effect>>>…。
+
 ### 题目
 请解释 `effect`、`track`、`trigger`、依赖桶的数据结构，以及为什么 Vue3 要配合 `Reflect` 使用。
 
@@ -125,6 +128,9 @@ function track(target: object, key: PropertyKey, active?: () => void) {
 title: Scheduler、批量更新与 nextTick 的真实含义
 difficulty: 进阶
 tags: [渲染, 调度]
+
+### 一句话
+Vue 不会每次 set 都立刻 patch DOM，而是把 job 推入队列，按微任务批量刷新；去重后同一组件同一轮只更新一次，避免瀑布式重复渲染；nextTick 保证的是“当前这轮响应式更新对应的 DOM patch 已完成”…。
 
 ### 题目
 为什么 Vue 会把多次状态变更合并更新？`nextTick` 到底保证了什么？
@@ -478,6 +484,9 @@ title: KeepAlive、Teleport、Suspense、异步组件分别解决什么问题
 difficulty: 进阶
 tags: [高级组件, SSR]
 
+### 一句话
+KeepAlive 用于缓存组件实例和状态，适合 tab、多页签详情；需配合 include/exclude/max；Teleport 把节点渲染到指定容器，常用于 Dialog、Popover、Toast，避免层叠上下文和 overflow 裁剪…。
+
 ### 题目
 请说明 KeepAlive、Teleport、Suspense、defineAsyncComponent 的核心用途与坑点。
 
@@ -549,6 +558,9 @@ const Dashboard = defineAsyncComponent({
 title: render 函数、JSX 与自定义指令分别适合什么场景
 difficulty: 进阶
 tags: [RenderFunction, JSX, 指令]
+
+### 一句话
+模板适合绝大多数声明式 UI；render 函数 / JSX 更适合高度动态结构、插槽编排、函数式抽象和需要直接操作 vnode 的场景；JSX 只是另一种书写 render 的方式，表达力更强，但也更要求团队统一风格和类型能力…。
 
 ### 题目
 什么时候该从模板切到 render 函数 / JSX？自定义指令又该放在什么边界内？
@@ -629,6 +641,9 @@ title: 生命周期、错误边界与调试钩子怎么用
 difficulty: 进阶
 tags: [生命周期, 调试, 错误边界]
 
+### 一句话
+onErrorCaptured 用于捕获后代组件渲染、事件、watcher 等过程中的异常，常用于局部错误降级；onRenderTracked / onRenderTriggered 更偏调试用途…。
+
 ### 题目
 除了常见的 mounted / updated / unmounted，`onErrorCaptured`、`onRenderTracked`、`onRenderTriggered` 这类钩子分别适合什么场景？
 
@@ -692,6 +707,9 @@ title: Vue 性能优化：v-once、v-memo、shallowRef、虚拟列表怎么配�
 difficulty: 资深
 tags: [性能优化, v-memo, v-once]
 
+### 一句话
+v-once 适合真正静态且后续不再变化的内容；v-memo 适合某些高频列表或局部子树，把依赖比较显式化；要确保依赖数组写得准确；shallowRef / shallowReactive 适合大对象、不可变数据块、第三方实例。
+
 ### 题目
 在 Vue 里做性能优化时，哪些优化是真有场景价值的，哪些只是“看起来高级”？
 
@@ -753,6 +771,9 @@ function patch(idx: number, patch: Partial<Item>) {
 title: composables 设计规范：命名、参数、返回值与副作用
 difficulty: 进阶
 tags: [Composables, 复用, 设计]
+
+### 一句话
+composable 本质上是封装有状态逻辑的函数，命名通常以 useXxx 开头；返回多个状态时，优先返回“普通对象 + 多个 ref”，这样调用方解构后仍能保持响应性；输入参数若可能是原始值、ref 或 getter，设计时应统一归一化…。
 
 ### 题目
 一个高质量 composable 应该怎么设计，才能既好用又不容易埋下响应式和生命周期问题？
@@ -826,6 +847,9 @@ title: Nuxt 3 的核心价值：SSR、SSG、Nitro、payload
 difficulty: 进阶
 tags: [Nuxt, SSR]
 
+### 一句话
+Nuxt 3 = 基于 Vue3 的全栈元框架，解决路由、数据获取、SSR/SSG、部署适配、约定式工程结构；Nitro 统一了 Node、Edge、Serverless 等运行时抽象；页面支持 SSR、SSG、ISR 等输出模式…。
+
 ### 题目
 如果让你向一个只写过 SPA 的前端解释 Nuxt 3，你会如何说明它的价值与心智模型？
 
@@ -887,6 +911,9 @@ title: Vue 3.5 Vapor Mode 与无 VDOM 渲染
 difficulty: 资深
 tags: [Vapor, 编译优化]
 
+### 一句话
+现状：Vue 默认使用虚拟 DOM；模板编译期已经做了大量优化（patchFlag / hoist / blockTree）；Vapor：编译目标改为"直接操作 DOM 的 imperative 代码"，类似 Solid，无 VDOM…。
+
 ### 题目
 Vue 团队在 3.5+ 推进的 Vapor Mode 是什么？跟 Solid 有什么相似点？
 
@@ -920,6 +947,9 @@ const double = computed(() => count.value * 2);
 title: Vue 项目大促前的性能体检清单
 difficulty: 资深
 tags: [性能, Vue]
+
+### 一句话
+Bundle：看 rollup-plugin-visualizer 输出，定位巨石依赖；按路由 + 按特性切分；首屏：LCP 元素是什么、是否 SSR、关键 CSS 是否内联、字体是否阻塞…。
 
 ### 题目
 要给一个 Vue 大型项目做性能保障，你的检查清单怎么列？
