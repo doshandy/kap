@@ -80,7 +80,11 @@ function catCount(id: string) {
     <p class="desc">
       {{ paths.find((p) => p.id === active)?.desc }}
     </p>
-    <ol class="path">
+    <div class="cta">
+      <RouterLink to="/learn" class="cta-btn">📖 从第 1 题开始顺序学习</RouterLink>
+      <RouterLink to="/quiz" class="cta-btn ghost">🎯 直接抽题模拟</RouterLink>
+    </div>
+    <ol v-if="(paths.find((p) => p.id === active)?.ordering || []).length" class="path">
       <li
         v-for="(c, i) in paths.find((p) => p.id === active)?.ordering || []"
         :key="c"
@@ -92,6 +96,7 @@ function catCount(id: string) {
         <span class="count">{{ catCount(c) }} 题</span>
       </li>
     </ol>
+    <div v-else class="empty">题库尚未加载完成，请稍候或刷新页面重试。</div>
   </div>
 </template>
 
@@ -168,5 +173,39 @@ header h1 {
 }
 .link:hover {
   color: var(--c-primary);
+}
+.cta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 0 0 16px;
+}
+.cta-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 16px;
+  border-radius: var(--radius);
+  background: var(--c-primary);
+  color: #fff;
+  font-size: 13px;
+  text-decoration: none;
+  font-weight: 600;
+}
+.cta-btn:hover {
+  filter: brightness(1.05);
+}
+.cta-btn.ghost {
+  background: var(--c-bg-mute);
+  color: var(--c-text);
+  font-weight: 500;
+}
+.empty {
+  padding: 32px;
+  text-align: center;
+  color: var(--c-text-mute);
+  background: var(--c-surface);
+  border: 1px dashed var(--c-border);
+  border-radius: var(--radius);
 }
 </style>

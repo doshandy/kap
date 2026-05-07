@@ -1,6 +1,6 @@
-# KAP — 十年前端工程师知识自查站
+# KAP — 前端工程师知识自查站
 
-> 把"十年 Vue 前端"应该懂的那些东西，做成一套可交互、可复习、可搜索的题库。
+> 把"资深 Vue 前端"应该懂的那些东西，做成一套可交互、可复习、可搜索的题库。
 > 在线访问：<https://doshandy.github.io/kap/>
 
 ## ✨ 特性
@@ -102,7 +102,7 @@ pnpm preview
 9. `09-node` Node.js / BFF / SSR
 10. `10-architecture` 前端架构
 11. `11-ai-frontend` AI 前端
-12. `12-softskills` 软技能与十年经验
+12. `12-softskills` 软技能与资深经验
 13. `13-security` 前端安全
 14. `14-a11y-i18n` 无障碍与国际化
 15. `15-testing` 前端测试

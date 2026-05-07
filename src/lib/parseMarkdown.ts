@@ -1,4 +1,3 @@
-import matter from 'gray-matter';
 import MarkdownIt from 'markdown-it';
 import anchor from 'markdown-it-anchor';
 import Prism from 'prismjs';
@@ -39,6 +38,35 @@ interface RawCategoryFront {
   order: number;
   icon?: string;
   description?: string;
+}
+
+function parseFrontmatter(raw: string): { data: Record<string, unknown>; content: string } {
+  const match = raw.match(/^---\r?\n([\s\S]*?)\r?\n---\r?\n?([\s\S]*)$/);
+  if (!match) return { data: {}, content: raw };
+  const data: Record<string, unknown> = {};
+  for (const line of match[1].split(/\r?\n/)) {
+    if (!line.trim() || line.trim().startsWith('#')) continue;
+    const m = line.match(/^([\w-]+)\s*:\s*(.*)$/);
+    if (!m) continue;
+    const key = m[1];
+    let val: unknown = m[2].trim();
+    if (typeof val === 'string') {
+      const s = val as string;
+      if (s.startsWith('[') && s.endsWith(']')) {
+        val = s
+          .slice(1, -1)
+          .split(',')
+          .map((x) => x.trim().replace(/^['"]|['"]$/g, ''))
+          .filter(Boolean);
+      } else if (/^-?\d+(\.\d+)?$/.test(s)) {
+        val = Number(s);
+      } else {
+        val = s.replace(/^['"]|['"]$/g, '');
+      }
+    }
+    data[key] = val;
+  }
+  return { data, content: match[2] };
 }
 
 interface RawQuestionFront {
@@ -135,8 +163,8 @@ function splitQuestions(body: string): ParsedQuestionBlock[] {
 }
 
 export function parseCategoryMarkdown(raw: string): Category {
-  const { data, content } = matter(raw);
-  const front = data as RawCategoryFront;
+  const { data, content } = parseFrontmatter(raw);
+  const front = data as unknown as RawCategoryFront;
   if (!front.id || !front.title || front.order == null) {
     throw new Error(`分类 frontmatter 缺少 id/title/order: ${JSON.stringify(front)}`);
   }

@@ -30,7 +30,7 @@ const isDark = computed(() => {
       </button>
       <button class="brand" @click="router.push('/')">
         <span class="logo">KAP</span>
-        <span class="brand-sub">十年前端知识自查</span>
+        <span class="brand-sub">前端知识自查</span>
       </button>
     </div>
     <div class="right">
@@ -38,6 +38,7 @@ const isDark = computed(() => {
         <span>🔍 搜索</span>
         <kbd class="kbd">⌘K</kbd>
       </button>
+      <button class="btn btn-ghost" title="顺序学习" @click="router.push('/learn')">📖 顺序学习</button>
       <button class="btn btn-ghost" title="模拟面试" @click="router.push('/quiz')">🎯 抽题</button>
       <button class="btn btn-ghost" title="待复习" @click="router.push('/review')">🔁 复习</button>
       <button class="btn btn-ghost" title="路线图" @click="router.push('/roadmap')">🗺️</button>

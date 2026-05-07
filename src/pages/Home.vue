@@ -180,9 +180,10 @@ watch(() => [totalDone.value, dueCount.value, document.documentElement.className
   <div class="home">
     <section class="hero card">
       <h1>👋 欢迎来到 KAP</h1>
-      <p class="subtitle">十年 Vue 前端工程师知识图谱 · 自查 · 面试 · 复习一站式</p>
+      <p class="subtitle">Vue 前端工程师知识图谱 · 自查 · 面试 · 复习一站式</p>
       <div class="quick">
-        <RouterLink class="btn btn-primary" to="/quiz">🎯 立即抽题</RouterLink>
+        <RouterLink class="btn btn-primary" to="/learn">📖 顺序学习（从第 1 题开始）</RouterLink>
+        <RouterLink class="btn" to="/quiz">🎯 抽题模拟</RouterLink>
         <RouterLink class="btn" to="/review">
           🔁 待复习 <b v-if="dueCount">{{ dueCount }}</b>
         </RouterLink>

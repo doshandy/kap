@@ -16,6 +16,7 @@ const router = createRouter({
       component: () => import('@/pages/Question.vue'),
       props: true,
     },
+    { path: '/learn', name: 'learn', component: () => import('@/pages/Learn.vue') },
     { path: '/quiz', name: 'quiz', component: () => import('@/pages/Quiz.vue') },
     { path: '/review', name: 'review', component: () => import('@/pages/Review.vue') },
     { path: '/roadmap', name: 'roadmap', component: () => import('@/pages/Roadmap.vue') },

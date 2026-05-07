@@ -1,9 +1,9 @@
 {
   "name": "kap",
   "private": true,
-  "version": "0.1.0",
+  "version": "0.3.0",
   "type": "module",
-  "description": "十年前端工程师知识自查交互站",
+  "description": "前端工程师知识自查交互站",
   "scripts": {
     "dev": "vite",
     "build": "run-s validate:content lint typecheck generate:sitemap build:only",

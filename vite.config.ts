@@ -11,9 +11,9 @@ export default defineConfig({
       registerType: 'prompt',
       includeAssets: ['favicon.svg', 'apple-touch-icon.png', 'og.png'],
       manifest: {
-        name: 'KAP - 十年前端知识自查',
+        name: 'KAP - 前端知识自查',
         short_name: 'KAP',
-        description: '十年 Vue 前端工程师知识图谱与自查面试库',
+        description: 'Vue 前端工程师知识图谱与自查面试库',
         theme_color: '#0ea5e9',
         background_color: '#0f172a',
         display: 'standalone',

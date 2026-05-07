@@ -1,6 +1,6 @@
 ---
 id: 12-softskills
-title: 软技能与十年经验
+title: 软技能与资深经验
 order: 12
 icon: 🧭
 description: 技术决策、沟通协作、复盘成长、招聘面试与技术影响力。
