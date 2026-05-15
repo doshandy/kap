@@ -13,6 +13,7 @@ description: 单测样例
 title: 这是一道样题
 difficulty: 进阶
 tags: [测试, 高频]
+followups: [sample-q-followup-1, cat-2/cross-cat-followup]
 
 ### 一句话
 一句话理解：测试就是测试。
@@ -39,6 +40,19 @@ const x: number = 1;
 
 ### 延伸
 - 延伸阅读
+
+## sample-q-followup-1
+title: 样题追问：如何验证解析结果
+difficulty: 进阶
+tags: [测试, 追问]
+parent: sample-q
+
+### 题目
+如果要验证这道题的解析结果，你会重点看哪些字段？
+
+### 答案要点
+- 先检查基础字段是否稳定。
+- 再检查父子题关联是否能跳转。
 `;
 
 describe('parseCategoryMarkdown', () => {
@@ -46,7 +60,7 @@ describe('parseCategoryMarkdown', () => {
     const cat = parseCategoryMarkdown(sample);
     expect(cat.id).toBe('cat-1');
     expect(cat.title).toBe('测试分类');
-    expect(cat.questions).toHaveLength(1);
+    expect(cat.questions).toHaveLength(2);
 
     const q = cat.questions[0];
     expect(q.slug).toBe('sample-q');
@@ -59,7 +73,14 @@ describe('parseCategoryMarkdown', () => {
     expect(q.code).toContain('language-ts');
     expect(q.pitfall).toContain('误区一');
     expect(q.followup).toContain('追问 1');
+    expect(q.followupQuestionIds).toEqual([
+      'cat-1/sample-q-followup-1',
+      'cat-2/cross-cat-followup',
+    ]);
     expect(q.extra).toContain('延伸阅读');
+
+    const followup = cat.questions[1];
+    expect(followup.parentId).toBe('cat-1/sample-q');
   });
 
   it('题目缺失 一句话/常见误区/追问/延伸 时不报错', () => {

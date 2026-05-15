@@ -7,17 +7,22 @@ description: Next.js App Router、Nuxt 3、Server Actions、缓存模型与边�
 ---
 
 ## next-app-router
+
 title: Next.js App Router 与 Pages Router 的核心差异
+followups: [next-app-router-followup-1, next-app-router-followup-2, next-app-router-followup-3]
 difficulty: 进阶
 tags: [Next.js, App Router]
 
 ### 一句话
+
 文件路由：app/ 下用 page.tsx / layout.tsx / loading.tsx / error.tsx / route.ts 表达整套路由能力；默认 RSC：app/ 下组件默认服务端运行，需要交互时显式 'use client'…。
 
 ### 题目
+
 App Router (13+) 相比 Pages Router 改了哪些核心模型？迁移要注意什么？
 
 ### 答案要点
+
 - 文件路由：`app/` 下用 `page.tsx / layout.tsx / loading.tsx / error.tsx / route.ts` 表达整套路由能力
 - 默认 RSC：`app/` 下组件默认服务端运行，需要交互时显式 `'use client'`
 - 数据获取：直接 `await fetch`，自带 dedupe / cache / revalidate / tags
@@ -27,6 +32,7 @@ App Router (13+) 相比 Pages Router 改了哪些核心模型？迁移要注意�
 - 迁移要点：状态管理 / context / 第三方 hooks 都要在 client component；不要把 server-only 库带进 client
 
 ### 代码示例
+
 ```tsx
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
@@ -40,7 +46,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
 }
 
 export default async function Page() {
-  const posts = await fetch('https://api/posts', { next: { revalidate: 60, tags: ['posts'] } }).then((r) => r.json());
+  const posts = await fetch('https://api/posts', {
+    next: { revalidate: 60, tags: ['posts'] },
+  }).then((r) => r.json());
   return <PostList posts={posts} />;
 }
 
@@ -50,33 +58,40 @@ export async function POST(req: Request) {
 }
 ```
 
-
 ### 常见误区
+
 - 默认所有组件是 Server Component；想用 hooks 必须 'use client'
 - 服务端获取数据用 `await fetch(url, { cache: 'force-cache' })`，但**修改后没 revalidate** 会一直拿旧数据
 - middleware 跑在 edge runtime，部分 Node API 不可用
 
 ### 追问
+
 - App Router 的四层缓存（fetch / data / route / router）
 - Server Action 和 Route Handler 区别
 - streaming SSR 是怎么工作的（loading.tsx）
 
 ### 延伸
+
 - 不同路由可以混用：稳定模块上 App Router，复杂遗留页留在 Pages Router 渐进迁移
 - App Router 的缓存模型有 4 层（Request Memoization / Data Cache / Full Route Cache / Router Cache），出问题先排查这条线
 
 ## next-server-actions
+
 title: Server Actions 是什么？什么时候该用
+followups: [next-server-actions-followup-1]
 difficulty: 进阶
 tags: [Server Actions, 表单]
 
 ### 一句话
+
 写法：函数顶部 'use server'，前端 import 后就能 await 调用，不需要写 fetch / 路由；使用场景：表单提交、CRUD、startTransition 包裹的乐观更新…。
 
 ### 题目
+
 Server Actions 让前端可以"直接调用服务端函数"，相比 API Route 有什么优势和限制？
 
 ### 答案要点
+
 - 写法：函数顶部 `'use server'`，前端 import 后就能 await 调用，不需要写 fetch / 路由
 - 使用场景：表单提交、CRUD、`startTransition` 包裹的乐观更新
 - 优势：类型自动打通、自动 revalidate（`revalidatePath / revalidateTag`）、自动序列化
@@ -85,6 +100,7 @@ Server Actions 让前端可以"直接调用服务端函数"，相比 API Route �
 - 不适合：需要细粒度 HTTP 控制（自定义 status / header）、第三方调用、流式接口
 
 ### 代码示例
+
 ```tsx
 'use server';
 import { revalidateTag } from 'next/cache';
@@ -123,22 +139,32 @@ export function NewPostForm() {
 }
 ```
 
+### 追问
+
+- 如果把「Server Actions 是什么？什么时候该用」用到真实项目里，你会重点关注哪些边界、验证手段和取舍？
+
 ### 延伸
+
 - Action 同步抛错走 `error.tsx`；想要可控错误请返回 `{ ok: false, error }`
 - 调试时打开 Next 的"server actions log"或在 action 里加 console，查看实际请求体
 
 ## next-cache-layers
+
 title: Next App Router 的四层缓存模型
+followups: [next-cache-layers-followup-1]
 difficulty: 资深
 tags: [缓存, Next.js]
 
 ### 一句话
+
 Request Memoization：单次渲染内同 URL 的 fetch 被自动去重（仅当请求层）；Data Cache：跨请求的服务端数据缓存，由 revalidate / tags 控制…。
 
 ### 题目
+
 fetch 看似简单，实际经过哪几层缓存？怎么排查"数据没更新"的问题？
 
 ### 答案要点
+
 - Request Memoization：单次渲染内同 URL 的 fetch 被自动去重（仅当请求层）
 - Data Cache：跨请求的服务端数据缓存，由 `revalidate` / `tags` 控制
 - Full Route Cache：构建期 / 首次请求后渲染好的整页 HTML + RSC payload
@@ -146,6 +172,7 @@ fetch 看似简单，实际经过哪几层缓存？怎么排查"数据没更新"
 - 排查："改了数据没更新"通常是 Data Cache 命中：检查 fetch 选项 / `revalidatePath / revalidateTag`，或换 `cache: 'no-store'` 临时验证
 
 ### 代码示例
+
 ```ts
 const dynamic = await fetch(url, { cache: 'no-store' });
 const ttl = await fetch(url, { next: { revalidate: 60 } });
@@ -156,22 +183,32 @@ revalidateTag('posts');
 revalidatePath('/posts/[id]', 'page');
 ```
 
+### 追问
+
+- 如果把「Next App Router 的四层缓存模型」用到真实项目里，你会重点关注哪些边界、验证手段和取舍？
+
 ### 延伸
+
 - App Router 还有 `force-dynamic / force-static / revalidate` 等路由级开关，能粗粒度控制整页缓存
 - 大厂常见做法：默认 `revalidate: 60`，关键写操作主动 `revalidateTag`，敏感页 `force-dynamic`
 
 ## nuxt3-overview
+
 title: Nuxt 3 的核心特性与目录约定
+followups: [nuxt3-overview-followup-1]
 difficulty: 进阶
 tags: [Nuxt, Vue]
 
 ### 一句话
+
 文件路由：pages/，自动生成路由表；嵌套用文件夹 / 动态路径 [id].vue；自动导入：composables/、utils/、components/ 内导出无需手动 import；数据获取：useFetch / useAsyncData…。
 
 ### 题目
+
 Nuxt 3 提供哪些开箱能力？目录约定怎么用？
 
 ### 答案要点
+
 - 文件路由：`pages/`，自动生成路由表；嵌套用文件夹 / 动态路径 `[id].vue`
 - 自动导入：`composables/`、`utils/`、`components/` 内导出无需手动 import
 - 数据获取：`useFetch / useAsyncData`，SSR / SPA 一致 API，自动序列化 hydration
@@ -180,6 +217,7 @@ Nuxt 3 提供哪些开箱能力？目录约定怎么用？
 - 渲染模式：`ssr: true` 默认 SSR；可按页面切换 `routeRules` 做 ISR / SPA / SSG / Edge
 
 ### 代码示例
+
 ```vue
 <script setup lang="ts">
 const route = useRoute();
@@ -204,22 +242,32 @@ export default defineEventHandler(async (event) => {
 });
 ```
 
+### 追问
+
+- 如果把「Nuxt 3 的核心特性与目录约定」用到真实项目里，你会重点关注哪些边界、验证手段和取舍？
+
 ### 延伸
+
 - `definePageMeta({ layout: 'admin', middleware: ['auth'] })` 把页面元数据集中声明
 - Nuxt 4（已发布）调整了部分目录默认值，迁移要看官方 codemod
 
 ## edge-runtime
+
 title: Edge Runtime 与 Node Runtime 的差异
+followups: [edge-runtime-followup-1]
 difficulty: 资深
 tags: [Edge, Cloudflare, Vercel]
 
 ### 一句话
+
 优势：低 cold start、离用户近、按请求计费、全球分布；API 限制：基于 V8 isolate 而非 Node，没有 fs / net / child_process，npm 包要"Edge-compatible"…。
 
 ### 题目
+
 Next / Nuxt 都支持把页面 / API 部署到 Edge Runtime（Cloudflare Workers / Vercel Edge），它和 Node 的差别是什么？
 
 ### 答案要点
+
 - 优势：低 cold start、离用户近、按请求计费、全球分布
 - API 限制：基于 V8 isolate 而非 Node，没有 fs / net / child_process，npm 包要"Edge-compatible"
 - 内存 / CPU 时长有上限（如 Cloudflare Workers ~50ms 免费版，Vercel Edge ~30s）
@@ -228,6 +276,7 @@ Next / Nuxt 都支持把页面 / API 部署到 Edge Runtime（Cloudflare Workers
 - 适合：鉴权、A/B、个性化、轻 SSR、CDN 改写；不适合：CPU 密集、大文件处理
 
 ### 代码示例
+
 ```ts
 export const runtime = 'edge';
 
@@ -243,22 +292,32 @@ export async function GET(req: Request) {
 }
 ```
 
+### 追问
+
+- 如果把「Edge Runtime 与 Node Runtime 的差异」用到真实项目里，你会重点关注哪些边界、验证手段和取舍？
+
 ### 延伸
+
 - 新框架（Hono、astro DB、Drizzle）都在做 Edge 友好的方案，Edge 已经是主流选项之一
 - 生产部署前先把日志 / 监控 / 错误上报和现有体系打通，否则线上排查会很痛苦
 
 ## seo-and-meta
+
 title: 现代框架做 SEO 的关键点
+followups: [seo-and-meta-followup-1]
 difficulty: 进阶
 tags: [SEO, meta]
 
 ### 一句话
+
 渲染：内容必须出现在首屏 HTML 里，避免 CSR 后才填充；meta：每页独立 <title> / <meta description> / og: / twitter:，App Router 用 generateMetadata…。
 
 ### 题目
+
 做面向 C 端的内容站，SEO 上 Next / Nuxt 有哪些必须做对的事？
 
 ### 答案要点
+
 - 渲染：内容必须出现在首屏 HTML 里，避免 CSR 后才填充
 - meta：每页独立 `<title> / <meta description> / og:* / twitter:*`，App Router 用 `generateMetadata`
 - 结构化数据：JSON-LD（`Article / Product / FAQ / Breadcrumb`）放进 head，Google 富媒体卡片
@@ -268,10 +327,15 @@ tags: [SEO, meta]
 - 监控：Search Console + Web Vitals，可量化跟踪 SEO 收益
 
 ### 代码示例
+
 ```tsx
 import type { Metadata } from 'next';
 
-export async function generateMetadata({ params }: { params: { slug: string } }): Promise<Metadata> {
+export async function generateMetadata({
+  params,
+}: {
+  params: { slug: string };
+}): Promise<Metadata> {
   const post = await getPost(params.slug);
   return {
     title: `${post.title} - KAP`,
@@ -298,22 +362,32 @@ export default function Page({ post }: { post: Post }) {
 }
 ```
 
+### 追问
+
+- 如果把「现代框架做 SEO 的关键点」用到真实项目里，你会重点关注哪些边界、验证手段和取舍？
+
 ### 延伸
+
 - 别把"SEO 友好的渲染"和"必须 SSR"画等号，结构化的 SSG / ISR 通常已经够了
 - 真正排名靠前的还是内容质量和外链，技术只是基础线
 
 ## ssr-csr-ssg-isr
+
 title: SSR / CSR / SSG / ISR 怎么选
+followups: [ssr-csr-ssg-isr-followup-1]
 difficulty: 进阶
 tags: [SSR, SSG, ISR]
 
 ### 一句话
+
 内容稳定（博客 / 文档）→ SSG 预渲染；高度动态（仪表盘）→ CSR；要 SEO 又有动态数据 → SSR；想要 SSG 的速度 + 动态更新 → ISR（按需重新生成）。
 
 ### 题目
+
 请对比 SSR / CSR / SSG / ISR 在性能、SEO、运维成本和适用场景上的差异。
 
 ### 答案要点
+
 - **CSR（Client-Side Rendering）**
   - HTML 是空壳，JS 跑起来再填内容
   - 优点：开发简单、SPA 体验好
@@ -339,6 +413,7 @@ tags: [SSR, SSG, ISR]
   - 强动态（chat / dashboard）→ CSR + 流式数据
 
 ### 代码示例
+
 ```ts
 // app/blog/[slug]/page.tsx (Next.js App Router)
 export const revalidate = 60;
@@ -352,24 +427,33 @@ export default async function Post({ params }) {
 }
 ```
 
+### 追问
+
+- 如果把「SSR / CSR / SSG / ISR 怎么选」用到真实项目里，你会重点关注哪些边界、验证手段和取舍？
+
 ### 延伸
+
 - Next.js 已经把这几种模型统一到 App Router + Server Components
 - Nuxt 3 用 Nitro 引擎在多个目标（Node / Edge / Cloudflare）部署
 - Edge Runtime（Cloudflare Workers / Vercel Edge）让 SSR 接近 CDN 速度
 
-
 ## next-data-fetching-patterns
+
 title: Next App Router 下数据获取的 4 种姿势
+followups: [next-data-fetching-patterns-followup-1]
 difficulty: 资深
 tags: [Next, RSC, 数据获取, 高频]
 
 ### 一句话
+
 **Server Component 直接 await fetch**（首选，自动缓存 + 类型安全）；**Server Action** 处理写入；**Route Handler** (route.ts) 暴露 REST；**Client Component**（"use client"）配合 SWR/TanStack Query 处理交互密集场景。
 
 ### 题目
+
 Next 13+ App Router 下数据怎么取？SSR / RSC / Server Actions / Route Handler 各自定位是？
 
 ### 答案要点
+
 - **Server Component 直 fetch（90% 场景首选）**
   - 直接 `const data = await fetch(...)`，无需 props 透传
   - Next 自动缓存 + 去重；`fetch(url, { next: { revalidate: 60 } })` 控 ISR
@@ -400,6 +484,7 @@ Next 13+ App Router 下数据怎么取？SSR / RSC / Server Actions / Route Hand
   - 给外部用 → Route Handler
 
 ### 代码示例
+
 ```ts
 export default async function Page({ params }: { params: { id: string } }) {
   const post = await fetch(`https://api.example.com/posts/${params.id}`, {
@@ -429,23 +514,33 @@ export async function GET(req: Request) {
 }
 ```
 
+### 追问
+
+- 如果把「Next App Router 下数据获取的 4 种姿势」用到真实项目里，你会重点关注哪些边界、验证手段和取舍？
+
 ### 延伸
+
 - Pages Router（getServerSideProps / getStaticProps）仍受支持，老项目慢慢迁
 - "use cache"（Next 15）：函数级缓存装饰器
 - Partial Prerendering（PPR）：静态外壳 + 动态填充
 
 ## remix-react-router-loaders
+
 title: Remix / React Router v6.4+ 的 loader / action 模型
+followups: [remix-react-router-loaders-followup-1]
 difficulty: 进阶
 tags: [Remix, React Router, 数据获取]
 
 ### 一句话
+
 路由级声明式数据：每条路由配 `loader`（读）+ `action`（写）→ 框架在导航前并行调用 → 数据通过 `useLoaderData` 拿到 → 表单走原生 `<Form>` 提交到 action。理念是**回归 web 标准**。
 
 ### 题目
+
 Remix 的核心理念是什么？为什么大家说它把"web 基础"做对了？
 
 ### 答案要点
+
 - **核心模型**
   - 路由 = UI + loader + action，三件套绑定
   - 切路由前并行跑所有 loader（race conditions 框架处理）
@@ -472,8 +567,15 @@ Remix 的核心理念是什么？为什么大家说它把"web 基础"做对了�
   - Remix v2 → React Router v7（同一团队，已合并）
 
 ### 代码示例
+
 ```tsx
-import { createBrowserRouter, RouterProvider, useLoaderData, Form, redirect } from 'react-router-dom';
+import {
+  createBrowserRouter,
+  RouterProvider,
+  useLoaderData,
+  Form,
+  redirect,
+} from 'react-router-dom';
 
 const router = createBrowserRouter([
   {
@@ -506,22 +608,32 @@ function PostPage() {
 }
 ```
 
+### 追问
+
+- 如果把「Remix / React Router v6.4+ 的 loader / action 模型」用到真实项目里，你会重点关注哪些边界、验证手段和取舍？
+
 ### 延伸
+
 - React Router v7（集大成）：兼容老 SPA + Remix 新模式，平滑迁移
 - 与 TanStack Router 对比：后者类型安全更极致，但社区相对小
 
 ## fullstack-auth-strategy
+
 title: SSR 应用的鉴权怎么设计？
+followups: [fullstack-auth-strategy-followup-1]
 difficulty: 资深
 tags: [鉴权, Next, 全栈, 高频]
 
 ### 一句话
+
 **HttpOnly Cookie + Session ID** 是 SSR 首选（服务端可直接读，CSRF 用 SameSite=Lax + token 双保险）；分布式部署用 Redis 存 session；JWT 适合无状态/跨域 API，但配 refresh token 解决吊销问题。
 
 ### 题目
+
 做一个 Next.js 全栈应用，登录 / 鉴权 / 权限控制怎么设计才安全又好用？
 
 ### 答案要点
+
 - **登录流程**
   - 用户提交账密 / 手机号 → 服务端验证 → 设置 HttpOnly Cookie
   - Cookie 配置：`HttpOnly; Secure; SameSite=Lax; Path=/; Max-Age=...`
@@ -555,6 +667,7 @@ tags: [鉴权, Next, 全栈, 高频]
   - 不自己写密码 hash，用 argon2 / bcrypt
 
 ### 代码示例
+
 ```ts
 import { cookies } from 'next/headers';
 
@@ -588,24 +701,33 @@ export async function middleware(req: NextRequest) {
 }
 ```
 
+### 追问
+
+- 如果把「SSR 应用的鉴权怎么设计？」用到真实项目里，你会重点关注哪些边界、验证手段和取舍？
+
 ### 延伸
+
 - Passkeys / WebAuthn：无密码登录，未来趋势
 - mTLS / Cloudflare Access：企业内网零信任
 - 性能：session 校验放 edge middleware，命中即放行
 
-
 ## hydration-mismatch-debug
+
 title: Hydration mismatch 怎么排查 / 修复
+followups: [hydration-mismatch-debug-followup-1]
 difficulty: 资深
 tags: [SSR, Hydration, React, 高频]
 
 ### 一句话
+
 本质是"server 渲染的 HTML"与"client 首次渲染的 React/Vue 树"不一致：常见因 `Date.now()`、`Math.random()`、`window/localStorage`、用户语言/时区差异、第三方扩展改 DOM。修法：把不一致的部分用 `useEffect`/客户端 only 包起来或者 SSR 注入确定值，再客户端读取。
 
 ### 题目
+
 React/Next 控制台报 `Hydration failed because the initial UI does not match what was rendered on the server`。常见根因和定位流程是？
 
 ### 答案要点
+
 - **根因清单（按出现频率）**
   - 时间相关：`new Date()` / `Date.now()` / 相对时间（"3 分钟前"）服务端和客户端时刻不同
   - 随机相关：`Math.random()`、`crypto.randomUUID()` 在 server 和 client 各跑一次得不同值
@@ -643,6 +765,7 @@ React/Next 控制台报 `Hydration failed because the initial UI does not match 
   - 用第三方 hook 内部读 window，开发时本地都正常，部署上线 SSR 才报错
 
 ### 代码示例
+
 ```tsx
 'use client';
 import { useEffect, useState } from 'react';
@@ -663,25 +786,35 @@ export function RelativeTime({ iso }: { iso: string }) {
 
 <html lang="zh-CN" suppressHydrationWarning>
   <body>{children}</body>
-</html>
+</html>;
 ```
 
+### 追问
+
+- 如果把「Hydration mismatch 怎么排查 / 修复」用到真实项目里，你会重点关注哪些边界、验证手段和取舍？
+
 ### 延伸
+
 - 第三方注入（暗黑模式）的标准做法：在 `<head>` 顶部塞同步 inline script 读 localStorage 加 class，server 渲染就带上这个类，client 自然一致
 - partial hydration / RSC：减少 hydration 工作量，但不改变 mismatch 本质
 
 ## ssr-data-fetching-consistency
+
 title: SSR 数据如何无缝传递到 Client，避免重复请求
+followups: [ssr-data-fetching-consistency-followup-1]
 difficulty: 资深
 tags: [SSR, 数据获取, 高频]
 
 ### 一句话
+
 通用模式：server 拉数据 → 渲染 HTML 时序列化数据到 `<script id="__DATA__" type="application/json">` → client 启动时把数据回填到 store / TanStack Query cache → 后续渲染直接命中缓存，不再发请求。
 
 ### 题目
+
 SSR 拉了数据渲染 HTML，client hydration 后又请求了一次同样接口。怎么把数据"无缝过户"？
 
 ### 答案要点
+
 - **传统方案：注入 `__INITIAL_STATE__`**
   - 服务端把 `{ users, products }` 渲染进 HTML：`<script>window.__INITIAL_STATE__ = {...}</script>`
   - 客户端 store 初始化时优先读这个对象，缺失才发请求
@@ -709,6 +842,7 @@ SSR 拉了数据渲染 HTML，client hydration 后又请求了一次同样接口
   - 失败兜底：渲染骨架屏 + client useEffect retry
 
 ### 代码示例
+
 ```tsx
 import { dehydrate, HydrationBoundary, QueryClient } from '@tanstack/react-query';
 
@@ -726,7 +860,7 @@ export default async function Page({ params }: { params: { id: string } }) {
   );
 }
 
-'use client';
+('use client');
 import { useQuery } from '@tanstack/react-query';
 
 export function PostDetail({ id }: { id: string }) {
@@ -741,7 +875,7 @@ export function PostDetail({ id }: { id: string }) {
 
 ```html
 <script id="__INITIAL__" type="application/json">
-  {"user":{"id":"1","name":"Tom"}}
+  { "user": { "id": "1", "name": "Tom" } }
 </script>
 <script>
   (function () {
@@ -751,24 +885,33 @@ export function PostDetail({ id }: { id: string }) {
 </script>
 ```
 
+### 追问
+
+- 如果把「SSR 数据如何无缝传递到 Client，避免重复请求」用到真实项目里，你会重点关注哪些边界、验证手段和取舍？
+
 ### 延伸
+
 - devalue 比 JSON.stringify 强：能序列化 Date / Map / Set / undefined / 循环引用
 - React Server Components 的 payload 是行级 JSON 流，比传统 `__INITIAL_STATE__` 更高效
 - 大型应用按需 lazy hydration，避免一次性反序列化几百 KB 数据
 
-
 ## ssr-csr-spa-mpa-basic
+
 title: SSR / CSR / SPA / MPA / SSG / ISR 这堆词到底是什么关系？
+followups: [ssr-csr-spa-mpa-basic-followup-1, ssr-csr-spa-mpa-basic-followup-2, ssr-csr-spa-mpa-basic-followup-3]
 difficulty: 基础
 tags: [SSR, CSR, SSG, ISR, 基础]
 
 ### 一句话
+
 按"在哪渲染"分：CSR（浏览器）/ SSR（服务器）；按"页面有多少"分：SPA（一个 HTML）/ MPA（多个 HTML）；按"何时渲染"分：SSG（构建时）/ ISR（构建 + 失效后再生）。
 
 ### 题目
+
 请用一句话区分 CSR、SSR、SSG、ISR、SPA、MPA，并各举一个适用场景。
 
 ### 答案要点
+
 - **CSR**（Client-Side Rendering）：HTML 是空壳，JS 拉数据再渲染。适合后台系统、富交互应用
 - **SSR**（Server-Side Rendering）：服务器拼好 HTML 直接吐给浏览器；适合 SEO 敏感、首屏快需求
 - **SSG**（Static Site Generation）：构建时就把 HTML 全生成好；适合博客、文档、营销页
@@ -777,6 +920,7 @@ tags: [SSR, CSR, SSG, ISR, 基础]
 - **MPA**：每个路由是独立 HTML，传统模式。适合内容站
 
 ### 代码示例
+
 ```tsx
 // Next.js App Router 例子：路由四种行为
 // app/marketing/page.tsx → 默认 SSG（构建时生成）
@@ -795,32 +939,39 @@ export default async function Page() {
 ```
 
 ### 常见误区
+
 - 把 SSR = SEO 唯一解：现代搜索引擎能跑 JS，SPA + 预渲染也行
 - 以为 SSG 就是"完全静态"——它仍然可以在 client 上加交互（hydration）
 - ISR 不是 SSR：ISR 是"提前缓存 + 失效后再生"，访问时多数还是返回缓存
 
 ### 追问
+
 - React Server Components 是 SSR 吗？（不是，是另一层）
 - SSR 的成本（服务器算力 + 复杂度）什么时候不值
 - 边缘渲染（Edge SSR）和传统 Node SSR 的差别
 
 ### 延伸
+
 - "Streaming SSR"（边渲染边吐 HTML）+ Suspense 在 React 18 后流行
 - Astro 的 Islands 模式：默认 SSG，按需 hydration
 
-
 ## multi-region-deploy
+
 title: 全栈应用的多区域部署：边缘网关 / CDN / 流量切换 / 灾备 怎么做？
+followups: [multi-region-deploy-followup-1, multi-region-deploy-followup-2, multi-region-deploy-followup-3]
 difficulty: 资深
 tags: [架构, 多区域, 灾备, 海外, 高频]
 
 ### 一句话
+
 **用户接入就近（GeoDNS / Anycast）+ 计算分散（多 region 集群）+ 数据按法律边界落地 + 流量切换基于健康检查 + 跨 region 灾备**——五件事配齐才叫真正的多区域部署。
 
 ### 题目
+
 你们的全栈应用部署到中国 + 东南亚 + 欧洲 + 美东 4 个区域，怎么设计接入、计算、数据、灾备？流量切换怎么做？
 
 ### 答案要点
+
 - **接入层**：
   - **DNS 选址**：GeoDNS（按用户 IP 返回最近 region 的 IP）/ Anycast（同一 IP 全球广播，BGP 路由就近）
   - **TLS 终止**：边缘 CDN（Cloudflare / Akamai / Fastly）做 TLS、缓存静态资源、WAF 防护
@@ -846,6 +997,7 @@ tags: [架构, 多区域, 灾备, 海外, 高频]
   - 错误监控按 region 分维度，能看出"是不是某 region 单点问题"
 
 ### 代码示例
+
 ```ts
 const dnsConfig = {
   'api.example.com': {
@@ -855,7 +1007,7 @@ const dnsConfig = {
       { region: 'sea', record: '203.0.113.20' },
       { region: 'eu', record: '203.0.113.30' },
       { region: 'us', record: '203.0.113.40' },
-      { region: '*', record: '203.0.113.20' }, 
+      { region: '*', record: '203.0.113.20' },
     ],
     healthCheck: '/healthz',
   },
@@ -891,6 +1043,7 @@ async function failoverFetch(url: string, regions: string[]): Promise<Response> 
 ```
 
 ### 常见误区
+
 - 只在一个 region 部，加几个 CDN 节点就叫"全球部署" —— 动态请求还是绕半个地球
 - 跨 region 同步走公网 + 没加密 —— 中间人攻击 + 合规问题
 - 流量切换全靠手工改 DNS —— 故障 1 小时才发现
@@ -898,12 +1051,767 @@ async function failoverFetch(url: string, regions: string[]): Promise<Response> 
 - 前端 bundle 内嵌 API URL —— 切 region 要重打包发版
 
 ### 追问
+
 - 全球唯一 ID 怎么生成（Snowflake / UUID / TSID）
 - 海外 region 用 AWS 还是 Cloudflare R2 + Workers 哪个更适合 SaaS
 - 数据出境合规的具体动作（SCC / 安全评估 / 个人同意）
 
 ### 延伸
+
 - Cloudflare Workers + KV + Durable Objects 是轻量全球架构典型
 - AWS Aurora Global Database / Google Cloud Spanner 是强一致跨 region 数据库
 - 字节跳动 / Shopee / Shopify 都有公开的多 region 架构分享
 
+## next-app-router-followup-1
+
+title: 追问：App Router 的四层缓存
+difficulty: 进阶
+tags: [Next.js, App Router, 追问]
+parent: next-app-router
+
+### 题目
+
+如果面试官追问：App Router 的四层缓存（fetch / data / route / router）
+
+### 答案要点
+
+#### 回答思路
+
+- 先给一句结论：这个问题要从「为什么需要它」「它解决了什么问题」「代价是什么」三个角度回答。
+- 再把结论落回原题，不要脱离上下文泛泛而谈；面试官通常会顺着边界、异常和工程成本继续追问。
+- 如果涉及实现细节，按数据流、状态变化、调用顺序或生命周期拆开讲；如果涉及方案选择，必须说明为什么不用另一个方案。
+
+#### 结合原题展开
+
+- 文件路由：app/ 下用 page.tsx / layout.tsx / loading.tsx / error.tsx / route.ts 表达整套路由能力
+- 默认 RSC：app/ 下组件默认服务端运行，需要交互时显式 'use client'
+- 数据获取：直接 await fetch，自带 dedupe / cache / revalidate / tags
+- 可以补充一个真实项目语境：上线前先约定输入输出、失败兜底和观测指标，避免只在 demo 场景下成立。
+
+#### 工程落地
+
+- 验证手段要具体：单元测试覆盖边界条件，集成测试覆盖主流程，必要时用 e2e 或回放数据验证真实链路。
+- 运行时要可观测：关键路径打日志或埋点，关注错误率、耗时、资源占用、用户可感知延迟和降级次数。
+- 发布策略要稳：高风险变更建议灰度、开关或回滚预案；如果会影响数据一致性，还要说明迁移和兼容策略。
+
+#### 易错点
+
+- 不要只背 API 或概念名，要说清楚适用条件；很多方案在小流量、单端、无异常时看起来都成立。
+- 不要忽略默认值、兼容性、异常回滚、性能退化和团队维护成本，这些往往是资深面试继续深挖的重点。
+- 如果答案里出现“总是”“一定”“完全替代”这类绝对表述，要主动补充例外场景。
+
+## next-app-router-followup-2
+
+title: 追问：Server Action 和 Route Handler 区别
+difficulty: 进阶
+tags: [Next.js, App Router, 追问]
+parent: next-app-router
+
+### 题目
+
+如果面试官追问：Server Action 和 Route Handler 区别
+
+### 答案要点
+
+#### 回答思路
+
+- 先给一句结论：这个问题要从「为什么需要它」「它解决了什么问题」「代价是什么」三个角度回答。
+- 再把结论落回原题，不要脱离上下文泛泛而谈；面试官通常会顺着边界、异常和工程成本继续追问。
+- 如果涉及实现细节，按数据流、状态变化、调用顺序或生命周期拆开讲；如果涉及方案选择，必须说明为什么不用另一个方案。
+
+#### 结合原题展开
+
+- 文件路由：app/ 下用 page.tsx / layout.tsx / loading.tsx / error.tsx / route.ts 表达整套路由能力
+- API：route.ts 取代 pages/api/\*.ts，支持 Web Request / Response 标准
+- 迁移要点：状态管理 / context / 第三方 hooks 都要在 client component；不要把 server-only 库带进 client
+- 可以补充一个真实项目语境：上线前先约定输入输出、失败兜底和观测指标，避免只在 demo 场景下成立。
+
+#### 工程落地
+
+- 验证手段要具体：单元测试覆盖边界条件，集成测试覆盖主流程，必要时用 e2e 或回放数据验证真实链路。
+- 运行时要可观测：关键路径打日志或埋点，关注错误率、耗时、资源占用、用户可感知延迟和降级次数。
+- 发布策略要稳：高风险变更建议灰度、开关或回滚预案；如果会影响数据一致性，还要说明迁移和兼容策略。
+
+#### 易错点
+
+- 不要只背 API 或概念名，要说清楚适用条件；很多方案在小流量、单端、无异常时看起来都成立。
+- 不要忽略默认值、兼容性、异常回滚、性能退化和团队维护成本，这些往往是资深面试继续深挖的重点。
+- 如果答案里出现“总是”“一定”“完全替代”这类绝对表述，要主动补充例外场景。
+
+## next-app-router-followup-3
+
+title: 追问：streaming SSR 是怎么工作的
+difficulty: 进阶
+tags: [Next.js, App Router, 追问]
+parent: next-app-router
+
+### 题目
+
+如果面试官追问：streaming SSR 是怎么工作的（loading.tsx）
+
+### 答案要点
+
+#### 回答思路
+
+- 先给一句结论：这个问题要从「为什么需要它」「它解决了什么问题」「代价是什么」三个角度回答。
+- 再把结论落回原题，不要脱离上下文泛泛而谈；面试官通常会顺着边界、异常和工程成本继续追问。
+- 如果涉及实现细节，按数据流、状态变化、调用顺序或生命周期拆开讲；如果涉及方案选择，必须说明为什么不用另一个方案。
+
+#### 结合原题展开
+
+- 文件路由：app/ 下用 page.tsx / layout.tsx / loading.tsx / error.tsx / route.ts 表达整套路由能力
+- 流式 + Suspense：天然支持 streaming SSR
+- 可以补充一个真实项目语境：上线前先约定输入输出、失败兜底和观测指标，避免只在 demo 场景下成立。
+
+#### 工程落地
+
+- 验证手段要具体：单元测试覆盖边界条件，集成测试覆盖主流程，必要时用 e2e 或回放数据验证真实链路。
+- 运行时要可观测：关键路径打日志或埋点，关注错误率、耗时、资源占用、用户可感知延迟和降级次数。
+- 发布策略要稳：高风险变更建议灰度、开关或回滚预案；如果会影响数据一致性，还要说明迁移和兼容策略。
+
+#### 易错点
+
+- 不要只背 API 或概念名，要说清楚适用条件；很多方案在小流量、单端、无异常时看起来都成立。
+- 不要忽略默认值、兼容性、异常回滚、性能退化和团队维护成本，这些往往是资深面试继续深挖的重点。
+- 如果答案里出现“总是”“一定”“完全替代”这类绝对表述，要主动补充例外场景。
+
+## next-server-actions-followup-1
+
+title: 追问：如果把「Server Actions 是什么？什么时候该用」用到真实项目里，你会重点关注哪些边界、验证手段和取舍
+difficulty: 进阶
+tags: [Server Actions, 表单, 追问]
+parent: next-server-actions
+
+### 题目
+
+如果面试官追问：如果把「Server Actions 是什么？什么时候该用」用到真实项目里，你会重点关注哪些边界、验证手段和取舍？
+
+### 答案要点
+
+#### 回答思路
+
+- 先给一句结论：这个问题要从「为什么需要它」「它解决了什么问题」「代价是什么」三个角度回答。
+- 再把结论落回原题，不要脱离上下文泛泛而谈；面试官通常会顺着边界、异常和工程成本继续追问。
+- 如果涉及实现细节，按数据流、状态变化、调用顺序或生命周期拆开讲；如果涉及方案选择，必须说明为什么不用另一个方案。
+
+#### 结合原题展开
+
+- 写法：函数顶部 'use server'，前端 import 后就能 await 调用，不需要写 fetch / 路由
+- 调试时打开 Next 的"server actions log"或在 action 里加 console，查看实际请求体
+- 可以补充一个真实项目语境：上线前先约定输入输出、失败兜底和观测指标，避免只在 demo 场景下成立。
+
+#### 工程落地
+
+- 验证手段要具体：单元测试覆盖边界条件，集成测试覆盖主流程，必要时用 e2e 或回放数据验证真实链路。
+- 运行时要可观测：关键路径打日志或埋点，关注错误率、耗时、资源占用、用户可感知延迟和降级次数。
+- 发布策略要稳：高风险变更建议灰度、开关或回滚预案；如果会影响数据一致性，还要说明迁移和兼容策略。
+
+#### 易错点
+
+- 不要只背 API 或概念名，要说清楚适用条件；很多方案在小流量、单端、无异常时看起来都成立。
+- 不要忽略默认值、兼容性、异常回滚、性能退化和团队维护成本，这些往往是资深面试继续深挖的重点。
+- 如果答案里出现“总是”“一定”“完全替代”这类绝对表述，要主动补充例外场景。
+
+## next-cache-layers-followup-1
+
+title: 追问：如果把「Next App Router 的四层缓存模型」用到真实项目里，你会重点关注哪些边界、验证手段和取舍
+difficulty: 资深
+tags: [缓存, Next.js, 追问]
+parent: next-cache-layers
+
+### 题目
+
+如果面试官追问：如果把「Next App Router 的四层缓存模型」用到真实项目里，你会重点关注哪些边界、验证手段和取舍？
+
+### 答案要点
+
+#### 回答思路
+
+- 先给一句结论：这个问题要从「为什么需要它」「它解决了什么问题」「代价是什么」三个角度回答。
+- 再把结论落回原题，不要脱离上下文泛泛而谈；面试官通常会顺着边界、异常和工程成本继续追问。
+- 如果涉及实现细节，按数据流、状态变化、调用顺序或生命周期拆开讲；如果涉及方案选择，必须说明为什么不用另一个方案。
+
+#### 结合原题展开
+
+- Router Cache：客户端 Router 内存里缓存最近访问过的 RSC payload，前进后退立即返回
+- 排查："改了数据没更新"通常是 Data Cache 命中：检查 fetch 选项 / revalidatePath / revalidateTag，或换 cache: 'no-store' 临时验证
+- App Router 还有 force-dynamic / force-static / revalidate 等路由级开关，能粗粒度控制整页缓存
+- 可以补充一个真实项目语境：上线前先约定输入输出、失败兜底和观测指标，避免只在 demo 场景下成立。
+
+#### 工程落地
+
+- 验证手段要具体：单元测试覆盖边界条件，集成测试覆盖主流程，必要时用 e2e 或回放数据验证真实链路。
+- 运行时要可观测：关键路径打日志或埋点，关注错误率、耗时、资源占用、用户可感知延迟和降级次数。
+- 发布策略要稳：高风险变更建议灰度、开关或回滚预案；如果会影响数据一致性，还要说明迁移和兼容策略。
+
+#### 易错点
+
+- 不要只背 API 或概念名，要说清楚适用条件；很多方案在小流量、单端、无异常时看起来都成立。
+- 不要忽略默认值、兼容性、异常回滚、性能退化和团队维护成本，这些往往是资深面试继续深挖的重点。
+- 如果答案里出现“总是”“一定”“完全替代”这类绝对表述，要主动补充例外场景。
+
+## nuxt3-overview-followup-1
+
+title: 追问：如果把「Nuxt 3 的核心特性与目录约定」用到真实项目里，你会重点关注哪些边界、验证手段和取舍
+difficulty: 进阶
+tags: [Nuxt, Vue, 追问]
+parent: nuxt3-overview
+
+### 题目
+
+如果面试官追问：如果把「Nuxt 3 的核心特性与目录约定」用到真实项目里，你会重点关注哪些边界、验证手段和取舍？
+
+### 答案要点
+
+#### 回答思路
+
+- 先给一句结论：这个问题要从「为什么需要它」「它解决了什么问题」「代价是什么」三个角度回答。
+- 再把结论落回原题，不要脱离上下文泛泛而谈；面试官通常会顺着边界、异常和工程成本继续追问。
+- 如果涉及实现细节，按数据流、状态变化、调用顺序或生命周期拆开讲；如果涉及方案选择，必须说明为什么不用另一个方案。
+
+#### 结合原题展开
+
+- 模块系统：@nuxt/image、@nuxtjs/i18n、@pinia/nuxt 等做开箱即用
+- Nuxt 4（已发布）调整了部分目录默认值，迁移要看官方 codemod
+- 可以补充一个真实项目语境：上线前先约定输入输出、失败兜底和观测指标，避免只在 demo 场景下成立。
+
+#### 工程落地
+
+- 验证手段要具体：单元测试覆盖边界条件，集成测试覆盖主流程，必要时用 e2e 或回放数据验证真实链路。
+- 运行时要可观测：关键路径打日志或埋点，关注错误率、耗时、资源占用、用户可感知延迟和降级次数。
+- 发布策略要稳：高风险变更建议灰度、开关或回滚预案；如果会影响数据一致性，还要说明迁移和兼容策略。
+
+#### 易错点
+
+- 不要只背 API 或概念名，要说清楚适用条件；很多方案在小流量、单端、无异常时看起来都成立。
+- 不要忽略默认值、兼容性、异常回滚、性能退化和团队维护成本，这些往往是资深面试继续深挖的重点。
+- 如果答案里出现“总是”“一定”“完全替代”这类绝对表述，要主动补充例外场景。
+
+## edge-runtime-followup-1
+
+title: 追问：如果把「Edge Runtime 与 Node Runtime 的差异」用到真实项目里，你会重点关注哪些边界、验证手段和取舍
+difficulty: 资深
+tags: [Edge, Cloudflare, Vercel, 追问]
+parent: edge-runtime
+
+### 题目
+
+如果面试官追问：如果把「Edge Runtime 与 Node Runtime 的差异」用到真实项目里，你会重点关注哪些边界、验证手段和取舍？
+
+### 答案要点
+
+#### 回答思路
+
+- 先给一句结论：这个问题要从「为什么需要它」「它解决了什么问题」「代价是什么」三个角度回答。
+- 再把结论落回原题，不要脱离上下文泛泛而谈；面试官通常会顺着边界、异常和工程成本继续追问。
+- 如果涉及实现细节，按数据流、状态变化、调用顺序或生命周期拆开讲；如果涉及方案选择，必须说明为什么不用另一个方案。
+
+#### 结合原题展开
+
+- API 限制：基于 V8 isolate 而非 Node，没有 fs / net / child_process，npm 包要"Edge-compatible"
+- 内存 / CPU 时长有上限（如 Cloudflare Workers ~50ms 免费版，Vercel Edge ~30s）
+- 生态：常用 Web 标准（fetch / Request / Response / WebCrypto）能用，Node 特有（Buffer 等）要 polyfill
+- 可以补充一个真实项目语境：上线前先约定输入输出、失败兜底和观测指标，避免只在 demo 场景下成立。
+
+#### 工程落地
+
+- 验证手段要具体：单元测试覆盖边界条件，集成测试覆盖主流程，必要时用 e2e 或回放数据验证真实链路。
+- 运行时要可观测：关键路径打日志或埋点，关注错误率、耗时、资源占用、用户可感知延迟和降级次数。
+- 发布策略要稳：高风险变更建议灰度、开关或回滚预案；如果会影响数据一致性，还要说明迁移和兼容策略。
+
+#### 易错点
+
+- 不要只背 API 或概念名，要说清楚适用条件；很多方案在小流量、单端、无异常时看起来都成立。
+- 不要忽略默认值、兼容性、异常回滚、性能退化和团队维护成本，这些往往是资深面试继续深挖的重点。
+- 如果答案里出现“总是”“一定”“完全替代”这类绝对表述，要主动补充例外场景。
+
+## seo-and-meta-followup-1
+
+title: 追问：如果把「现代框架做 SEO 的关键点」用到真实项目里，你会重点关注哪些边界、验证手段和取舍
+difficulty: 进阶
+tags: [SEO, meta, 追问]
+parent: seo-and-meta
+
+### 题目
+
+如果面试官追问：如果把「现代框架做 SEO 的关键点」用到真实项目里，你会重点关注哪些边界、验证手段和取舍？
+
+### 答案要点
+
+#### 回答思路
+
+- 先给一句结论：这个问题要从「为什么需要它」「它解决了什么问题」「代价是什么」三个角度回答。
+- 再把结论落回原题，不要脱离上下文泛泛而谈；面试官通常会顺着边界、异常和工程成本继续追问。
+- 如果涉及实现细节，按数据流、状态变化、调用顺序或生命周期拆开讲；如果涉及方案选择，必须说明为什么不用另一个方案。
+
+#### 结合原题展开
+
+- 监控：Search Console + Web Vitals，可量化跟踪 SEO 收益
+- 别把"SEO 友好的渲染"和"必须 SSR"画等号，结构化的 SSG / ISR 通常已经够了
+- 可以补充一个真实项目语境：上线前先约定输入输出、失败兜底和观测指标，避免只在 demo 场景下成立。
+
+#### 工程落地
+
+- 验证手段要具体：单元测试覆盖边界条件，集成测试覆盖主流程，必要时用 e2e 或回放数据验证真实链路。
+- 运行时要可观测：关键路径打日志或埋点，关注错误率、耗时、资源占用、用户可感知延迟和降级次数。
+- 发布策略要稳：高风险变更建议灰度、开关或回滚预案；如果会影响数据一致性，还要说明迁移和兼容策略。
+
+#### 易错点
+
+- 不要只背 API 或概念名，要说清楚适用条件；很多方案在小流量、单端、无异常时看起来都成立。
+- 不要忽略默认值、兼容性、异常回滚、性能退化和团队维护成本，这些往往是资深面试继续深挖的重点。
+- 如果答案里出现“总是”“一定”“完全替代”这类绝对表述，要主动补充例外场景。
+
+## ssr-csr-ssg-isr-followup-1
+
+title: 追问：如果把「SSR / CSR / SSG / ISR 怎么选」用到真实项目里，你会重点关注哪些边界、验证手段和取舍
+difficulty: 进阶
+tags: [SSR, SSG, ISR, 追问]
+parent: ssr-csr-ssg-isr
+
+### 题目
+
+如果面试官追问：如果把「SSR / CSR / SSG / ISR 怎么选」用到真实项目里，你会重点关注哪些边界、验证手段和取舍？
+
+### 答案要点
+
+#### 回答思路
+
+- 先给一句结论：这个问题要从「为什么需要它」「它解决了什么问题」「代价是什么」三个角度回答。
+- 再把结论落回原题，不要脱离上下文泛泛而谈；面试官通常会顺着边界、异常和工程成本继续追问。
+- 如果涉及实现细节，按数据流、状态变化、调用顺序或生命周期拆开讲；如果涉及方案选择，必须说明为什么不用另一个方案。
+
+#### 结合原题展开
+
+- CSR（Client-Side Rendering）
+- SSR（Server-Side Rendering）
+- SSG（Static Site Generation）
+- 可以补充一个真实项目语境：上线前先约定输入输出、失败兜底和观测指标，避免只在 demo 场景下成立。
+
+#### 工程落地
+
+- 验证手段要具体：单元测试覆盖边界条件，集成测试覆盖主流程，必要时用 e2e 或回放数据验证真实链路。
+- 运行时要可观测：关键路径打日志或埋点，关注错误率、耗时、资源占用、用户可感知延迟和降级次数。
+- 发布策略要稳：高风险变更建议灰度、开关或回滚预案；如果会影响数据一致性，还要说明迁移和兼容策略。
+
+#### 易错点
+
+- 不要只背 API 或概念名，要说清楚适用条件；很多方案在小流量、单端、无异常时看起来都成立。
+- 不要忽略默认值、兼容性、异常回滚、性能退化和团队维护成本，这些往往是资深面试继续深挖的重点。
+- 如果答案里出现“总是”“一定”“完全替代”这类绝对表述，要主动补充例外场景。
+
+## next-data-fetching-patterns-followup-1
+
+title: 追问：如果把「Next App Router 下数据获取的 4 种姿势」用到真实项目里，你会重点关注哪些边界、验证手段和取舍
+difficulty: 资深
+tags: [Next, RSC, 数据获取, 高频, 追问]
+parent: next-data-fetching-patterns
+
+### 题目
+
+如果面试官追问：如果把「Next App Router 下数据获取的 4 种姿势」用到真实项目里，你会重点关注哪些边界、验证手段和取舍？
+
+### 答案要点
+
+#### 回答思路
+
+- 先给一句结论：这个问题要从「为什么需要它」「它解决了什么问题」「代价是什么」三个角度回答。
+- 再把结论落回原题，不要脱离上下文泛泛而谈；面试官通常会顺着边界、异常和工程成本继续追问。
+- 如果涉及实现细节，按数据流、状态变化、调用顺序或生命周期拆开讲；如果涉及方案选择，必须说明为什么不用另一个方案。
+
+#### 结合原题展开
+
+- Next 自动缓存 + 去重；fetch(url, { next: { revalidate: 60 } }) 控 ISR
+- 数据获取走 SWR / TanStack Query / fetch on mount
+- 文件式路由：app/api/foo/route.ts → GET/POST/...
+- 可以补充一个真实项目语境：上线前先约定输入输出、失败兜底和观测指标，避免只在 demo 场景下成立。
+
+#### 工程落地
+
+- 验证手段要具体：单元测试覆盖边界条件，集成测试覆盖主流程，必要时用 e2e 或回放数据验证真实链路。
+- 运行时要可观测：关键路径打日志或埋点，关注错误率、耗时、资源占用、用户可感知延迟和降级次数。
+- 发布策略要稳：高风险变更建议灰度、开关或回滚预案；如果会影响数据一致性，还要说明迁移和兼容策略。
+
+#### 易错点
+
+- 不要只背 API 或概念名，要说清楚适用条件；很多方案在小流量、单端、无异常时看起来都成立。
+- 不要忽略默认值、兼容性、异常回滚、性能退化和团队维护成本，这些往往是资深面试继续深挖的重点。
+- 如果答案里出现“总是”“一定”“完全替代”这类绝对表述，要主动补充例外场景。
+
+## remix-react-router-loaders-followup-1
+
+title: 追问：如果把「Remix / React Router v6.4+ 的 loader / action 模型」用到真实项目里，你会重点关注哪些边界、验证手段和取舍
+difficulty: 进阶
+tags: [Remix, React Router, 数据获取, 追问]
+parent: remix-react-router-loaders
+
+### 题目
+
+如果面试官追问：如果把「Remix / React Router v6.4+ 的 loader / action 模型」用到真实项目里，你会重点关注哪些边界、验证手段和取舍？
+
+### 答案要点
+
+#### 回答思路
+
+- 先给一句结论：这个问题要从「为什么需要它」「它解决了什么问题」「代价是什么」三个角度回答。
+- 再把结论落回原题，不要脱离上下文泛泛而谈；面试官通常会顺着边界、异常和工程成本继续追问。
+- 如果涉及实现细节，按数据流、状态变化、调用顺序或生命周期拆开讲；如果涉及方案选择，必须说明为什么不用另一个方案。
+
+#### 结合原题展开
+
+- 路由 = UI + loader + action，三件套绑定
+- 切路由前并行跑所有 loader（race conditions 框架处理）
+- 自动提交到 action，刷新页面也工作
+- 可以补充一个真实项目语境：上线前先约定输入输出、失败兜底和观测指标，避免只在 demo 场景下成立。
+
+#### 工程落地
+
+- 验证手段要具体：单元测试覆盖边界条件，集成测试覆盖主流程，必要时用 e2e 或回放数据验证真实链路。
+- 运行时要可观测：关键路径打日志或埋点，关注错误率、耗时、资源占用、用户可感知延迟和降级次数。
+- 发布策略要稳：高风险变更建议灰度、开关或回滚预案；如果会影响数据一致性，还要说明迁移和兼容策略。
+
+#### 易错点
+
+- 不要只背 API 或概念名，要说清楚适用条件；很多方案在小流量、单端、无异常时看起来都成立。
+- 不要忽略默认值、兼容性、异常回滚、性能退化和团队维护成本，这些往往是资深面试继续深挖的重点。
+- 如果答案里出现“总是”“一定”“完全替代”这类绝对表述，要主动补充例外场景。
+
+## fullstack-auth-strategy-followup-1
+
+title: 追问：如果把「SSR 应用的鉴权怎么设计？」用到真实项目里，你会重点关注哪些边界、验证手段和取舍
+difficulty: 资深
+tags: [鉴权, Next, 全栈, 高频, 追问]
+parent: fullstack-auth-strategy
+
+### 题目
+
+如果面试官追问：如果把「SSR 应用的鉴权怎么设计？」用到真实项目里，你会重点关注哪些边界、验证手段和取舍？
+
+### 答案要点
+
+#### 回答思路
+
+- 先给一句结论：这个问题要从「为什么需要它」「它解决了什么问题」「代价是什么」三个角度回答。
+- 再把结论落回原题，不要脱离上下文泛泛而谈；面试官通常会顺着边界、异常和工程成本继续追问。
+- 如果涉及实现细节，按数据流、状态变化、调用顺序或生命周期拆开讲；如果涉及方案选择，必须说明为什么不用另一个方案。
+
+#### 结合原题展开
+
+- 用户提交账密 / 手机号 → 服务端验证 → 设置 HttpOnly Cookie
+- 可以补充一个真实项目语境：上线前先约定输入输出、失败兜底和观测指标，避免只在 demo 场景下成立。
+
+#### 工程落地
+
+- 验证手段要具体：单元测试覆盖边界条件，集成测试覆盖主流程，必要时用 e2e 或回放数据验证真实链路。
+- 运行时要可观测：关键路径打日志或埋点，关注错误率、耗时、资源占用、用户可感知延迟和降级次数。
+- 发布策略要稳：高风险变更建议灰度、开关或回滚预案；如果会影响数据一致性，还要说明迁移和兼容策略。
+
+#### 易错点
+
+- 不要只背 API 或概念名，要说清楚适用条件；很多方案在小流量、单端、无异常时看起来都成立。
+- 不要忽略默认值、兼容性、异常回滚、性能退化和团队维护成本，这些往往是资深面试继续深挖的重点。
+- 如果答案里出现“总是”“一定”“完全替代”这类绝对表述，要主动补充例外场景。
+
+## hydration-mismatch-debug-followup-1
+
+title: 追问：如果把「Hydration mismatch 怎么排查 / 修复」用到真实项目里，你会重点关注哪些边界、验证手段和取舍
+difficulty: 资深
+tags: [SSR, Hydration, React, 高频, 追问]
+parent: hydration-mismatch-debug
+
+### 题目
+
+如果面试官追问：如果把「Hydration mismatch 怎么排查 / 修复」用到真实项目里，你会重点关注哪些边界、验证手段和取舍？
+
+### 答案要点
+
+#### 回答思路
+
+- 先给一句结论：这个问题要从「为什么需要它」「它解决了什么问题」「代价是什么」三个角度回答。
+- 再把结论落回原题，不要脱离上下文泛泛而谈；面试官通常会顺着边界、异常和工程成本继续追问。
+- 如果涉及实现细节，按数据流、状态变化、调用顺序或生命周期拆开讲；如果涉及方案选择，必须说明为什么不用另一个方案。
+
+#### 结合原题展开
+
+- 用户偏好：浏览器扩展（Grammarly、暗黑模式插件）会修改 DOM；这种 mismatch 没法根治，可在最外层加 suppressHydrationWarning
+- HTML 结构非法： 嵌 、 缺 ，浏览器自动修复 → server vs client DOM 不同
+- React 19 / Next 14 错误信息已经能直接指出 mismatch 的标签
+- 可以补充一个真实项目语境：上线前先约定输入输出、失败兜底和观测指标，避免只在 demo 场景下成立。
+
+#### 工程落地
+
+- 验证手段要具体：单元测试覆盖边界条件，集成测试覆盖主流程，必要时用 e2e 或回放数据验证真实链路。
+- 运行时要可观测：关键路径打日志或埋点，关注错误率、耗时、资源占用、用户可感知延迟和降级次数。
+- 发布策略要稳：高风险变更建议灰度、开关或回滚预案；如果会影响数据一致性，还要说明迁移和兼容策略。
+
+#### 易错点
+
+- 不要只背 API 或概念名，要说清楚适用条件；很多方案在小流量、单端、无异常时看起来都成立。
+- 不要忽略默认值、兼容性、异常回滚、性能退化和团队维护成本，这些往往是资深面试继续深挖的重点。
+- 如果答案里出现“总是”“一定”“完全替代”这类绝对表述，要主动补充例外场景。
+
+## ssr-data-fetching-consistency-followup-1
+
+title: 追问：如果把「SSR 数据如何无缝传递到 Client，避免重复请求」用到真实项目里，你会重点关注哪些边界、验证手段和取舍
+difficulty: 资深
+tags: [SSR, 数据获取, 高频, 追问]
+parent: ssr-data-fetching-consistency
+
+### 题目
+
+如果面试官追问：如果把「SSR 数据如何无缝传递到 Client，避免重复请求」用到真实项目里，你会重点关注哪些边界、验证手段和取舍？
+
+### 答案要点
+
+#### 回答思路
+
+- 先给一句结论：这个问题要从「为什么需要它」「它解决了什么问题」「代价是什么」三个角度回答。
+- 再把结论落回原题，不要脱离上下文泛泛而谈；面试官通常会顺着边界、异常和工程成本继续追问。
+- 如果涉及实现细节，按数据流、状态变化、调用顺序或生命周期拆开讲；如果涉及方案选择，必须说明为什么不用另一个方案。
+
+#### 结合原题展开
+
+- 客户端 store 初始化时优先读这个对象，缺失才发请求
+- 服务端 prefetchQuery → dehydrate(queryClient) → 注入序列化数据
+- 客户端 → cache 命中，不再请求
+- 可以补充一个真实项目语境：上线前先约定输入输出、失败兜底和观测指标，避免只在 demo 场景下成立。
+
+#### 工程落地
+
+- 验证手段要具体：单元测试覆盖边界条件，集成测试覆盖主流程，必要时用 e2e 或回放数据验证真实链路。
+- 运行时要可观测：关键路径打日志或埋点，关注错误率、耗时、资源占用、用户可感知延迟和降级次数。
+- 发布策略要稳：高风险变更建议灰度、开关或回滚预案；如果会影响数据一致性，还要说明迁移和兼容策略。
+
+#### 易错点
+
+- 不要只背 API 或概念名，要说清楚适用条件；很多方案在小流量、单端、无异常时看起来都成立。
+- 不要忽略默认值、兼容性、异常回滚、性能退化和团队维护成本，这些往往是资深面试继续深挖的重点。
+- 如果答案里出现“总是”“一定”“完全替代”这类绝对表述，要主动补充例外场景。
+
+## ssr-csr-spa-mpa-basic-followup-1
+
+title: 追问：React Server Components 是 SSR 吗
+difficulty: 基础
+tags: [SSR, CSR, SSG, ISR, 追问]
+parent: ssr-csr-spa-mpa-basic
+
+### 题目
+
+如果面试官追问：React Server Components 是 SSR 吗？（不是，是另一层）
+
+### 答案要点
+
+#### 回答思路
+
+- 先给一句结论：这个问题要从「为什么需要它」「它解决了什么问题」「代价是什么」三个角度回答。
+- 再把结论落回原题，不要脱离上下文泛泛而谈；面试官通常会顺着边界、异常和工程成本继续追问。
+- 如果涉及实现细节，按数据流、状态变化、调用顺序或生命周期拆开讲；如果涉及方案选择，必须说明为什么不用另一个方案。
+
+#### 结合原题展开
+
+- SSR（Server-Side Rendering）：服务器拼好 HTML 直接吐给浏览器；适合 SEO 敏感、首屏快需求
+- 把 SSR = SEO 唯一解：现代搜索引擎能跑 JS，SPA + 预渲染也行
+- ISR 不是 SSR：ISR 是"提前缓存 + 失效后再生"，访问时多数还是返回缓存
+- 可以补充一个真实项目语境：上线前先约定输入输出、失败兜底和观测指标，避免只在 demo 场景下成立。
+
+#### 工程落地
+
+- 验证手段要具体：单元测试覆盖边界条件，集成测试覆盖主流程，必要时用 e2e 或回放数据验证真实链路。
+- 运行时要可观测：关键路径打日志或埋点，关注错误率、耗时、资源占用、用户可感知延迟和降级次数。
+- 发布策略要稳：高风险变更建议灰度、开关或回滚预案；如果会影响数据一致性，还要说明迁移和兼容策略。
+
+#### 易错点
+
+- 不要只背 API 或概念名，要说清楚适用条件；很多方案在小流量、单端、无异常时看起来都成立。
+- 不要忽略默认值、兼容性、异常回滚、性能退化和团队维护成本，这些往往是资深面试继续深挖的重点。
+- 如果答案里出现“总是”“一定”“完全替代”这类绝对表述，要主动补充例外场景。
+
+## ssr-csr-spa-mpa-basic-followup-2
+
+title: 追问：SSR 的成本什么时候不值
+difficulty: 基础
+tags: [SSR, CSR, SSG, ISR, 追问]
+parent: ssr-csr-spa-mpa-basic
+
+### 题目
+
+如果面试官追问：SSR 的成本（服务器算力 + 复杂度）什么时候不值
+
+### 答案要点
+
+#### 回答思路
+
+- 先给一句结论：这个问题要从「为什么需要它」「它解决了什么问题」「代价是什么」三个角度回答。
+- 再把结论落回原题，不要脱离上下文泛泛而谈；面试官通常会顺着边界、异常和工程成本继续追问。
+- 如果涉及实现细节，按数据流、状态变化、调用顺序或生命周期拆开讲；如果涉及方案选择，必须说明为什么不用另一个方案。
+
+#### 结合原题展开
+
+- SSR（Server-Side Rendering）：服务器拼好 HTML 直接吐给浏览器；适合 SEO 敏感、首屏快需求
+- ISR（Incremental Static Regeneration）：SSG + "过期后服务端按需再生"；适合电商列表页、新闻
+- 把 SSR = SEO 唯一解：现代搜索引擎能跑 JS，SPA + 预渲染也行
+- 可以补充一个真实项目语境：上线前先约定输入输出、失败兜底和观测指标，避免只在 demo 场景下成立。
+
+#### 工程落地
+
+- 验证手段要具体：单元测试覆盖边界条件，集成测试覆盖主流程，必要时用 e2e 或回放数据验证真实链路。
+- 运行时要可观测：关键路径打日志或埋点，关注错误率、耗时、资源占用、用户可感知延迟和降级次数。
+- 发布策略要稳：高风险变更建议灰度、开关或回滚预案；如果会影响数据一致性，还要说明迁移和兼容策略。
+
+#### 易错点
+
+- 不要只背 API 或概念名，要说清楚适用条件；很多方案在小流量、单端、无异常时看起来都成立。
+- 不要忽略默认值、兼容性、异常回滚、性能退化和团队维护成本，这些往往是资深面试继续深挖的重点。
+- 如果答案里出现“总是”“一定”“完全替代”这类绝对表述，要主动补充例外场景。
+
+## ssr-csr-spa-mpa-basic-followup-3
+
+title: 追问：边缘渲染和传统 Node SSR 的差别
+difficulty: 基础
+tags: [SSR, CSR, SSG, ISR, 追问]
+parent: ssr-csr-spa-mpa-basic
+
+### 题目
+
+如果面试官追问：边缘渲染（Edge SSR）和传统 Node SSR 的差别
+
+### 答案要点
+
+#### 回答思路
+
+- 先给一句结论：这个问题要从「为什么需要它」「它解决了什么问题」「代价是什么」三个角度回答。
+- 再把结论落回原题，不要脱离上下文泛泛而谈；面试官通常会顺着边界、异常和工程成本继续追问。
+- 如果涉及实现细节，按数据流、状态变化、调用顺序或生命周期拆开讲；如果涉及方案选择，必须说明为什么不用另一个方案。
+
+#### 结合原题展开
+
+- CSR（Client-Side Rendering）：HTML 是空壳，JS 拉数据再渲染。适合后台系统、富交互应用
+- SSR（Server-Side Rendering）：服务器拼好 HTML 直接吐给浏览器；适合 SEO 敏感、首屏快需求
+- 把 SSR = SEO 唯一解：现代搜索引擎能跑 JS，SPA + 预渲染也行
+- 可以补充一个真实项目语境：上线前先约定输入输出、失败兜底和观测指标，避免只在 demo 场景下成立。
+
+#### 工程落地
+
+- 验证手段要具体：单元测试覆盖边界条件，集成测试覆盖主流程，必要时用 e2e 或回放数据验证真实链路。
+- 运行时要可观测：关键路径打日志或埋点，关注错误率、耗时、资源占用、用户可感知延迟和降级次数。
+- 发布策略要稳：高风险变更建议灰度、开关或回滚预案；如果会影响数据一致性，还要说明迁移和兼容策略。
+
+#### 易错点
+
+- 不要只背 API 或概念名，要说清楚适用条件；很多方案在小流量、单端、无异常时看起来都成立。
+- 不要忽略默认值、兼容性、异常回滚、性能退化和团队维护成本，这些往往是资深面试继续深挖的重点。
+- 如果答案里出现“总是”“一定”“完全替代”这类绝对表述，要主动补充例外场景。
+
+## multi-region-deploy-followup-1
+
+title: 追问：全球唯一 ID 怎么生成
+difficulty: 资深
+tags: [架构, 多区域, 灾备, 海外, 追问]
+parent: multi-region-deploy
+
+### 题目
+
+如果面试官追问：全球唯一 ID 怎么生成（Snowflake / UUID / TSID）
+
+### 答案要点
+
+#### 回答思路
+
+- 先给一句结论：这个问题要从「为什么需要它」「它解决了什么问题」「代价是什么」三个角度回答。
+- 再把结论落回原题，不要脱离上下文泛泛而谈；面试官通常会顺着边界、异常和工程成本继续追问。
+- 如果涉及实现细节，按数据流、状态变化、调用顺序或生命周期拆开讲；如果涉及方案选择，必须说明为什么不用另一个方案。
+
+#### 结合原题展开
+
+- DNS 选址：GeoDNS（按用户 IP 返回最近 region 的 IP）/ Anycast（同一 IP 全球广播，BGP 路由就近）
+- 强一致（如全球唯一订单号）→ 中心化主库 + 多活复制（Aurora Global / TiDB / Spanner）
+- 金丝雀发布：新版本先在 1 个 region 灰度，OK 了再推全球
+- 可以补充一个真实项目语境：上线前先约定输入输出、失败兜底和观测指标，避免只在 demo 场景下成立。
+
+#### 工程落地
+
+- 验证手段要具体：单元测试覆盖边界条件，集成测试覆盖主流程，必要时用 e2e 或回放数据验证真实链路。
+- 运行时要可观测：关键路径打日志或埋点，关注错误率、耗时、资源占用、用户可感知延迟和降级次数。
+- 发布策略要稳：高风险变更建议灰度、开关或回滚预案；如果会影响数据一致性，还要说明迁移和兼容策略。
+
+#### 易错点
+
+- 不要只背 API 或概念名，要说清楚适用条件；很多方案在小流量、单端、无异常时看起来都成立。
+- 不要忽略默认值、兼容性、异常回滚、性能退化和团队维护成本，这些往往是资深面试继续深挖的重点。
+- 如果答案里出现“总是”“一定”“完全替代”这类绝对表述，要主动补充例外场景。
+
+## multi-region-deploy-followup-2
+
+title: 追问：海外 region 用 AWS 还是 Cloudflare R2 + Workers 哪个更适合 SaaS
+difficulty: 资深
+tags: [架构, 多区域, 灾备, 海外, 追问]
+parent: multi-region-deploy
+
+### 题目
+
+如果面试官追问：海外 region 用 AWS 还是 Cloudflare R2 + Workers 哪个更适合 SaaS
+
+### 答案要点
+
+#### 回答思路
+
+- 先给一句结论：这个问题要从「为什么需要它」「它解决了什么问题」「代价是什么」三个角度回答。
+- 再把结论落回原题，不要脱离上下文泛泛而谈；面试官通常会顺着边界、异常和工程成本继续追问。
+- 如果涉及实现细节，按数据流、状态变化、调用顺序或生命周期拆开讲；如果涉及方案选择，必须说明为什么不用另一个方案。
+
+#### 结合原题展开
+
+- DNS 选址：GeoDNS（按用户 IP 返回最近 region 的 IP）/ Anycast（同一 IP 全球广播，BGP 路由就近）
+- TLS 终止：边缘 CDN（Cloudflare / Akamai / Fastly）做 TLS、缓存静态资源、WAF 防护
+- 边缘计算：Cloudflare Workers / AWS Lambda@Edge / Vercel Edge 跑轻量逻辑（鉴权 / AB 实验 / 重定向）
+- 可以补充一个真实项目语境：上线前先约定输入输出、失败兜底和观测指标，避免只在 demo 场景下成立。
+
+#### 工程落地
+
+- 验证手段要具体：单元测试覆盖边界条件，集成测试覆盖主流程，必要时用 e2e 或回放数据验证真实链路。
+- 运行时要可观测：关键路径打日志或埋点，关注错误率、耗时、资源占用、用户可感知延迟和降级次数。
+- 发布策略要稳：高风险变更建议灰度、开关或回滚预案；如果会影响数据一致性，还要说明迁移和兼容策略。
+
+#### 易错点
+
+- 不要只背 API 或概念名，要说清楚适用条件；很多方案在小流量、单端、无异常时看起来都成立。
+- 不要忽略默认值、兼容性、异常回滚、性能退化和团队维护成本，这些往往是资深面试继续深挖的重点。
+- 如果答案里出现“总是”“一定”“完全替代”这类绝对表述，要主动补充例外场景。
+
+## multi-region-deploy-followup-3
+
+title: 追问：数据出境合规的具体动作
+difficulty: 资深
+tags: [架构, 多区域, 灾备, 海外, 追问]
+parent: multi-region-deploy
+
+### 题目
+
+如果面试官追问：数据出境合规的具体动作（SCC / 安全评估 / 个人同意）
+
+### 答案要点
+
+#### 回答思路
+
+- 先给一句结论：这个问题要从「为什么需要它」「它解决了什么问题」「代价是什么」三个角度回答。
+- 再把结论落回原题，不要脱离上下文泛泛而谈；面试官通常会顺着边界、异常和工程成本继续追问。
+- 如果涉及实现细节，按数据流、状态变化、调用顺序或生命周期拆开讲；如果涉及方案选择，必须说明为什么不用另一个方案。
+
+#### 结合原题展开
+
+- 用户数据按法律边界落地：欧盟 EU / 中国 CN / 海外其他可合并
+- 跨 region 同步走公网 + 没加密 —— 中间人攻击 + 合规问题
+- AWS Aurora Global Database / Google Cloud Spanner 是强一致跨 region 数据库
+- 可以补充一个真实项目语境：上线前先约定输入输出、失败兜底和观测指标，避免只在 demo 场景下成立。
+
+#### 工程落地
+
+- 验证手段要具体：单元测试覆盖边界条件，集成测试覆盖主流程，必要时用 e2e 或回放数据验证真实链路。
+- 运行时要可观测：关键路径打日志或埋点，关注错误率、耗时、资源占用、用户可感知延迟和降级次数。
+- 发布策略要稳：高风险变更建议灰度、开关或回滚预案；如果会影响数据一致性，还要说明迁移和兼容策略。
+
+#### 易错点
+
+- 不要只背 API 或概念名，要说清楚适用条件；很多方案在小流量、单端、无异常时看起来都成立。
+- 不要忽略默认值、兼容性、异常回滚、性能退化和团队维护成本，这些往往是资深面试继续深挖的重点。
+- 如果答案里出现“总是”“一定”“完全替代”这类绝对表述，要主动补充例外场景。

@@ -7,17 +7,22 @@ description: Vue / React / Svelte / Solid / Qwik / Angular 的设计哲学、性
 ---
 
 ## reactivity-models
+
 title: 主流框架的响应式模型对比
+followups: [reactivity-models-followup-1]
 difficulty: 资深
 tags: [响应式, 框架]
 
 ### 一句话
+
 React：状态变更触发整个子树重新执行函数 + diff，靠 memo 减少；React Compiler 自动 memo；Vue 3：基于 Proxy 的细粒度依赖追踪，组件级 patchFlag + 子树 hoist…。
 
 ### 题目
+
 React、Vue、Svelte、Solid、Qwik、Angular 的响应式模型分别是什么？各自的性能边界在哪？
 
 ### 答案要点
+
 - React：状态变更触发整个子树重新执行函数 + diff，靠 memo 减少；React Compiler 自动 memo
 - Vue 3：基于 Proxy 的细粒度依赖追踪，组件级 patchFlag + 子树 hoist；3.5 Vapor Mode 朝向无 VDOM
 - Svelte：编译期把响应式编译成"赋值即更新"的 imperative 代码，运行时极小，无 VDOM
@@ -26,6 +31,7 @@ React、Vue、Svelte、Solid、Qwik、Angular 的响应式模型分别是什么�
 - Angular：基于 RxJS / Zone.js（旧）和 Signals（新），变更检测有清晰的 Zone 边界
 
 ### 代码示例
+
 ```ts
 const c = $state(0);
 $: double = c * 2;
@@ -37,22 +43,32 @@ const c = ref(0);
 const double = computed(() => c.value * 2);
 ```
 
+### 追问
+
+- 如果把「主流框架的响应式模型对比」用到真实项目里，你会重点关注哪些边界、验证手段和取舍？
+
 ### 延伸
+
 - 响应式的本质都是"变更 -> 影响范围最小化 -> 更新 DOM"，差异只在编译期还是运行期解决
 - React Compiler、Vue Vapor 都在向 Solid / Svelte 的细粒度方向收敛
 
 ## rendering-strategy
+
 title: SPA / SSR / SSG / ISR / RSC / Streaming / Resumability
+followups: [rendering-strategy-followup-1]
 difficulty: 资深
 tags: [渲染策略, SSR]
 
 ### 一句话
+
 SPA：纯客户端渲染，简单、易部署；首屏慢、SEO 弱，适合后台 / 工具站；SSR：每次请求服务端渲染，首屏快 + SEO 好，但服务器成本高；SSG：构建期生成静态 HTML，CDN 直接吐，性价比高但内容更新需要重建。
 
 ### 题目
+
 做一个新项目时，怎么选 SPA、SSR、SSG、ISR、RSC、Streaming SSR、Resumability？
 
 ### 答案要点
+
 - SPA：纯客户端渲染，简单、易部署；首屏慢、SEO 弱，适合后台 / 工具站
 - SSR：每次请求服务端渲染，首屏快 + SEO 好，但服务器成本高
 - SSG：构建期生成静态 HTML，CDN 直接吐，性价比高但内容更新需要重建
@@ -62,6 +78,7 @@ SPA：纯客户端渲染，简单、易部署；首屏慢、SEO 弱，适合后�
 - Qwik 的 Resumability：把状态序列化进 HTML，浏览器无需 hydration 直接续跑
 
 ### 代码示例
+
 ```ts
 export const revalidate = 60;
 export default async function Page() {
@@ -76,22 +93,32 @@ export default async function Page() {
 }
 ```
 
+### 追问
+
+- 如果把「SPA / SSR / SSG / ISR / RSC / Streaming / Resumability」用到真实项目里，你会重点关注哪些边界、验证手段和取舍？
+
 ### 延伸
+
 - 不必非要二选一：核心页 RSC + ISR、运营页 SSG、后台 SPA 是常见组合
 - Edge Runtime（Cloudflare Workers / Vercel Edge）让 SSR 离用户更近，是新方向
 
 ## bundle-runtime-cost
+
 title: 各框架运行时体积与启动成本对比
+followups: [bundle-runtime-cost-followup-1]
 difficulty: 进阶
 tags: [体积, 性能]
 
 ### 一句话
+
 运行时体积（gzip 大约）：Svelte ~2KB、Solid ~7KB、Vue 3 ~30KB、Preact ~3KB、React+ReactDOM ~40KB、Angular 较大…。
 
 ### 题目
+
 关心首屏 TTI 时，框架本身的运行时大小、解析 / 执行成本怎么对比？
 
 ### 答案要点
+
 - 运行时体积（gzip 大约）：Svelte ~2KB、Solid ~7KB、Vue 3 ~30KB、Preact ~3KB、React+ReactDOM ~40KB、Angular 较大
 - Hydration 成本：React / Vue 都需要把 VDOM 重建一遍；Qwik 接近 0、Astro Islands 局部 hydration
 - 首屏关键链路：HTML → Critical CSS → 关键 JS（router + framework + page）
@@ -99,6 +126,7 @@ tags: [体积, 性能]
 - 度量工具：Lighthouse + WebPageTest + 自定义 Performance Observer，关注 LCP、INP、TBT、TTI
 
 ### 代码示例
+
 ```ts
 new PerformanceObserver((list) => {
   list.getEntries().forEach((e) => {
@@ -113,22 +141,32 @@ import('./bootstrap').then(() => {
 });
 ```
 
+### 追问
+
+- 如果把「各框架运行时体积与启动成本对比」用到真实项目里，你会重点关注哪些边界、验证手段和取舍？
+
 ### 延伸
+
 - 业务代码体积通常远大于框架本身，不要为了省 30KB 框架而上 Svelte，要看整体投入产出
 - 移动端 / 低端机占比高的产品，体积差异会被放大
 
 ## ecosystem-team
+
 title: 生态、招聘和团队工程化的取舍
+followups: [ecosystem-team-followup-1]
 difficulty: 进阶
 tags: [选型, 团队]
 
 ### 一句话
+
 生态广度：组件库 / 状态管理 / 路由 / SSR 框架 / IDE 插件是否齐全；招聘市场：Vue 在国内招聘量大，React 全球范围更通用，Svelte / Solid 招聘困难；学习曲线：React + TypeScript 模式多、心智重…。
 
 ### 题目
+
 技术选型不只看技术指标，怎么把生态成熟度、招聘难度、上下游配套也考虑进去？
 
 ### 答案要点
+
 - 生态广度：组件库 / 状态管理 / 路由 / SSR 框架 / IDE 插件是否齐全
 - 招聘市场：Vue 在国内招聘量大，React 全球范围更通用，Svelte / Solid 招聘困难
 - 学习曲线：React + TypeScript 模式多、心智重；Vue 模板上手快，但项目大了模板复杂度也高
@@ -136,6 +174,7 @@ tags: [选型, 团队]
 - 工程化生态：监控、可视化搭建、低代码、SSR 平台、组件库内部沉淀
 
 ### 代码示例
+
 ```ts
 const decisionMatrix = {
   short_term_pilot: 'React',
@@ -147,22 +186,32 @@ const decisionMatrix = {
 };
 ```
 
+### 追问
+
+- 如果把「生态、招聘和团队工程化的取舍」用到真实项目里，你会重点关注哪些边界、验证手段和取舍？
+
 ### 延伸
+
 - 对组织来说"统一一种主框架 + 允许局部尝试新东西"通常比"全员追潮流"更稳健
 - 内部基础设施（脚手架、组件库、监控、发布平台）和框架同样重要，甚至更重要
 
 ## migration-strategy
+
 title: 老项目迁移 / 多框架共存怎么做
+followups: [migration-strategy-followup-1]
 difficulty: 资深
 tags: [迁移, 微前端]
 
 ### 一句话
+
 评估收益：迁移要算成本（人月）和收益（性能 / 可维护 / 招聘），别为迁移而迁移；分阶段：先抽公共能力（API、设计系统、登录态）成框架无关包，再按页迁移…。
 
 ### 题目
+
 公司里有 Vue 2、Vue 3、React 多套框架，怎么平稳迁移而不停业务？
 
 ### 答案要点
+
 - 评估收益：迁移要算成本（人月）和收益（性能 / 可维护 / 招聘），别为迁移而迁移
 - 分阶段：先抽公共能力（API、设计系统、登录态）成框架无关包，再按页迁移
 - 多框架共存：用 qiankun / Module Federation / iframe 把不同栈隔离到子应用
@@ -171,6 +220,7 @@ tags: [迁移, 微前端]
 - 工具：Vue 2 → Vue 3 用官方迁移构建；Vue → React / 反向需要逐组件重写
 
 ### 代码示例
+
 ```ts
 import { registerMicroApps, start } from 'qiankun';
 
@@ -192,22 +242,32 @@ registerMicroApps([
 start({ sandbox: { strictStyleIsolation: true } });
 ```
 
+### 追问
+
+- 如果把「老项目迁移 / 多框架共存怎么做」用到真实项目里，你会重点关注哪些边界、验证手段和取舍？
+
 ### 延伸
+
 - 微前端不是银弹，团队组织和发布节奏才是真正驱动因素
 - 设计系统统一比框架统一更重要，能让多框架共存的视觉体验保持一致
 
 ## angular-distinct
+
 title: Angular 的核心差异和适合场景
+followups: [angular-distinct-followup-1]
 difficulty: 进阶
 tags: [Angular, DI]
 
 ### 一句话
+
 模块化 + DI：依赖注入是一等公民，适合大型业务的解耦；全家桶：CLI、Router、Forms、HttpClient、RxJS、i18n、SSR (Universal) 都官方提供；TS-first：从 v2 起就是 TS，类型体系完整。
 
 ### 题目
+
 为什么 Angular 在国内偏冷但在企业 / 银行场景仍然主流？它的关键特性是什么？
 
 ### 答案要点
+
 - 模块化 + DI：依赖注入是一等公民，适合大型业务的解耦
 - 全家桶：CLI、Router、Forms、HttpClient、RxJS、i18n、SSR (Universal) 都官方提供
 - TS-first：从 v2 起就是 TS，类型体系完整
@@ -216,6 +276,7 @@ tags: [Angular, DI]
 - 适合后台 / Dashboard / 银行 / 医疗等需求重、生命周期长的项目
 
 ### 代码示例
+
 ```ts
 @Injectable({ providedIn: 'root' })
 export class UserService {
@@ -243,22 +304,32 @@ export class ProfileComponent {
 }
 ```
 
+### 追问
+
+- 如果把「Angular 的核心差异和适合场景」用到真实项目里，你会重点关注哪些边界、验证手段和取舍？
+
 ### 延伸
+
 - Angular 的"约束"在小项目里是负担，在大项目里却是优势
 - Standalone Components + Signals 让新项目门槛大幅降低，值得重新评估
 
 ## qwik-resumability
+
 title: Qwik 与 Resumability 模型
+followups: [qwik-resumability-followup-1]
 difficulty: 资深
 tags: [Qwik, Resumability]
 
 ### 一句话
+
 Hydration 慢的根本原因：要把整个组件树在客户端再跑一次绑定事件；Resumability：Qwik 在 SSR 时把"序列化的状态机 + 事件监听描述"塞进 HTML（attributes）；浏览器无需重新执行组件代码…。
 
 ### 题目
+
 Qwik 主张"零 hydration"是怎么做到的？跟 Islands Architecture 有什么不同？
 
 ### 答案要点
+
 - Hydration 慢的根本原因：要把整个组件树在客户端再跑一次绑定事件
 - Resumability：Qwik 在 SSR 时把"序列化的状态机 + 事件监听描述"塞进 HTML（attributes）
 - 浏览器无需重新执行组件代码，只在用户交互时按需下载对应 component chunk
@@ -266,35 +337,42 @@ Qwik 主张"零 hydration"是怎么做到的？跟 Islands Architecture 有什�
 - 代价：所有组件函数必须支持序列化（不能闭包捕获不可序列化引用），心智负担更高
 
 ### 代码示例
+
 ```tsx
 import { component$, useSignal, $ } from '@builder.io/qwik';
 
 export const Counter = component$(() => {
   const count = useSignal(0);
-  return (
-    <button onClick$={() => count.value++}>
-      Clicks: {count.value}
-    </button>
-  );
+  return <button onClick$={() => count.value++}>Clicks: {count.value}</button>;
 });
 ```
 
+### 追问
+
+- 如果把「Qwik 与 Resumability 模型」用到真实项目里，你会重点关注哪些边界、验证手段和取舍？
+
 ### 延伸
+
 - Resumability 适合首屏要求极致、交互密度中等的内容站
 - 复杂强交互产品（编辑器、Dashboard）用 Qwik 不一定划算，因为按需下载的 chunk 太碎
 
 ## svelte-solid-philosophy
+
 title: Svelte 5 与 Solid 的设计哲学
+followups: [svelte-solid-philosophy-followup-1]
 difficulty: 资深
 tags: [Svelte, Solid, Signals]
 
 ### 一句话
+
 Solid：运行时基于 Signals + 编译 JSX，组件函数只执行一次，依赖追踪是真正的 fine-grained；Svelte 5：Runes（$state / $derived / $effect）让响应式从语法糖回到显式…。
 
 ### 题目
+
 Svelte 5（Runes）和 Solid 都是"消失的框架"，它们的实现方式有什么不同？
 
 ### 答案要点
+
 - Solid：运行时基于 Signals + 编译 JSX，组件函数只执行一次，依赖追踪是真正的 fine-grained
 - Svelte 5：Runes（`$state / $derived / $effect`）让响应式从语法糖回到显式，编译目标接近 Solid
 - 共同点：无 VDOM、增量 DOM 更新、运行时极小
@@ -302,6 +380,7 @@ Svelte 5（Runes）和 Solid 都是"消失的框架"，它们的实现方式有�
 - 性能：极致场景下 Solid > Svelte > Vue > React，但实际差距一般在毫秒级
 
 ### 代码示例
+
 ```svelte
 <script>
   let count = $state(0);
@@ -312,22 +391,32 @@ Svelte 5（Runes）和 Solid 都是"消失的框架"，它们的实现方式有�
 <button onclick={() => count++}>{count} (x2 = {double})</button>
 ```
 
+### 追问
+
+- 如果把「Svelte 5 与 Solid 的设计哲学」用到真实项目里，你会重点关注哪些边界、验证手段和取舍？
+
 ### 延伸
+
 - Vue 3.5 的 Vapor Mode 思路与 Solid / Svelte 5 一致，未来三家会越来越像
 - 真要在生产里大量使用，先评估生态（路由、表单、SSR、组件库）是否够用
 
 ## solid-signal-finegrained
+
 title: Signal / 细粒度响应式（Solid / Vue Vapor）的本质优势
+followups: [solid-signal-finegrained-followup-1]
 difficulty: 资深
 tags: [响应式, 框架]
 
 ### 一句话
+
 传统 React 是"组件级 re-render"，Signal 派是"只更新真正用到这个值的那一行 DOM"——更新粒度从组件级别下沉到具体的 DOM 节点。
 
 ### 题目
+
 什么是 Signal / 细粒度响应式？相比 React 的渲染模型有什么优势和成本？
 
 ### 答案要点
+
 - **传统 React**：state 改变 → 组件重新执行 → diff → 更新 DOM。组件粒度的"重新执行"
 - **Signal（Solid / Preact Signals / Vue Vapor / Angular Signals）**：
   - 创建时就建立 "依赖图"
@@ -344,6 +433,7 @@ tags: [响应式, 框架]
 - **趋势**：React 19 + React Compiler 试图通过编译期优化达到接近的效果，没切到 Signal 但理念在收敛
 
 ### 代码示例
+
 ```jsx
 // SolidJS
 import { createSignal, createEffect } from 'solid-js';
@@ -364,24 +454,33 @@ effect(() => console.log(square.value));
 n.value = 3;
 ```
 
+### 追问
+
+- 如果把「Signal / 细粒度响应式（Solid / Vue Vapor）的本质优势」用到真实项目里，你会重点关注哪些边界、验证手段和取舍？
+
 ### 延伸
+
 - Vue 3 早就有响应式核心（reactive/ref），Vue Vapor 取消 VDOM 进一步细粒度
 - React Forget / React Compiler：编译期插入 memo，让作者无需手写优化
 - 选型：极致性能 / 嵌入式 / 视觉应用 → Solid；生态 + 招聘 → React
 
-
 ## hydration-vs-resumability
+
 title: Hydration vs Resumability：Qwik 为什么"不需要 hydration"
+followups: [hydration-vs-resumability-followup-1]
 difficulty: 资深
 tags: [Qwik, 渲染, SSR, 高频]
 
 ### 一句话
+
 传统 SSR 框架需要 **hydration**——客户端重跑组件树绑定事件；Qwik 把"序列化的应用状态"也写进 HTML，只在用户**真正交互时**才下载并执行对应那一小段代码（resumability），首屏几乎零 JS。
 
 ### 题目
+
 React 18 / Vue / Solid 都做了 hydration 优化，Qwik 直接说"我不需要 hydration"。底层差异在哪？
 
 ### 答案要点
+
 - **传统 hydration 的问题**
   - 服务端渲染 HTML → 客户端拿到 HTML 后**重新执行**整棵组件树
   - 重跑是为了：建组件实例、绑定事件、初始化 state
@@ -409,6 +508,7 @@ React 18 / Vue / Solid 都做了 hydration 优化，Qwik 直接说"我不需要 
   - SolidStart：编译期细粒度，hydrate 成本极小
 
 ### 代码示例
+
 ```tsx
 import { component$, useSignal, $ } from '@builder.io/qwik';
 
@@ -423,22 +523,32 @@ export const Counter = component$(() => {
 });
 ```
 
+### 追问
+
+- 如果把「Hydration vs Resumability：Qwik 为什么"不需要 hydration"」用到真实项目里，你会重点关注哪些边界、验证手段和取舍？
+
 ### 延伸
+
 - Marko、Astro、Qwik 都在探索 islands / partial / resumability
 - 性能预算视角：传统框架 TTI 300-1000ms；Qwik 几乎瞬时 interactive
 
 ## meta-framework-choice
+
 title: 同样是 Vue/React 全家桶，Nuxt / Next / Astro / SvelteKit / Remix 怎么选
+followups: [meta-framework-choice-followup-1]
 difficulty: 资深
 tags: [元框架, 选型, 高频]
 
 ### 一句话
+
 **内容 / 营销站** 选 Astro（默认 0 JS）；**复杂应用 + React 生态** 选 Next（生态最大）；**Vue 项目** 选 Nuxt（同等地位）；**追求 web 标准 / 表单友好** 选 Remix / React Router v7；**追求极致小** 选 SvelteKit。
 
 ### 题目
+
 团队要做新项目（中大型 SaaS 产品 + 营销页 + 文档站），列举主流元框架的关键差异，做技术选型。
 
 ### 答案要点
+
 - **Next.js（React 生态默认）**
   - 优势：生态最广、Vercel 部署一流、App Router + RSC + Server Actions 体系完善
   - 劣势：心智模型重（缓存四层）、文档迭代快易学迷
@@ -472,23 +582,32 @@ tags: [元框架, 选型, 高频]
 - **混合方案**
   - 营销 + 文档用 Astro，应用主体用 Next/Nuxt → 子域分离 / monorepo 共享 design system
 
+### 追问
+
+- 如果把「同样是 Vue/React 全家桶，Nuxt / Next / Astro / SvelteKit / Remix 怎么选」用到真实项目里，你会重点关注哪些边界、验证手段和取舍？
+
 ### 延伸
+
 - 不要为了"新"换框架；React Router v7 + Remix 思想合并是个稳健选择
 - AI / Edge 是下一阶段竞争点：Cloudflare Workers / Vercel Edge / Deno Deploy
 
-
 ## react-vs-vue-positioning-basic
+
 title: 老板让你选 React 还是 Vue 做新项目，你怎么答？
+followups: [react-vs-vue-positioning-basic-followup-1, react-vs-vue-positioning-basic-followup-2, react-vs-vue-positioning-basic-followup-3]
 difficulty: 基础
 tags: [选型, 框架, 基础]
 
 ### 一句话
+
 看团队和生态：团队有 React 经验 + 大量招聘需求 → React；上手容易 + 国内生态 + Element/Antd Vue → Vue；纯技术差异已经不大。
 
 ### 题目
+
 作为前端 lead，怎么在 React 和 Vue 3 之间做技术选型？
 
 ### 答案要点
+
 - **团队成本**：现有人员熟悉度是首要因素。让一个 React 老兵学 Vue3 一周能上手，反之亦然
 - **生态**：React 社区更大、招聘更容易，企业级 SDK（Stripe / Algolia 等）多 React 优先
 - **学习曲线**：Vue 模板对新人 / 设计师更友好；React 的 JSX + hooks 心智负担稍高
@@ -497,6 +616,7 @@ tags: [选型, 框架, 基础]
 - **特殊场景**：组件库 / 设计系统首选 React（生态全），轻量内嵌 Web Components 首选 Vue / Solid / Lit
 
 ### 代码示例
+
 ```ts
 const decision = {
   '团队 80% React 经验': 'React',
@@ -509,16 +629,547 @@ const decision = {
 ```
 
 ### 常见误区
+
 - 用"哪个先进 / 哪个流行"替代"哪个适合团队"
 - 把 Vue 当成"简单版 React" —— 它响应式模型完全不同（getter/setter/Proxy vs immutable + diff）
 - 选了 React 又用 Pinia / Composition API 风格的 store —— 不是不行，但混合方案心智负担高
 
 ### 追问
+
 - 选了之后怎么定团队规范（lint / 目录 / 组件粒度）
 - 渐进迁移老项目（jQuery → React vs Vue）
 - 选 SolidJS 适合什么场景
 
 ### 延伸
+
 - 招聘市场：2025 年 React 仍占 60%+，Vue 国内 30%+
 - 大厂内部经常 React + Vue 并存，看 BU 历史
 
+## reactivity-models-followup-1
+
+title: 追问：如果把「主流框架的响应式模型对比」用到真实项目里，你会重点关注哪些边界、验证手段和取舍
+difficulty: 资深
+tags: [响应式, 框架, 追问]
+parent: reactivity-models
+
+### 题目
+
+如果面试官追问：如果把「主流框架的响应式模型对比」用到真实项目里，你会重点关注哪些边界、验证手段和取舍？
+
+### 答案要点
+
+#### 回答思路
+
+- 先给一句结论：这个问题要从「为什么需要它」「它解决了什么问题」「代价是什么」三个角度回答。
+- 再把结论落回原题，不要脱离上下文泛泛而谈；面试官通常会顺着边界、异常和工程成本继续追问。
+- 如果涉及实现细节，按数据流、状态变化、调用顺序或生命周期拆开讲；如果涉及方案选择，必须说明为什么不用另一个方案。
+
+#### 结合原题展开
+
+- Svelte：编译期把响应式编译成"赋值即更新"的 imperative 代码，运行时极小，无 VDOM
+- Angular：基于 RxJS / Zone.js（旧）和 Signals（新），变更检测有清晰的 Zone 边界
+- 响应式的本质都是"变更 -> 影响范围最小化 -> 更新 DOM"，差异只在编译期还是运行期解决
+- 可以补充一个真实项目语境：上线前先约定输入输出、失败兜底和观测指标，避免只在 demo 场景下成立。
+
+#### 工程落地
+
+- 验证手段要具体：单元测试覆盖边界条件，集成测试覆盖主流程，必要时用 e2e 或回放数据验证真实链路。
+- 运行时要可观测：关键路径打日志或埋点，关注错误率、耗时、资源占用、用户可感知延迟和降级次数。
+- 发布策略要稳：高风险变更建议灰度、开关或回滚预案；如果会影响数据一致性，还要说明迁移和兼容策略。
+
+#### 易错点
+
+- 不要只背 API 或概念名，要说清楚适用条件；很多方案在小流量、单端、无异常时看起来都成立。
+- 不要忽略默认值、兼容性、异常回滚、性能退化和团队维护成本，这些往往是资深面试继续深挖的重点。
+- 如果答案里出现“总是”“一定”“完全替代”这类绝对表述，要主动补充例外场景。
+
+## rendering-strategy-followup-1
+
+title: 追问：如果把「SPA / SSR / SSG / ISR / RSC / Streaming / Resumability」用到真实项目里，你会重点关注哪些边界、验证手段和取舍
+difficulty: 资深
+tags: [渲染策略, SSR, 追问]
+parent: rendering-strategy
+
+### 题目
+
+如果面试官追问：如果把「SPA / SSR / SSG / ISR / RSC / Streaming / Resumability」用到真实项目里，你会重点关注哪些边界、验证手段和取舍？
+
+### 答案要点
+
+#### 回答思路
+
+- 先给一句结论：这个问题要从「为什么需要它」「它解决了什么问题」「代价是什么」三个角度回答。
+- 再把结论落回原题，不要脱离上下文泛泛而谈；面试官通常会顺着边界、异常和工程成本继续追问。
+- 如果涉及实现细节，按数据流、状态变化、调用顺序或生命周期拆开讲；如果涉及方案选择，必须说明为什么不用另一个方案。
+
+#### 结合原题展开
+
+- SPA：纯客户端渲染，简单、易部署；首屏慢、SEO 弱，适合后台 / 工具站
+- SSR：每次请求服务端渲染，首屏快 + SEO 好，但服务器成本高
+- SSG：构建期生成静态 HTML，CDN 直接吐，性价比高但内容更新需要重建
+- 可以补充一个真实项目语境：上线前先约定输入输出、失败兜底和观测指标，避免只在 demo 场景下成立。
+
+#### 工程落地
+
+- 验证手段要具体：单元测试覆盖边界条件，集成测试覆盖主流程，必要时用 e2e 或回放数据验证真实链路。
+- 运行时要可观测：关键路径打日志或埋点，关注错误率、耗时、资源占用、用户可感知延迟和降级次数。
+- 发布策略要稳：高风险变更建议灰度、开关或回滚预案；如果会影响数据一致性，还要说明迁移和兼容策略。
+
+#### 易错点
+
+- 不要只背 API 或概念名，要说清楚适用条件；很多方案在小流量、单端、无异常时看起来都成立。
+- 不要忽略默认值、兼容性、异常回滚、性能退化和团队维护成本，这些往往是资深面试继续深挖的重点。
+- 如果答案里出现“总是”“一定”“完全替代”这类绝对表述，要主动补充例外场景。
+
+## bundle-runtime-cost-followup-1
+
+title: 追问：如果把「各框架运行时体积与启动成本对比」用到真实项目里，你会重点关注哪些边界、验证手段和取舍
+difficulty: 进阶
+tags: [体积, 性能, 追问]
+parent: bundle-runtime-cost
+
+### 题目
+
+如果面试官追问：如果把「各框架运行时体积与启动成本对比」用到真实项目里，你会重点关注哪些边界、验证手段和取舍？
+
+### 答案要点
+
+#### 回答思路
+
+- 先给一句结论：这个问题要从「为什么需要它」「它解决了什么问题」「代价是什么」三个角度回答。
+- 再把结论落回原题，不要脱离上下文泛泛而谈；面试官通常会顺着边界、异常和工程成本继续追问。
+- 如果涉及实现细节，按数据流、状态变化、调用顺序或生命周期拆开讲；如果涉及方案选择，必须说明为什么不用另一个方案。
+
+#### 结合原题展开
+
+- 运行时体积（gzip 大约）：Svelte ~2KB、Solid ~7KB、Vue 3 ~30KB、Preact ~3KB、React+ReactDOM ~40KB、Angular 较大
+- 度量工具：Lighthouse + WebPageTest + 自定义 Performance Observer，关注 LCP、INP、TBT、TTI
+- 业务代码体积通常远大于框架本身，不要为了省 30KB 框架而上 Svelte，要看整体投入产出
+- 可以补充一个真实项目语境：上线前先约定输入输出、失败兜底和观测指标，避免只在 demo 场景下成立。
+
+#### 工程落地
+
+- 验证手段要具体：单元测试覆盖边界条件，集成测试覆盖主流程，必要时用 e2e 或回放数据验证真实链路。
+- 运行时要可观测：关键路径打日志或埋点，关注错误率、耗时、资源占用、用户可感知延迟和降级次数。
+- 发布策略要稳：高风险变更建议灰度、开关或回滚预案；如果会影响数据一致性，还要说明迁移和兼容策略。
+
+#### 易错点
+
+- 不要只背 API 或概念名，要说清楚适用条件；很多方案在小流量、单端、无异常时看起来都成立。
+- 不要忽略默认值、兼容性、异常回滚、性能退化和团队维护成本，这些往往是资深面试继续深挖的重点。
+- 如果答案里出现“总是”“一定”“完全替代”这类绝对表述，要主动补充例外场景。
+
+## ecosystem-team-followup-1
+
+title: 追问：如果把「生态、招聘和团队工程化的取舍」用到真实项目里，你会重点关注哪些边界、验证手段和取舍
+difficulty: 进阶
+tags: [选型, 团队, 追问]
+parent: ecosystem-team
+
+### 题目
+
+如果面试官追问：如果把「生态、招聘和团队工程化的取舍」用到真实项目里，你会重点关注哪些边界、验证手段和取舍？
+
+### 答案要点
+
+#### 回答思路
+
+- 先给一句结论：这个问题要从「为什么需要它」「它解决了什么问题」「代价是什么」三个角度回答。
+- 再把结论落回原题，不要脱离上下文泛泛而谈；面试官通常会顺着边界、异常和工程成本继续追问。
+- 如果涉及实现细节，按数据流、状态变化、调用顺序或生命周期拆开讲；如果涉及方案选择，必须说明为什么不用另一个方案。
+
+#### 结合原题展开
+
+- 生态广度：组件库 / 状态管理 / 路由 / SSR 框架 / IDE 插件是否齐全
+- 招聘市场：Vue 在国内招聘量大，React 全球范围更通用，Svelte / Solid 招聘困难
+- 学习曲线：React + TypeScript 模式多、心智重；Vue 模板上手快，但项目大了模板复杂度也高
+- 可以补充一个真实项目语境：上线前先约定输入输出、失败兜底和观测指标，避免只在 demo 场景下成立。
+
+#### 工程落地
+
+- 验证手段要具体：单元测试覆盖边界条件，集成测试覆盖主流程，必要时用 e2e 或回放数据验证真实链路。
+- 运行时要可观测：关键路径打日志或埋点，关注错误率、耗时、资源占用、用户可感知延迟和降级次数。
+- 发布策略要稳：高风险变更建议灰度、开关或回滚预案；如果会影响数据一致性，还要说明迁移和兼容策略。
+
+#### 易错点
+
+- 不要只背 API 或概念名，要说清楚适用条件；很多方案在小流量、单端、无异常时看起来都成立。
+- 不要忽略默认值、兼容性、异常回滚、性能退化和团队维护成本，这些往往是资深面试继续深挖的重点。
+- 如果答案里出现“总是”“一定”“完全替代”这类绝对表述，要主动补充例外场景。
+
+## migration-strategy-followup-1
+
+title: 追问：如果把「老项目迁移 / 多框架共存怎么做」用到真实项目里，你会重点关注哪些边界、验证手段和取舍
+difficulty: 资深
+tags: [迁移, 微前端, 追问]
+parent: migration-strategy
+
+### 题目
+
+如果面试官追问：如果把「老项目迁移 / 多框架共存怎么做」用到真实项目里，你会重点关注哪些边界、验证手段和取舍？
+
+### 答案要点
+
+#### 回答思路
+
+- 先给一句结论：这个问题要从「为什么需要它」「它解决了什么问题」「代价是什么」三个角度回答。
+- 再把结论落回原题，不要脱离上下文泛泛而谈；面试官通常会顺着边界、异常和工程成本继续追问。
+- 如果涉及实现细节，按数据流、状态变化、调用顺序或生命周期拆开讲；如果涉及方案选择，必须说明为什么不用另一个方案。
+
+#### 结合原题展开
+
+- 多框架共存：用 qiankun / Module Federation / iframe 把不同栈隔离到子应用
+- 设计系统统一比框架统一更重要，能让多框架共存的视觉体验保持一致
+- 可以补充一个真实项目语境：上线前先约定输入输出、失败兜底和观测指标，避免只在 demo 场景下成立。
+
+#### 工程落地
+
+- 验证手段要具体：单元测试覆盖边界条件，集成测试覆盖主流程，必要时用 e2e 或回放数据验证真实链路。
+- 运行时要可观测：关键路径打日志或埋点，关注错误率、耗时、资源占用、用户可感知延迟和降级次数。
+- 发布策略要稳：高风险变更建议灰度、开关或回滚预案；如果会影响数据一致性，还要说明迁移和兼容策略。
+
+#### 易错点
+
+- 不要只背 API 或概念名，要说清楚适用条件；很多方案在小流量、单端、无异常时看起来都成立。
+- 不要忽略默认值、兼容性、异常回滚、性能退化和团队维护成本，这些往往是资深面试继续深挖的重点。
+- 如果答案里出现“总是”“一定”“完全替代”这类绝对表述，要主动补充例外场景。
+
+## angular-distinct-followup-1
+
+title: 追问：如果把「Angular 的核心差异和适合场景」用到真实项目里，你会重点关注哪些边界、验证手段和取舍
+difficulty: 进阶
+tags: [Angular, DI, 追问]
+parent: angular-distinct
+
+### 题目
+
+如果面试官追问：如果把「Angular 的核心差异和适合场景」用到真实项目里，你会重点关注哪些边界、验证手段和取舍？
+
+### 答案要点
+
+#### 回答思路
+
+- 先给一句结论：这个问题要从「为什么需要它」「它解决了什么问题」「代价是什么」三个角度回答。
+- 再把结论落回原题，不要脱离上下文泛泛而谈；面试官通常会顺着边界、异常和工程成本继续追问。
+- 如果涉及实现细节，按数据流、状态变化、调用顺序或生命周期拆开讲；如果涉及方案选择，必须说明为什么不用另一个方案。
+
+#### 结合原题展开
+
+- 模块化 + DI：依赖注入是一等公民，适合大型业务的解耦
+- 学习曲线陡，但规范统一，跨项目人员切换成本低
+- 适合后台 / Dashboard / 银行 / 医疗等需求重、生命周期长的项目
+- 可以补充一个真实项目语境：上线前先约定输入输出、失败兜底和观测指标，避免只在 demo 场景下成立。
+
+#### 工程落地
+
+- 验证手段要具体：单元测试覆盖边界条件，集成测试覆盖主流程，必要时用 e2e 或回放数据验证真实链路。
+- 运行时要可观测：关键路径打日志或埋点，关注错误率、耗时、资源占用、用户可感知延迟和降级次数。
+- 发布策略要稳：高风险变更建议灰度、开关或回滚预案；如果会影响数据一致性，还要说明迁移和兼容策略。
+
+#### 易错点
+
+- 不要只背 API 或概念名，要说清楚适用条件；很多方案在小流量、单端、无异常时看起来都成立。
+- 不要忽略默认值、兼容性、异常回滚、性能退化和团队维护成本，这些往往是资深面试继续深挖的重点。
+- 如果答案里出现“总是”“一定”“完全替代”这类绝对表述，要主动补充例外场景。
+
+## qwik-resumability-followup-1
+
+title: 追问：如果把「Qwik 与 Resumability 模型」用到真实项目里，你会重点关注哪些边界、验证手段和取舍
+difficulty: 资深
+tags: [Qwik, Resumability, 追问]
+parent: qwik-resumability
+
+### 题目
+
+如果面试官追问：如果把「Qwik 与 Resumability 模型」用到真实项目里，你会重点关注哪些边界、验证手段和取舍？
+
+### 答案要点
+
+#### 回答思路
+
+- 先给一句结论：这个问题要从「为什么需要它」「它解决了什么问题」「代价是什么」三个角度回答。
+- 再把结论落回原题，不要脱离上下文泛泛而谈；面试官通常会顺着边界、异常和工程成本继续追问。
+- 如果涉及实现细节，按数据流、状态变化、调用顺序或生命周期拆开讲；如果涉及方案选择，必须说明为什么不用另一个方案。
+
+#### 结合原题展开
+
+- Resumability：Qwik 在 SSR 时把"序列化的状态机 + 事件监听描述"塞进 HTML（attributes）
+- Islands（Astro）也减少 JS，但岛之间还是 hydration；Qwik 则是组件级别按需 wake
+- Resumability 适合首屏要求极致、交互密度中等的内容站
+- 可以补充一个真实项目语境：上线前先约定输入输出、失败兜底和观测指标，避免只在 demo 场景下成立。
+
+#### 工程落地
+
+- 验证手段要具体：单元测试覆盖边界条件，集成测试覆盖主流程，必要时用 e2e 或回放数据验证真实链路。
+- 运行时要可观测：关键路径打日志或埋点，关注错误率、耗时、资源占用、用户可感知延迟和降级次数。
+- 发布策略要稳：高风险变更建议灰度、开关或回滚预案；如果会影响数据一致性，还要说明迁移和兼容策略。
+
+#### 易错点
+
+- 不要只背 API 或概念名，要说清楚适用条件；很多方案在小流量、单端、无异常时看起来都成立。
+- 不要忽略默认值、兼容性、异常回滚、性能退化和团队维护成本，这些往往是资深面试继续深挖的重点。
+- 如果答案里出现“总是”“一定”“完全替代”这类绝对表述，要主动补充例外场景。
+
+## svelte-solid-philosophy-followup-1
+
+title: 追问：如果把「Svelte 5 与 Solid 的设计哲学」用到真实项目里，你会重点关注哪些边界、验证手段和取舍
+difficulty: 资深
+tags: [Svelte, Solid, Signals, 追问]
+parent: svelte-solid-philosophy
+
+### 题目
+
+如果面试官追问：如果把「Svelte 5 与 Solid 的设计哲学」用到真实项目里，你会重点关注哪些边界、验证手段和取舍？
+
+### 答案要点
+
+#### 回答思路
+
+- 先给一句结论：这个问题要从「为什么需要它」「它解决了什么问题」「代价是什么」三个角度回答。
+- 再把结论落回原题，不要脱离上下文泛泛而谈；面试官通常会顺着边界、异常和工程成本继续追问。
+- 如果涉及实现细节，按数据流、状态变化、调用顺序或生命周期拆开讲；如果涉及方案选择，必须说明为什么不用另一个方案。
+
+#### 结合原题展开
+
+- Solid：运行时基于 Signals + 编译 JSX，组件函数只执行一次，依赖追踪是真正的 fine-grained
+- Svelte 5：Runes（$state / $derived / $effect）让响应式从语法糖回到显式，编译目标接近 Solid
+- 差异：Solid 仍然是 JSX + JS 一切皆函数；Svelte 是 SFC，模板语法对设计师 / 后端更友好
+- 可以补充一个真实项目语境：上线前先约定输入输出、失败兜底和观测指标，避免只在 demo 场景下成立。
+
+#### 工程落地
+
+- 验证手段要具体：单元测试覆盖边界条件，集成测试覆盖主流程，必要时用 e2e 或回放数据验证真实链路。
+- 运行时要可观测：关键路径打日志或埋点，关注错误率、耗时、资源占用、用户可感知延迟和降级次数。
+- 发布策略要稳：高风险变更建议灰度、开关或回滚预案；如果会影响数据一致性，还要说明迁移和兼容策略。
+
+#### 易错点
+
+- 不要只背 API 或概念名，要说清楚适用条件；很多方案在小流量、单端、无异常时看起来都成立。
+- 不要忽略默认值、兼容性、异常回滚、性能退化和团队维护成本，这些往往是资深面试继续深挖的重点。
+- 如果答案里出现“总是”“一定”“完全替代”这类绝对表述，要主动补充例外场景。
+
+## solid-signal-finegrained-followup-1
+
+title: 追问：如果把「Signal / 细粒度响应式的本质优势」用到真实项目里，你会重点关注哪些边界、验证手段和取舍
+difficulty: 资深
+tags: [响应式, 框架, 追问]
+parent: solid-signal-finegrained
+
+### 题目
+
+如果面试官追问：如果把「Signal / 细粒度响应式（Solid / Vue Vapor）的本质优势」用到真实项目里，你会重点关注哪些边界、验证手段和取舍？
+
+### 答案要点
+
+#### 回答思路
+
+- 先给一句结论：这个问题要从「为什么需要它」「它解决了什么问题」「代价是什么」三个角度回答。
+- 再把结论落回原题，不要脱离上下文泛泛而谈；面试官通常会顺着边界、异常和工程成本继续追问。
+- 如果涉及实现细节，按数据流、状态变化、调用顺序或生命周期拆开讲；如果涉及方案选择，必须说明为什么不用另一个方案。
+
+#### 结合原题展开
+
+- Signal（Solid / Preact Signals / Vue Vapor / Angular Signals）：
+- 值变化时直接通知用到它的"最小订阅者"（具体一行 textContent / class）
+- 趋势：React 19 + React Compiler 试图通过编译期优化达到接近的效果，没切到 Signal 但理念在收敛
+- 可以补充一个真实项目语境：上线前先约定输入输出、失败兜底和观测指标，避免只在 demo 场景下成立。
+
+#### 工程落地
+
+- 验证手段要具体：单元测试覆盖边界条件，集成测试覆盖主流程，必要时用 e2e 或回放数据验证真实链路。
+- 运行时要可观测：关键路径打日志或埋点，关注错误率、耗时、资源占用、用户可感知延迟和降级次数。
+- 发布策略要稳：高风险变更建议灰度、开关或回滚预案；如果会影响数据一致性，还要说明迁移和兼容策略。
+
+#### 易错点
+
+- 不要只背 API 或概念名，要说清楚适用条件；很多方案在小流量、单端、无异常时看起来都成立。
+- 不要忽略默认值、兼容性、异常回滚、性能退化和团队维护成本，这些往往是资深面试继续深挖的重点。
+- 如果答案里出现“总是”“一定”“完全替代”这类绝对表述，要主动补充例外场景。
+
+## hydration-vs-resumability-followup-1
+
+title: 追问：如果把「Hydration vs Resumability：Qwik 为什么"不需要 hydration"」用到真实项目里，你会重点关注哪些边界、验证手段和取舍
+difficulty: 资深
+tags: [Qwik, 渲染, SSR, 高频, 追问]
+parent: hydration-vs-resumability
+
+### 题目
+
+如果面试官追问：如果把「Hydration vs Resumability：Qwik 为什么"不需要 hydration"」用到真实项目里，你会重点关注哪些边界、验证手段和取舍？
+
+### 答案要点
+
+#### 回答思路
+
+- 先给一句结论：这个问题要从「为什么需要它」「它解决了什么问题」「代价是什么」三个角度回答。
+- 再把结论落回原题，不要脱离上下文泛泛而谈；面试官通常会顺着边界、异常和工程成本继续追问。
+- 如果涉及实现细节，按数据流、状态变化、调用顺序或生命周期拆开讲；如果涉及方案选择，必须说明为什么不用另一个方案。
+
+#### 结合原题展开
+
+- 传统 hydration 的问题
+- 大型应用 hydration 时间可能 1-3 秒，期间 INP 很差
+- partial hydration（Astro / React Server Components）
+- 可以补充一个真实项目语境：上线前先约定输入输出、失败兜底和观测指标，避免只在 demo 场景下成立。
+
+#### 工程落地
+
+- 验证手段要具体：单元测试覆盖边界条件，集成测试覆盖主流程，必要时用 e2e 或回放数据验证真实链路。
+- 运行时要可观测：关键路径打日志或埋点，关注错误率、耗时、资源占用、用户可感知延迟和降级次数。
+- 发布策略要稳：高风险变更建议灰度、开关或回滚预案；如果会影响数据一致性，还要说明迁移和兼容策略。
+
+#### 易错点
+
+- 不要只背 API 或概念名，要说清楚适用条件；很多方案在小流量、单端、无异常时看起来都成立。
+- 不要忽略默认值、兼容性、异常回滚、性能退化和团队维护成本，这些往往是资深面试继续深挖的重点。
+- 如果答案里出现“总是”“一定”“完全替代”这类绝对表述，要主动补充例外场景。
+
+## meta-framework-choice-followup-1
+
+title: 追问：如果把「同样是 Vue/React 全家桶，Nuxt / Next / Astro / SvelteKit / Remix 怎么选」用到真实项目里，你会重点关注哪些边界、验证手段和取舍
+difficulty: 资深
+tags: [元框架, 选型, 高频, 追问]
+parent: meta-framework-choice
+
+### 题目
+
+如果面试官追问：如果把「同样是 Vue/React 全家桶，Nuxt / Next / Astro / SvelteKit / Remix 怎么选」用到真实项目里，你会重点关注哪些边界、验证手段和取舍？
+
+### 答案要点
+
+#### 回答思路
+
+- 先给一句结论：这个问题要从「为什么需要它」「它解决了什么问题」「代价是什么」三个角度回答。
+- 再把结论落回原题，不要脱离上下文泛泛而谈；面试官通常会顺着边界、异常和工程成本继续追问。
+- 如果涉及实现细节，按数据流、状态变化、调用顺序或生命周期拆开讲；如果涉及方案选择，必须说明为什么不用另一个方案。
+
+#### 结合原题展开
+
+- Next.js（React 生态默认）
+- Nuxt 3（Vue 生态等位）
+- 与 Next 相比：API 更简洁、约定优于配置
+- 可以补充一个真实项目语境：上线前先约定输入输出、失败兜底和观测指标，避免只在 demo 场景下成立。
+
+#### 工程落地
+
+- 验证手段要具体：单元测试覆盖边界条件，集成测试覆盖主流程，必要时用 e2e 或回放数据验证真实链路。
+- 运行时要可观测：关键路径打日志或埋点，关注错误率、耗时、资源占用、用户可感知延迟和降级次数。
+- 发布策略要稳：高风险变更建议灰度、开关或回滚预案；如果会影响数据一致性，还要说明迁移和兼容策略。
+
+#### 易错点
+
+- 不要只背 API 或概念名，要说清楚适用条件；很多方案在小流量、单端、无异常时看起来都成立。
+- 不要忽略默认值、兼容性、异常回滚、性能退化和团队维护成本，这些往往是资深面试继续深挖的重点。
+- 如果答案里出现“总是”“一定”“完全替代”这类绝对表述，要主动补充例外场景。
+
+## react-vs-vue-positioning-basic-followup-1
+
+title: 追问：选了之后怎么定团队规范
+difficulty: 基础
+tags: [选型, 框架, 基础, 追问]
+parent: react-vs-vue-positioning-basic
+
+### 题目
+
+如果面试官追问：选了之后怎么定团队规范（lint / 目录 / 组件粒度）
+
+### 答案要点
+
+#### 回答思路
+
+- 先给一句结论：这个问题要从「为什么需要它」「它解决了什么问题」「代价是什么」三个角度回答。
+- 再把结论落回原题，不要脱离上下文泛泛而谈；面试官通常会顺着边界、异常和工程成本继续追问。
+- 如果涉及实现细节，按数据流、状态变化、调用顺序或生命周期拆开讲；如果涉及方案选择，必须说明为什么不用另一个方案。
+
+#### 结合原题展开
+
+- 特殊场景：组件库 / 设计系统首选 React（生态全），轻量内嵌 Web Components 首选 Vue / Solid / Lit
+- 选了 React 又用 Pinia / Composition API 风格的 store —— 不是不行，但混合方案心智负担高
+- 可以补充一个真实项目语境：上线前先约定输入输出、失败兜底和观测指标，避免只在 demo 场景下成立。
+
+#### 工程落地
+
+- 验证手段要具体：单元测试覆盖边界条件，集成测试覆盖主流程，必要时用 e2e 或回放数据验证真实链路。
+- 运行时要可观测：关键路径打日志或埋点，关注错误率、耗时、资源占用、用户可感知延迟和降级次数。
+- 发布策略要稳：高风险变更建议灰度、开关或回滚预案；如果会影响数据一致性，还要说明迁移和兼容策略。
+
+#### 易错点
+
+- 不要只背 API 或概念名，要说清楚适用条件；很多方案在小流量、单端、无异常时看起来都成立。
+- 不要忽略默认值、兼容性、异常回滚、性能退化和团队维护成本，这些往往是资深面试继续深挖的重点。
+- 如果答案里出现“总是”“一定”“完全替代”这类绝对表述，要主动补充例外场景。
+
+## react-vs-vue-positioning-basic-followup-2
+
+title: 追问：渐进迁移老项目
+difficulty: 基础
+tags: [选型, 框架, 基础, 追问]
+parent: react-vs-vue-positioning-basic
+
+### 题目
+
+如果面试官追问：渐进迁移老项目（jQuery → React vs Vue）
+
+### 答案要点
+
+#### 回答思路
+
+- 先给一句结论：这个问题要从「为什么需要它」「它解决了什么问题」「代价是什么」三个角度回答。
+- 再把结论落回原题，不要脱离上下文泛泛而谈；面试官通常会顺着边界、异常和工程成本继续追问。
+- 如果涉及实现细节，按数据流、状态变化、调用顺序或生命周期拆开讲；如果涉及方案选择，必须说明为什么不用另一个方案。
+
+#### 结合原题展开
+
+- 团队成本：现有人员熟悉度是首要因素。让一个 React 老兵学 Vue3 一周能上手，反之亦然
+- 生态：React 社区更大、招聘更容易，企业级 SDK（Stripe / Algolia 等）多 React 优先
+- 学习曲线：Vue 模板对新人 / 设计师更友好；React 的 JSX + hooks 心智负担稍高
+- 可以补充一个真实项目语境：上线前先约定输入输出、失败兜底和观测指标，避免只在 demo 场景下成立。
+
+#### 工程落地
+
+- 验证手段要具体：单元测试覆盖边界条件，集成测试覆盖主流程，必要时用 e2e 或回放数据验证真实链路。
+- 运行时要可观测：关键路径打日志或埋点，关注错误率、耗时、资源占用、用户可感知延迟和降级次数。
+- 发布策略要稳：高风险变更建议灰度、开关或回滚预案；如果会影响数据一致性，还要说明迁移和兼容策略。
+
+#### 易错点
+
+- 不要只背 API 或概念名，要说清楚适用条件；很多方案在小流量、单端、无异常时看起来都成立。
+- 不要忽略默认值、兼容性、异常回滚、性能退化和团队维护成本，这些往往是资深面试继续深挖的重点。
+- 如果答案里出现“总是”“一定”“完全替代”这类绝对表述，要主动补充例外场景。
+
+## react-vs-vue-positioning-basic-followup-3
+
+title: 追问：选 SolidJS 适合什么场景
+difficulty: 基础
+tags: [选型, 框架, 基础, 追问]
+parent: react-vs-vue-positioning-basic
+
+### 题目
+
+如果面试官追问：选 SolidJS 适合什么场景
+
+### 答案要点
+
+#### 回答思路
+
+- 先给一句结论：这个问题要从「为什么需要它」「它解决了什么问题」「代价是什么」三个角度回答。
+- 再把结论落回原题，不要脱离上下文泛泛而谈；面试官通常会顺着边界、异常和工程成本继续追问。
+- 如果涉及实现细节，按数据流、状态变化、调用顺序或生命周期拆开讲；如果涉及方案选择，必须说明为什么不用另一个方案。
+
+#### 结合原题展开
+
+- 特殊场景：组件库 / 设计系统首选 React（生态全），轻量内嵌 Web Components 首选 Vue / Solid / Lit
+- 用"哪个先进 / 哪个流行"替代"哪个适合团队"
+- 可以补充一个真实项目语境：上线前先约定输入输出、失败兜底和观测指标，避免只在 demo 场景下成立。
+
+#### 工程落地
+
+- 验证手段要具体：单元测试覆盖边界条件，集成测试覆盖主流程，必要时用 e2e 或回放数据验证真实链路。
+- 运行时要可观测：关键路径打日志或埋点，关注错误率、耗时、资源占用、用户可感知延迟和降级次数。
+- 发布策略要稳：高风险变更建议灰度、开关或回滚预案；如果会影响数据一致性，还要说明迁移和兼容策略。
+
+#### 易错点
+
+- 不要只背 API 或概念名，要说清楚适用条件；很多方案在小流量、单端、无异常时看起来都成立。
+- 不要忽略默认值、兼容性、异常回滚、性能退化和团队维护成本，这些往往是资深面试继续深挖的重点。
+- 如果答案里出现“总是”“一定”“完全替代”这类绝对表述，要主动补充例外场景。

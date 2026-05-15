@@ -7,22 +7,28 @@ description: 盒模型、布局、层叠、动画、响应式、现代 CSS 与�
 ---
 
 ## box-bfc
+
 title: 盒模型、BFC 与格式化上下文的真实作用
+followups: [box-bfc-followup-1, box-bfc-followup-2, box-bfc-followup-3]
 difficulty: 基础
 tags: [盒模型, BFC, 布局]
 
 ### 一句话
+
 盒模型 = 内容 + padding + border + margin；`border-box` 让"宽度包括 padding 和 border"。BFC 是一个独立的渲染容器，里面元素的布局不会影响外面（清浮动、防 margin 折叠就靠它）。
 
 ### 题目
+
 请解释标准盒模型与 `box-sizing: border-box` 的区别，并说明 BFC 能解决哪些问题。
 
 ### 答案要点
+
 - 标准盒模型下 width/height 只算 content；`border-box` 把 padding/border 算进尺寸，更适合组件化开发
 - BFC 是独立布局上下文，常见触发：`overflow` 非 visible、`display: flow-root`、浮动、绝对定位等
 - BFC 能解决：清除内部浮动、阻止 margin 折叠、避免文字环绕浮动元素
 
 ### 代码示例
+
 ```css
 .card {
   box-sizing: border-box;
@@ -30,47 +36,63 @@ tags: [盒模型, BFC, 布局]
 }
 ```
 
-
 ### 常见误区
+
 - margin 折叠场景多到怀疑人生：父子之间、相邻兄弟、空块也会折叠
 - 高度坍塌（浮动子元素 → 父没高度），可用 `overflow: hidden` 触发 BFC
 - box-sizing 不写默认 content-box，padding 会撑大盒子
 
 ### 追问
+
 - 写 5 种触发 BFC 的方式
 - inline-block 之间的「鬼影空白」如何消除
 - 圣杯布局 / 双飞翼布局现在还有意义吗（vs Flex/Grid）
 
 ### 延伸
+
 - `flow-root` 是现代语义化触发 BFC 的首选
 - 不要滥用 `overflow: hidden` 只为清浮动，容易裁掉阴影和 popover
 
 ## stacking-context
+
 title: 层叠上下文与 z-index 为什么经常“不生效”
+followups: [stacking-context-followup-1]
 difficulty: 进阶
 tags: [z-index, 层叠]
 
 ### 一句话
+
 z-index 只在同一层叠上下文中比较；常见创建条件：定位元素且有 z-index、opacity < 1、transform、filter、will-change、isolation: isolate；一旦父元素形成新层叠上下文…。
 
 ### 题目
+
 解释层叠上下文的创建条件，并说明为什么子元素的 `z-index: 9999` 也可能盖不过别的元素。
 
 ### 答案要点
+
 - `z-index` 只在同一层叠上下文中比较
 - 常见创建条件：定位元素且有 z-index、`opacity < 1`、`transform`、`filter`、`will-change`、`isolation: isolate`
 - 一旦父元素形成新层叠上下文，子元素再高的 z-index 也无法越过父级上下文的整体层级
 
 ### 代码示例
+
 ```css
 /* ❌ 父级 transform 创建了新层叠上下文，子级再高也盖不过外面的元素 */
-.parent { transform: translate(0); }   /* 创建上下文 */
-.child  { position: absolute; z-index: 9999; }
-.outer  { position: relative; z-index: 1; } /* child 永远在 outer 之下 */
+.parent {
+  transform: translate(0);
+} /* 创建上下文 */
+.child {
+  position: absolute;
+  z-index: 9999;
+}
+.outer {
+  position: relative;
+  z-index: 1;
+} /* child 永远在 outer 之下 */
 
 /* ✅ 用 isolation 显式隔离层叠 */
 .card {
-  isolation: isolate;       /* 创建独立层叠上下文，避免影响外部 */
+  isolation: isolate; /* 创建独立层叠上下文，避免影响外部 */
 }
 
 /* ✅ 全局 z-index 规范化（避免魔法数字） */
@@ -82,32 +104,47 @@ z-index 只在同一层叠上下文中比较；常见创建条件：定位元素
   --z-toast: 1100;
   --z-tooltip: 1200;
 }
-.modal { z-index: var(--z-modal); }
-.toast { z-index: var(--z-toast); }
+.modal {
+  z-index: var(--z-modal);
+}
+.toast {
+  z-index: var(--z-toast);
+}
 ```
 
+### 追问
+
+- 如果把「层叠上下文与 z-index 为什么经常“不生效”」用到真实项目里，你会重点关注哪些边界、验证手段和取舍？
+
 ### 延伸
+
 - 调试层级问题先画"上下文边界"，不是一味调大 z-index
 - Modal/Tooltip 常配合 Teleport 直接挂到 body，绕开业务容器的层叠限制
 
 ## flex-grid
+
 title: Flex 与 Grid 的边界和常见坑
+followups: [flex-grid-followup-1, flex-grid-followup-2, flex-grid-followup-3]
 difficulty: 基础
 tags: [Flex, Grid]
 
 ### 一句话
+
 一维布局（一行 / 一列）用 Flex；二维布局（行列同时控制）用 Grid。两者可以嵌套，不互斥。
 
 ### 题目
+
 什么时候该用 Flex，什么时候该用 Grid？`flex: 1`、`min-width: 0`、`auto-fit/auto-fill` 各是什么意思？
 
 ### 答案要点
+
 - Flex 更适合一维布局；Grid 更适合二维布局
 - `flex: 1` 实际是 `1 1 0%`，表示可增长、可收缩、基础尺寸为 0
 - Flex 子项默认 `min-width: auto`，会导致长文本撑破布局，所以常要显式写 `min-width: 0`
 - Grid 中 `repeat(auto-fit, minmax(240px, 1fr))` 适合响应式卡片流
 
 ### 代码示例
+
 ```css
 .list {
   display: grid;
@@ -116,38 +153,46 @@ tags: [Flex, Grid]
 }
 ```
 
-
 ### 常见误区
+
 - flex: 1 = `flex: 1 1 0`（basis 0），不是 `1 1 auto`，用错会出现「内容长就撑满」
 - justify-content 控的是 main 轴，align-items 控 cross 轴，方向反了一切失灵
 - Grid 里 minmax(0, 1fr) 才能让长内容收缩；只写 `1fr` 大长字符串会撑爆
 
 ### 追问
+
 - Grid 的 implicit vs explicit grid
 - subgrid 解决了什么问题（Firefox 早就支持，Chrome 117+）
 - gap 是 Flex 还是 Grid 的属性
 
 ### 延伸
+
 - `auto-fill` 保留空轨道，`auto-fit` 会把空轨道折叠
 - Grid 的 `subgrid` 很适合复杂内容对齐，但浏览器支持要确认
 
 ## responsive-container-query
+
 title: 移动端适配、媒体查询与容器查询
+followups: [responsive-container-query-followup-1]
 difficulty: 进阶
 tags: [响应式, 容器查询]
 
 ### 一句话
+
 媒体查询关注 viewport，适合整页断点；容器查询关注组件容器尺寸，适合组件自适应；移动端常见策略：弹性布局、rem、流式栅格、视口单位、响应式图片；@container 能让卡片在侧栏/主栏复用同一组件时根据父容器宽度自动变形。
 
 ### 题目
+
 媒体查询和容器查询分别解决什么问题？移动端适配有哪些主流策略？
 
 ### 答案要点
+
 - 媒体查询关注 viewport，适合整页断点；容器查询关注组件容器尺寸，适合组件自适应
 - 移动端常见策略：弹性布局、`rem`、流式栅格、视口单位、响应式图片
 - `@container` 能让卡片在侧栏/主栏复用同一组件时根据父容器宽度自动变形
 
 ### 代码示例
+
 ```css
 .panel {
   container-type: inline-size;
@@ -161,27 +206,38 @@ tags: [响应式, 容器查询]
 }
 ```
 
+### 追问
+
+- 如果把「移动端适配、媒体查询与容器查询」用到真实项目里，你会重点关注哪些边界、验证手段和取舍？
+
 ### 延伸
+
 - 容器查询通常比“写很多全局断点”更利于组件复用
 - 移动端 1px 问题可用 `transform: scale(.5)`、高 DPR 边框图或直接接受物理像素差异
 
 ## variables-theme
+
 title: CSS Variables、深色模式与设计令牌
+followups: [variables-theme-followup-1]
 difficulty: 进阶
 tags: [主题, 变量]
 
 ### 一句话
+
 Sass 变量在编译期展开，运行时无法动态切换；CSS Variables 可在运行时被覆盖；可以把颜色、圆角、阴影、间距抽成 design tokens，组件只消费 token…。
 
 ### 题目
+
 为什么现代前端常用 CSS Variables 做主题系统，而不是 Sass 变量？
 
 ### 答案要点
+
 - Sass 变量在编译期展开，运行时无法动态切换；CSS Variables 可在运行时被覆盖
 - 可以把颜色、圆角、阴影、间距抽成 design tokens，组件只消费 token
 - 深色模式可基于 `:root.dark`、`data-theme` 或 `prefers-color-scheme`
 
 ### 代码示例
+
 ```css
 /* tokens.css：基础令牌 + 语义令牌（双层） */
 :root {
@@ -232,27 +288,38 @@ function setTheme(theme: 'light' | 'dark' | 'system') {
 }
 ```
 
+### 追问
+
+- 如果把「CSS Variables、深色模式与设计令牌」用到真实项目里，你会重点关注哪些边界、验证手段和取舍？
+
 ### 延伸
+
 - CSS 变量天然支持级联，局部主题覆盖很方便
 - 设计令牌最好按"语义层"命名，如 `--color-surface`，不要直接写 `--blue-500`
 
 ## selector-modern
+
 title: `:has()`、`:is()`、`:where()`、`:focus-visible` 怎么用
+followups: [selector-modern-followup-1]
 difficulty: 进阶
 tags: [选择器, 现代 CSS]
 
 ### 一句话
+
 :has() 是“父选择器能力”，可根据后代状态反向选中父元素；:is() 降低选择器重复；:where() 与其类似，但权重为 0；:focus-visible 只在键盘导航等真正需要时显示 focus ring，兼顾可访问性与观感。
 
 ### 题目
+
 说明几个现代 CSS 选择器的价值，并给出一个能真正减少 JS 的场景。
 
 ### 答案要点
+
 - `:has()` 是“父选择器能力”，可根据后代状态反向选中父元素
 - `:is()` 降低选择器重复；`:where()` 与其类似，但权重为 0
 - `:focus-visible` 只在键盘导航等真正需要时显示 focus ring，兼顾可访问性与观感
 
 ### 代码示例
+
 ```css
 .field:has(input:invalid) {
   border-color: #ef4444;
@@ -263,34 +330,47 @@ tags: [选择器, 现代 CSS]
 }
 ```
 
+### 追问
+
+- 如果把「`:has()`、`:is()`、`:where()`、`:focus-visible` 怎么用」用到真实项目里，你会重点关注哪些边界、验证手段和取舍？
+
 ### 延伸
+
 - `:has()` 很强，但复杂选择器可能有性能成本，优先用于局部组件树
 - `:where()` 很适合写低优先级基础样式
 
 ## animation-compositor
+
 title: transition、animation、合成层与性能优化
+followups: [animation-compositor-followup-1]
 difficulty: 进阶
 tags: [动画, 性能]
 
 ### 一句话
+
 通常 transform 和 opacity 更容易只触发 composite，不走 layout/paint；改 width/height/top/left 更容易触发布局与重绘；will-change 是提前向浏览器申请优化资源，滥用会增加内存和合成层数量。
 
 ### 题目
+
 哪些 CSS 动画更容易跑在合成线程？`will-change` 为什么不能乱开？
 
 ### 答案要点
+
 - 通常 `transform` 和 `opacity` 更容易只触发 composite，不走 layout/paint
 - 改 `width/height/top/left` 更容易触发布局与重绘
 - `will-change` 是提前向浏览器申请优化资源，滥用会增加内存和合成层数量
 - `transition` 适合状态过渡；`animation` 适合自动播放、关键帧、多阶段动效
 
 ### 代码示例
+
 ```css
 /* ✅ 推荐：transform + opacity，仅触发 composite */
 .fade-enter {
   opacity: 0;
   transform: translateY(8px);
-  transition: opacity 200ms, transform 200ms;
+  transition:
+    opacity 200ms,
+    transform 200ms;
 }
 .fade-enter-active {
   opacity: 1;
@@ -299,17 +379,27 @@ tags: [动画, 性能]
 
 /* ❌ 反例：改 top/left 触发 layout */
 .bad {
-  transition: top 200ms, left 200ms;
+  transition:
+    top 200ms,
+    left 200ms;
 }
 
 /* will-change 仅在动画期间使用 */
-.btn:hover { will-change: transform; }
-.btn:not(:hover) { will-change: auto; }
+.btn:hover {
+  will-change: transform;
+}
+.btn:not(:hover) {
+  will-change: auto;
+}
 
 /* 关键帧动画 */
 @keyframes shimmer {
-  0%   { background-position: -200% 0; }
-  100% { background-position: 200% 0; }
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
 }
 .skeleton {
   background: linear-gradient(90deg, #eee 25%, #f5f5f5 50%, #eee 75%);
@@ -319,35 +409,48 @@ tags: [动画, 性能]
 
 /* 尊重用户偏好：减少动效 */
 @media (prefers-reduced-motion: reduce) {
-  *, *::before, *::after {
+  *,
+  *::before,
+  *::after {
     animation-duration: 0.01ms !important;
     transition-duration: 0.01ms !important;
   }
 }
 ```
 
+### 追问
+
+- 如果把「transition、animation、合成层与性能优化」用到真实项目里，你会重点关注哪些边界、验证手段和取舍？
+
 ### 延伸
+
 - 动效设计要考虑 `prefers-reduced-motion`
 - 并不是"用了 transform 就一定快"，过多大图层也会卡
 
 ## print-css
+
 title: 打印样式与网页内容导出友好性
+followups: [print-css-followup-1]
 difficulty: 基础
 tags: [打印, 导出]
 
 ### 一句话
+
 隐藏导航、侧栏、浮层、按钮等非内容元素；把背景、阴影、固定定位元素转为适合纸面的排版；避免代码块和长表格被截断，善用 page-break-inside: avoid。
 
 ### 题目
+
 给一个知识库网站做 `@media print` 时，应该优先处理哪些问题？
 
 ### 答案要点
+
 - 隐藏导航、侧栏、浮层、按钮等非内容元素
 - 把背景、阴影、固定定位元素转为适合纸面的排版
 - 避免代码块和长表格被截断，善用 `page-break-inside: avoid`
 - 链接、时间、章节标题等在纸面上应保留足够语义
 
 ### 代码示例
+
 ```css
 @media print {
   /* 1. 隐藏交互元素 */
@@ -361,15 +464,20 @@ tags: [打印, 导出]
   }
 
   /* 2. 取消固定定位与暗色背景 */
-  body { background: #fff; color: #000; }
+  body {
+    background: #fff;
+    color: #000;
+  }
   .card {
     box-shadow: none !important;
     border: 1px solid #ccc;
-    page-break-inside: avoid;        /* 卡片不被截断 */
+    page-break-inside: avoid; /* 卡片不被截断 */
   }
 
   /* 3. 标题级别避免页中断 */
-  h1, h2, h3 {
+  h1,
+  h2,
+  h3 {
     page-break-after: avoid;
     page-break-inside: avoid;
   }
@@ -395,22 +503,32 @@ tags: [打印, 导出]
 }
 ```
 
+### 追问
+
+- 如果把「打印样式与网页内容导出友好性」用到真实项目里，你会重点关注哪些边界、验证手段和取舍？
+
 ### 延伸
+
 - 先把网页内容语义结构做好，打印样式才容易稳定
 - "可打印"与"PDF 截图导出"不是一回事，前者更接近文档排版
 
 ## modern-css-features
+
 title: 现代 CSS 必备特性：has / nesting / cascade-layers / color-mix
+followups: [modern-css-features-followup-1]
 difficulty: 进阶
 tags: [现代 CSS, has, layers]
 
 ### 一句话
+
 :has()：终于有了"父选择器"，可基于子节点状态选父，替代过去的 JS hack；CSS Nesting：原生嵌套，去掉 Sass / Less 依赖；@layer：层叠层，让设计系统、组件库、业务 CSS 优先级可控、可覆盖。
 
 ### 题目
+
 2024 年起浏览器对 `:has()`、CSS Nesting、`@layer`、`color-mix()`、`@scope` 等特性的支持已成熟，它们解决了哪些真实问题？
 
 ### 答案要点
+
 - `:has()`：终于有了"父选择器"，可基于子节点状态选父，替代过去的 JS hack
 - CSS Nesting：原生嵌套，去掉 Sass / Less 依赖
 - `@layer`：层叠层，让设计系统、组件库、业务 CSS 优先级可控、可覆盖
@@ -419,6 +537,7 @@ tags: [现代 CSS, has, layers]
 - `@container`：容器查询，按父元素宽度而不是视口适配，做卡片 / 模块更灵活
 
 ### 代码示例
+
 ```css
 .card:has(img) {
   padding-top: 0;
@@ -426,7 +545,9 @@ tags: [现代 CSS, has, layers]
 
 .btn {
   background: var(--c-primary);
-  &:hover { filter: brightness(1.05); }
+  &:hover {
+    filter: brightness(1.05);
+  }
   &.ghost {
     background: transparent;
     color: var(--c-primary);
@@ -435,7 +556,9 @@ tags: [现代 CSS, has, layers]
 
 @layer reset, base, components, utilities;
 @layer base {
-  body { font-family: system-ui; }
+  body {
+    font-family: system-ui;
+  }
 }
 
 :root {
@@ -444,26 +567,38 @@ tags: [现代 CSS, has, layers]
 }
 
 @scope (.card) to (.actions) {
-  h3 { font-size: 16px; }
+  h3 {
+    font-size: 16px;
+  }
 }
 ```
 
+### 追问
+
+- 如果把「现代 CSS 必备特性：has / nesting / cascade-layers / color-mix」用到真实项目里，你会重点关注哪些边界、验证手段和取舍？
+
 ### 延伸
+
 - 老项目可以让 PostCSS / Lightning CSS 把现代语法降级到兼容旧浏览器
 - 设计系统团队尤其要拥抱 layers，可以让"业务覆盖组件库"变得可预期
 
 ## css-architecture
+
 title: CSS 架构方案：BEM / CSS-in-JS / Tailwind / CSS Modules
+followups: [css-architecture-followup-1]
 difficulty: 进阶
 tags: [架构, Tailwind, CSS-in-JS]
 
 ### 一句话
+
 BEM：传统命名约定，零运行时，跨技术栈通用，但样板多；CSS Modules：构建期局部作用域，类名 hash，配合 Vue/React 都好用…。
 
 ### 题目
+
 不同 CSS 组织方式各自的取舍是什么？大型团队怎么选？
 
 ### 答案要点
+
 - BEM：传统命名约定，零运行时，跨技术栈通用，但样板多
 - CSS Modules：构建期局部作用域，类名 hash，配合 Vue/React 都好用
 - CSS-in-JS（styled-components / Emotion / vanilla-extract）：JS 表达力强、动态主题方便；运行时方案有性能开销，零运行时方案（vanilla-extract）需要构建集成
@@ -472,6 +607,7 @@ BEM：传统命名约定，零运行时，跨技术栈通用，但样板多；CS
 - 选型建议：design tokens 先定 → 视组件复杂度选实现 → 业务侧统一一种风格
 
 ### 代码示例
+
 ```vue
 <script setup lang="ts">
 import styles from './card.module.css';
@@ -504,22 +640,32 @@ export const button = recipe({
 });
 ```
 
+### 追问
+
+- 如果把「CSS 架构方案：BEM / CSS-in-JS / Tailwind / CSS Modules」用到真实项目里，你会重点关注哪些边界、验证手段和取舍？
+
 ### 延伸
+
 - 不同方案可以混用，但一个仓库内统一基本盘很重要，否则维护成本爆炸
 - 最重要的是把 design tokens（颜色、间距、圆角、阴影）做成单一来源
 
 ## center-element
+
 title: 元素水平垂直居中的 N 种姿势
+followups: [center-element-followup-1]
 difficulty: 基础
 tags: [布局, 居中, 高频]
 
 ### 一句话
+
 能用 Flex / Grid 就别用其他——`display: flex; place-items: center` 或 `display: grid; place-items: center` 一句话搞定，剩下 absolute + transform、margin auto 都是辅助。
 
 ### 题目
+
 请列出实现"水平 + 垂直居中"的常见方案，并指出各自的限制。
 
 ### 答案要点
+
 - **Flex（首选）**：`display: flex; align-items: center; justify-content: center` 或简写 `place-items: center`
 - **Grid（一行最简）**：`display: grid; place-items: center`
 - **绝对定位 + transform**：`position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%)`，不知道子元素尺寸时通用
@@ -528,44 +674,69 @@ tags: [布局, 居中, 高频]
 - **table-cell**：兼容老浏览器（IE 时代遗留）
 
 ### 代码示例
+
 ```css
-.parent { display: flex; place-items: center; height: 100vh; }
+.parent {
+  display: flex;
+  place-items: center;
+  height: 100vh;
+}
 
-.parent { display: grid; place-items: center; height: 100vh; }
+.parent {
+  display: grid;
+  place-items: center;
+  height: 100vh;
+}
 
-.parent { position: relative; }
+.parent {
+  position: relative;
+}
 .child {
   position: absolute;
-  top: 50%; left: 50%;
+  top: 50%;
+  left: 50%;
   transform: translate(-50%, -50%);
 }
 
-.parent { position: relative; }
+.parent {
+  position: relative;
+}
 .child {
   position: absolute;
   inset: 0;
-  width: 200px; height: 200px;
+  width: 200px;
+  height: 200px;
   margin: auto;
 }
 ```
 
+### 追问
+
+- 如果把「元素水平垂直居中的 N 种姿势」用到真实项目里，你会重点关注哪些边界、验证手段和取舍？
+
 ### 延伸
+
 - `place-items` 是 Grid 速记，但在 Flex 里一样可用
 - `gap` 在 Flex 也已可用（safari 14.1+），不再需要 margin hack
 - 居中文字别忘了 `line-height` 与字体度量差异（不同字体上下空隙不同）
 
 ## position-stacking
+
 title: position 五个值的差别和层叠上下文是怎么形成的
+followups: [position-stacking-followup-1]
 difficulty: 进阶
 tags: [定位, 层叠]
 
 ### 一句话
+
 position：`static`（默认）/ `relative`（相对自己原位偏移、保留占位）/ `absolute`（找最近 positioned 父级定位、脱离文档流）/ `fixed`（相对视口）/ `sticky`（滚动到阈值就吸住）。z-index 只在层叠上下文内部比较。
 
 ### 题目
+
 请说明 position 5 个值的差别，以及哪些情况会形成新的层叠上下文。
 
 ### 答案要点
+
 - `static`：默认值，正常文档流，`top/left` 无效
 - `relative`：相对自己原本位置偏移，**仍占据原位**
 - `absolute`：脱离文档流，相对最近的非 static 祖先定位
@@ -575,13 +746,20 @@ position：`static`（默认）/ `relative`（相对自己原位偏移、保留�
 - z-index 的"局部世界"：父级形成层叠上下文后，子元素的 z-index 再大也只在父级内部比较
 
 ### 代码示例
+
 ```html
 <div class="parent">
   <div class="child"></div>
 </div>
 <style>
-  .parent { position: relative; opacity: 0.99; }
-  .child { position: absolute; z-index: 999; }
+  .parent {
+    position: relative;
+    opacity: 0.99;
+  }
+  .child {
+    position: absolute;
+    z-index: 999;
+  }
 </style>
 ```
 
@@ -591,23 +769,32 @@ position：`static`（默认）/ `relative`（相对自己原位偏移、保留�
 }
 ```
 
+### 追问
+
+- 如果把「position 五个值的差别和层叠上下文是怎么形成的」用到真实项目里，你会重点关注哪些边界、验证手段和取舍？
+
 ### 延伸
+
 - `isolation: isolate` 是显式创建层叠上下文的现代写法，避免 z-index 大战
 - 移动端 webview 中 `position: fixed` 在键盘弹起时会有奇怪表现，改用 sticky 或 viewport units
 
-
 ## css-layout-systems
+
 title: 一道题讲清 Flex / Grid / 多列 / Float 各自适用场景
+followups: [css-layout-systems-followup-1]
 difficulty: 进阶
 tags: [CSS, 布局, 高频]
 
 ### 一句话
+
 **一维**用 Flex（行或列其一），**二维**用 Grid（行列同时控），**报刊式分栏**用 multi-column，**文字环绕图片**才用 Float；现代项目里 Float 几乎只剩"图文混排"一个用途。
 
 ### 题目
+
 对比 Flex / Grid / multi-column / Float 的核心定位、典型场景，以及搭配使用的最佳实践。
 
 ### 答案要点
+
 - **Flex（一维）**
   - main axis 控对齐（justify-content）+ cross axis 控对齐（align-items）
   - 子项可伸缩：`flex: 1 1 200px` = grow shrink basis
@@ -632,6 +819,7 @@ tags: [CSS, 布局, 高频]
   - 不要 Grid 嵌 Grid 嵌 Grid，可读性差
 
 ### 代码示例
+
 ```css
 .layout {
   display: grid;
@@ -642,9 +830,15 @@ tags: [CSS, 布局, 高频]
     'sidebar main';
   height: 100vh;
 }
-.header  { grid-area: header; }
-.sidebar { grid-area: sidebar; }
-.main    { grid-area: main; }
+.header {
+  grid-area: header;
+}
+.sidebar {
+  grid-area: sidebar;
+}
+.main {
+  grid-area: main;
+}
 
 .card {
   display: flex;
@@ -652,7 +846,9 @@ tags: [CSS, 布局, 高频]
   gap: 12px;
   padding: 12px;
 }
-.card .actions { margin-left: auto; }
+.card .actions {
+  margin-left: auto;
+}
 
 .article {
   column-count: 3;
@@ -667,23 +863,33 @@ figure {
 }
 ```
 
+### 追问
+
+- 如果把「一道题讲清 Flex / Grid / 多列 / Float 各自适用场景」用到真实项目里，你会重点关注哪些边界、验证手段和取舍？
+
 ### 延伸
+
 - subgrid（Firefox 全支持，Chrome 117+）：嵌套 Grid 的子项继承父 Grid 列轨道
 - aspect-ratio：保证宽高比的现代写法（替代 padding 顶部 hack）
 - container query：把响应式从"窗口"换到"容器"
 
 ## css-typography-rhythm
+
 title: CSS 字体与排版怎么做才显专业
+followups: [css-typography-rhythm-followup-1]
 difficulty: 进阶
 tags: [CSS, 字体, 排版]
 
 ### 一句话
+
 字体栈 fallback 完整 + font-display: swap 防 FOIT；用相对单位（rem / em）保留用户缩放；行高用无单位（line-height: 1.5）继承友好；中英文混排留空（letter-spacing 或 padding）；变量字体一份文件搞定多字重。
 
 ### 题目
+
 怎么做出"舒服又专业"的中文 / 英文混合排版？字体怎么选、加载怎么不闪、阅读怎么不累？
 
 ### 答案要点
+
 - **字体栈**
   - 系统字体优先：`-apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif`
   - 自托管字体：`@font-face` + `font-display: swap`（FOIT → FOUT，避免空白）
@@ -710,10 +916,12 @@ tags: [CSS, 字体, 排版]
   - `line-clamp` / `-webkit-line-clamp`：多行省略号
 
 ### 代码示例
+
 ```css
 :root {
-  --font-sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC',
-               'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+  --font-sans:
+    -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB',
+    'Microsoft YaHei', sans-serif;
   --font-mono: 'JetBrains Mono', ui-monospace, Menlo, monospace;
 }
 
@@ -734,13 +942,699 @@ article {
   max-width: 70ch;
   margin: 0 auto;
 }
-article p { margin: 1em 0; }
-article h1 { text-wrap: balance; }
-.price { font-feature-settings: 'tnum'; }
+article p {
+  margin: 1em 0;
+}
+article h1 {
+  text-wrap: balance;
+}
+.price {
+  font-feature-settings: 'tnum';
+}
 ```
 
+### 追问
+
+- 如果把「CSS 字体与排版怎么做才显专业」用到真实项目里，你会重点关注哪些边界、验证手段和取舍？
+
 ### 延伸
+
 - 中文字体推荐：思源黑体 / 苹方 / 鸿蒙体
 - 等宽字体推荐：JetBrains Mono / Fira Code（带连字）
 - 字体加载库：fontfaceobserver 监听加载完成做切换动画
 
+## box-bfc-followup-1
+
+title: 追问：写 5 种触发 BFC 的方式
+difficulty: 基础
+tags: [盒模型, BFC, 布局, 追问]
+parent: box-bfc
+
+### 题目
+
+如果面试官追问：写 5 种触发 BFC 的方式
+
+### 答案要点
+
+#### 回答思路
+
+- 先给一句结论：这个问题要从「为什么需要它」「它解决了什么问题」「代价是什么」三个角度回答。
+- 再把结论落回原题，不要脱离上下文泛泛而谈；面试官通常会顺着边界、异常和工程成本继续追问。
+- 如果涉及实现细节，按数据流、状态变化、调用顺序或生命周期拆开讲；如果涉及方案选择，必须说明为什么不用另一个方案。
+
+#### 结合原题展开
+
+- BFC 是独立布局上下文，常见触发：overflow 非 visible、display: flow-root、浮动、绝对定位等
+- BFC 能解决：清除内部浮动、阻止 margin 折叠、避免文字环绕浮动元素
+- 高度坍塌（浮动子元素 → 父没高度），可用 overflow: hidden 触发 BFC
+- 可以补充一个真实项目语境：上线前先约定输入输出、失败兜底和观测指标，避免只在 demo 场景下成立。
+
+#### 工程落地
+
+- 验证手段要具体：单元测试覆盖边界条件，集成测试覆盖主流程，必要时用 e2e 或回放数据验证真实链路。
+- 运行时要可观测：关键路径打日志或埋点，关注错误率、耗时、资源占用、用户可感知延迟和降级次数。
+- 发布策略要稳：高风险变更建议灰度、开关或回滚预案；如果会影响数据一致性，还要说明迁移和兼容策略。
+
+#### 易错点
+
+- 不要只背 API 或概念名，要说清楚适用条件；很多方案在小流量、单端、无异常时看起来都成立。
+- 不要忽略默认值、兼容性、异常回滚、性能退化和团队维护成本，这些往往是资深面试继续深挖的重点。
+- 如果答案里出现“总是”“一定”“完全替代”这类绝对表述，要主动补充例外场景。
+
+## box-bfc-followup-2
+
+title: 追问：inline-block 之间的「鬼影空白」如何消除
+difficulty: 基础
+tags: [盒模型, BFC, 布局, 追问]
+parent: box-bfc
+
+### 题目
+
+如果面试官追问：inline-block 之间的「鬼影空白」如何消除
+
+### 答案要点
+
+#### 回答思路
+
+- 先给一句结论：这个问题要从「为什么需要它」「它解决了什么问题」「代价是什么」三个角度回答。
+- 再把结论落回原题，不要脱离上下文泛泛而谈；面试官通常会顺着边界、异常和工程成本继续追问。
+- 如果涉及实现细节，按数据流、状态变化、调用顺序或生命周期拆开讲；如果涉及方案选择，必须说明为什么不用另一个方案。
+
+#### 结合原题展开
+
+- margin 折叠场景多到怀疑人生：父子之间、相邻兄弟、空块也会折叠
+- 可以补充一个真实项目语境：上线前先约定输入输出、失败兜底和观测指标，避免只在 demo 场景下成立。
+
+#### 工程落地
+
+- 验证手段要具体：单元测试覆盖边界条件，集成测试覆盖主流程，必要时用 e2e 或回放数据验证真实链路。
+- 运行时要可观测：关键路径打日志或埋点，关注错误率、耗时、资源占用、用户可感知延迟和降级次数。
+- 发布策略要稳：高风险变更建议灰度、开关或回滚预案；如果会影响数据一致性，还要说明迁移和兼容策略。
+
+#### 易错点
+
+- 不要只背 API 或概念名，要说清楚适用条件；很多方案在小流量、单端、无异常时看起来都成立。
+- 不要忽略默认值、兼容性、异常回滚、性能退化和团队维护成本，这些往往是资深面试继续深挖的重点。
+- 如果答案里出现“总是”“一定”“完全替代”这类绝对表述，要主动补充例外场景。
+
+## box-bfc-followup-3
+
+title: 追问：圣杯布局 / 双飞翼布局现在还有意义吗
+difficulty: 基础
+tags: [盒模型, BFC, 布局, 追问]
+parent: box-bfc
+
+### 题目
+
+如果面试官追问：圣杯布局 / 双飞翼布局现在还有意义吗（vs Flex/Grid）
+
+### 答案要点
+
+#### 回答思路
+
+- 先给一句结论：这个问题要从「为什么需要它」「它解决了什么问题」「代价是什么」三个角度回答。
+- 再把结论落回原题，不要脱离上下文泛泛而谈；面试官通常会顺着边界、异常和工程成本继续追问。
+- 如果涉及实现细节，按数据流、状态变化、调用顺序或生命周期拆开讲；如果涉及方案选择，必须说明为什么不用另一个方案。
+
+#### 结合原题展开
+
+- BFC 是独立布局上下文，常见触发：overflow 非 visible、display: flow-root、浮动、绝对定位等
+- 可以补充一个真实项目语境：上线前先约定输入输出、失败兜底和观测指标，避免只在 demo 场景下成立。
+
+#### 工程落地
+
+- 验证手段要具体：单元测试覆盖边界条件，集成测试覆盖主流程，必要时用 e2e 或回放数据验证真实链路。
+- 运行时要可观测：关键路径打日志或埋点，关注错误率、耗时、资源占用、用户可感知延迟和降级次数。
+- 发布策略要稳：高风险变更建议灰度、开关或回滚预案；如果会影响数据一致性，还要说明迁移和兼容策略。
+
+#### 易错点
+
+- 不要只背 API 或概念名，要说清楚适用条件；很多方案在小流量、单端、无异常时看起来都成立。
+- 不要忽略默认值、兼容性、异常回滚、性能退化和团队维护成本，这些往往是资深面试继续深挖的重点。
+- 如果答案里出现“总是”“一定”“完全替代”这类绝对表述，要主动补充例外场景。
+
+## stacking-context-followup-1
+
+title: 追问：如果把「层叠上下文与 z-index 为什么经常“不生效”」用到真实项目里，你会重点关注哪些边界、验证手段和取舍
+difficulty: 进阶
+tags: [z-index, 层叠, 追问]
+parent: stacking-context
+
+### 题目
+
+如果面试官追问：如果把「层叠上下文与 z-index 为什么经常“不生效”」用到真实项目里，你会重点关注哪些边界、验证手段和取舍？
+
+### 答案要点
+
+#### 回答思路
+
+- 先给一句结论：这个问题要从「为什么需要它」「它解决了什么问题」「代价是什么」三个角度回答。
+- 再把结论落回原题，不要脱离上下文泛泛而谈；面试官通常会顺着边界、异常和工程成本继续追问。
+- 如果涉及实现细节，按数据流、状态变化、调用顺序或生命周期拆开讲；如果涉及方案选择，必须说明为什么不用另一个方案。
+
+#### 结合原题展开
+
+- z-index 只在同一层叠上下文中比较
+- 常见创建条件：定位元素且有 z-index、opacity < 1、transform、filter、will-change、isolation: isolate
+- 一旦父元素形成新层叠上下文，子元素再高的 z-index 也无法越过父级上下文的整体层级
+- 可以补充一个真实项目语境：上线前先约定输入输出、失败兜底和观测指标，避免只在 demo 场景下成立。
+
+#### 工程落地
+
+- 验证手段要具体：单元测试覆盖边界条件，集成测试覆盖主流程，必要时用 e2e 或回放数据验证真实链路。
+- 运行时要可观测：关键路径打日志或埋点，关注错误率、耗时、资源占用、用户可感知延迟和降级次数。
+- 发布策略要稳：高风险变更建议灰度、开关或回滚预案；如果会影响数据一致性，还要说明迁移和兼容策略。
+
+#### 易错点
+
+- 不要只背 API 或概念名，要说清楚适用条件；很多方案在小流量、单端、无异常时看起来都成立。
+- 不要忽略默认值、兼容性、异常回滚、性能退化和团队维护成本，这些往往是资深面试继续深挖的重点。
+- 如果答案里出现“总是”“一定”“完全替代”这类绝对表述，要主动补充例外场景。
+
+## flex-grid-followup-1
+
+title: 追问：Grid 的 implicit vs explicit grid
+difficulty: 基础
+tags: [Flex, Grid, 追问]
+parent: flex-grid
+
+### 题目
+
+如果面试官追问：Grid 的 implicit vs explicit grid
+
+### 答案要点
+
+#### 回答思路
+
+- 先给一句结论：这个问题要从「为什么需要它」「它解决了什么问题」「代价是什么」三个角度回答。
+- 再把结论落回原题，不要脱离上下文泛泛而谈；面试官通常会顺着边界、异常和工程成本继续追问。
+- 如果涉及实现细节，按数据流、状态变化、调用顺序或生命周期拆开讲；如果涉及方案选择，必须说明为什么不用另一个方案。
+
+#### 结合原题展开
+
+- Flex 更适合一维布局；Grid 更适合二维布局
+- Grid 中 repeat(auto-fit, minmax(240px, 1fr)) 适合响应式卡片流
+- Grid 里 minmax(0, 1fr) 才能让长内容收缩；只写 1fr 大长字符串会撑爆
+- 可以补充一个真实项目语境：上线前先约定输入输出、失败兜底和观测指标，避免只在 demo 场景下成立。
+
+#### 工程落地
+
+- 验证手段要具体：单元测试覆盖边界条件，集成测试覆盖主流程，必要时用 e2e 或回放数据验证真实链路。
+- 运行时要可观测：关键路径打日志或埋点，关注错误率、耗时、资源占用、用户可感知延迟和降级次数。
+- 发布策略要稳：高风险变更建议灰度、开关或回滚预案；如果会影响数据一致性，还要说明迁移和兼容策略。
+
+#### 易错点
+
+- 不要只背 API 或概念名，要说清楚适用条件；很多方案在小流量、单端、无异常时看起来都成立。
+- 不要忽略默认值、兼容性、异常回滚、性能退化和团队维护成本，这些往往是资深面试继续深挖的重点。
+- 如果答案里出现“总是”“一定”“完全替代”这类绝对表述，要主动补充例外场景。
+
+## flex-grid-followup-2
+
+title: 追问：subgrid 解决了什么问题
+difficulty: 基础
+tags: [Flex, Grid, 追问]
+parent: flex-grid
+
+### 题目
+
+如果面试官追问：subgrid 解决了什么问题（Firefox 早就支持，Chrome 117+）
+
+### 答案要点
+
+#### 回答思路
+
+- 先给一句结论：这个问题要从「为什么需要它」「它解决了什么问题」「代价是什么」三个角度回答。
+- 再把结论落回原题，不要脱离上下文泛泛而谈；面试官通常会顺着边界、异常和工程成本继续追问。
+- 如果涉及实现细节，按数据流、状态变化、调用顺序或生命周期拆开讲；如果涉及方案选择，必须说明为什么不用另一个方案。
+
+#### 结合原题展开
+
+- Grid 的 subgrid 很适合复杂内容对齐，但浏览器支持要确认
+- 可以补充一个真实项目语境：上线前先约定输入输出、失败兜底和观测指标，避免只在 demo 场景下成立。
+
+#### 工程落地
+
+- 验证手段要具体：单元测试覆盖边界条件，集成测试覆盖主流程，必要时用 e2e 或回放数据验证真实链路。
+- 运行时要可观测：关键路径打日志或埋点，关注错误率、耗时、资源占用、用户可感知延迟和降级次数。
+- 发布策略要稳：高风险变更建议灰度、开关或回滚预案；如果会影响数据一致性，还要说明迁移和兼容策略。
+
+#### 易错点
+
+- 不要只背 API 或概念名，要说清楚适用条件；很多方案在小流量、单端、无异常时看起来都成立。
+- 不要忽略默认值、兼容性、异常回滚、性能退化和团队维护成本，这些往往是资深面试继续深挖的重点。
+- 如果答案里出现“总是”“一定”“完全替代”这类绝对表述，要主动补充例外场景。
+
+## flex-grid-followup-3
+
+title: 追问：gap 是 Flex 还是 Grid 的属性
+difficulty: 基础
+tags: [Flex, Grid, 追问]
+parent: flex-grid
+
+### 题目
+
+如果面试官追问：gap 是 Flex 还是 Grid 的属性
+
+### 答案要点
+
+#### 回答思路
+
+- 先给一句结论：这个问题要从「为什么需要它」「它解决了什么问题」「代价是什么」三个角度回答。
+- 再把结论落回原题，不要脱离上下文泛泛而谈；面试官通常会顺着边界、异常和工程成本继续追问。
+- 如果涉及实现细节，按数据流、状态变化、调用顺序或生命周期拆开讲；如果涉及方案选择，必须说明为什么不用另一个方案。
+
+#### 结合原题展开
+
+- Flex 更适合一维布局；Grid 更适合二维布局
+- flex: 1 实际是 1 1 0%，表示可增长、可收缩、基础尺寸为 0
+- Flex 子项默认 min-width: auto，会导致长文本撑破布局，所以常要显式写 min-width: 0
+- 可以补充一个真实项目语境：上线前先约定输入输出、失败兜底和观测指标，避免只在 demo 场景下成立。
+
+#### 工程落地
+
+- 验证手段要具体：单元测试覆盖边界条件，集成测试覆盖主流程，必要时用 e2e 或回放数据验证真实链路。
+- 运行时要可观测：关键路径打日志或埋点，关注错误率、耗时、资源占用、用户可感知延迟和降级次数。
+- 发布策略要稳：高风险变更建议灰度、开关或回滚预案；如果会影响数据一致性，还要说明迁移和兼容策略。
+
+#### 易错点
+
+- 不要只背 API 或概念名，要说清楚适用条件；很多方案在小流量、单端、无异常时看起来都成立。
+- 不要忽略默认值、兼容性、异常回滚、性能退化和团队维护成本，这些往往是资深面试继续深挖的重点。
+- 如果答案里出现“总是”“一定”“完全替代”这类绝对表述，要主动补充例外场景。
+
+## responsive-container-query-followup-1
+
+title: 追问：如果把「移动端适配、媒体查询与容器查询」用到真实项目里，你会重点关注哪些边界、验证手段和取舍
+difficulty: 进阶
+tags: [响应式, 容器查询, 追问]
+parent: responsive-container-query
+
+### 题目
+
+如果面试官追问：如果把「移动端适配、媒体查询与容器查询」用到真实项目里，你会重点关注哪些边界、验证手段和取舍？
+
+### 答案要点
+
+#### 回答思路
+
+- 先给一句结论：这个问题要从「为什么需要它」「它解决了什么问题」「代价是什么」三个角度回答。
+- 再把结论落回原题，不要脱离上下文泛泛而谈；面试官通常会顺着边界、异常和工程成本继续追问。
+- 如果涉及实现细节，按数据流、状态变化、调用顺序或生命周期拆开讲；如果涉及方案选择，必须说明为什么不用另一个方案。
+
+#### 结合原题展开
+
+- 媒体查询关注 viewport，适合整页断点；容器查询关注组件容器尺寸，适合组件自适应
+- 移动端常见策略：弹性布局、rem、流式栅格、视口单位、响应式图片
+- 容器查询通常比“写很多全局断点”更利于组件复用
+- 可以补充一个真实项目语境：上线前先约定输入输出、失败兜底和观测指标，避免只在 demo 场景下成立。
+
+#### 工程落地
+
+- 验证手段要具体：单元测试覆盖边界条件，集成测试覆盖主流程，必要时用 e2e 或回放数据验证真实链路。
+- 运行时要可观测：关键路径打日志或埋点，关注错误率、耗时、资源占用、用户可感知延迟和降级次数。
+- 发布策略要稳：高风险变更建议灰度、开关或回滚预案；如果会影响数据一致性，还要说明迁移和兼容策略。
+
+#### 易错点
+
+- 不要只背 API 或概念名，要说清楚适用条件；很多方案在小流量、单端、无异常时看起来都成立。
+- 不要忽略默认值、兼容性、异常回滚、性能退化和团队维护成本，这些往往是资深面试继续深挖的重点。
+- 如果答案里出现“总是”“一定”“完全替代”这类绝对表述，要主动补充例外场景。
+
+## variables-theme-followup-1
+
+title: 追问：如果把「CSS Variables、深色模式与设计令牌」用到真实项目里，你会重点关注哪些边界、验证手段和取舍
+difficulty: 进阶
+tags: [主题, 变量, 追问]
+parent: variables-theme
+
+### 题目
+
+如果面试官追问：如果把「CSS Variables、深色模式与设计令牌」用到真实项目里，你会重点关注哪些边界、验证手段和取舍？
+
+### 答案要点
+
+#### 回答思路
+
+- 先给一句结论：这个问题要从「为什么需要它」「它解决了什么问题」「代价是什么」三个角度回答。
+- 再把结论落回原题，不要脱离上下文泛泛而谈；面试官通常会顺着边界、异常和工程成本继续追问。
+- 如果涉及实现细节，按数据流、状态变化、调用顺序或生命周期拆开讲；如果涉及方案选择，必须说明为什么不用另一个方案。
+
+#### 结合原题展开
+
+- Sass 变量在编译期展开，运行时无法动态切换；CSS Variables 可在运行时被覆盖
+- 深色模式可基于 :root.dark、data-theme 或 prefers-color-scheme
+- CSS 变量天然支持级联，局部主题覆盖很方便
+- 可以补充一个真实项目语境：上线前先约定输入输出、失败兜底和观测指标，避免只在 demo 场景下成立。
+
+#### 工程落地
+
+- 验证手段要具体：单元测试覆盖边界条件，集成测试覆盖主流程，必要时用 e2e 或回放数据验证真实链路。
+- 运行时要可观测：关键路径打日志或埋点，关注错误率、耗时、资源占用、用户可感知延迟和降级次数。
+- 发布策略要稳：高风险变更建议灰度、开关或回滚预案；如果会影响数据一致性，还要说明迁移和兼容策略。
+
+#### 易错点
+
+- 不要只背 API 或概念名，要说清楚适用条件；很多方案在小流量、单端、无异常时看起来都成立。
+- 不要忽略默认值、兼容性、异常回滚、性能退化和团队维护成本，这些往往是资深面试继续深挖的重点。
+- 如果答案里出现“总是”“一定”“完全替代”这类绝对表述，要主动补充例外场景。
+
+## selector-modern-followup-1
+
+title: 追问：如果把「:has、:is、:where、:focus-visible 怎么用」用到真实项目里，你会重点关注哪些边界、验证手段和取舍
+difficulty: 进阶
+tags: [选择器, 现代 CSS, 追问]
+parent: selector-modern
+
+### 题目
+
+如果面试官追问：如果把「`:has()`、`:is()`、`:where()`、`:focus-visible` 怎么用」用到真实项目里，你会重点关注哪些边界、验证手段和取舍？
+
+### 答案要点
+
+#### 回答思路
+
+- 先给一句结论：这个问题要从「为什么需要它」「它解决了什么问题」「代价是什么」三个角度回答。
+- 再把结论落回原题，不要脱离上下文泛泛而谈；面试官通常会顺着边界、异常和工程成本继续追问。
+- 如果涉及实现细节，按数据流、状态变化、调用顺序或生命周期拆开讲；如果涉及方案选择，必须说明为什么不用另一个方案。
+
+#### 结合原题展开
+
+- :has() 是“父选择器能力”，可根据后代状态反向选中父元素
+- :is() 降低选择器重复；:where() 与其类似，但权重为 0
+- :focus-visible 只在键盘导航等真正需要时显示 focus ring，兼顾可访问性与观感
+- 可以补充一个真实项目语境：上线前先约定输入输出、失败兜底和观测指标，避免只在 demo 场景下成立。
+
+#### 工程落地
+
+- 验证手段要具体：单元测试覆盖边界条件，集成测试覆盖主流程，必要时用 e2e 或回放数据验证真实链路。
+- 运行时要可观测：关键路径打日志或埋点，关注错误率、耗时、资源占用、用户可感知延迟和降级次数。
+- 发布策略要稳：高风险变更建议灰度、开关或回滚预案；如果会影响数据一致性，还要说明迁移和兼容策略。
+
+#### 易错点
+
+- 不要只背 API 或概念名，要说清楚适用条件；很多方案在小流量、单端、无异常时看起来都成立。
+- 不要忽略默认值、兼容性、异常回滚、性能退化和团队维护成本，这些往往是资深面试继续深挖的重点。
+- 如果答案里出现“总是”“一定”“完全替代”这类绝对表述，要主动补充例外场景。
+
+## animation-compositor-followup-1
+
+title: 追问：如果把「transition、animation、合成层与性能优化」用到真实项目里，你会重点关注哪些边界、验证手段和取舍
+difficulty: 进阶
+tags: [动画, 性能, 追问]
+parent: animation-compositor
+
+### 题目
+
+如果面试官追问：如果把「transition、animation、合成层与性能优化」用到真实项目里，你会重点关注哪些边界、验证手段和取舍？
+
+### 答案要点
+
+#### 回答思路
+
+- 先给一句结论：这个问题要从「为什么需要它」「它解决了什么问题」「代价是什么」三个角度回答。
+- 再把结论落回原题，不要脱离上下文泛泛而谈；面试官通常会顺着边界、异常和工程成本继续追问。
+- 如果涉及实现细节，按数据流、状态变化、调用顺序或生命周期拆开讲；如果涉及方案选择，必须说明为什么不用另一个方案。
+
+#### 结合原题展开
+
+- will-change 是提前向浏览器申请优化资源，滥用会增加内存和合成层数量
+- transition 适合状态过渡；animation 适合自动播放、关键帧、多阶段动效
+- 可以补充一个真实项目语境：上线前先约定输入输出、失败兜底和观测指标，避免只在 demo 场景下成立。
+
+#### 工程落地
+
+- 验证手段要具体：单元测试覆盖边界条件，集成测试覆盖主流程，必要时用 e2e 或回放数据验证真实链路。
+- 运行时要可观测：关键路径打日志或埋点，关注错误率、耗时、资源占用、用户可感知延迟和降级次数。
+- 发布策略要稳：高风险变更建议灰度、开关或回滚预案；如果会影响数据一致性，还要说明迁移和兼容策略。
+
+#### 易错点
+
+- 不要只背 API 或概念名，要说清楚适用条件；很多方案在小流量、单端、无异常时看起来都成立。
+- 不要忽略默认值、兼容性、异常回滚、性能退化和团队维护成本，这些往往是资深面试继续深挖的重点。
+- 如果答案里出现“总是”“一定”“完全替代”这类绝对表述，要主动补充例外场景。
+
+## print-css-followup-1
+
+title: 追问：如果把「打印样式与网页内容导出友好性」用到真实项目里，你会重点关注哪些边界、验证手段和取舍
+difficulty: 基础
+tags: [打印, 导出, 追问]
+parent: print-css
+
+### 题目
+
+如果面试官追问：如果把「打印样式与网页内容导出友好性」用到真实项目里，你会重点关注哪些边界、验证手段和取舍？
+
+### 答案要点
+
+#### 回答思路
+
+- 先给一句结论：这个问题要从「为什么需要它」「它解决了什么问题」「代价是什么」三个角度回答。
+- 再把结论落回原题，不要脱离上下文泛泛而谈；面试官通常会顺着边界、异常和工程成本继续追问。
+- 如果涉及实现细节，按数据流、状态变化、调用顺序或生命周期拆开讲；如果涉及方案选择，必须说明为什么不用另一个方案。
+
+#### 结合原题展开
+
+- 先把网页内容语义结构做好，打印样式才容易稳定
+- "可打印"与"PDF 截图导出"不是一回事，前者更接近文档排版
+- 可以补充一个真实项目语境：上线前先约定输入输出、失败兜底和观测指标，避免只在 demo 场景下成立。
+
+#### 工程落地
+
+- 验证手段要具体：单元测试覆盖边界条件，集成测试覆盖主流程，必要时用 e2e 或回放数据验证真实链路。
+- 运行时要可观测：关键路径打日志或埋点，关注错误率、耗时、资源占用、用户可感知延迟和降级次数。
+- 发布策略要稳：高风险变更建议灰度、开关或回滚预案；如果会影响数据一致性，还要说明迁移和兼容策略。
+
+#### 易错点
+
+- 不要只背 API 或概念名，要说清楚适用条件；很多方案在小流量、单端、无异常时看起来都成立。
+- 不要忽略默认值、兼容性、异常回滚、性能退化和团队维护成本，这些往往是资深面试继续深挖的重点。
+- 如果答案里出现“总是”“一定”“完全替代”这类绝对表述，要主动补充例外场景。
+
+## modern-css-features-followup-1
+
+title: 追问：如果把「现代 CSS 必备特性：has / nesting / cascade-layers / color-mix」用到真实项目里，你会重点关注哪些边界、验证手段和取舍
+difficulty: 进阶
+tags: [现代 CSS, has, layers, 追问]
+parent: modern-css-features
+
+### 题目
+
+如果面试官追问：如果把「现代 CSS 必备特性：has / nesting / cascade-layers / color-mix」用到真实项目里，你会重点关注哪些边界、验证手段和取舍？
+
+### 答案要点
+
+#### 回答思路
+
+- 先给一句结论：这个问题要从「为什么需要它」「它解决了什么问题」「代价是什么」三个角度回答。
+- 再把结论落回原题，不要脱离上下文泛泛而谈；面试官通常会顺着边界、异常和工程成本继续追问。
+- 如果涉及实现细节，按数据流、状态变化、调用顺序或生命周期拆开讲；如果涉及方案选择，必须说明为什么不用另一个方案。
+
+#### 结合原题展开
+
+- :has()：终于有了"父选择器"，可基于子节点状态选父，替代过去的 JS hack
+- CSS Nesting：原生嵌套，去掉 Sass / Less 依赖
+- @layer：层叠层，让设计系统、组件库、业务 CSS 优先级可控、可覆盖
+- 可以补充一个真实项目语境：上线前先约定输入输出、失败兜底和观测指标，避免只在 demo 场景下成立。
+
+#### 工程落地
+
+- 验证手段要具体：单元测试覆盖边界条件，集成测试覆盖主流程，必要时用 e2e 或回放数据验证真实链路。
+- 运行时要可观测：关键路径打日志或埋点，关注错误率、耗时、资源占用、用户可感知延迟和降级次数。
+- 发布策略要稳：高风险变更建议灰度、开关或回滚预案；如果会影响数据一致性，还要说明迁移和兼容策略。
+
+#### 易错点
+
+- 不要只背 API 或概念名，要说清楚适用条件；很多方案在小流量、单端、无异常时看起来都成立。
+- 不要忽略默认值、兼容性、异常回滚、性能退化和团队维护成本，这些往往是资深面试继续深挖的重点。
+- 如果答案里出现“总是”“一定”“完全替代”这类绝对表述，要主动补充例外场景。
+
+## css-architecture-followup-1
+
+title: 追问：如果把「CSS 架构方案：BEM / CSS-in-JS / Tailwind / CSS Modules」用到真实项目里，你会重点关注哪些边界、验证手段和取舍
+difficulty: 进阶
+tags: [架构, Tailwind, CSS-in-JS, 追问]
+parent: css-architecture
+
+### 题目
+
+如果面试官追问：如果把「CSS 架构方案：BEM / CSS-in-JS / Tailwind / CSS Modules」用到真实项目里，你会重点关注哪些边界、验证手段和取舍？
+
+### 答案要点
+
+#### 回答思路
+
+- 先给一句结论：这个问题要从「为什么需要它」「它解决了什么问题」「代价是什么」三个角度回答。
+- 再把结论落回原题，不要脱离上下文泛泛而谈；面试官通常会顺着边界、异常和工程成本继续追问。
+- 如果涉及实现细节，按数据流、状态变化、调用顺序或生命周期拆开讲；如果涉及方案选择，必须说明为什么不用另一个方案。
+
+#### 结合原题展开
+
+- BEM：传统命名约定，零运行时，跨技术栈通用，但样板多
+- CSS Modules：构建期局部作用域，类名 hash，配合 Vue/React 都好用
+- CSS-in-JS（styled-components / Emotion / vanilla-extract）：JS 表达力强、动态主题方便；运行时方案有性能开销，零运行时方案（vanilla-extract）需要构建集成
+- 可以补充一个真实项目语境：上线前先约定输入输出、失败兜底和观测指标，避免只在 demo 场景下成立。
+
+#### 工程落地
+
+- 验证手段要具体：单元测试覆盖边界条件，集成测试覆盖主流程，必要时用 e2e 或回放数据验证真实链路。
+- 运行时要可观测：关键路径打日志或埋点，关注错误率、耗时、资源占用、用户可感知延迟和降级次数。
+- 发布策略要稳：高风险变更建议灰度、开关或回滚预案；如果会影响数据一致性，还要说明迁移和兼容策略。
+
+#### 易错点
+
+- 不要只背 API 或概念名，要说清楚适用条件；很多方案在小流量、单端、无异常时看起来都成立。
+- 不要忽略默认值、兼容性、异常回滚、性能退化和团队维护成本，这些往往是资深面试继续深挖的重点。
+- 如果答案里出现“总是”“一定”“完全替代”这类绝对表述，要主动补充例外场景。
+
+## center-element-followup-1
+
+title: 追问：如果把「元素水平垂直居中的 N 种姿势」用到真实项目里，你会重点关注哪些边界、验证手段和取舍
+difficulty: 基础
+tags: [布局, 居中, 高频, 追问]
+parent: center-element
+
+### 题目
+
+如果面试官追问：如果把「元素水平垂直居中的 N 种姿势」用到真实项目里，你会重点关注哪些边界、验证手段和取舍？
+
+### 答案要点
+
+#### 回答思路
+
+- 先给一句结论：这个问题要从「为什么需要它」「它解决了什么问题」「代价是什么」三个角度回答。
+- 再把结论落回原题，不要脱离上下文泛泛而谈；面试官通常会顺着边界、异常和工程成本继续追问。
+- 如果涉及实现细节，按数据流、状态变化、调用顺序或生命周期拆开讲；如果涉及方案选择，必须说明为什么不用另一个方案。
+
+#### 结合原题展开
+
+- 绝对定位 + transform：position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%)，不知道子元素尺寸时通用
+- 绝对定位 + margin auto：父级 position: relative，子级 position: absolute; inset: 0; margin: auto，子元素必须有宽高
+- 行内元素：text-align: center + line-height = height（仅单行文本）
+- 可以补充一个真实项目语境：上线前先约定输入输出、失败兜底和观测指标，避免只在 demo 场景下成立。
+
+#### 工程落地
+
+- 验证手段要具体：单元测试覆盖边界条件，集成测试覆盖主流程，必要时用 e2e 或回放数据验证真实链路。
+- 运行时要可观测：关键路径打日志或埋点，关注错误率、耗时、资源占用、用户可感知延迟和降级次数。
+- 发布策略要稳：高风险变更建议灰度、开关或回滚预案；如果会影响数据一致性，还要说明迁移和兼容策略。
+
+#### 易错点
+
+- 不要只背 API 或概念名，要说清楚适用条件；很多方案在小流量、单端、无异常时看起来都成立。
+- 不要忽略默认值、兼容性、异常回滚、性能退化和团队维护成本，这些往往是资深面试继续深挖的重点。
+- 如果答案里出现“总是”“一定”“完全替代”这类绝对表述，要主动补充例外场景。
+
+## position-stacking-followup-1
+
+title: 追问：如果把「position 五个值的差别和层叠上下文是怎么形成的」用到真实项目里，你会重点关注哪些边界、验证手段和取舍
+difficulty: 进阶
+tags: [定位, 层叠, 追问]
+parent: position-stacking
+
+### 题目
+
+如果面试官追问：如果把「position 五个值的差别和层叠上下文是怎么形成的」用到真实项目里，你会重点关注哪些边界、验证手段和取舍？
+
+### 答案要点
+
+#### 回答思路
+
+- 先给一句结论：这个问题要从「为什么需要它」「它解决了什么问题」「代价是什么」三个角度回答。
+- 再把结论落回原题，不要脱离上下文泛泛而谈；面试官通常会顺着边界、异常和工程成本继续追问。
+- 如果涉及实现细节，按数据流、状态变化、调用顺序或生命周期拆开讲；如果涉及方案选择，必须说明为什么不用另一个方案。
+
+#### 结合原题展开
+
+- 层叠上下文（Stacking Context）触发条件：根元素、position 非 static + z-index 非 auto、opacity < 1、transform/filter/perspective、isolation: isolate、will-change 含上述属性
+- z-index 的"局部世界"：父级形成层叠上下文后，子元素的 z-index 再大也只在父级内部比较
+- isolation: isolate 是显式创建层叠上下文的现代写法，避免 z-index 大战
+- 可以补充一个真实项目语境：上线前先约定输入输出、失败兜底和观测指标，避免只在 demo 场景下成立。
+
+#### 工程落地
+
+- 验证手段要具体：单元测试覆盖边界条件，集成测试覆盖主流程，必要时用 e2e 或回放数据验证真实链路。
+- 运行时要可观测：关键路径打日志或埋点，关注错误率、耗时、资源占用、用户可感知延迟和降级次数。
+- 发布策略要稳：高风险变更建议灰度、开关或回滚预案；如果会影响数据一致性，还要说明迁移和兼容策略。
+
+#### 易错点
+
+- 不要只背 API 或概念名，要说清楚适用条件；很多方案在小流量、单端、无异常时看起来都成立。
+- 不要忽略默认值、兼容性、异常回滚、性能退化和团队维护成本，这些往往是资深面试继续深挖的重点。
+- 如果答案里出现“总是”“一定”“完全替代”这类绝对表述，要主动补充例外场景。
+
+## css-layout-systems-followup-1
+
+title: 追问：如果把「一道题讲清 Flex / Grid / 多列 / Float 各自适用场景」用到真实项目里，你会重点关注哪些边界、验证手段和取舍
+difficulty: 进阶
+tags: [CSS, 布局, 高频, 追问]
+parent: css-layout-systems
+
+### 题目
+
+如果面试官追问：如果把「一道题讲清 Flex / Grid / 多列 / Float 各自适用场景」用到真实项目里，你会重点关注哪些边界、验证手段和取舍？
+
+### 答案要点
+
+#### 回答思路
+
+- 先给一句结论：这个问题要从「为什么需要它」「它解决了什么问题」「代价是什么」三个角度回答。
+- 再把结论落回原题，不要脱离上下文泛泛而谈；面试官通常会顺着边界、异常和工程成本继续追问。
+- 如果涉及实现细节，按数据流、状态变化、调用顺序或生命周期拆开讲；如果涉及方案选择，必须说明为什么不用另一个方案。
+
+#### 结合原题展开
+
+- 子项可伸缩：flex: 1 1 200px = grow shrink basis
+- 典型场景：导航栏、卡片列表、按钮组、垂直居中
+- 行列同时定义：grid-template-columns: repeat(12, 1fr)
+- 可以补充一个真实项目语境：上线前先约定输入输出、失败兜底和观测指标，避免只在 demo 场景下成立。
+
+#### 工程落地
+
+- 验证手段要具体：单元测试覆盖边界条件，集成测试覆盖主流程，必要时用 e2e 或回放数据验证真实链路。
+- 运行时要可观测：关键路径打日志或埋点，关注错误率、耗时、资源占用、用户可感知延迟和降级次数。
+- 发布策略要稳：高风险变更建议灰度、开关或回滚预案；如果会影响数据一致性，还要说明迁移和兼容策略。
+
+#### 易错点
+
+- 不要只背 API 或概念名，要说清楚适用条件；很多方案在小流量、单端、无异常时看起来都成立。
+- 不要忽略默认值、兼容性、异常回滚、性能退化和团队维护成本，这些往往是资深面试继续深挖的重点。
+- 如果答案里出现“总是”“一定”“完全替代”这类绝对表述，要主动补充例外场景。
+
+## css-typography-rhythm-followup-1
+
+title: 追问：如果把「CSS 字体与排版怎么做才显专业」用到真实项目里，你会重点关注哪些边界、验证手段和取舍
+difficulty: 进阶
+tags: [CSS, 字体, 排版, 追问]
+parent: css-typography-rhythm
+
+### 题目
+
+如果面试官追问：如果把「CSS 字体与排版怎么做才显专业」用到真实项目里，你会重点关注哪些边界、验证手段和取舍？
+
+### 答案要点
+
+#### 回答思路
+
+- 先给一句结论：这个问题要从「为什么需要它」「它解决了什么问题」「代价是什么」三个角度回答。
+- 再把结论落回原题，不要脱离上下文泛泛而谈；面试官通常会顺着边界、异常和工程成本继续追问。
+- 如果涉及实现细节，按数据流、状态变化、调用顺序或生命周期拆开讲；如果涉及方案选择，必须说明为什么不用另一个方案。
+
+#### 结合原题展开
+
+- 系统字体优先：-apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif
+- 自托管字体：@font-face + font-display: swap（FOIT → FOUT，避免空白）
+- 多字重 / 多斜体：用变量字体（Inter.var.woff2）一份文件解决
+- 可以补充一个真实项目语境：上线前先约定输入输出、失败兜底和观测指标，避免只在 demo 场景下成立。
+
+#### 工程落地
+
+- 验证手段要具体：单元测试覆盖边界条件，集成测试覆盖主流程，必要时用 e2e 或回放数据验证真实链路。
+- 运行时要可观测：关键路径打日志或埋点，关注错误率、耗时、资源占用、用户可感知延迟和降级次数。
+- 发布策略要稳：高风险变更建议灰度、开关或回滚预案；如果会影响数据一致性，还要说明迁移和兼容策略。
+
+#### 易错点
+
+- 不要只背 API 或概念名，要说清楚适用条件；很多方案在小流量、单端、无异常时看起来都成立。
+- 不要忽略默认值、兼容性、异常回滚、性能退化和团队维护成本，这些往往是资深面试继续深挖的重点。
+- 如果答案里出现“总是”“一定”“完全替代”这类绝对表述，要主动补充例外场景。

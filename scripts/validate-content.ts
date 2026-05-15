@@ -76,21 +76,42 @@ const VALID_LANGS = new Set([
 
 const seenIds = new Set<string>();
 const tagFrequency: Record<string, number> = {};
+const questionsById = new Map<string, QuestionScan>();
+const declaredRelations: { parentId: string; childId: string }[] = [];
 
 interface QuestionScan {
+  id: string;
+  file: string;
   slug: string;
   hasTitle: boolean;
   hasQuestion: boolean;
   hasAnswer: boolean;
   difficulty?: string;
   tags: string[];
+  parentId?: string;
+  followupIds: string[];
   answerWordCount: number;
   hasSummary: boolean;
   codeBlocks: { lang: string; line: number }[];
   unknownSubsections: string[];
 }
 
-function scanQuestions(file: string, content: string): QuestionScan[] {
+function parseInlineList(value: string): string[] {
+  const trimmed = value.trim();
+  if (!trimmed) return [];
+  const match = trimmed.match(/^\[([^\]]*)\]$/);
+  if (!match) return [trimmed.replace(/^['"]|['"]$/g, '')].filter(Boolean);
+  return match[1]
+    .split(',')
+    .map((s) => s.trim().replace(/^['"]|['"]$/g, ''))
+    .filter(Boolean);
+}
+
+function normalizeQuestionId(categoryId: string, value: string): string {
+  return value.includes('/') ? value : `${categoryId}/${value}`;
+}
+
+function scanQuestions(file: string, categoryId: string, content: string): QuestionScan[] {
   const lines = content.split(/\r?\n/);
   const out: QuestionScan[] = [];
   let cur: QuestionScan | null = null;
@@ -108,11 +129,14 @@ function scanQuestions(file: string, content: string): QuestionScan[] {
     if (head) {
       flush();
       cur = {
+        id: `${categoryId}/${head[1]}`,
+        file,
         slug: head[1],
         hasTitle: false,
         hasQuestion: false,
         hasAnswer: false,
         tags: [],
+        followupIds: [],
         answerWordCount: 0,
         hasSummary: false,
         codeBlocks: [],
@@ -136,6 +160,17 @@ function scanQuestions(file: string, content: string): QuestionScan[] {
           .map((s) => s.trim().replace(/^['"]|['"]$/g, ''))
           .filter(Boolean);
       }
+    }
+    if (/^(parent|parentId)\s*:/.test(ln)) {
+      const v = ln
+        .replace(/^(parent|parentId)\s*:\s*/, '')
+        .trim()
+        .replace(/^['"]|['"]$/g, '');
+      if (v) cur.parentId = normalizeQuestionId(categoryId, v);
+    }
+    if (/^(followups|followupQuestionIds)\s*:/.test(ln)) {
+      const v = ln.replace(/^(followups|followupQuestionIds)\s*:\s*/, '').trim();
+      cur.followupIds = parseInlineList(v).map((id) => normalizeQuestionId(categoryId, id));
     }
     const sub = ln.match(/^###\s+(\S+)/);
     if (sub) {
@@ -171,6 +206,7 @@ for (const f of files) {
   const raw = readFileSync(join(ROOT, f), 'utf-8');
   const { data, content } = matter(raw);
   const front = data as { id?: string; title?: string; order?: number };
+  const categoryId = front.id || f.replace(/\.md$/, '');
   if (!front.id) errs.push(`${f}: frontmatter 缺少 id`);
   if (!front.title) errs.push(`${f}: frontmatter 缺少 title`);
   if (front.order == null) errs.push(`${f}: frontmatter 缺少 order`);
@@ -180,8 +216,9 @@ for (const f of files) {
   }
 
   const slugs = new Set<string>();
-  const questions = scanQuestions(f, content);
+  const questions = scanQuestions(f, categoryId, content);
   for (const q of questions) {
+    questionsById.set(q.id, q);
     if (slugs.has(q.slug)) errs.push(`${f}: slug 重复 → ${q.slug}`);
     slugs.add(q.slug);
     if (!q.hasTitle) errs.push(`${f}: ${q.slug} 缺少 title 元数据`);
@@ -192,6 +229,10 @@ for (const f of files) {
     }
     if (q.unknownSubsections.length) {
       errs.push(`${f}: ${q.slug} 出现未识别 ### 段落 → ${q.unknownSubsections.join(', ')}`);
+    }
+    if (q.parentId) declaredRelations.push({ parentId: q.parentId, childId: q.id });
+    for (const childId of q.followupIds) {
+      declaredRelations.push({ parentId: q.id, childId });
     }
     if (q.answerWordCount < 80) {
       warns.push(`${f}: ${q.slug} 答案要点字数偏少 (${q.answerWordCount} 字)，建议扩充`);
@@ -213,11 +254,33 @@ const TAG_NORMALIZE_HINTS: [RegExp, string][] = [
   [/^高频题$/i, '高频'],
   [/^面试高频$/i, '高频'],
 ];
+
 for (const [pattern, suggest] of TAG_NORMALIZE_HINTS) {
   for (const tag of Object.keys(tagFrequency)) {
     if (pattern.test(tag) && tag !== suggest) {
       warns.push(`tag 不规范：「${tag}」建议统一为「${suggest}」`);
     }
+  }
+}
+
+for (const { parentId, childId } of declaredRelations) {
+  const parent = questionsById.get(parentId);
+  const child = questionsById.get(childId);
+  if (!parent) {
+    errs.push(`${childId}: parent/followups 指向不存在的原题 → ${parentId}`);
+    continue;
+  }
+  if (!child) {
+    errs.push(`${parent.file}: ${parent.slug} followups 指向不存在的追问题 → ${childId}`);
+    continue;
+  }
+  if (child.parentId && child.parentId !== parentId) {
+    errs.push(
+      `${child.file}: ${child.slug} parent 与父题声明不一致 → ${child.parentId} != ${parentId}`,
+    );
+  }
+  if (parent.followupIds.length && !parent.followupIds.includes(childId)) {
+    warns.push(`${parent.file}: ${parent.slug} 未在 followups 中回链追问题 → ${childId}`);
   }
 }
 

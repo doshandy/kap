@@ -7,17 +7,22 @@ description: 来自真实数据平台（DataLumina / DataPilot）的复杂业务
 ---
 
 ## sql-workbench-architecture
+
 title: 设计一个浏览器内的 SQL 工作台，整体架构怎么拆？
+followups: [sql-workbench-architecture-followup-1]
 difficulty: 资深
 tags: [架构, SQL, Monaco, 高频]
 
 ### 一句话
+
 分四层：编辑器层（Monaco + 自定义 SQL 补全 / 校验）+ 业务状态层（多 Tab Pane + IndexedDB 持久化）+ 数据服务层（元数据缓存 + 历史快照）+ 执行通道（提交 → 轮询结果 → 长任务异步）。
 
 ### 题目
+
 你做过浏览器内的 SQL 工作台（类似 DBeaver / Hue 的 web 版），请讲讲整体架构、关键模块和踩过的坑。
 
 ### 答案要点
+
 - **顶层布局**：左侧元数据树（数据源 / 库 / 表 / 字段）+ 中间多 Tab 编辑器 + 下方结果区
 - **编辑器层（Monaco）**
   - 一份 model 对应一个 Pane（用 URI 隔离）
@@ -40,10 +45,15 @@ tags: [架构, SQL, Monaco, 高频]
   - 切走 Tab 又切回来时 Monaco focus / 光标位置丢失，需要保存 viewState
 
 ### 代码示例
+
 ```ts
 const PANE_TRANSIENT_KEYS = new Set([
-  'titleEditing', 'saveVisible', 'explain', 'isNew',
-  'copilotSqlEdits', 'diffChangeRemainingCount',
+  'titleEditing',
+  'saveVisible',
+  'explain',
+  'isNew',
+  'copilotSqlEdits',
+  'diffChangeRemainingCount',
 ]);
 
 export const toPersistedPane = (pane: any) => {
@@ -60,24 +70,33 @@ export const toPersistedPane = (pane: any) => {
 };
 ```
 
+### 追问
+
+- 如果把「设计一个浏览器内的 SQL 工作台，整体架构怎么拆？」用到真实项目里，你会重点关注哪些边界、验证手段和取舍？
+
 ### 延伸
+
 - 性能预算：编辑器初次加载 < 800ms（懒加载 monaco-editor + worker chunk）
 - 高级能力：SQL 格式化（formatter）、Lineage 血缘图、SQL Lint、AI 改写
 - 类似产品：Hue、DataGrip、DBeaver、Apache Superset、字节 ByteHouse
 
-
 ## monaco-multi-pane-isolation
+
 title: Monaco 多 Tab 编辑器实例之间怎么做隔离？
+followups: [monaco-multi-pane-isolation-followup-1]
 difficulty: 资深
 tags: [Monaco, 多实例, 内存]
 
 ### 一句话
+
 每个 Tab 用独立 URI 创建独立 model；语言 / 补全 Provider 全局注册一次（用模块级 flag 判重）；Tab 关闭时主动 dispose model 释放内存；切 Tab 保存 / 恢复 viewState 维持光标位置。
 
 ### 题目
+
 项目里需要同时打开多个 SQL Tab，每个 Tab 一个独立编辑器。怎么避免 Tab 间内容串扰、内存泄漏、光标丢失？
 
 ### 答案要点
+
 - **URI 隔离**：`monaco.Uri.parse('inmemory://pane/<paneKey>')`；同一个 URI 全局只有一份 model，多实例共享会出问题
 - **匿名 Pane**：模态预览等没有 paneKey 的实例，需要分配自增序号 URI，避免几个匿名实例共享同一 model
 - **Provider 一次性注册**：用模块级布尔变量 `hiveProvidersRegistered` 守卫，避免每次 mount 重复注册导致补全候选项重复
@@ -93,6 +112,7 @@ tags: [Monaco, 多实例, 内存]
   - 排查泄漏方法：关 Tab 后强制 GC，再看 detached 节点
 
 ### 代码示例
+
 ```ts
 let hiveLanguageRegistered = false;
 let hiveProvidersRegistered = false;
@@ -123,24 +143,33 @@ function switchToPane(paneKey: string, model: monaco.editor.ITextModel) {
 }
 ```
 
+### 追问
+
+- 如果把「Monaco 多 Tab 编辑器实例之间怎么做隔离？」用到真实项目里，你会重点关注哪些边界、验证手段和取舍？
+
 ### 延伸
+
 - @vue/repl / Stackblitz 都是基于 Monaco 多文件
 - 一些团队选择"全局一个 Monaco editor + 切换 model"省内存，代价是 viewState 维护更复杂
 - monaco-editor-textmate 可加更精细的语法高亮，但会显著增加首屏体积
 
-
 ## sql-completion-with-worker
+
 title: SQL 自动补全 / 校验怎么做才不卡 UI？
+followups: [sql-completion-with-worker-followup-1]
 difficulty: 资深
 tags: [Monaco, SQL, Worker, 性能]
 
 ### 一句话
+
 解析放 Web Worker 跑（主线程不卡）；校验做防抖（默认 400ms，每个 model URI 一个 timer）；业务变量占位符 `${var}` 等长替换为合法 identifier 避免误报；补全候选项异步返回。
 
 ### 题目
+
 SQL 编辑器要支持基于 AST 的精确补全和语法校验，怎么做？
 
 ### 答案要点
+
 - **解析迁移到 Worker**
   - SQL parser（dt-sql-parser / antlr 生成）解析大文件可能 100ms+，放主线程会卡输入
   - `parser.worker.ts`：`onmessage` 收文本 → 解析 → `postMessage(result)`
@@ -165,6 +194,7 @@ SQL 编辑器要支持基于 AST 的精确补全和语法校验，怎么做？
   - 写 markdown 测试用例（autocomplete.test.md）维护：输入 → 期望补全列表
 
 ### 代码示例
+
 ```ts
 const VAR_PLACEHOLDER_RE = /\$\{[^}]+\}/g;
 
@@ -195,24 +225,33 @@ export function scheduleValidate(model: monaco.editor.ITextModel) {
 }
 ```
 
+### 追问
+
+- 如果把「SQL 自动补全 / 校验怎么做才不卡 UI？」用到真实项目里，你会重点关注哪些边界、验证手段和取舍？
+
 ### 延伸
+
 - antlr4ts 生成的 parser 体积巨大，按需 chunk + Worker 是最佳实践
 - 多方言（Hive/Spark/Presto/MySQL）：用策略模式 + 方言切换
 - 上下文相关关键字：把"在某些位置不应该提示"列成黑名单，避免误导
 
-
 ## metadata-cache-inflight
+
 title: 元数据接口高并发去重 + 缓存怎么设计？
+followups: [metadata-cache-inflight-followup-1]
 difficulty: 进阶
 tags: [缓存, 并发, 高频]
 
 ### 一句话
+
 两层防护：缓存（TTL 5min）+ inflight Map（同 key 的并发请求共享同一个 Promise）。命中缓存直接返回，没有就发请求且把 promise 存进 inflight，后续并发请求直接 await 这个 promise。
 
 ### 题目
+
 SQL 工作台元数据（库 / 表 / 字段）请求很频繁，且同一个 key 经常被多个组件同时请求。如何避免重复发请求又保证错误能正确传播？
 
 ### 答案要点
+
 - **问题场景**
   - 一个页面 5 个组件同时挂载都要查 `db.users` 表的字段
   - 没有缓存：5 次重复请求
@@ -234,6 +273,7 @@ SQL 工作台元数据（库 / 表 / 字段）请求很频繁，且同一个 key
   - 强制刷新需要 `forceFresh` 选项
 
 ### 代码示例
+
 ```ts
 class MetadataCache {
   private cache = new Map<string, { data: any; expireAt: number }>();
@@ -270,23 +310,33 @@ class MetadataCache {
 }
 ```
 
+### 追问
+
+- 如果把「元数据接口高并发去重 + 缓存怎么设计？」用到真实项目里，你会重点关注哪些边界、验证手段和取舍？
+
 ### 延伸
+
 - React Query / SWR 内置了类似的"deduping + stale-time + cache-time"行为
 - 高级版本：LRU 限制条数 + 持久化到 IndexedDB（跨 Tab 共享）
 - BroadcastChannel 同步多 Tab 的 invalidate
 
 ## indexeddb-pane-persistence
+
 title: 多 Tab 编辑器状态怎么持久化（投影模式）
+followups: [indexeddb-pane-persistence-followup-1]
 difficulty: 资深
 tags: [IndexedDB, 持久化, 状态]
 
 ### 一句话
+
 不要无脑序列化整个 store——按"投影"思路只保留刷新后还有意义的字段；瞬态字段（loading、流式 diff session、临时 UI 状态）剔除；大字段（结果集 body）由后端按需补回。
 
 ### 题目
+
 SQL 工作台关掉浏览器再打开，需要恢复全部 Tab + 输入内容 + 上次执行结果。怎么持久化才不卡也不留脏数据？
 
 ### 答案要点
+
 - **为什么不用 localStorage**
   - 大小限制（5MB），结果集随便几万行就爆
   - 同步 API，写入大对象会阻塞主线程
@@ -309,10 +359,15 @@ SQL 工作台关掉浏览器再打开，需要恢复全部 Tab + 输入内容 + 
   - 兼容用户跨版本回滚
 
 ### 代码示例
+
 ```ts
 const PANE_TRANSIENT_KEYS = new Set([
-  'titleEditing', 'saveVisible', 'explain', 'isNew',
-  'copilotSqlEdits', 'diffChangeRemainingCount',
+  'titleEditing',
+  'saveVisible',
+  'explain',
+  'isNew',
+  'copilotSqlEdits',
+  'diffChangeRemainingCount',
 ]);
 
 const RESULT_ITEM_KEYS = ['key', 'id', 'currentId', 'status', 'resultType', 'engine', 'errorLine'];
@@ -346,24 +401,33 @@ const persist = debounce(async (paneList) => {
 }, 500);
 ```
 
+### 追问
+
+- 如果把「多 Tab 编辑器状态怎么持久化（投影模式）」用到真实项目里，你会重点关注哪些边界、验证手段和取舍？
+
 ### 延伸
+
 - 同源跨 Tab 共享需要 BroadcastChannel 通知 invalidate
 - 浏览器存储配额：可用 `navigator.storage.estimate()` 监控
 - 进阶："增量持久化" + 操作日志，可恢复到任意时间点
 
-
 ## sql-result-polling
+
 title: 长 SQL 异步执行 + 前端轮询结果怎么设计
+followups: [sql-result-polling-followup-1]
 difficulty: 进阶
 tags: [轮询, 异步, 性能]
 
 ### 一句话
+
 前端提交 SQL 拿到 task ID → 指数退避轮询 status；可取消、可后台运行；完成时再拉详情；同 Tab 关闭后任务在后端继续，下次打开恢复结果。
 
 ### 题目
+
 SQL 平均跑 30s 到 10min，前端怎么处理"提交-等待-取结果"的全流程？
 
 ### 答案要点
+
 - **不要 long polling 单连接**：浪费连接、网关常见超时 30s
 - **任务化**
   - 提交：POST /sql/submit → `{ taskId }`
@@ -388,6 +452,7 @@ SQL 平均跑 30s 到 10min，前端怎么处理"提交-等待-取结果"的全�
   - 表格组件支持虚拟滚动 + 异步加载更多
 
 ### 代码示例
+
 ```ts
 async function pollStatus(taskId: string, signal: AbortSignal) {
   let interval = 1000;
@@ -420,23 +485,33 @@ try {
 }
 ```
 
+### 追问
+
+- 如果把「长 SQL 异步执行 + 前端轮询结果怎么设计」用到真实项目里，你会重点关注哪些边界、验证手段和取舍？
+
 ### 延伸
+
 - 优雅替代：SSE / WebSocket 推送状态变更（节省 API 请求量）
 - 大型平台一般 SSE 推 status，REST 拉详情，混合使用
 - 进度感知：把后端的 stage（解析 / 执行 / 写文件）展示给用户
 
 ## ai-agent-streaming-render
+
 title: AI Agent 流式对话怎么渲染才不卡
+followups: [ai-agent-streaming-render-followup-1]
 difficulty: 资深
 tags: [AI, 流式, Markdown, 性能]
 
 ### 一句话
+
 后端用 SSE 推 token；前端拿 chunk 拼到 streamingContent；watch 它做"节流式"markdown 渲染（短文本逐字、长文本每 N 个 chunk 才渲染一次），并提供"停止生成"按钮（AbortController）。
 
 ### 题目
+
 做一个 AI 对话页（类似 ChatGPT），后端流式返回 markdown，前端如何边收边渲染、不丢消息、不掉帧、可中断？
 
 ### 答案要点
+
 - **传输协议**：SSE（单向、自动重连、event ID）；OpenAI / Anthropic / DeepSeek 都是 SSE
 - **前端接收**
   - `fetch` + `ReadableStream`（比 EventSource 灵活，支持自定义 header / POST）
@@ -462,6 +537,7 @@ tags: [AI, 流式, Markdown, 性能]
   - 每个状态对应不同 UI（按钮文案、loading 动画、骨架）
 
 ### 代码示例
+
 ```ts
 const streamingContent = ref('');
 const streamingContentHtml = ref('');
@@ -514,24 +590,33 @@ function stop() {
 }
 ```
 
+### 追问
+
+- 如果把「AI Agent 流式对话怎么渲染才不卡」用到真实项目里，你会重点关注哪些边界、验证手段和取舍？
+
 ### 延伸
+
 - markdown-it 大文本渲染要做缓存（避免重复解析整段）
 - 代码块高亮可以"延迟到流结束后"再统一处理
 - 多模态：图片 / 表格 / 工具调用回包 都按事件类型分发
 
-
 ## sql-copilot-diff
+
 title: AI 改写 SQL 的 Diff 接受/拒绝交互怎么做
+followups: [sql-copilot-diff-followup-1]
 difficulty: 资深
 tags: [AI, Monaco, Diff]
 
 ### 一句话
+
 后端返回结构化 sqlEdits 列表（每条带类型 ADD/DELETE/UPDATE + 行号 + 新内容）；前端在 Monaco 用 inline decorator 标出来，提供"逐条接受 / 全部接受 / 拒绝"；状态绑定到当前 Pane 但不持久化（刷新即清空避免僵尸 diff）。
 
 ### 题目
+
 SQL 编辑器接入 AI Copilot：用户提需求，AI 给一段改动建议，怎么做"GitHub PR 风格"的逐块审查？
 
 ### 答案要点
+
 - **数据结构**
   - sqlEdits: `{ id, type: 'ADD'|'DELETE'|'UPDATE', startLine, endLine, newText }[]`
   - sessionId / requestId：用于撤销 / 反馈
@@ -555,6 +640,7 @@ SQL 编辑器接入 AI Copilot：用户提需求，AI 给一段改动建议，�
   - 用户可对单条改动点"赞 / 踩"
 
 ### 代码示例
+
 ```ts
 type SuggestionChunk = {
   sessionId?: string;
@@ -590,29 +676,36 @@ const acceptOne = (id: string) => {
   reportFeedback({ id, action: 'accept' });
 };
 
-const PANE_TRANSIENT_KEYS = new Set([
-  'copilotSqlEdits',
-  'diffChangeRemainingCount',
-]);
+const PANE_TRANSIENT_KEYS = new Set(['copilotSqlEdits', 'diffChangeRemainingCount']);
 ```
 
+### 追问
+
+- 如果把「AI 改写 SQL 的 Diff 接受/拒绝交互怎么做」用到真实项目里，你会重点关注哪些边界、验证手段和取舍？
+
 ### 延伸
+
 - Cursor / Copilot Chat 的 Apply 流程类似
 - 大段重写时可以走 diff editor（Monaco 内置 `createDiffEditor`），并排显示
 - 注意"用户输入与 AI 输出冲突"：edit 应用前先比较行号是否还有效（用户可能已修改）
 
 ## task-dependency-dag
+
 title: 任务调度 DAG 依赖图怎么前端展示和交互
+followups: [task-dependency-dag-followup-1]
 difficulty: 资深
 tags: [可视化, DAG, 调度]
 
 ### 一句话
+
 用 DAG 可视化库（dagre + G6 / antv X6 / vue-flow）把节点 + 边布局；前端只渲染当前视口（虚拟化）+ 节点里再放轻量 ECharts 缩略图；点击节点查看上下游、双击展开子图。
 
 ### 题目
+
 数据调度平台需要展示几千个任务的 DAG 依赖关系（上下游链路），前端怎么做才不会卡？
 
 ### 答案要点
+
 - **数据准备**
   - 后端只返回当前节点 N 跳之内的子图（避免一次拉几万节点）
   - 节点 / 边都做 ID 唯一化，前端用 Map 索引
@@ -638,6 +731,7 @@ tags: [可视化, DAG, 调度]
   - 用户的视图状态（zoom / pan / 展开节点）存 localStorage 跨刷新
 
 ### 代码示例
+
 ```ts
 import { Graph } from '@antv/g6';
 import dagre from 'dagre';
@@ -668,34 +762,43 @@ function highlightUpstream(graph, nodeId) {
       }
     });
   }
-  graph.updateNodeStyle((n) => visited.has(n.id) ? { fill: '#1677ff' } : {});
+  graph.updateNodeStyle((n) => (visited.has(n.id) ? { fill: '#1677ff' } : {}));
 }
 ```
 
+### 追问
+
+- 如果把「任务调度 DAG 依赖图怎么前端展示和交互」用到真实项目里，你会重点关注哪些边界、验证手段和取舍？
+
 ### 延伸
+
 - 调度平台典型代表：Airflow、DolphinScheduler、字节 Aeolus
 - DAG 里的"诊断"高级功能：上下游断链定位、SLA 倒推
 - 可视化超大数据用 Apache ECharts 5 的 graphGL，或自研 GPU 渲染
 
-
 ## multi-stage-deployment
+
 title: 多国 / 多环境部署（CN / ID / SP / MX）怎么管理差异
+followups: [multi-stage-deployment-followup-1]
 difficulty: 进阶
 tags: [架构, 部署, i18n]
 
 ### 一句话
+
 用 `__STAGE__` 环境变量在构建期定义；运行期通过条件分支与配置文件加载差异（权限点、CDN 域名、日期格式、合规字段）；不要把"国家"散落在业务组件里，统一封装在 `useStage` / `getStageConfig` 入口。
 
 ### 题目
+
 同一份代码部署到中国、印尼、西班牙、墨西哥四个国家，每个国家有不同的 CDN、合规要求、日期 / 货币格式、菜单权限。怎么设计才不会变成 if-else 地狱？
 
 ### 答案要点
+
 - **构建期注入**
   - Vite / Webpack `define` 把 `__STAGE__` 注入为字符串常量（'cn' / 'id' / ...）
   - Tree shaking 后，`if (__STAGE__ === 'cn')` 在非 CN 包里整段消失
 - **运行期配置中心**
   - 每个 stage 一份 JSON：CDN 域名、API 域名、特性开关、权限点、合规字段
-  - 构建期 import 对应 JSON：`import config from \`./config/${__STAGE__}.json\``
+  - 构建期 import 对应 JSON：`import config from \`./config/${**STAGE**}.json\``
 - **统一入口**
   - `useStage()`：返回当前 stage / 对应配置 / 是否启用某特性
   - 业务组件不直接判断国家，调用 `useFeature('xxx')` 或 `getRegionConfig().dateFormat`
@@ -714,6 +817,7 @@ tags: [架构, 部署, i18n]
   - 指标对比：同一功能在 4 个国家的表现是否异常
 
 ### 代码示例
+
 ```ts
 declare const __STAGE__: 'cn' | 'id' | 'sp' | 'mx';
 
@@ -738,23 +842,33 @@ if (feature('aiCopilot')) {
 }
 ```
 
+### 追问
+
+- 如果把「多国 / 多环境部署（CN / ID / SP / MX）怎么管理差异」用到真实项目里，你会重点关注哪些边界、验证手段和取舍？
+
 ### 延伸
+
 - 国家差异不仅在 UI，还在数据合规（GDPR / 印尼 PDP / 中国数据出境）
 - 把"特性开关 + 权限点 + 合规字段"封装成统一 SDK，业务零知识接入
 - A/B 测试也走同一套基础设施
 
 ## permission-matrix-frontend
+
 title: 复杂权限体系（数据 + 操作）前端怎么做
+followups: [permission-matrix-frontend-followup-1]
 difficulty: 资深
 tags: [权限, 架构, 高频]
 
 ### 一句话
+
 分两层：菜单 / 路由层（路由 guard 拦截）+ 组件 / 按钮层（用 `v-permission` 指令或 `<HasPerm>` 组件包裹）；权限点字符串化（`metric:create`），后端是唯一真源，前端只做 UI 遮蔽（关键操作仍由后端二次校验）。
 
 ### 题目
+
 数据平台有几百个权限点，资源（数据源 / 表 / 指标）和操作（增删改查 / 审核 / 下载）各成体系。前端怎么实现才不会到处 if-else？
 
 ### 答案要点
+
 - **核心理念**
   - 前端只做"看见 / 不可点"，关键操作的最终鉴权永远在后端
   - 权限不是布尔值，是字符串集合（`['metric:create', 'datasource:read']`）
@@ -783,6 +897,7 @@ tags: [权限, 架构, 高频]
   - 权限变更（管理员调整）需要做"广播"或下次刷新生效
 
 ### 代码示例
+
 ```ts
 export const PERMS = {
   METRIC_CREATE: 'metric:create',
@@ -815,24 +930,33 @@ router.beforeEach((to) => {
 </HasPerm>
 ```
 
+### 追问
+
+- 如果把「复杂权限体系（数据 + 操作）前端怎么做」用到真实项目里，你会重点关注哪些边界、验证手段和取舍？
+
 ### 延伸
+
 - 复杂条件（"自己创建的可以删 / 别人的不能删"）走表达式，比如 `metric:delete:own`
 - 大型公司用 OPA / Casbin 做策略引擎，前端只查询"能不能"
 - 注意 i18n 时把权限"隐藏"还是"置灰提示原因"，体验差异很大
 
-
 ## big-table-virtualization
+
 title: 数据平台几十万行结果集表格怎么不卡
+followups: [big-table-virtualization-followup-1]
 difficulty: 资深
 tags: [虚拟列表, 表格, 性能, 高频]
 
 ### 一句话
+
 用支持虚拟滚动的表格组件（vxe-table / ag-grid / TanStack Table）；行虚拟化 + 列虚拟化都开；分页拉数据 + 服务端排序 / 筛选；大单元格内容（JSON、长文本）懒展开。
 
 ### 题目
+
 SQL 跑出 50 万行结果，前端要展示 + 排序 + 筛选 + 复制 + 导出，怎么做？
 
 ### 答案要点
+
 - **表格选型**
   - vxe-table 4.x：性能好，复杂功能（编辑、树表、导出）齐全
   - ag-grid：商业级，pivot / aggregation 强大，社区版够用
@@ -862,6 +986,7 @@ SQL 跑出 50 万行结果，前端要展示 + 排序 + 筛选 + 复制 + 导出
   - 避免在 render 函数里创建对象，用 memo / 缓存
 
 ### 代码示例
+
 ```vue
 <vxe-table
   :data="rows"
@@ -891,23 +1016,33 @@ async function load() {
 </script>
 ```
 
+### 追问
+
+- 如果把「数据平台几十万行结果集表格怎么不卡」用到真实项目里，你会重点关注哪些边界、验证手段和取舍？
+
 ### 延伸
+
 - 虚拟滚动复杂场景：合并单元格、可编辑、行展开（vxe-table 都支持）
 - 极端大数据（千万级）：必须流式 + 服务端聚合，前端只能看"汇总"
 - 监控渲染帧率：`PerformanceObserver({ entryTypes: ['frame'] })` 找掉帧
 
 ## upload-large-file
+
 title: 大文件分片上传怎么实现
+followups: [upload-large-file-followup-1]
 difficulty: 进阶
 tags: [上传, 分片, 高频]
 
 ### 一句话
+
 切片（每片 5MB）+ 计算文件 hash（秒传判重）+ 并发上传分片（限制 3-5 个）+ 失败重试 + 后端合并。带断点续传时每片单独标记完成状态。
 
 ### 题目
+
 做一个支持几 GB 大文件的上传：要秒传、断点续传、失败重试、能显示进度。请描述实现思路。
 
 ### 答案要点
+
 - **整体流程**
   1. 前端选文件后用 Web Worker 计算 hash（spark-md5）
   2. 调 `/upload/check` 问后端：这个 hash 是否已上传过
@@ -937,6 +1072,7 @@ tags: [上传, 分片, 高频]
   - 文件被改 / hash 不一致：让用户重选
 
 ### 代码示例
+
 ```ts
 const CHUNK_SIZE = 5 * 1024 * 1024;
 
@@ -952,16 +1088,19 @@ async function uploadFile(file: File) {
   const total = Math.ceil(file.size / CHUNK_SIZE);
   const todo = Array.from({ length: total }, (_, i) => i).filter((i) => !uploaded.includes(i));
 
-  await runWithConcurrency(3, todo.map((index) => async () => {
-    const start = index * CHUNK_SIZE;
-    const blob = file.slice(start, start + CHUNK_SIZE);
-    const fd = new FormData();
-    fd.append('hash', hash);
-    fd.append('index', String(index));
-    fd.append('chunk', blob);
-    await retry(() => fetch('/upload/chunk', { method: 'POST', body: fd }), 3);
-    onProgress(index, total);
-  }));
+  await runWithConcurrency(
+    3,
+    todo.map((index) => async () => {
+      const start = index * CHUNK_SIZE;
+      const blob = file.slice(start, start + CHUNK_SIZE);
+      const fd = new FormData();
+      fd.append('hash', hash);
+      fd.append('index', String(index));
+      fd.append('chunk', blob);
+      await retry(() => fetch('/upload/chunk', { method: 'POST', body: fd }), 3);
+      onProgress(index, total);
+    }),
+  );
 
   await fetch('/upload/merge', {
     method: 'POST',
@@ -972,12 +1111,19 @@ async function uploadFile(file: File) {
 function runWithConcurrency<T>(limit: number, tasks: Array<() => Promise<T>>) {
   return new Promise<T[]>((resolve, reject) => {
     const out: T[] = [];
-    let i = 0, done = 0;
+    let i = 0,
+      done = 0;
     const next = () => {
       if (i === tasks.length && done === tasks.length) return resolve(out);
       while (i < tasks.length && i - done < limit) {
         const idx = i++;
-        tasks[idx]().then((r) => { out[idx] = r; done++; next(); }).catch(reject);
+        tasks[idx]()
+          .then((r) => {
+            out[idx] = r;
+            done++;
+            next();
+          })
+          .catch(reject);
       }
     };
     next();
@@ -985,24 +1131,33 @@ function runWithConcurrency<T>(limit: number, tasks: Array<() => Promise<T>>) {
 }
 ```
 
+### 追问
+
+- 如果把「大文件分片上传怎么实现」用到真实项目里，你会重点关注哪些边界、验证手段和取舍？
+
 ### 延伸
+
 - 断点续传 hash 不可少；秒传是 hash 的副产品
 - 极大文件（> 50 GB）建议直传 OSS / S3 multipart
 - 弱网场景：根据网络状况动态调小 chunk size
 
-
 ## g2-charts-perf
+
 title: 数据看板（Dashboard）几十个图表同时渲染怎么不卡
+followups: [g2-charts-perf-followup-1]
 difficulty: 进阶
 tags: [图表, 看板, 性能]
 
 ### 一句话
+
 按视口懒加载（IntersectionObserver）+ 数据预聚合（前端不要拿百万行）+ 图表实例复用（销毁前 dispose）+ 防 resize 抖动（ResizeObserver 节流）+ 切主题统一通过 CSS 变量。
 
 ### 题目
+
 看板页面有 30+ 个 G2 / ECharts 图表，同时渲染时浏览器卡死。请优化。
 
 ### 答案要点
+
 - **数据层**
   - 后端预聚合（按天 / 按小时分桶），前端拿到几十几百行
   - 千万级数据走 OLAP（ClickHouse / Druid）
@@ -1028,6 +1183,7 @@ tags: [图表, 看板, 性能]
   - 内存泄漏：定时器 / 事件监听器没清除
 
 ### 代码示例
+
 ```vue
 <script setup>
 import * as echarts from 'echarts/core';
@@ -1057,23 +1213,33 @@ onBeforeUnmount(() => {
 </script>
 ```
 
+### 追问
+
+- 如果把「数据看板（Dashboard）几十个图表同时渲染怎么不卡」用到真实项目里，你会重点关注哪些边界、验证手段和取舍？
+
 ### 延伸
+
 - 大数据可视化首选 ECharts 5.x（支持 Canvas + WebGL + GPU）
 - 看板布局用 grid-stack / vue-grid-layout，状态存后端
 - 性能预算：单图首次渲染 < 100ms，全屏 30 个图 < 1.5s
 
 ## release-rollback-frontend
+
 title: 前端版本灰度 + 回滚怎么做
+followups: [release-rollback-frontend-followup-1]
 difficulty: 进阶
 tags: [发布, 灰度, 工程化]
 
 ### 一句话
+
 HTML 走 `Cache-Control: no-cache`，每次都校验最新；JS / CSS 走带 hash 文件名 + 长缓存。灰度按版本目录隔离（`/static/v1.2.3/...`），新版本 bug 时只切 HTML 入口指向旧版本即可。
 
 ### 题目
+
 前端发版后发现严重 bug，能在 5 分钟内回滚而不影响用户体验吗？怎么设计才能做到？
 
 ### 答案要点
+
 - **目录结构**
   - 每个版本独立目录：`/static/v1.2.3/index.js, vendor.js`
   - HTML 引用具体版本目录的资源
@@ -1106,6 +1272,7 @@ HTML 走 `Cache-Control: no-cache`，每次都校验最新；JS / CSS 走带 has
   - 触发告警自动 @ on-call 群
 
 ### 代码示例
+
 ```nginx
 location = /index.html {
   add_header Cache-Control "no-cache, must-revalidate";
@@ -1133,23 +1300,33 @@ window.addEventListener('error', (e) => {
 });
 ```
 
+### 追问
+
+- 如果把「前端版本灰度 + 回滚怎么做」用到真实项目里，你会重点关注哪些边界、验证手段和取舍？
+
 ### 延伸
+
 - Vercel / Netlify 内置不可变部署 + 回滚（一键切之前任意版本）
 - 自建 CI：argo rollouts / spinnaker 做精细灰度
 - 回滚前别忘了"数据库 schema 变更"：发版前后兼容是基本功
 
 ## interview-system-design-bigreport
+
 title: 系统设计题：从 0 设计一个数据平台前端，你怎么拆？
+followups: [interview-system-design-bigreport-followup-1]
 difficulty: 资深
 tags: [系统设计, 架构, 高频]
 
 ### 一句话
+
 按"用户旅程"切分模块（探索 SQL → 开发数据 → 调度运维 → 看板 → 协作）；技术上分四层（基础组件库 / 业务 hooks / 业务页面 / 集成层）；横切关注点（权限、监控、i18n、实验）走中台 SDK；存储分内存 / IndexedDB / 后端三级。
 
 ### 题目
+
 现在公司需要从零开发一个面向数据分析师的 web 平台，需求包括 SQL 查询、数据开发、看板可视化、任务调度、AI 助手。请你做技术选型和架构设计。
 
 ### 答案要点
+
 - **第一步：搞清边界**
   - 用户角色：分析师 / 开发 / 数仓 / 业务方 / 管理员
   - 关键场景：日常查数、临时分析、项目化开发、运维排查
@@ -1174,7 +1351,7 @@ tags: [系统设计, 架构, 高频]
 - **横切关注点**
   - 权限：路由 guard + v-permission 指令 + 后端校验三层
   - 监控：Sentry（错误）+ 自研 RUM（性能）+ 神策（埋点）
-  - 多国部署：__STAGE__ 注入 + stage 配置
+  - 多国部署：**STAGE** 注入 + stage 配置
   - 错误体验：全局 ErrorBoundary + ChunkLoadError 兜底
 - **数据 / 存储**
   - 内存：Pinia
@@ -1190,6 +1367,7 @@ tags: [系统设计, 架构, 高频]
   - V2（9 月）：AI Copilot + 自助分析
 
 ### 代码示例
+
 ```text
 src/
 ├── components/        # L2 业务组件
@@ -1213,8 +1391,618 @@ src/
 └── plugins/           # vue plugin / directive
 ```
 
+### 追问
+
+- 如果把「系统设计题：从 0 设计一个数据平台前端，你怎么拆？」用到真实项目里，你会重点关注哪些边界、验证手段和取舍？
+
 ### 延伸
+
 - 系统设计回答的精髓不是"选了什么技术"，而是"为什么 + 怎么演进 + 如何度量"
 - 准备 1-2 个具体业务点的细节展开（比如 SQL 工作台多 Pane 持久化）
 - 主动谈"风险 + 兜底"是加分项：性能预算、错误率红线、回滚预案
 
+## sql-workbench-architecture-followup-1
+
+title: 追问：如果把「设计一个浏览器内的 SQL 工作台，整体架构怎么拆？」用到真实项目里，你会重点关注哪些边界、验证手段和取舍
+difficulty: 资深
+tags: [架构, SQL, Monaco, 高频, 追问]
+parent: sql-workbench-architecture
+
+### 题目
+
+如果面试官追问：如果把「设计一个浏览器内的 SQL 工作台，整体架构怎么拆？」用到真实项目里，你会重点关注哪些边界、验证手段和取舍？
+
+### 答案要点
+
+#### 回答思路
+
+- 先给一句结论：这个问题要从「为什么需要它」「它解决了什么问题」「代价是什么」三个角度回答。
+- 再把结论落回原题，不要脱离上下文泛泛而谈；面试官通常会顺着边界、异常和工程成本继续追问。
+- 如果涉及实现细节，按数据流、状态变化、调用顺序或生命周期拆开讲；如果涉及方案选择，必须说明为什么不用另一个方案。
+
+#### 结合原题展开
+
+- 一份 model 对应一个 Pane（用 URI 隔离）
+- 注册一次语言（hive/mysql），多个实例复用 Provider，避免重复注册卡顿
+- 自定义 SQL 补全 / 校验 / 参数提示（Signature Help / Hover）
+- 可以补充一个真实项目语境：上线前先约定输入输出、失败兜底和观测指标，避免只在 demo 场景下成立。
+
+#### 工程落地
+
+- 验证手段要具体：单元测试覆盖边界条件，集成测试覆盖主流程，必要时用 e2e 或回放数据验证真实链路。
+- 运行时要可观测：关键路径打日志或埋点，关注错误率、耗时、资源占用、用户可感知延迟和降级次数。
+- 发布策略要稳：高风险变更建议灰度、开关或回滚预案；如果会影响数据一致性，还要说明迁移和兼容策略。
+
+#### 易错点
+
+- 不要只背 API 或概念名，要说清楚适用条件；很多方案在小流量、单端、无异常时看起来都成立。
+- 不要忽略默认值、兼容性、异常回滚、性能退化和团队维护成本，这些往往是资深面试继续深挖的重点。
+- 如果答案里出现“总是”“一定”“完全替代”这类绝对表述，要主动补充例外场景。
+
+## monaco-multi-pane-isolation-followup-1
+
+title: 追问：如果把「Monaco 多 Tab 编辑器实例之间怎么做隔离？」用到真实项目里，你会重点关注哪些边界、验证手段和取舍
+difficulty: 资深
+tags: [Monaco, 多实例, 内存, 追问]
+parent: monaco-multi-pane-isolation
+
+### 题目
+
+如果面试官追问：如果把「Monaco 多 Tab 编辑器实例之间怎么做隔离？」用到真实项目里，你会重点关注哪些边界、验证手段和取舍？
+
+### 答案要点
+
+#### 回答思路
+
+- 先给一句结论：这个问题要从「为什么需要它」「它解决了什么问题」「代价是什么」三个角度回答。
+- 再把结论落回原题，不要脱离上下文泛泛而谈；面试官通常会顺着边界、异常和工程成本继续追问。
+- 如果涉及实现细节，按数据流、状态变化、调用顺序或生命周期拆开讲；如果涉及方案选择，必须说明为什么不用另一个方案。
+
+#### 结合原题展开
+
+- URI 隔离：monaco.Uri.parse('inmemory://pane/')；同一个 URI 全局只有一份 model，多实例共享会出问题
+- Model 可能在多个 editor 间复用（diff editor / 主编辑器），切 Tab 时不要直接 dispose
+- Tab 真正关闭时再 model.dispose()
+- 可以补充一个真实项目语境：上线前先约定输入输出、失败兜底和观测指标，避免只在 demo 场景下成立。
+
+#### 工程落地
+
+- 验证手段要具体：单元测试覆盖边界条件，集成测试覆盖主流程，必要时用 e2e 或回放数据验证真实链路。
+- 运行时要可观测：关键路径打日志或埋点，关注错误率、耗时、资源占用、用户可感知延迟和降级次数。
+- 发布策略要稳：高风险变更建议灰度、开关或回滚预案；如果会影响数据一致性，还要说明迁移和兼容策略。
+
+#### 易错点
+
+- 不要只背 API 或概念名，要说清楚适用条件；很多方案在小流量、单端、无异常时看起来都成立。
+- 不要忽略默认值、兼容性、异常回滚、性能退化和团队维护成本，这些往往是资深面试继续深挖的重点。
+- 如果答案里出现“总是”“一定”“完全替代”这类绝对表述，要主动补充例外场景。
+
+## sql-completion-with-worker-followup-1
+
+title: 追问：如果把「SQL 自动补全 / 校验怎么做才不卡 UI？」用到真实项目里，你会重点关注哪些边界、验证手段和取舍
+difficulty: 资深
+tags: [Monaco, SQL, Worker, 性能, 追问]
+parent: sql-completion-with-worker
+
+### 题目
+
+如果面试官追问：如果把「SQL 自动补全 / 校验怎么做才不卡 UI？」用到真实项目里，你会重点关注哪些边界、验证手段和取舍？
+
+### 答案要点
+
+#### 回答思路
+
+- 先给一句结论：这个问题要从「为什么需要它」「它解决了什么问题」「代价是什么」三个角度回答。
+- 再把结论落回原题，不要脱离上下文泛泛而谈；面试官通常会顺着边界、异常和工程成本继续追问。
+- 如果涉及实现细节，按数据流、状态变化、调用顺序或生命周期拆开讲；如果涉及方案选择，必须说明为什么不用另一个方案。
+
+#### 结合原题展开
+
+- SQL parser（dt-sql-parser / antlr 生成）解析大文件可能 100ms+，放主线程会卡输入
+- 真实 SQL 里有 ${p_date} 这种业务变量，不是合法 SQL token
+- 校验前等长替换为字母 x 序列 xxxxxxxx：保持行列号对齐，错误位置不偏移
+- 可以补充一个真实项目语境：上线前先约定输入输出、失败兜底和观测指标，避免只在 demo 场景下成立。
+
+#### 工程落地
+
+- 验证手段要具体：单元测试覆盖边界条件，集成测试覆盖主流程，必要时用 e2e 或回放数据验证真实链路。
+- 运行时要可观测：关键路径打日志或埋点，关注错误率、耗时、资源占用、用户可感知延迟和降级次数。
+- 发布策略要稳：高风险变更建议灰度、开关或回滚预案；如果会影响数据一致性，还要说明迁移和兼容策略。
+
+#### 易错点
+
+- 不要只背 API 或概念名，要说清楚适用条件；很多方案在小流量、单端、无异常时看起来都成立。
+- 不要忽略默认值、兼容性、异常回滚、性能退化和团队维护成本，这些往往是资深面试继续深挖的重点。
+- 如果答案里出现“总是”“一定”“完全替代”这类绝对表述，要主动补充例外场景。
+
+## metadata-cache-inflight-followup-1
+
+title: 追问：如果把「元数据接口高并发去重 + 缓存怎么设计？」用到真实项目里，你会重点关注哪些边界、验证手段和取舍
+difficulty: 进阶
+tags: [缓存, 并发, 高频, 追问]
+parent: metadata-cache-inflight
+
+### 题目
+
+如果面试官追问：如果把「元数据接口高并发去重 + 缓存怎么设计？」用到真实项目里，你会重点关注哪些边界、验证手段和取舍？
+
+### 答案要点
+
+#### 回答思路
+
+- 先给一句结论：这个问题要从「为什么需要它」「它解决了什么问题」「代价是什么」三个角度回答。
+- 再把结论落回原题，不要脱离上下文泛泛而谈；面试官通常会顺着边界、异常和工程成本继续追问。
+- 如果涉及实现细节，按数据流、状态变化、调用顺序或生命周期拆开讲；如果涉及方案选择，必须说明为什么不用另一个方案。
+
+#### 结合原题展开
+
+- 没有缓存：5 次重复请求
+- 简单 Promise 缓存（一直存 Promise）：失败了也卡住
+- cache: Map —— TTL 缓存，过期后失效
+- 可以补充一个真实项目语境：上线前先约定输入输出、失败兜底和观测指标，避免只在 demo 场景下成立。
+
+#### 工程落地
+
+- 验证手段要具体：单元测试覆盖边界条件，集成测试覆盖主流程，必要时用 e2e 或回放数据验证真实链路。
+- 运行时要可观测：关键路径打日志或埋点，关注错误率、耗时、资源占用、用户可感知延迟和降级次数。
+- 发布策略要稳：高风险变更建议灰度、开关或回滚预案；如果会影响数据一致性，还要说明迁移和兼容策略。
+
+#### 易错点
+
+- 不要只背 API 或概念名，要说清楚适用条件；很多方案在小流量、单端、无异常时看起来都成立。
+- 不要忽略默认值、兼容性、异常回滚、性能退化和团队维护成本，这些往往是资深面试继续深挖的重点。
+- 如果答案里出现“总是”“一定”“完全替代”这类绝对表述，要主动补充例外场景。
+
+## indexeddb-pane-persistence-followup-1
+
+title: 追问：如果把「多 Tab 编辑器状态怎么持久化」用到真实项目里，你会重点关注哪些边界、验证手段和取舍
+difficulty: 资深
+tags: [IndexedDB, 持久化, 状态, 追问]
+parent: indexeddb-pane-persistence
+
+### 题目
+
+如果面试官追问：如果把「多 Tab 编辑器状态怎么持久化（投影模式）」用到真实项目里，你会重点关注哪些边界、验证手段和取舍？
+
+### 答案要点
+
+#### 回答思路
+
+- 先给一句结论：这个问题要从「为什么需要它」「它解决了什么问题」「代价是什么」三个角度回答。
+- 再把结论落回原题，不要脱离上下文泛泛而谈；面试官通常会顺着边界、异常和工程成本继续追问。
+- 如果涉及实现细节，按数据流、状态变化、调用顺序或生命周期拆开讲；如果涉及方案选择，必须说明为什么不用另一个方案。
+
+#### 结合原题展开
+
+- 定义"持久化字段白名单"，比如 ResultItem 只留 key/id/status/resultType/engine/errorLine
+- 同源跨 Tab 共享需要 BroadcastChannel 通知 invalidate
+- 进阶："增量持久化" + 操作日志，可恢复到任意时间点
+- 可以补充一个真实项目语境：上线前先约定输入输出、失败兜底和观测指标，避免只在 demo 场景下成立。
+
+#### 工程落地
+
+- 验证手段要具体：单元测试覆盖边界条件，集成测试覆盖主流程，必要时用 e2e 或回放数据验证真实链路。
+- 运行时要可观测：关键路径打日志或埋点，关注错误率、耗时、资源占用、用户可感知延迟和降级次数。
+- 发布策略要稳：高风险变更建议灰度、开关或回滚预案；如果会影响数据一致性，还要说明迁移和兼容策略。
+
+#### 易错点
+
+- 不要只背 API 或概念名，要说清楚适用条件；很多方案在小流量、单端、无异常时看起来都成立。
+- 不要忽略默认值、兼容性、异常回滚、性能退化和团队维护成本，这些往往是资深面试继续深挖的重点。
+- 如果答案里出现“总是”“一定”“完全替代”这类绝对表述，要主动补充例外场景。
+
+## sql-result-polling-followup-1
+
+title: 追问：如果把「长 SQL 异步执行 + 前端轮询结果怎么设计」用到真实项目里，你会重点关注哪些边界、验证手段和取舍
+difficulty: 进阶
+tags: [轮询, 异步, 性能, 追问]
+parent: sql-result-polling
+
+### 题目
+
+如果面试官追问：如果把「长 SQL 异步执行 + 前端轮询结果怎么设计」用到真实项目里，你会重点关注哪些边界、验证手段和取舍？
+
+### 答案要点
+
+#### 回答思路
+
+- 先给一句结论：这个问题要从「为什么需要它」「它解决了什么问题」「代价是什么」三个角度回答。
+- 再把结论落回原题，不要脱离上下文泛泛而谈；面试官通常会顺着边界、异常和工程成本继续追问。
+- 如果涉及实现细节，按数据流、状态变化、调用顺序或生命周期拆开讲；如果涉及方案选择，必须说明为什么不用另一个方案。
+
+#### 结合原题展开
+
+- 提交：POST /sql/submit → { taskId }
+- 轮询：GET /sql/status?taskId=xxx → { status, result?, errorMsg? }
+- 取消：POST /sql/cancel
+- 可以补充一个真实项目语境：上线前先约定输入输出、失败兜底和观测指标，避免只在 demo 场景下成立。
+
+#### 工程落地
+
+- 验证手段要具体：单元测试覆盖边界条件，集成测试覆盖主流程，必要时用 e2e 或回放数据验证真实链路。
+- 运行时要可观测：关键路径打日志或埋点，关注错误率、耗时、资源占用、用户可感知延迟和降级次数。
+- 发布策略要稳：高风险变更建议灰度、开关或回滚预案；如果会影响数据一致性，还要说明迁移和兼容策略。
+
+#### 易错点
+
+- 不要只背 API 或概念名，要说清楚适用条件；很多方案在小流量、单端、无异常时看起来都成立。
+- 不要忽略默认值、兼容性、异常回滚、性能退化和团队维护成本，这些往往是资深面试继续深挖的重点。
+- 如果答案里出现“总是”“一定”“完全替代”这类绝对表述，要主动补充例外场景。
+
+## ai-agent-streaming-render-followup-1
+
+title: 追问：如果把「AI Agent 流式对话怎么渲染才不卡」用到真实项目里，你会重点关注哪些边界、验证手段和取舍
+difficulty: 资深
+tags: [AI, 流式, Markdown, 性能, 追问]
+parent: ai-agent-streaming-render
+
+### 题目
+
+如果面试官追问：如果把「AI Agent 流式对话怎么渲染才不卡」用到真实项目里，你会重点关注哪些边界、验证手段和取舍？
+
+### 答案要点
+
+#### 回答思路
+
+- 先给一句结论：这个问题要从「为什么需要它」「它解决了什么问题」「代价是什么」三个角度回答。
+- 再把结论落回原题，不要脱离上下文泛泛而谈；面试官通常会顺着边界、异常和工程成本继续追问。
+- 如果涉及实现细节，按数据流、状态变化、调用顺序或生命周期拆开讲；如果涉及方案选择，必须说明为什么不用另一个方案。
+
+#### 结合原题展开
+
+- 传输协议：SSE（单向、自动重连、event ID）；OpenAI / Anthropic / DeepSeek 都是 SSE
+- TextDecoder 流式解码
+- 用 watch 触发 markdown 渲染：但每个 token 都渲染会卡（markdown-it 解析整段 + DOMPurify 转换）
+- 可以补充一个真实项目语境：上线前先约定输入输出、失败兜底和观测指标，避免只在 demo 场景下成立。
+
+#### 工程落地
+
+- 验证手段要具体：单元测试覆盖边界条件，集成测试覆盖主流程，必要时用 e2e 或回放数据验证真实链路。
+- 运行时要可观测：关键路径打日志或埋点，关注错误率、耗时、资源占用、用户可感知延迟和降级次数。
+- 发布策略要稳：高风险变更建议灰度、开关或回滚预案；如果会影响数据一致性，还要说明迁移和兼容策略。
+
+#### 易错点
+
+- 不要只背 API 或概念名，要说清楚适用条件；很多方案在小流量、单端、无异常时看起来都成立。
+- 不要忽略默认值、兼容性、异常回滚、性能退化和团队维护成本，这些往往是资深面试继续深挖的重点。
+- 如果答案里出现“总是”“一定”“完全替代”这类绝对表述，要主动补充例外场景。
+
+## sql-copilot-diff-followup-1
+
+title: 追问：如果把「AI 改写 SQL 的 Diff 接受/拒绝交互怎么做」用到真实项目里，你会重点关注哪些边界、验证手段和取舍
+difficulty: 资深
+tags: [AI, Monaco, Diff, 追问]
+parent: sql-copilot-diff
+
+### 题目
+
+如果面试官追问：如果把「AI 改写 SQL 的 Diff 接受/拒绝交互怎么做」用到真实项目里，你会重点关注哪些边界、验证手段和取舍？
+
+### 答案要点
+
+#### 回答思路
+
+- 先给一句结论：这个问题要从「为什么需要它」「它解决了什么问题」「代价是什么」三个角度回答。
+- 再把结论落回原题，不要脱离上下文泛泛而谈；面试官通常会顺着边界、异常和工程成本继续追问。
+- 如果涉及实现细节，按数据流、状态变化、调用顺序或生命周期拆开讲；如果涉及方案选择，必须说明为什么不用另一个方案。
+
+#### 结合原题展开
+
+- sqlEdits: { id, type: 'ADD'|'DELETE'|'UPDATE', startLine, endLine, newText }[]
+- 行号旁加小图标按钮"✓接受 / ✗拒绝"（用 contentWidget / overlay）
+- 全局浮条："剩余 N 处变更 / 全部接受 / 全部拒绝"
+- 可以补充一个真实项目语境：上线前先约定输入输出、失败兜底和观测指标，避免只在 demo 场景下成立。
+
+#### 工程落地
+
+- 验证手段要具体：单元测试覆盖边界条件，集成测试覆盖主流程，必要时用 e2e 或回放数据验证真实链路。
+- 运行时要可观测：关键路径打日志或埋点，关注错误率、耗时、资源占用、用户可感知延迟和降级次数。
+- 发布策略要稳：高风险变更建议灰度、开关或回滚预案；如果会影响数据一致性，还要说明迁移和兼容策略。
+
+#### 易错点
+
+- 不要只背 API 或概念名，要说清楚适用条件；很多方案在小流量、单端、无异常时看起来都成立。
+- 不要忽略默认值、兼容性、异常回滚、性能退化和团队维护成本，这些往往是资深面试继续深挖的重点。
+- 如果答案里出现“总是”“一定”“完全替代”这类绝对表述，要主动补充例外场景。
+
+## task-dependency-dag-followup-1
+
+title: 追问：如果把「任务调度 DAG 依赖图怎么前端展示和交互」用到真实项目里，你会重点关注哪些边界、验证手段和取舍
+difficulty: 资深
+tags: [可视化, DAG, 调度, 追问]
+parent: task-dependency-dag
+
+### 题目
+
+如果面试官追问：如果把「任务调度 DAG 依赖图怎么前端展示和交互」用到真实项目里，你会重点关注哪些边界、验证手段和取舍？
+
+### 答案要点
+
+#### 回答思路
+
+- 先给一句结论：这个问题要从「为什么需要它」「它解决了什么问题」「代价是什么」三个角度回答。
+- 再把结论落回原题，不要脱离上下文泛泛而谈；面试官通常会顺着边界、异常和工程成本继续追问。
+- 如果涉及实现细节，按数据流、状态变化、调用顺序或生命周期拆开讲；如果涉及方案选择，必须说明为什么不用另一个方案。
+
+#### 结合原题展开
+
+- 选 dagre / elk.js 做层次布局
+- 调度平台典型代表：Airflow、DolphinScheduler、字节 Aeolus
+- DAG 里的"诊断"高级功能：上下游断链定位、SLA 倒推
+- 可以补充一个真实项目语境：上线前先约定输入输出、失败兜底和观测指标，避免只在 demo 场景下成立。
+
+#### 工程落地
+
+- 验证手段要具体：单元测试覆盖边界条件，集成测试覆盖主流程，必要时用 e2e 或回放数据验证真实链路。
+- 运行时要可观测：关键路径打日志或埋点，关注错误率、耗时、资源占用、用户可感知延迟和降级次数。
+- 发布策略要稳：高风险变更建议灰度、开关或回滚预案；如果会影响数据一致性，还要说明迁移和兼容策略。
+
+#### 易错点
+
+- 不要只背 API 或概念名，要说清楚适用条件；很多方案在小流量、单端、无异常时看起来都成立。
+- 不要忽略默认值、兼容性、异常回滚、性能退化和团队维护成本，这些往往是资深面试继续深挖的重点。
+- 如果答案里出现“总是”“一定”“完全替代”这类绝对表述，要主动补充例外场景。
+
+## multi-stage-deployment-followup-1
+
+title: 追问：如果把「多国 / 多环境部署怎么管理差异」用到真实项目里，你会重点关注哪些边界、验证手段和取舍
+difficulty: 进阶
+tags: [架构, 部署, i18n, 追问]
+parent: multi-stage-deployment
+
+### 题目
+
+如果面试官追问：如果把「多国 / 多环境部署（CN / ID / SP / MX）怎么管理差异」用到真实项目里，你会重点关注哪些边界、验证手段和取舍？
+
+### 答案要点
+
+#### 回答思路
+
+- 先给一句结论：这个问题要从「为什么需要它」「它解决了什么问题」「代价是什么」三个角度回答。
+- 再把结论落回原题，不要脱离上下文泛泛而谈；面试官通常会顺着边界、异常和工程成本继续追问。
+- 如果涉及实现细节，按数据流、状态变化、调用顺序或生命周期拆开讲；如果涉及方案选择，必须说明为什么不用另一个方案。
+
+#### 结合原题展开
+
+- Vite / Webpack define 把 **STAGE** 注入为字符串常量（'cn' / 'id' / ...）
+- Tree shaking 后，if (**STAGE** === 'cn') 在非 CN 包里整段消失
+- 文案放 i18n，按 stage 默认语言（CN→zh-CN，ID→id-ID，SP→es-ES，MX→es-MX）
+- 可以补充一个真实项目语境：上线前先约定输入输出、失败兜底和观测指标，避免只在 demo 场景下成立。
+
+#### 工程落地
+
+- 验证手段要具体：单元测试覆盖边界条件，集成测试覆盖主流程，必要时用 e2e 或回放数据验证真实链路。
+- 运行时要可观测：关键路径打日志或埋点，关注错误率、耗时、资源占用、用户可感知延迟和降级次数。
+- 发布策略要稳：高风险变更建议灰度、开关或回滚预案；如果会影响数据一致性，还要说明迁移和兼容策略。
+
+#### 易错点
+
+- 不要只背 API 或概念名，要说清楚适用条件；很多方案在小流量、单端、无异常时看起来都成立。
+- 不要忽略默认值、兼容性、异常回滚、性能退化和团队维护成本，这些往往是资深面试继续深挖的重点。
+- 如果答案里出现“总是”“一定”“完全替代”这类绝对表述，要主动补充例外场景。
+
+## permission-matrix-frontend-followup-1
+
+title: 追问：如果把「复杂权限体系前端怎么做」用到真实项目里，你会重点关注哪些边界、验证手段和取舍
+difficulty: 资深
+tags: [权限, 架构, 高频, 追问]
+parent: permission-matrix-frontend
+
+### 题目
+
+如果面试官追问：如果把「复杂权限体系（数据 + 操作）前端怎么做」用到真实项目里，你会重点关注哪些边界、验证手段和取舍？
+
+### 答案要点
+
+#### 回答思路
+
+- 先给一句结论：这个问题要从「为什么需要它」「它解决了什么问题」「代价是什么」三个角度回答。
+- 再把结论落回原题，不要脱离上下文泛泛而谈；面试官通常会顺着边界、异常和工程成本继续追问。
+- 如果涉及实现细节，按数据流、状态变化、调用顺序或生命周期拆开讲；如果涉及方案选择，必须说明为什么不用另一个方案。
+
+#### 结合原题展开
+
+- 前端只做"看见 / 不可点"，关键操作的最终鉴权永远在后端
+- 权限不是布尔值，是字符串集合（['metric:create', 'datasource:read']）
+- 数据权限（行级 / 列级）通常由后端在数据返回时已过滤
+- 可以补充一个真实项目语境：上线前先约定输入输出、失败兜底和观测指标，避免只在 demo 场景下成立。
+
+#### 工程落地
+
+- 验证手段要具体：单元测试覆盖边界条件，集成测试覆盖主流程，必要时用 e2e 或回放数据验证真实链路。
+- 运行时要可观测：关键路径打日志或埋点，关注错误率、耗时、资源占用、用户可感知延迟和降级次数。
+- 发布策略要稳：高风险变更建议灰度、开关或回滚预案；如果会影响数据一致性，还要说明迁移和兼容策略。
+
+#### 易错点
+
+- 不要只背 API 或概念名，要说清楚适用条件；很多方案在小流量、单端、无异常时看起来都成立。
+- 不要忽略默认值、兼容性、异常回滚、性能退化和团队维护成本，这些往往是资深面试继续深挖的重点。
+- 如果答案里出现“总是”“一定”“完全替代”这类绝对表述，要主动补充例外场景。
+
+## big-table-virtualization-followup-1
+
+title: 追问：如果把「数据平台几十万行结果集表格怎么不卡」用到真实项目里，你会重点关注哪些边界、验证手段和取舍
+difficulty: 资深
+tags: [虚拟列表, 表格, 性能, 高频, 追问]
+parent: big-table-virtualization
+
+### 题目
+
+如果面试官追问：如果把「数据平台几十万行结果集表格怎么不卡」用到真实项目里，你会重点关注哪些边界、验证手段和取舍？
+
+### 答案要点
+
+#### 回答思路
+
+- 先给一句结论：这个问题要从「为什么需要它」「它解决了什么问题」「代价是什么」三个角度回答。
+- 再把结论落回原题，不要脱离上下文泛泛而谈；面试官通常会顺着边界、异常和工程成本继续追问。
+- 如果涉及实现细节，按数据流、状态变化、调用顺序或生命周期拆开讲；如果涉及方案选择，必须说明为什么不用另一个方案。
+
+#### 结合原题展开
+
+- 50 万行不可能 DOM 全渲染——只渲染视口 + 上下 buffer 行
+- 全量数据放内存（50 万行 × 平均 20 字段 ≈ 几十 MB，可承受）
+- 数据量大时，前端排序会卡几秒 → 改服务端排序，URL 带参数
+- 可以补充一个真实项目语境：上线前先约定输入输出、失败兜底和观测指标，避免只在 demo 场景下成立。
+
+#### 工程落地
+
+- 验证手段要具体：单元测试覆盖边界条件，集成测试覆盖主流程，必要时用 e2e 或回放数据验证真实链路。
+- 运行时要可观测：关键路径打日志或埋点，关注错误率、耗时、资源占用、用户可感知延迟和降级次数。
+- 发布策略要稳：高风险变更建议灰度、开关或回滚预案；如果会影响数据一致性，还要说明迁移和兼容策略。
+
+#### 易错点
+
+- 不要只背 API 或概念名，要说清楚适用条件；很多方案在小流量、单端、无异常时看起来都成立。
+- 不要忽略默认值、兼容性、异常回滚、性能退化和团队维护成本，这些往往是资深面试继续深挖的重点。
+- 如果答案里出现“总是”“一定”“完全替代”这类绝对表述，要主动补充例外场景。
+
+## upload-large-file-followup-1
+
+title: 追问：如果把「大文件分片上传怎么实现」用到真实项目里，你会重点关注哪些边界、验证手段和取舍
+difficulty: 进阶
+tags: [上传, 分片, 高频, 追问]
+parent: upload-large-file
+
+### 题目
+
+如果面试官追问：如果把「大文件分片上传怎么实现」用到真实项目里，你会重点关注哪些边界、验证手段和取舍？
+
+### 答案要点
+
+#### 回答思路
+
+- 先给一句结论：这个问题要从「为什么需要它」「它解决了什么问题」「代价是什么」三个角度回答。
+- 再把结论落回原题，不要脱离上下文泛泛而谈；面试官通常会顺着边界、异常和工程成本继续追问。
+- 如果涉及实现细节，按数据流、状态变化、调用顺序或生命周期拆开讲；如果涉及方案选择，必须说明为什么不用另一个方案。
+
+#### 结合原题展开
+
+- 大文件全文件 md5 太慢（GB 级 30s+）
+- 极大文件（> 50 GB）建议直传 OSS / S3 multipart
+- 可以补充一个真实项目语境：上线前先约定输入输出、失败兜底和观测指标，避免只在 demo 场景下成立。
+
+#### 工程落地
+
+- 验证手段要具体：单元测试覆盖边界条件，集成测试覆盖主流程，必要时用 e2e 或回放数据验证真实链路。
+- 运行时要可观测：关键路径打日志或埋点，关注错误率、耗时、资源占用、用户可感知延迟和降级次数。
+- 发布策略要稳：高风险变更建议灰度、开关或回滚预案；如果会影响数据一致性，还要说明迁移和兼容策略。
+
+#### 易错点
+
+- 不要只背 API 或概念名，要说清楚适用条件；很多方案在小流量、单端、无异常时看起来都成立。
+- 不要忽略默认值、兼容性、异常回滚、性能退化和团队维护成本，这些往往是资深面试继续深挖的重点。
+- 如果答案里出现“总是”“一定”“完全替代”这类绝对表述，要主动补充例外场景。
+
+## g2-charts-perf-followup-1
+
+title: 追问：如果把「数据看板几十个图表同时渲染怎么不卡」用到真实项目里，你会重点关注哪些边界、验证手段和取舍
+difficulty: 进阶
+tags: [图表, 看板, 性能, 追问]
+parent: g2-charts-perf
+
+### 题目
+
+如果面试官追问：如果把「数据看板（Dashboard）几十个图表同时渲染怎么不卡」用到真实项目里，你会重点关注哪些边界、验证手段和取舍？
+
+### 答案要点
+
+#### 回答思路
+
+- 先给一句结论：这个问题要从「为什么需要它」「它解决了什么问题」「代价是什么」三个角度回答。
+- 再把结论落回原题，不要脱离上下文泛泛而谈；面试官通常会顺着边界、异常和工程成本继续追问。
+- 如果涉及实现细节，按数据流、状态变化、调用顺序或生命周期拆开讲；如果涉及方案选择，必须说明为什么不用另一个方案。
+
+#### 结合原题展开
+
+- 后端预聚合（按天 / 按小时分桶），前端拿到几十几百行
+- 千万级数据走 OLAP（ClickHouse / Druid）
+- 大图表数据按需加载（点击展开才请求）
+- 可以补充一个真实项目语境：上线前先约定输入输出、失败兜底和观测指标，避免只在 demo 场景下成立。
+
+#### 工程落地
+
+- 验证手段要具体：单元测试覆盖边界条件，集成测试覆盖主流程，必要时用 e2e 或回放数据验证真实链路。
+- 运行时要可观测：关键路径打日志或埋点，关注错误率、耗时、资源占用、用户可感知延迟和降级次数。
+- 发布策略要稳：高风险变更建议灰度、开关或回滚预案；如果会影响数据一致性，还要说明迁移和兼容策略。
+
+#### 易错点
+
+- 不要只背 API 或概念名，要说清楚适用条件；很多方案在小流量、单端、无异常时看起来都成立。
+- 不要忽略默认值、兼容性、异常回滚、性能退化和团队维护成本，这些往往是资深面试继续深挖的重点。
+- 如果答案里出现“总是”“一定”“完全替代”这类绝对表述，要主动补充例外场景。
+
+## release-rollback-frontend-followup-1
+
+title: 追问：如果把「前端版本灰度 + 回滚怎么做」用到真实项目里，你会重点关注哪些边界、验证手段和取舍
+difficulty: 进阶
+tags: [发布, 灰度, 工程化, 追问]
+parent: release-rollback-frontend
+
+### 题目
+
+如果面试官追问：如果把「前端版本灰度 + 回滚怎么做」用到真实项目里，你会重点关注哪些边界、验证手段和取舍？
+
+### 答案要点
+
+#### 回答思路
+
+- 先给一句结论：这个问题要从「为什么需要它」「它解决了什么问题」「代价是什么」三个角度回答。
+- 再把结论落回原题，不要脱离上下文泛泛而谈；面试官通常会顺着边界、异常和工程成本继续追问。
+- 如果涉及实现细节，按数据流、状态变化、调用顺序或生命周期拆开讲；如果涉及方案选择，必须说明为什么不用另一个方案。
+
+#### 结合原题展开
+
+- 每个版本独立目录：/static/v1.2.3/index.js, vendor.js
+- HTML 引用具体版本目录的资源
+- 老版本资源至少保留 7 天（防 SW 缓存的用户加载老 HTML）
+- 可以补充一个真实项目语境：上线前先约定输入输出、失败兜底和观测指标，避免只在 demo 场景下成立。
+
+#### 工程落地
+
+- 验证手段要具体：单元测试覆盖边界条件，集成测试覆盖主流程，必要时用 e2e 或回放数据验证真实链路。
+- 运行时要可观测：关键路径打日志或埋点，关注错误率、耗时、资源占用、用户可感知延迟和降级次数。
+- 发布策略要稳：高风险变更建议灰度、开关或回滚预案；如果会影响数据一致性，还要说明迁移和兼容策略。
+
+#### 易错点
+
+- 不要只背 API 或概念名，要说清楚适用条件；很多方案在小流量、单端、无异常时看起来都成立。
+- 不要忽略默认值、兼容性、异常回滚、性能退化和团队维护成本，这些往往是资深面试继续深挖的重点。
+- 如果答案里出现“总是”“一定”“完全替代”这类绝对表述，要主动补充例外场景。
+
+## interview-system-design-bigreport-followup-1
+
+title: 追问：如果把「系统设计题：从 0 设计一个数据平台前端，你怎么拆？」用到真实项目里，你会重点关注哪些边界、验证手段和取舍
+difficulty: 资深
+tags: [系统设计, 架构, 高频, 追问]
+parent: interview-system-design-bigreport
+
+### 题目
+
+如果面试官追问：如果把「系统设计题：从 0 设计一个数据平台前端，你怎么拆？」用到真实项目里，你会重点关注哪些边界、验证手段和取舍？
+
+### 答案要点
+
+#### 回答思路
+
+- 先给一句结论：这个问题要从「为什么需要它」「它解决了什么问题」「代价是什么」三个角度回答。
+- 再把结论落回原题，不要脱离上下文泛泛而谈；面试官通常会顺着边界、异常和工程成本继续追问。
+- 如果涉及实现细节，按数据流、状态变化、调用顺序或生命周期拆开讲；如果涉及方案选择，必须说明为什么不用另一个方案。
+
+#### 结合原题展开
+
+- 关键场景：日常查数、临时分析、项目化开发、运维排查
+- 系统设计回答的精髓不是"选了什么技术"，而是"为什么 + 怎么演进 + 如何度量"
+- 可以补充一个真实项目语境：上线前先约定输入输出、失败兜底和观测指标，避免只在 demo 场景下成立。
+
+#### 工程落地
+
+- 验证手段要具体：单元测试覆盖边界条件，集成测试覆盖主流程，必要时用 e2e 或回放数据验证真实链路。
+- 运行时要可观测：关键路径打日志或埋点，关注错误率、耗时、资源占用、用户可感知延迟和降级次数。
+- 发布策略要稳：高风险变更建议灰度、开关或回滚预案；如果会影响数据一致性，还要说明迁移和兼容策略。
+
+#### 易错点
+
+- 不要只背 API 或概念名，要说清楚适用条件；很多方案在小流量、单端、无异常时看起来都成立。
+- 不要忽略默认值、兼容性、异常回滚、性能退化和团队维护成本，这些往往是资深面试继续深挖的重点。
+- 如果答案里出现“总是”“一定”“完全替代”这类绝对表述，要主动补充例外场景。

@@ -21,6 +21,10 @@ export interface Question {
   pitfall?: string;
   /** HTML 后的面试官追问（可选） */
   followup?: string;
+  /** 追问题所属的原题 ID：`${categoryId}/${slug}` */
+  parentId?: string;
+  /** 原题关联的追问题 ID 列表 */
+  followupQuestionIds?: string[];
   /** HTML 后的延伸内容（可选） */
   extra?: string;
   /** 原始 markdown 用于导出 */

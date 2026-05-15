@@ -73,6 +73,10 @@ interface RawQuestionFront {
   title: string;
   difficulty?: Difficulty;
   tags?: string[];
+  parent?: string;
+  parentId?: string;
+  followups?: string[];
+  followupQuestionIds?: string[];
 }
 
 const QUESTION_HEADING_RE = /^##\s+([a-z][a-z0-9-]*)\s*$/;
@@ -83,6 +87,20 @@ interface ParsedQuestionBlock {
   meta: RawQuestionFront;
   sections: Record<string, string>;
   raw: string;
+}
+
+function normalizeQuestionId(categoryId: string, value: string): string {
+  const trimmed = value.trim();
+  return trimmed.includes('/') ? trimmed : `${categoryId}/${trimmed}`;
+}
+
+function normalizeQuestionIds(
+  categoryId: string,
+  value: string[] | undefined,
+): string[] | undefined {
+  if (!Array.isArray(value)) return undefined;
+  const ids = value.map((item) => normalizeQuestionId(categoryId, item)).filter(Boolean);
+  return ids.length ? ids : undefined;
 }
 
 function splitQuestions(body: string): ParsedQuestionBlock[] {
@@ -175,6 +193,8 @@ export function parseCategoryMarkdown(raw: string): Category {
     }
     const difficulty: Difficulty = (b.meta.difficulty as Difficulty) || '进阶';
     const tags = Array.isArray(b.meta.tags) ? b.meta.tags : [];
+    const parentValue = b.meta.parentId || b.meta.parent;
+    const followupValues = b.meta.followupQuestionIds || b.meta.followups;
     return {
       id: `${front.id}/${b.slug}`,
       categoryId: front.id,
@@ -188,6 +208,8 @@ export function parseCategoryMarkdown(raw: string): Category {
       code: b.sections['代码示例'] ? md.render(b.sections['代码示例']) : undefined,
       pitfall: b.sections['常见误区'] ? md.render(b.sections['常见误区']) : undefined,
       followup: b.sections['追问'] ? md.render(b.sections['追问']) : undefined,
+      parentId: parentValue ? normalizeQuestionId(front.id, parentValue) : undefined,
+      followupQuestionIds: normalizeQuestionIds(front.id, followupValues),
       extra: b.sections['延伸'] ? md.render(b.sections['延伸']) : undefined,
       raw: b.raw,
     };

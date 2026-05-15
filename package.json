@@ -19,6 +19,7 @@
     "validate:content": "tsx scripts/validate-content.ts",
     "content:summary": "tsx scripts/fill-summary.ts",
     "content:pitfall": "tsx scripts/inject-pitfall-followup.ts",
+    "content:followups": "tsx scripts/generate-followup-questions.ts",
     "test": "vitest run",
     "test:watch": "vitest",
     "test:ui": "vitest --ui",

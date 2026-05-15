@@ -7,36 +7,51 @@ description: 分层、解耦、状态管理、组件库、设计模式与中大�
 ---
 
 ## layering-boundary
+
 title: 前端架构中的分层、边界与依赖方向
+followups: [layering-boundary-followup-1]
 difficulty: 基础
 tags: [分层, 边界]
 
 ### 一句话
+
 分层让职责清晰：页面编排、领域逻辑、数据访问、基础设施各管各的；依赖方向要尽量单向，避免 UI 组件直接操作接口层、埋点层、全局配置；没边界时最常见的问题是：改一个需求牵一片、复用困难、测试困难、认知负担飙升。
 
 ### 题目
+
 一个中大型前端项目为什么要谈“分层”和“边界”？如果不设边界，最常见的问题是什么？
 
 ### 答案要点
+
 - 分层让职责清晰：页面编排、领域逻辑、数据访问、基础设施各管各的
 - 依赖方向要尽量单向，避免 UI 组件直接操作接口层、埋点层、全局配置
 - 没边界时最常见的问题是：改一个需求牵一片、复用困难、测试困难、认知负担飙升
 
+### 追问
+
+- 如果把「前端架构中的分层、边界与依赖方向」用到真实项目里，你会重点关注哪些边界、验证手段和取舍？
+
 ### 延伸
+
 - 架构不是追求“层数多”，而是让变化在局部闭合
 
 ## design-patterns
+
 title: 前端里最常见的设计模式如何落地
+followups: [design-patterns-followup-1]
 difficulty: 进阶
 tags: [设计模式, 实战]
 
 ### 一句话
+
 观察者：响应式系统、状态订阅；发布订阅：事件总线、埋点中心、插件系统；策略：表单校验、排序规则、支付/登录方式选择。
 
 ### 题目
+
 请举例说明观察者、发布订阅、策略、装饰器、适配器、工厂在前端中的真实落地场景。
 
 ### 答案要点
+
 - 观察者：响应式系统、状态订阅
 - 发布订阅：事件总线、埋点中心、插件系统
 - 策略：表单校验、排序规则、支付/登录方式选择
@@ -45,21 +60,29 @@ tags: [设计模式, 实战]
 - 工厂：按配置生产组件、图表实例、请求客户端
 
 ### 代码示例
+
 ```ts
 // 1. 观察者：响应式系统的简化版
 class Observer<T> {
   private subs: Array<(v: T) => void> = [];
-  subscribe(fn: (v: T) => void) { this.subs.push(fn); return () => this.unsubscribe(fn); }
-  unsubscribe(fn: (v: T) => void) { this.subs = this.subs.filter(s => s !== fn); }
-  notify(v: T) { this.subs.forEach(fn => fn(v)); }
+  subscribe(fn: (v: T) => void) {
+    this.subs.push(fn);
+    return () => this.unsubscribe(fn);
+  }
+  unsubscribe(fn: (v: T) => void) {
+    this.subs = this.subs.filter((s) => s !== fn);
+  }
+  notify(v: T) {
+    this.subs.forEach((fn) => fn(v));
+  }
 }
 
 // 2. 策略：表单校验
 type Validator = (v: any) => string | null;
 const validators: Record<string, Validator> = {
-  required: v => v ? null : '必填',
-  email: v => /\S+@\S+\.\S+/.test(v) ? null : '邮箱格式不对',
-  phone: v => /^1\d{10}$/.test(v) ? null : '手机号不对',
+  required: (v) => (v ? null : '必填'),
+  email: (v) => (/\S+@\S+\.\S+/.test(v) ? null : '邮箱格式不对'),
+  phone: (v) => (/^1\d{10}$/.test(v) ? null : '手机号不对'),
 };
 function validate(value: any, rules: string[]) {
   for (const r of rules) {
@@ -81,7 +104,10 @@ function track(event: string) {
 }
 
 // 4. 适配器：统一不同接口
-interface User { id: string; name: string; }
+interface User {
+  id: string;
+  name: string;
+}
 const adaptOldApi = (raw: any): User => ({ id: String(raw.user_id), name: raw.user_name });
 const adaptNewApi = (raw: any): User => ({ id: raw.id, name: raw.profile.displayName });
 
@@ -95,38 +121,55 @@ const chartFactory = {
 };
 ```
 
+### 追问
+
+- 如果把「前端里最常见的设计模式如何落地」用到真实项目里，你会重点关注哪些边界、验证手段和取舍？
+
 ### 延伸
+
 - 设计模式不是背诵题，关键是你能否说清"它解决了哪个变化点"
 
 ## dependency-injection
+
 title: 依赖注入在前端什么时候有价值，什么时候会过度设计
+followups: [dependency-injection-followup-1]
 difficulty: 资深
 tags: [DI, InversifyJS, Tsyringe]
 
 ### 一句话
+
 当系统存在大量可替换基础设施能力时，DI 有助于解耦业务逻辑与具体实现，例如日志、埋点、权限服务、数据访问层、实验开关；InversifyJS、Tsyringe 这类容器能统一对象创建和依赖装配，也便于测试时替换 mock 实现…。
 
 ### 题目
+
 前端项目什么时候值得引入依赖注入容器？它能解决什么问题，又容易带来什么代价？
 
 ### 答案要点
+
 - 当系统存在大量可替换基础设施能力时，DI 有助于解耦业务逻辑与具体实现，例如日志、埋点、权限服务、数据访问层、实验开关
 - InversifyJS、Tsyringe 这类容器能统一对象创建和依赖装配，也便于测试时替换 mock 实现
 - 代价是抽象层增加、调试链路变长、类型与运行时装配都更复杂；如果只是普通组件树和少量服务对象，手工组合往往更直接
 - 前端引入 DI 时，应优先保证依赖方向清晰和接口稳定，而不是为了“像后端架构”而引入容器
 
 ### 代码示例
+
 ```ts
 // Tsyringe + reflect-metadata
 import 'reflect-metadata';
 import { container, injectable, inject } from 'tsyringe';
 
-interface ILogger { log(msg: string): void; }
-interface IUserRepo { getById(id: string): Promise<{ id: string; name: string }>; }
+interface ILogger {
+  log(msg: string): void;
+}
+interface IUserRepo {
+  getById(id: string): Promise<{ id: string; name: string }>;
+}
 
 @injectable()
 class ConsoleLogger implements ILogger {
-  log(msg: string) { console.log('[log]', msg); }
+  log(msg: string) {
+    console.log('[log]', msg);
+  }
 }
 
 @injectable()
@@ -163,28 +206,39 @@ const logger = inject(LoggerKey)!;
 logger.log('hello');
 ```
 
+### 追问
+
+- 如果把「依赖注入在前端什么时候有价值，什么时候会过度设计」用到真实项目里，你会重点关注哪些边界、验证手段和取舍？
+
 ### 延伸
+
 - DI 的价值更多体现在复杂后台、设计器、插件系统、低代码平台，而不是简单页面应用
 - 很多团队真正需要的是"清晰的组合根和依赖边界"，不一定非要重型容器
 
 ## state-management
+
 title: Flux、Redux、MobX、Pinia、Signals 的核心差别
+followups: [state-management-followup-1]
 difficulty: 进阶
 tags: [状态管理, Signals]
 
 ### 一句话
+
 Flux/Redux 倾向单向数据流、显式更新和可追踪性；MobX/Pinia 更强调开发体验和细粒度响应式；Signals 直接围绕“值依赖图”更新，往往能减少无关子树工作量，但并不等于“完全没有渲染成本”。
 
 ### 题目
+
 如何向团队解释“状态管理并不只是换个库”，而是不同的更新模型？
 
 ### 答案要点
+
 - Flux/Redux 倾向单向数据流、显式更新和可追踪性
 - MobX/Pinia 更强调开发体验和细粒度响应式
 - Signals 直接围绕“值依赖图”更新，往往能减少无关子树工作量，但并不等于“完全没有渲染成本”
 - 选型要看调试能力、团队心智、跨页面共享程度和生态配套
 
 ### 代码示例
+
 ```ts
 // Pinia：组合式风格 store
 import { defineStore } from 'pinia';
@@ -195,7 +249,7 @@ export const useCart = defineStore('cart', () => {
   const total = computed(() => items.value.reduce((s, i) => s + i.price * i.qty, 0));
 
   function add(item: { id: string; price: number }) {
-    const found = items.value.find(i => i.id === item.id);
+    const found = items.value.find((i) => i.id === item.id);
     if (found) found.qty++;
     else items.value.push({ ...item, qty: 1 });
   }
@@ -212,7 +266,7 @@ const cartSlice = createSlice({
   initialState: { items: [] as any[] },
   reducers: {
     add(state, action: PayloadAction<{ id: string; price: number }>) {
-      const found = state.items.find(i => i.id === action.payload.id);
+      const found = state.items.find((i) => i.id === action.payload.id);
       if (found) found.qty++;
       else state.items.push({ ...action.payload, qty: 1 });
     },
@@ -230,48 +284,69 @@ effect(() => console.log('count:', count.value, 'double:', double.value));
 count.value++; // 仅依赖 count 的副作用被触发，不会引起整组件重渲染
 ```
 
+### 追问
+
+- 如果把「Flux、Redux、MobX、Pinia、Signals 的核心差别」用到真实项目里，你会重点关注哪些边界、验证手段和取舍？
+
 ### 延伸
+
 - 没有"永远最优"的状态库，只有"与你的问题最契合"的模型
 
 ## framework-comparison
+
 title: Vue、React、Solid、Svelte、Qwik 应该从什么维度比较
+followups: [framework-comparison-followup-1]
 difficulty: 资深
 tags: [框架选型, Vue, React, Solid, Svelte, Qwik]
 
 ### 一句话
+
 先看编程模型与团队心智：Vue 偏模板 + 响应式；React 偏 JSX + 组合式生态；Solid 更细粒度响应式；Svelte 把更多工作前移到编译期；Qwik 强调可恢复性与极低 hydration 成本…。
 
 ### 题目
+
 如果团队在做新项目选型，应该如何比较 Vue、React、Solid、Svelte、Qwik，而不是只看“谁更快”？
 
 ### 答案要点
+
 - 先看编程模型与团队心智：Vue 偏模板 + 响应式；React 偏 JSX + 组合式生态；Solid 更细粒度响应式；Svelte 把更多工作前移到编译期；Qwik 强调可恢复性与极低 hydration 成本
 - 再看生态与组织能力：设计系统、路由、SSR、测试、招聘市场、现有代码沉淀、DevTools 体验都比跑分更影响长期成本
 - 内容站、营销站更看重 SSR/SSG 与首屏；重后台更看状态治理、组件生态和团队熟练度；多团队协作还要考虑规范统一与可维护性
 - 性能对比必须带业务前提。框架基准测试能说明某些模型差异，但不能直接替代真实业务压测与可维护性评估
 
+### 追问
+
+- 如果把「Vue、React、Solid、Svelte、Qwik 应该从什么维度比较」用到真实项目里，你会重点关注哪些边界、验证手段和取舍？
+
 ### 延伸
+
 - “选最先进的框架”通常不是目标，选“最能稳定交付业务目标的框架”才是
 - 框架迁移的最大成本往往不在语法，而在生态替换、团队训练和历史资产兼容
 
 ## component-library
+
 title: 组件库设计的关键指标：一致性、可扩展、可访问、可主题化
+followups: [component-library-followup-1]
 difficulty: 资深
 tags: [组件库, DesignSystem]
 
 ### 一句话
+
 API 一致：命名、事件、插槽、受控/非受控模式统一；主题能力：设计令牌、尺寸、颜色、暗黑模式、品牌化扩展；可访问性：键盘导航、ARIA、焦点管理、屏幕阅读器语义。
 
 ### 题目
+
 如果让你从零做一套组件库，你会优先建立哪些设计原则？
 
 ### 答案要点
+
 - API 一致：命名、事件、插槽、受控/非受控模式统一
 - 主题能力：设计令牌、尺寸、颜色、暗黑模式、品牌化扩展
 - 可访问性：键盘导航、ARIA、焦点管理、屏幕阅读器语义
 - 工程友好：Tree Shaking、样式隔离、SSR 兼容、文档与示例完善
 
 ### 代码示例
+
 ```ts
 // 1. 受控/非受控双模式
 import { computed, ref } from 'vue';
@@ -323,53 +398,74 @@ export const tokens = {
 }
 ```
 
+### 追问
+
+- 如果把「组件库设计的关键指标：一致性、可扩展、可访问、可主题化」用到真实项目里，你会重点关注哪些边界、验证手段和取舍？
+
 ### 延伸
+
 - 组件库不是"把页面组件抽出来"，而是提供稳定、长期可演进的抽象
 
 ## clean-architecture
+
 title: Clean Architecture、DDD 思想在前端怎么落地
+followups: [clean-architecture-followup-1]
 difficulty: 资深
 tags: [DDD, CleanArchitecture]
 
 ### 一句话
+
 前端同样会有复杂业务规则、权限、流程编排和多端适配问题；DDD/整洁架构的价值不在“照搬后端分层”，而在于把领域规则从 UI 和基础设施中拆出来；适合高复杂度后台、运营平台、设计器、低代码等场景；简单内容站不必过度设计。
 
 ### 题目
+
 很多人说前端没必要谈 DDD/整洁架构，你怎么看？
 
 ### 答案要点
+
 - 前端同样会有复杂业务规则、权限、流程编排和多端适配问题
 - DDD/整洁架构的价值不在“照搬后端分层”，而在于把领域规则从 UI 和基础设施中拆出来
 - 适合高复杂度后台、运营平台、设计器、低代码等场景；简单内容站不必过度设计
 
+### 追问
+
+- 如果把「Clean Architecture、DDD 思想在前端怎么落地」用到真实项目里，你会重点关注哪些边界、验证手段和取舍？
+
 ### 延伸
+
 - 架构风格要和复杂度匹配，过度抽象会伤害交付效率
 
 ## feature-flag
+
 title: Feature Flag、灰度发布与实验系统的前端视角
+followups: [feature-flag-followup-1]
 difficulty: 进阶
 tags: [灰度, AB实验]
 
 ### 一句话
+
 Flag 要有明确归属、过期时间和回收流程；能力层要集中：统一取值、缓存、埋点、曝光控制，而不是业务代码各自判断；灰度策略可按用户、组织、比例、环境、地区等维度下发。
 
 ### 题目
+
 前端如何做灰度与实验，不让代码里到处都是 `if (flag)`？
 
 ### 答案要点
+
 - Flag 要有明确归属、过期时间和回收流程
 - 能力层要集中：统一取值、缓存、埋点、曝光控制，而不是业务代码各自判断
 - 灰度策略可按用户、组织、比例、环境、地区等维度下发
 
 ### 代码示例
+
 ```ts
 // 集中式 Feature Flag 服务
 interface FlagConfig {
   key: string;
   enabled: boolean;
-  rollout?: number;          // 0~100 灰度百分比
-  segments?: string[];       // 用户分群
-  expiresAt?: number;        // 过期时间，强制提醒清理
+  rollout?: number; // 0~100 灰度百分比
+  segments?: string[]; // 用户分群
+  expiresAt?: number; // 过期时间，强制提醒清理
   owner: string;
 }
 
@@ -379,8 +475,8 @@ class FeatureFlags {
 
   async loadFromServer() {
     const res = await fetch('/api/flags');
-    const list = await res.json() as FlagConfig[];
-    list.forEach(f => this.flags.set(f.key, f));
+    const list = (await res.json()) as FlagConfig[];
+    list.forEach((f) => this.flags.set(f.key, f));
   }
 
   isOn(key: string): boolean {
@@ -390,7 +486,7 @@ class FeatureFlags {
       console.warn(`Flag ${key} 已过期，请清理`);
       return false;
     }
-    if (f.segments?.length && !f.segments.some(s => this.user.segments.includes(s))) return false;
+    if (f.segments?.length && !f.segments.some((s) => this.user.segments.includes(s))) return false;
     if (f.rollout != null) {
       const hash = this.hashUserId(this.user.id) % 100;
       if (hash >= f.rollout) return false;
@@ -418,40 +514,60 @@ const showNew = computed(() => flags.isOn('new-checkout'));
 </template>
 ```
 
+### 追问
+
+- 如果把「Feature Flag、灰度发布与实验系统的前端视角」用到真实项目里，你会重点关注哪些边界、验证手段和取舍？
+
 ### 延伸
+
 - 最危险的不是"没有灰度"，而是"有一堆永远不清理的灰度分支"
 
 ## sdk-docs
+
 title: SDK 与文档站设计原则
+followups: [sdk-docs-followup-1]
 difficulty: 进阶
 tags: [SDK, 文档]
 
 ### 一句话
+
 SDK 设计要优先考虑接入体验、错误提示、版本兼容、最小心智负担；文档要面向受众分层：快速开始、概念、API、FAQ、最佳实践、迁移指南；失败案例通常不是功能不够，而是“入口不清晰、约束不稳定、示例不可信”。
 
 ### 题目
+
 为什么很多团队技术能力不差，但做出来的 SDK 和文档却难用？
 
 ### 答案要点
+
 - SDK 设计要优先考虑接入体验、错误提示、版本兼容、最小心智负担
 - 文档要面向受众分层：快速开始、概念、API、FAQ、最佳实践、迁移指南
 - 失败案例通常不是功能不够，而是“入口不清晰、约束不稳定、示例不可信”
 
+### 追问
+
+- 如果把「SDK 与文档站设计原则」用到真实项目里，你会重点关注哪些边界、验证手段和取舍？
+
 ### 延伸
+
 - 好的 SDK 文档本身就是架构的一部分，因为它决定能力如何被团队消费
 
 ## microfrontend
+
 title: 微前端什么时候值得做，什么时候只是把复杂度前置
+followups: [microfrontend-followup-1, microfrontend-followup-2, microfrontend-followup-3]
 difficulty: 资深
 tags: [微前端, ModuleFederation]
 
 ### 一句话
+
 微前端适合强组织边界、独立发布节奏差异大、单仓单应用已明显失控的场景；收益包括独立部署、技术栈局部自治、团队解耦、渐进式迁移；代价包括运行时性能、重复依赖、样式隔离、路由通信、监控统一、权限一致性和调试复杂度。
 
 ### 题目
+
 你会在什么情况下建议团队使用微前端？它真正的收益和代价分别是什么？
 
 ### 答案要点
+
 - 微前端适合强组织边界、独立发布节奏差异大、单仓单应用已明显失控的场景
 - 收益包括独立部署、技术栈局部自治、团队解耦、渐进式迁移
 - 代价包括运行时性能、重复依赖、样式隔离、路由通信、监控统一、权限一致性和调试复杂度
@@ -459,6 +575,7 @@ tags: [微前端, ModuleFederation]
 - 微前端解决的是组织与交付边界问题，不是页面拆分本身
 
 ### 代码示例
+
 ```ts
 // qiankun 主应用注册子应用
 import { registerMicroApps, start } from 'qiankun';
@@ -484,7 +601,9 @@ start({ sandbox: { strictStyleIsolation: true } });
 ```ts
 // 子应用导出 lifecycle
 let appInstance: any;
-export async function bootstrap() { console.log('bootstrap'); }
+export async function bootstrap() {
+  console.log('bootstrap');
+}
 export async function mount(props: any) {
   appInstance = createApp(App);
   appInstance.provide('hostProps', props);
@@ -514,64 +633,82 @@ export default {
 const RemoteWidget = defineAsyncComponent(() => import('remoteApp/Widget'));
 ```
 
-
 ### 常见误区
+
 - 上来就上 qiankun / Module Federation，但其实只是几个独立路由——是过度工程
 - 多个子应用各自带自己的 React → 体积爆炸；MF 用 shared 配置共享 vendor
 - 子应用 CSS 互相污染——用 CSS Modules / Shadow DOM 隔离
 
 ### 追问
+
 - single-spa、qiankun、Module Federation 区别
 - 微前端最容易出问题的是哪一块（路由 / 共享状态 / 样式）
 - 子应用之间通信方案（自定义 Event / Pub-Sub / 全局 store）
 
 ### 延伸
+
 - 如果一个团队只是想"代码分模块"，通常组件化、monorepo、模块化路由就够了
 
 ## islands-rsc
+
 title: 岛屿架构、RSC、部分水合分别在优化什么
+followups: [islands-rsc-followup-1]
 difficulty: 资深
 tags: [Islands, RSC, SSR]
 
 ### 一句话
+
 岛屿架构强调“大部分页面先输出静态 HTML，只给少量交互岛注入 JS”；部分水合关注的是减少整页统一 hydration 的成本；RSC 把一部分组件逻辑放在服务端环境中执行，减少客户端 JS 和数据搬运量；它不是传统 SSR 的简单别名。
 
 ### 题目
+
 岛屿架构、React Server Components、部分水合这些概念经常一起出现，它们各自在解决什么问题？
 
 ### 答案要点
+
 - 岛屿架构强调“大部分页面先输出静态 HTML，只给少量交互岛注入 JS”
 - 部分水合关注的是减少整页统一 hydration 的成本
 - RSC 把一部分组件逻辑放在服务端环境中执行，减少客户端 JS 和数据搬运量；它不是传统 SSR 的简单别名
 - 三者共同目标都与降低首屏 JS、减少客户端工作量有关，但抽象层级和框架实现方式不同
 
+### 追问
+
+- 如果把「岛屿架构、RSC、部分水合分别在优化什么」用到真实项目里，你会重点关注哪些边界、验证手段和取舍？
+
 ### 延伸
+
 - 这类架构的价值高度依赖内容型页面、商城、营销站等场景；纯重交互后台收益未必高
 - RSC 已能作为应用开发模型稳定使用，但对框架/打包器作者来说，底层实现接口仍要密切跟随框架版本演进
 
 ## lowcode-platform
+
 title: 低代码/搭建平台的核心模块是什么
+followups: [lowcode-platform-followup-1]
 difficulty: 资深
 tags: [低代码, Schema, 物料]
 
 ### 一句话
+
 schema：页面结构、组件树、属性、事件、数据源、权限等统一描述；物料体系：组件元数据、属性面板、默认配置、版本与兼容策略；编排器：拖拽、选中、对齐、图层树、撤销重做、快捷键系统。
 
 ### 题目
+
 如果让你设计一个低代码页面搭建平台，你会把系统拆成哪些核心模块？
 
 ### 答案要点
+
 - schema：页面结构、组件树、属性、事件、数据源、权限等统一描述
 - 物料体系：组件元数据、属性面板、默认配置、版本与兼容策略
 - 编排器：拖拽、选中、对齐、图层树、撤销重做、快捷键系统
 - 出码 / 运行时：实时预览、渲染引擎、代码生成、部署与发布能力
 
 ### 代码示例
+
 ```ts
 // 1. Schema 描述：组件树 + 属性 + 事件 + 数据源
 interface ComponentSchema {
   id: string;
-  type: string;          // 物料类型 'Button' / 'Form' / 'Table'
+  type: string; // 物料类型 'Button' / 'Form' / 'Table'
   props: Record<string, any>;
   events?: Record<string, ActionSchema>;
   children?: ComponentSchema[];
@@ -599,7 +736,7 @@ function renderSchema(schema: ComponentSchema): any {
       ...schema.props,
       ...mapEvents(schema.events),
     },
-    schema.children?.map(c => renderSchema(c)) ?? [],
+    schema.children?.map((c) => renderSchema(c)) ?? [],
   );
 }
 
@@ -622,28 +759,40 @@ function generateVue(schema: ComponentSchema): string {
 }
 
 function renderTemplate(s: ComponentSchema): string {
-  const propsStr = Object.entries(s.props).map(([k, v]) => `${k}="${v}"`).join(' ');
+  const propsStr = Object.entries(s.props)
+    .map(([k, v]) => `${k}="${v}"`)
+    .join(' ');
   const children = s.children?.map(renderTemplate).join('') ?? '';
   return `<${s.type} ${propsStr}>${children}</${s.type}>`;
 }
 ```
 
+### 追问
+
+- 如果把「低代码/搭建平台的核心模块是什么」用到真实项目里，你会重点关注哪些边界、验证手段和取舍？
+
 ### 延伸
+
 - 低代码平台本质上是在设计一套"可长期演进的 UI DSL"
 - 最大难点通常不是拖拽，而是 schema 稳定性与物料治理
 
 ## design-system-engineering
+
 title: 设计系统的工程化（tokens / multi-brand / a11y）
+followups: [design-system-engineering-followup-1]
 difficulty: 资深
 tags: [设计系统, Design Tokens]
 
 ### 一句话
+
 Tokens 单一来源：颜色 / 间距 / 字体 / 阴影 / 动效用 W3C Design Tokens 格式存 JSON，工具（Style Dictionary）转 CSS / iOS / Android…。
 
 ### 题目
+
 搭一个能撑起大公司多产品线的设计系统，工程上要做对哪些事？
 
 ### 答案要点
+
 - Tokens 单一来源：颜色 / 间距 / 字体 / 阴影 / 动效用 W3C Design Tokens 格式存 JSON，工具（Style Dictionary）转 CSS / iOS / Android
 - 多主题：dark / 高对比 / 多品牌 通过 token 派生，不在组件里写死颜色
 - 组件库分层：base（无样式逻辑）/ styled（有 token 装配）/ business（业务封装）
@@ -652,6 +801,7 @@ Tokens 单一来源：颜色 / 间距 / 字体 / 阴影 / 动效用 W3C Design T
 - 治理：组件 owner 制度，新增 / 修改要走评审，避免设计系统失控
 
 ### 代码示例
+
 ```json
 {
   "color": {
@@ -673,29 +823,51 @@ import StyleDictionary from 'style-dictionary';
 StyleDictionary.extend({
   source: ['tokens/**/*.json'],
   platforms: {
-    css: { transformGroup: 'css', buildPath: 'dist/css/', files: [{ destination: 'tokens.css', format: 'css/variables' }] },
-    js: { transformGroup: 'js', buildPath: 'dist/js/', files: [{ destination: 'tokens.ts', format: 'javascript/es6' }] },
-    ios: { transformGroup: 'ios', buildPath: 'dist/ios/', files: [{ destination: 'Tokens.swift', format: 'ios-swift/class.swift' }] },
+    css: {
+      transformGroup: 'css',
+      buildPath: 'dist/css/',
+      files: [{ destination: 'tokens.css', format: 'css/variables' }],
+    },
+    js: {
+      transformGroup: 'js',
+      buildPath: 'dist/js/',
+      files: [{ destination: 'tokens.ts', format: 'javascript/es6' }],
+    },
+    ios: {
+      transformGroup: 'ios',
+      buildPath: 'dist/ios/',
+      files: [{ destination: 'Tokens.swift', format: 'ios-swift/class.swift' }],
+    },
   },
 }).buildAllPlatforms();
 ```
 
+### 追问
+
+- 如果把「设计系统的工程化（tokens / multi-brand / a11y）」用到真实项目里，你会重点关注哪些边界、验证手段和取舍？
+
 ### 延伸
+
 - 多品牌切换可在运行时通过 CSS 自定义属性切换 token，无需重新构建
 - 设计系统的核心收益是"减少决策次数"，比强加约束更重要
 
 ## error-boundaries-resilience
+
 title: 前端错误隔离与韧性设计
+followups: [error-boundaries-resilience-followup-1]
 difficulty: 资深
 tags: [错误边界, 韧性]
 
 ### 一句话
+
 React 用 ErrorBoundary，Vue 用 errorCaptured 钩子；模块外裹一层兜底 UI；分块加载（dynamic import）失败要捕获并提示用户重试，而不是抛到全局…。
 
 ### 题目
+
 某个独立模块挂了不应该让整个页面白屏，工程上怎么做"错误隔离"？
 
 ### 答案要点
+
 - React 用 ErrorBoundary，Vue 用 `errorCaptured` 钩子；模块外裹一层兜底 UI
 - 分块加载（dynamic import）失败要捕获并提示用户重试，而不是抛到全局
 - 第三方库挂了要降级而不是炸：广告 / 客服 / 埋点 用 try/catch 包裹
@@ -704,8 +876,12 @@ React 用 ErrorBoundary，Vue 用 errorCaptured 钩子；模块外裹一层兜�
 - 监控：错误率超过阈值自动触发 alert，避免靠用户反馈才发现
 
 ### 代码示例
+
 ```tsx
-class ErrorBoundary extends React.Component<{ fallback: React.ReactNode; children: React.ReactNode }, { hasError: boolean }> {
+class ErrorBoundary extends React.Component<
+  { fallback: React.ReactNode; children: React.ReactNode },
+  { hasError: boolean }
+> {
   state = { hasError: false };
   static getDerivedStateFromError() {
     return { hasError: true };
@@ -725,7 +901,9 @@ function Page() {
         <Recommendation />
       </ErrorBoundary>
       <ErrorBoundary fallback={<ModuleFallback name="评论列表" />}>
-        <Suspense fallback={<Skeleton />}><Comments /></Suspense>
+        <Suspense fallback={<Skeleton />}>
+          <Comments />
+        </Suspense>
       </ErrorBoundary>
     </Layout>
   );
@@ -746,22 +924,32 @@ async function loadWithRetry<T>(loader: () => Promise<T>, retries = 3): Promise<
 }
 ```
 
+### 追问
+
+- 如果把「前端错误隔离与韧性设计」用到真实项目里，你会重点关注哪些边界、验证手段和取舍？
+
 ### 延伸
+
 - 韧性设计的关键是"假设任何子模块都可能挂"，把隔离点提前规划好
 - 关键页面要做混沌测试：故意让某个 API 返回错误，验证降级是否生效
 
 ## monorepo-vs-multirepo
+
 title: Monorepo 和 Multirepo 怎么选
+followups: [monorepo-vs-multirepo-followup-1]
 difficulty: 进阶
 tags: [架构, Monorepo]
 
 ### 一句话
+
 组件库 / 多端共享代码 / 多包同步发版 → Monorepo（pnpm + Turborepo）；业务相互独立、团队规模大 → Multirepo + 私有 npm。
 
 ### 题目
+
 请说明 Monorepo 与 Multirepo 的优缺点，以及前端常见的 Monorepo 工具栈。
 
 ### 答案要点
+
 - **Monorepo 的优点**
   - 跨包重构成本低、原子提交
   - 共享 lint / tsconfig / CI 配置
@@ -785,6 +973,7 @@ tags: [架构, Monorepo]
   - 前端基建（CLI / 脚手架 / 代码生成）独立仓
 
 ### 代码示例
+
 ```yaml
 packages:
   - 'packages/*'
@@ -801,8 +990,648 @@ packages:
 }
 ```
 
+### 追问
+
+- 如果把「Monorepo 和 Multirepo 怎么选」用到真实项目里，你会重点关注哪些边界、验证手段和取舍？
+
 ### 延伸
+
 - 大厂自研：字节 Vesna、阿里 Bigfish、Google google3（含整个公司代码）
 - Monorepo 的关键是"远程缓存"——Turborepo Remote Cache / Nx Cloud
 - 不管哪种方案，CI 速度和构建可缓存性是核心生产力
 
+## layering-boundary-followup-1
+
+title: 追问：如果把「前端架构中的分层、边界与依赖方向」用到真实项目里，你会重点关注哪些边界、验证手段和取舍
+difficulty: 基础
+tags: [分层, 边界, 追问]
+parent: layering-boundary
+
+### 题目
+
+如果面试官追问：如果把「前端架构中的分层、边界与依赖方向」用到真实项目里，你会重点关注哪些边界、验证手段和取舍？
+
+### 答案要点
+
+#### 回答思路
+
+- 先给一句结论：这个问题要从「为什么需要它」「它解决了什么问题」「代价是什么」三个角度回答。
+- 再把结论落回原题，不要脱离上下文泛泛而谈；面试官通常会顺着边界、异常和工程成本继续追问。
+- 如果涉及实现细节，按数据流、状态变化、调用顺序或生命周期拆开讲；如果涉及方案选择，必须说明为什么不用另一个方案。
+
+#### 结合原题展开
+
+- 分层让职责清晰：页面编排、领域逻辑、数据访问、基础设施各管各的
+- 依赖方向要尽量单向，避免 UI 组件直接操作接口层、埋点层、全局配置
+- 没边界时最常见的问题是：改一个需求牵一片、复用困难、测试困难、认知负担飙升
+- 可以补充一个真实项目语境：上线前先约定输入输出、失败兜底和观测指标，避免只在 demo 场景下成立。
+
+#### 工程落地
+
+- 验证手段要具体：单元测试覆盖边界条件，集成测试覆盖主流程，必要时用 e2e 或回放数据验证真实链路。
+- 运行时要可观测：关键路径打日志或埋点，关注错误率、耗时、资源占用、用户可感知延迟和降级次数。
+- 发布策略要稳：高风险变更建议灰度、开关或回滚预案；如果会影响数据一致性，还要说明迁移和兼容策略。
+
+#### 易错点
+
+- 不要只背 API 或概念名，要说清楚适用条件；很多方案在小流量、单端、无异常时看起来都成立。
+- 不要忽略默认值、兼容性、异常回滚、性能退化和团队维护成本，这些往往是资深面试继续深挖的重点。
+- 如果答案里出现“总是”“一定”“完全替代”这类绝对表述，要主动补充例外场景。
+
+## design-patterns-followup-1
+
+title: 追问：如果把「前端里最常见的设计模式如何落地」用到真实项目里，你会重点关注哪些边界、验证手段和取舍
+difficulty: 进阶
+tags: [设计模式, 实战, 追问]
+parent: design-patterns
+
+### 题目
+
+如果面试官追问：如果把「前端里最常见的设计模式如何落地」用到真实项目里，你会重点关注哪些边界、验证手段和取舍？
+
+### 答案要点
+
+#### 回答思路
+
+- 先给一句结论：这个问题要从「为什么需要它」「它解决了什么问题」「代价是什么」三个角度回答。
+- 再把结论落回原题，不要脱离上下文泛泛而谈；面试官通常会顺着边界、异常和工程成本继续追问。
+- 如果涉及实现细节，按数据流、状态变化、调用顺序或生命周期拆开讲；如果涉及方案选择，必须说明为什么不用另一个方案。
+
+#### 结合原题展开
+
+- 设计模式不是背诵题，关键是你能否说清"它解决了哪个变化点"
+- 可以补充一个真实项目语境：上线前先约定输入输出、失败兜底和观测指标，避免只在 demo 场景下成立。
+
+#### 工程落地
+
+- 验证手段要具体：单元测试覆盖边界条件，集成测试覆盖主流程，必要时用 e2e 或回放数据验证真实链路。
+- 运行时要可观测：关键路径打日志或埋点，关注错误率、耗时、资源占用、用户可感知延迟和降级次数。
+- 发布策略要稳：高风险变更建议灰度、开关或回滚预案；如果会影响数据一致性，还要说明迁移和兼容策略。
+
+#### 易错点
+
+- 不要只背 API 或概念名，要说清楚适用条件；很多方案在小流量、单端、无异常时看起来都成立。
+- 不要忽略默认值、兼容性、异常回滚、性能退化和团队维护成本，这些往往是资深面试继续深挖的重点。
+- 如果答案里出现“总是”“一定”“完全替代”这类绝对表述，要主动补充例外场景。
+
+## dependency-injection-followup-1
+
+title: 追问：如果把「依赖注入在前端什么时候有价值，什么时候会过度设计」用到真实项目里，你会重点关注哪些边界、验证手段和取舍
+difficulty: 资深
+tags: [DI, InversifyJS, Tsyringe, 追问]
+parent: dependency-injection
+
+### 题目
+
+如果面试官追问：如果把「依赖注入在前端什么时候有价值，什么时候会过度设计」用到真实项目里，你会重点关注哪些边界、验证手段和取舍？
+
+### 答案要点
+
+#### 回答思路
+
+- 先给一句结论：这个问题要从「为什么需要它」「它解决了什么问题」「代价是什么」三个角度回答。
+- 再把结论落回原题，不要脱离上下文泛泛而谈；面试官通常会顺着边界、异常和工程成本继续追问。
+- 如果涉及实现细节，按数据流、状态变化、调用顺序或生命周期拆开讲；如果涉及方案选择，必须说明为什么不用另一个方案。
+
+#### 结合原题展开
+
+- InversifyJS、Tsyringe 这类容器能统一对象创建和依赖装配，也便于测试时替换 mock 实现
+- 代价是抽象层增加、调试链路变长、类型与运行时装配都更复杂；如果只是普通组件树和少量服务对象，手工组合往往更直接
+- 前端引入 DI 时，应优先保证依赖方向清晰和接口稳定，而不是为了“像后端架构”而引入容器
+- 可以补充一个真实项目语境：上线前先约定输入输出、失败兜底和观测指标，避免只在 demo 场景下成立。
+
+#### 工程落地
+
+- 验证手段要具体：单元测试覆盖边界条件，集成测试覆盖主流程，必要时用 e2e 或回放数据验证真实链路。
+- 运行时要可观测：关键路径打日志或埋点，关注错误率、耗时、资源占用、用户可感知延迟和降级次数。
+- 发布策略要稳：高风险变更建议灰度、开关或回滚预案；如果会影响数据一致性，还要说明迁移和兼容策略。
+
+#### 易错点
+
+- 不要只背 API 或概念名，要说清楚适用条件；很多方案在小流量、单端、无异常时看起来都成立。
+- 不要忽略默认值、兼容性、异常回滚、性能退化和团队维护成本，这些往往是资深面试继续深挖的重点。
+- 如果答案里出现“总是”“一定”“完全替代”这类绝对表述，要主动补充例外场景。
+
+## state-management-followup-1
+
+title: 追问：如果把「Flux、Redux、MobX、Pinia、Signals 的核心差别」用到真实项目里，你会重点关注哪些边界、验证手段和取舍
+difficulty: 进阶
+tags: [状态管理, Signals, 追问]
+parent: state-management
+
+### 题目
+
+如果面试官追问：如果把「Flux、Redux、MobX、Pinia、Signals 的核心差别」用到真实项目里，你会重点关注哪些边界、验证手段和取舍？
+
+### 答案要点
+
+#### 回答思路
+
+- 先给一句结论：这个问题要从「为什么需要它」「它解决了什么问题」「代价是什么」三个角度回答。
+- 再把结论落回原题，不要脱离上下文泛泛而谈；面试官通常会顺着边界、异常和工程成本继续追问。
+- 如果涉及实现细节，按数据流、状态变化、调用顺序或生命周期拆开讲；如果涉及方案选择，必须说明为什么不用另一个方案。
+
+#### 结合原题展开
+
+- Flux/Redux 倾向单向数据流、显式更新和可追踪性
+- MobX/Pinia 更强调开发体验和细粒度响应式
+- Signals 直接围绕“值依赖图”更新，往往能减少无关子树工作量，但并不等于“完全没有渲染成本”
+- 可以补充一个真实项目语境：上线前先约定输入输出、失败兜底和观测指标，避免只在 demo 场景下成立。
+
+#### 工程落地
+
+- 验证手段要具体：单元测试覆盖边界条件，集成测试覆盖主流程，必要时用 e2e 或回放数据验证真实链路。
+- 运行时要可观测：关键路径打日志或埋点，关注错误率、耗时、资源占用、用户可感知延迟和降级次数。
+- 发布策略要稳：高风险变更建议灰度、开关或回滚预案；如果会影响数据一致性，还要说明迁移和兼容策略。
+
+#### 易错点
+
+- 不要只背 API 或概念名，要说清楚适用条件；很多方案在小流量、单端、无异常时看起来都成立。
+- 不要忽略默认值、兼容性、异常回滚、性能退化和团队维护成本，这些往往是资深面试继续深挖的重点。
+- 如果答案里出现“总是”“一定”“完全替代”这类绝对表述，要主动补充例外场景。
+
+## framework-comparison-followup-1
+
+title: 追问：如果把「Vue、React、Solid、Svelte、Qwik 应该从什么维度比较」用到真实项目里，你会重点关注哪些边界、验证手段和取舍
+difficulty: 资深
+tags: [框架选型, Vue, React, Solid, 追问]
+parent: framework-comparison
+
+### 题目
+
+如果面试官追问：如果把「Vue、React、Solid、Svelte、Qwik 应该从什么维度比较」用到真实项目里，你会重点关注哪些边界、验证手段和取舍？
+
+### 答案要点
+
+#### 回答思路
+
+- 先给一句结论：这个问题要从「为什么需要它」「它解决了什么问题」「代价是什么」三个角度回答。
+- 再把结论落回原题，不要脱离上下文泛泛而谈；面试官通常会顺着边界、异常和工程成本继续追问。
+- 如果涉及实现细节，按数据流、状态变化、调用顺序或生命周期拆开讲；如果涉及方案选择，必须说明为什么不用另一个方案。
+
+#### 结合原题展开
+
+- 先看编程模型与团队心智：Vue 偏模板 + 响应式；React 偏 JSX + 组合式生态；Solid 更细粒度响应式；Svelte 把更多工作前移到编译期；Qwik 强调可恢复性与极低 hydration 成本
+- 性能对比必须带业务前提。框架基准测试能说明某些模型差异，但不能直接替代真实业务压测与可维护性评估
+- 可以补充一个真实项目语境：上线前先约定输入输出、失败兜底和观测指标，避免只在 demo 场景下成立。
+
+#### 工程落地
+
+- 验证手段要具体：单元测试覆盖边界条件，集成测试覆盖主流程，必要时用 e2e 或回放数据验证真实链路。
+- 运行时要可观测：关键路径打日志或埋点，关注错误率、耗时、资源占用、用户可感知延迟和降级次数。
+- 发布策略要稳：高风险变更建议灰度、开关或回滚预案；如果会影响数据一致性，还要说明迁移和兼容策略。
+
+#### 易错点
+
+- 不要只背 API 或概念名，要说清楚适用条件；很多方案在小流量、单端、无异常时看起来都成立。
+- 不要忽略默认值、兼容性、异常回滚、性能退化和团队维护成本，这些往往是资深面试继续深挖的重点。
+- 如果答案里出现“总是”“一定”“完全替代”这类绝对表述，要主动补充例外场景。
+
+## component-library-followup-1
+
+title: 追问：如果把「组件库设计的关键指标：一致性、可扩展、可访问、可主题化」用到真实项目里，你会重点关注哪些边界、验证手段和取舍
+difficulty: 资深
+tags: [组件库, DesignSystem, 追问]
+parent: component-library
+
+### 题目
+
+如果面试官追问：如果把「组件库设计的关键指标：一致性、可扩展、可访问、可主题化」用到真实项目里，你会重点关注哪些边界、验证手段和取舍？
+
+### 答案要点
+
+#### 回答思路
+
+- 先给一句结论：这个问题要从「为什么需要它」「它解决了什么问题」「代价是什么」三个角度回答。
+- 再把结论落回原题，不要脱离上下文泛泛而谈；面试官通常会顺着边界、异常和工程成本继续追问。
+- 如果涉及实现细节，按数据流、状态变化、调用顺序或生命周期拆开讲；如果涉及方案选择，必须说明为什么不用另一个方案。
+
+#### 结合原题展开
+
+- API 一致：命名、事件、插槽、受控/非受控模式统一
+- 可访问性：键盘导航、ARIA、焦点管理、屏幕阅读器语义
+- 组件库不是"把页面组件抽出来"，而是提供稳定、长期可演进的抽象
+- 可以补充一个真实项目语境：上线前先约定输入输出、失败兜底和观测指标，避免只在 demo 场景下成立。
+
+#### 工程落地
+
+- 验证手段要具体：单元测试覆盖边界条件，集成测试覆盖主流程，必要时用 e2e 或回放数据验证真实链路。
+- 运行时要可观测：关键路径打日志或埋点，关注错误率、耗时、资源占用、用户可感知延迟和降级次数。
+- 发布策略要稳：高风险变更建议灰度、开关或回滚预案；如果会影响数据一致性，还要说明迁移和兼容策略。
+
+#### 易错点
+
+- 不要只背 API 或概念名，要说清楚适用条件；很多方案在小流量、单端、无异常时看起来都成立。
+- 不要忽略默认值、兼容性、异常回滚、性能退化和团队维护成本，这些往往是资深面试继续深挖的重点。
+- 如果答案里出现“总是”“一定”“完全替代”这类绝对表述，要主动补充例外场景。
+
+## clean-architecture-followup-1
+
+title: 追问：如果把「Clean Architecture、DDD 思想在前端怎么落地」用到真实项目里，你会重点关注哪些边界、验证手段和取舍
+difficulty: 资深
+tags: [DDD, CleanArchitecture, 追问]
+parent: clean-architecture
+
+### 题目
+
+如果面试官追问：如果把「Clean Architecture、DDD 思想在前端怎么落地」用到真实项目里，你会重点关注哪些边界、验证手段和取舍？
+
+### 答案要点
+
+#### 回答思路
+
+- 先给一句结论：这个问题要从「为什么需要它」「它解决了什么问题」「代价是什么」三个角度回答。
+- 再把结论落回原题，不要脱离上下文泛泛而谈；面试官通常会顺着边界、异常和工程成本继续追问。
+- 如果涉及实现细节，按数据流、状态变化、调用顺序或生命周期拆开讲；如果涉及方案选择，必须说明为什么不用另一个方案。
+
+#### 结合原题展开
+
+- DDD/整洁架构的价值不在“照搬后端分层”，而在于把领域规则从 UI 和基础设施中拆出来
+- 可以补充一个真实项目语境：上线前先约定输入输出、失败兜底和观测指标，避免只在 demo 场景下成立。
+
+#### 工程落地
+
+- 验证手段要具体：单元测试覆盖边界条件，集成测试覆盖主流程，必要时用 e2e 或回放数据验证真实链路。
+- 运行时要可观测：关键路径打日志或埋点，关注错误率、耗时、资源占用、用户可感知延迟和降级次数。
+- 发布策略要稳：高风险变更建议灰度、开关或回滚预案；如果会影响数据一致性，还要说明迁移和兼容策略。
+
+#### 易错点
+
+- 不要只背 API 或概念名，要说清楚适用条件；很多方案在小流量、单端、无异常时看起来都成立。
+- 不要忽略默认值、兼容性、异常回滚、性能退化和团队维护成本，这些往往是资深面试继续深挖的重点。
+- 如果答案里出现“总是”“一定”“完全替代”这类绝对表述，要主动补充例外场景。
+
+## feature-flag-followup-1
+
+title: 追问：如果把「Feature Flag、灰度发布与实验系统的前端视角」用到真实项目里，你会重点关注哪些边界、验证手段和取舍
+difficulty: 进阶
+tags: [灰度, AB实验, 追问]
+parent: feature-flag
+
+### 题目
+
+如果面试官追问：如果把「Feature Flag、灰度发布与实验系统的前端视角」用到真实项目里，你会重点关注哪些边界、验证手段和取舍？
+
+### 答案要点
+
+#### 回答思路
+
+- 先给一句结论：这个问题要从「为什么需要它」「它解决了什么问题」「代价是什么」三个角度回答。
+- 再把结论落回原题，不要脱离上下文泛泛而谈；面试官通常会顺着边界、异常和工程成本继续追问。
+- 如果涉及实现细节，按数据流、状态变化、调用顺序或生命周期拆开讲；如果涉及方案选择，必须说明为什么不用另一个方案。
+
+#### 结合原题展开
+
+- Flag 要有明确归属、过期时间和回收流程
+- 灰度策略可按用户、组织、比例、环境、地区等维度下发
+- 最危险的不是"没有灰度"，而是"有一堆永远不清理的灰度分支"
+- 可以补充一个真实项目语境：上线前先约定输入输出、失败兜底和观测指标，避免只在 demo 场景下成立。
+
+#### 工程落地
+
+- 验证手段要具体：单元测试覆盖边界条件，集成测试覆盖主流程，必要时用 e2e 或回放数据验证真实链路。
+- 运行时要可观测：关键路径打日志或埋点，关注错误率、耗时、资源占用、用户可感知延迟和降级次数。
+- 发布策略要稳：高风险变更建议灰度、开关或回滚预案；如果会影响数据一致性，还要说明迁移和兼容策略。
+
+#### 易错点
+
+- 不要只背 API 或概念名，要说清楚适用条件；很多方案在小流量、单端、无异常时看起来都成立。
+- 不要忽略默认值、兼容性、异常回滚、性能退化和团队维护成本，这些往往是资深面试继续深挖的重点。
+- 如果答案里出现“总是”“一定”“完全替代”这类绝对表述，要主动补充例外场景。
+
+## sdk-docs-followup-1
+
+title: 追问：如果把「SDK 与文档站设计原则」用到真实项目里，你会重点关注哪些边界、验证手段和取舍
+difficulty: 进阶
+tags: [SDK, 文档, 追问]
+parent: sdk-docs
+
+### 题目
+
+如果面试官追问：如果把「SDK 与文档站设计原则」用到真实项目里，你会重点关注哪些边界、验证手段和取舍？
+
+### 答案要点
+
+#### 回答思路
+
+- 先给一句结论：这个问题要从「为什么需要它」「它解决了什么问题」「代价是什么」三个角度回答。
+- 再把结论落回原题，不要脱离上下文泛泛而谈；面试官通常会顺着边界、异常和工程成本继续追问。
+- 如果涉及实现细节，按数据流、状态变化、调用顺序或生命周期拆开讲；如果涉及方案选择，必须说明为什么不用另一个方案。
+
+#### 结合原题展开
+
+- SDK 设计要优先考虑接入体验、错误提示、版本兼容、最小心智负担
+- 好的 SDK 文档本身就是架构的一部分，因为它决定能力如何被团队消费
+- 可以补充一个真实项目语境：上线前先约定输入输出、失败兜底和观测指标，避免只在 demo 场景下成立。
+
+#### 工程落地
+
+- 验证手段要具体：单元测试覆盖边界条件，集成测试覆盖主流程，必要时用 e2e 或回放数据验证真实链路。
+- 运行时要可观测：关键路径打日志或埋点，关注错误率、耗时、资源占用、用户可感知延迟和降级次数。
+- 发布策略要稳：高风险变更建议灰度、开关或回滚预案；如果会影响数据一致性，还要说明迁移和兼容策略。
+
+#### 易错点
+
+- 不要只背 API 或概念名，要说清楚适用条件；很多方案在小流量、单端、无异常时看起来都成立。
+- 不要忽略默认值、兼容性、异常回滚、性能退化和团队维护成本，这些往往是资深面试继续深挖的重点。
+- 如果答案里出现“总是”“一定”“完全替代”这类绝对表述，要主动补充例外场景。
+
+## microfrontend-followup-1
+
+title: 追问：single-spa、qiankun、Module Federation 区别
+difficulty: 资深
+tags: [微前端, ModuleFederation, 追问]
+parent: microfrontend
+
+### 题目
+
+如果面试官追问：single-spa、qiankun、Module Federation 区别
+
+### 答案要点
+
+#### 回答思路
+
+- 先给一句结论：这个问题要从「为什么需要它」「它解决了什么问题」「代价是什么」三个角度回答。
+- 再把结论落回原题，不要脱离上下文泛泛而谈；面试官通常会顺着边界、异常和工程成本继续追问。
+- 如果涉及实现细节，按数据流、状态变化、调用顺序或生命周期拆开讲；如果涉及方案选择，必须说明为什么不用另一个方案。
+
+#### 结合原题展开
+
+- 上来就上 qiankun / Module Federation，但其实只是几个独立路由——是过度工程
+- 子应用 CSS 互相污染——用 CSS Modules / Shadow DOM 隔离
+- 可以补充一个真实项目语境：上线前先约定输入输出、失败兜底和观测指标，避免只在 demo 场景下成立。
+
+#### 工程落地
+
+- 验证手段要具体：单元测试覆盖边界条件，集成测试覆盖主流程，必要时用 e2e 或回放数据验证真实链路。
+- 运行时要可观测：关键路径打日志或埋点，关注错误率、耗时、资源占用、用户可感知延迟和降级次数。
+- 发布策略要稳：高风险变更建议灰度、开关或回滚预案；如果会影响数据一致性，还要说明迁移和兼容策略。
+
+#### 易错点
+
+- 不要只背 API 或概念名，要说清楚适用条件；很多方案在小流量、单端、无异常时看起来都成立。
+- 不要忽略默认值、兼容性、异常回滚、性能退化和团队维护成本，这些往往是资深面试继续深挖的重点。
+- 如果答案里出现“总是”“一定”“完全替代”这类绝对表述，要主动补充例外场景。
+
+## microfrontend-followup-2
+
+title: 追问：微前端最容易出问题的是哪一块
+difficulty: 资深
+tags: [微前端, ModuleFederation, 追问]
+parent: microfrontend
+
+### 题目
+
+如果面试官追问：微前端最容易出问题的是哪一块（路由 / 共享状态 / 样式）
+
+### 答案要点
+
+#### 回答思路
+
+- 先给一句结论：这个问题要从「为什么需要它」「它解决了什么问题」「代价是什么」三个角度回答。
+- 再把结论落回原题，不要脱离上下文泛泛而谈；面试官通常会顺着边界、异常和工程成本继续追问。
+- 如果涉及实现细节，按数据流、状态变化、调用顺序或生命周期拆开讲；如果涉及方案选择，必须说明为什么不用另一个方案。
+
+#### 结合原题展开
+
+- 微前端适合强组织边界、独立发布节奏差异大、单仓单应用已明显失控的场景
+- 代价包括运行时性能、重复依赖、样式隔离、路由通信、监控统一、权限一致性和调试复杂度
+- 真正能否落地，取决于团队是否愿意维护宿主契约，例如路由协议、鉴权上下文、埋点规范、公共依赖版本和故障隔离策略
+- 可以补充一个真实项目语境：上线前先约定输入输出、失败兜底和观测指标，避免只在 demo 场景下成立。
+
+#### 工程落地
+
+- 验证手段要具体：单元测试覆盖边界条件，集成测试覆盖主流程，必要时用 e2e 或回放数据验证真实链路。
+- 运行时要可观测：关键路径打日志或埋点，关注错误率、耗时、资源占用、用户可感知延迟和降级次数。
+- 发布策略要稳：高风险变更建议灰度、开关或回滚预案；如果会影响数据一致性，还要说明迁移和兼容策略。
+
+#### 易错点
+
+- 不要只背 API 或概念名，要说清楚适用条件；很多方案在小流量、单端、无异常时看起来都成立。
+- 不要忽略默认值、兼容性、异常回滚、性能退化和团队维护成本，这些往往是资深面试继续深挖的重点。
+- 如果答案里出现“总是”“一定”“完全替代”这类绝对表述，要主动补充例外场景。
+
+## microfrontend-followup-3
+
+title: 追问：子应用之间通信方案
+difficulty: 资深
+tags: [微前端, ModuleFederation, 追问]
+parent: microfrontend
+
+### 题目
+
+如果面试官追问：子应用之间通信方案（自定义 Event / Pub-Sub / 全局 store）
+
+### 答案要点
+
+#### 回答思路
+
+- 先给一句结论：这个问题要从「为什么需要它」「它解决了什么问题」「代价是什么」三个角度回答。
+- 再把结论落回原题，不要脱离上下文泛泛而谈；面试官通常会顺着边界、异常和工程成本继续追问。
+- 如果涉及实现细节，按数据流、状态变化、调用顺序或生命周期拆开讲；如果涉及方案选择，必须说明为什么不用另一个方案。
+
+#### 结合原题展开
+
+- 多个子应用各自带自己的 React → 体积爆炸；MF 用 shared 配置共享 vendor
+- 子应用 CSS 互相污染——用 CSS Modules / Shadow DOM 隔离
+- 可以补充一个真实项目语境：上线前先约定输入输出、失败兜底和观测指标，避免只在 demo 场景下成立。
+
+#### 工程落地
+
+- 验证手段要具体：单元测试覆盖边界条件，集成测试覆盖主流程，必要时用 e2e 或回放数据验证真实链路。
+- 运行时要可观测：关键路径打日志或埋点，关注错误率、耗时、资源占用、用户可感知延迟和降级次数。
+- 发布策略要稳：高风险变更建议灰度、开关或回滚预案；如果会影响数据一致性，还要说明迁移和兼容策略。
+
+#### 易错点
+
+- 不要只背 API 或概念名，要说清楚适用条件；很多方案在小流量、单端、无异常时看起来都成立。
+- 不要忽略默认值、兼容性、异常回滚、性能退化和团队维护成本，这些往往是资深面试继续深挖的重点。
+- 如果答案里出现“总是”“一定”“完全替代”这类绝对表述，要主动补充例外场景。
+
+## islands-rsc-followup-1
+
+title: 追问：如果把「岛屿架构、RSC、部分水合分别在优化什么」用到真实项目里，你会重点关注哪些边界、验证手段和取舍
+difficulty: 资深
+tags: [Islands, RSC, SSR, 追问]
+parent: islands-rsc
+
+### 题目
+
+如果面试官追问：如果把「岛屿架构、RSC、部分水合分别在优化什么」用到真实项目里，你会重点关注哪些边界、验证手段和取舍？
+
+### 答案要点
+
+#### 回答思路
+
+- 先给一句结论：这个问题要从「为什么需要它」「它解决了什么问题」「代价是什么」三个角度回答。
+- 再把结论落回原题，不要脱离上下文泛泛而谈；面试官通常会顺着边界、异常和工程成本继续追问。
+- 如果涉及实现细节，按数据流、状态变化、调用顺序或生命周期拆开讲；如果涉及方案选择，必须说明为什么不用另一个方案。
+
+#### 结合原题展开
+
+- 岛屿架构强调“大部分页面先输出静态 HTML，只给少量交互岛注入 JS”
+- 部分水合关注的是减少整页统一 hydration 的成本
+- RSC 把一部分组件逻辑放在服务端环境中执行，减少客户端 JS 和数据搬运量；它不是传统 SSR 的简单别名
+- 可以补充一个真实项目语境：上线前先约定输入输出、失败兜底和观测指标，避免只在 demo 场景下成立。
+
+#### 工程落地
+
+- 验证手段要具体：单元测试覆盖边界条件，集成测试覆盖主流程，必要时用 e2e 或回放数据验证真实链路。
+- 运行时要可观测：关键路径打日志或埋点，关注错误率、耗时、资源占用、用户可感知延迟和降级次数。
+- 发布策略要稳：高风险变更建议灰度、开关或回滚预案；如果会影响数据一致性，还要说明迁移和兼容策略。
+
+#### 易错点
+
+- 不要只背 API 或概念名，要说清楚适用条件；很多方案在小流量、单端、无异常时看起来都成立。
+- 不要忽略默认值、兼容性、异常回滚、性能退化和团队维护成本，这些往往是资深面试继续深挖的重点。
+- 如果答案里出现“总是”“一定”“完全替代”这类绝对表述，要主动补充例外场景。
+
+## lowcode-platform-followup-1
+
+title: 追问：如果把「低代码/搭建平台的核心模块是什么」用到真实项目里，你会重点关注哪些边界、验证手段和取舍
+difficulty: 资深
+tags: [低代码, Schema, 物料, 追问]
+parent: lowcode-platform
+
+### 题目
+
+如果面试官追问：如果把「低代码/搭建平台的核心模块是什么」用到真实项目里，你会重点关注哪些边界、验证手段和取舍？
+
+### 答案要点
+
+#### 回答思路
+
+- 先给一句结论：这个问题要从「为什么需要它」「它解决了什么问题」「代价是什么」三个角度回答。
+- 再把结论落回原题，不要脱离上下文泛泛而谈；面试官通常会顺着边界、异常和工程成本继续追问。
+- 如果涉及实现细节，按数据流、状态变化、调用顺序或生命周期拆开讲；如果涉及方案选择，必须说明为什么不用另一个方案。
+
+#### 结合原题展开
+
+- 低代码平台本质上是在设计一套"可长期演进的 UI DSL"
+- 可以补充一个真实项目语境：上线前先约定输入输出、失败兜底和观测指标，避免只在 demo 场景下成立。
+
+#### 工程落地
+
+- 验证手段要具体：单元测试覆盖边界条件，集成测试覆盖主流程，必要时用 e2e 或回放数据验证真实链路。
+- 运行时要可观测：关键路径打日志或埋点，关注错误率、耗时、资源占用、用户可感知延迟和降级次数。
+- 发布策略要稳：高风险变更建议灰度、开关或回滚预案；如果会影响数据一致性，还要说明迁移和兼容策略。
+
+#### 易错点
+
+- 不要只背 API 或概念名，要说清楚适用条件；很多方案在小流量、单端、无异常时看起来都成立。
+- 不要忽略默认值、兼容性、异常回滚、性能退化和团队维护成本，这些往往是资深面试继续深挖的重点。
+- 如果答案里出现“总是”“一定”“完全替代”这类绝对表述，要主动补充例外场景。
+
+## design-system-engineering-followup-1
+
+title: 追问：如果把「设计系统的工程化」用到真实项目里，你会重点关注哪些边界、验证手段和取舍
+difficulty: 资深
+tags: [设计系统, Design Tokens, 追问]
+parent: design-system-engineering
+
+### 题目
+
+如果面试官追问：如果把「设计系统的工程化（tokens / multi-brand / a11y）」用到真实项目里，你会重点关注哪些边界、验证手段和取舍？
+
+### 答案要点
+
+#### 回答思路
+
+- 先给一句结论：这个问题要从「为什么需要它」「它解决了什么问题」「代价是什么」三个角度回答。
+- 再把结论落回原题，不要脱离上下文泛泛而谈；面试官通常会顺着边界、异常和工程成本继续追问。
+- 如果涉及实现细节，按数据流、状态变化、调用顺序或生命周期拆开讲；如果涉及方案选择，必须说明为什么不用另一个方案。
+
+#### 结合原题展开
+
+- Tokens 单一来源：颜色 / 间距 / 字体 / 阴影 / 动效用 W3C Design Tokens 格式存 JSON，工具（Style Dictionary）转 CSS / iOS / Android
+- 文档：Storybook + a11y addon + 视觉回归（Chromatic / Playwright + 截图）
+- 治理：组件 owner 制度，新增 / 修改要走评审，避免设计系统失控
+- 可以补充一个真实项目语境：上线前先约定输入输出、失败兜底和观测指标，避免只在 demo 场景下成立。
+
+#### 工程落地
+
+- 验证手段要具体：单元测试覆盖边界条件，集成测试覆盖主流程，必要时用 e2e 或回放数据验证真实链路。
+- 运行时要可观测：关键路径打日志或埋点，关注错误率、耗时、资源占用、用户可感知延迟和降级次数。
+- 发布策略要稳：高风险变更建议灰度、开关或回滚预案；如果会影响数据一致性，还要说明迁移和兼容策略。
+
+#### 易错点
+
+- 不要只背 API 或概念名，要说清楚适用条件；很多方案在小流量、单端、无异常时看起来都成立。
+- 不要忽略默认值、兼容性、异常回滚、性能退化和团队维护成本，这些往往是资深面试继续深挖的重点。
+- 如果答案里出现“总是”“一定”“完全替代”这类绝对表述，要主动补充例外场景。
+
+## error-boundaries-resilience-followup-1
+
+title: 追问：如果把「前端错误隔离与韧性设计」用到真实项目里，你会重点关注哪些边界、验证手段和取舍
+difficulty: 资深
+tags: [错误边界, 韧性, 追问]
+parent: error-boundaries-resilience
+
+### 题目
+
+如果面试官追问：如果把「前端错误隔离与韧性设计」用到真实项目里，你会重点关注哪些边界、验证手段和取舍？
+
+### 答案要点
+
+#### 回答思路
+
+- 先给一句结论：这个问题要从「为什么需要它」「它解决了什么问题」「代价是什么」三个角度回答。
+- 再把结论落回原题，不要脱离上下文泛泛而谈；面试官通常会顺着边界、异常和工程成本继续追问。
+- 如果涉及实现细节，按数据流、状态变化、调用顺序或生命周期拆开讲；如果涉及方案选择，必须说明为什么不用另一个方案。
+
+#### 结合原题展开
+
+- Iframe 隔离：第三方 widget 用 sandbox iframe，挂了不影响主框架
+- 服务端错误重试：fetch 失败做指数退避，配合 SWR / React Query
+- 监控：错误率超过阈值自动触发 alert，避免靠用户反馈才发现
+- 可以补充一个真实项目语境：上线前先约定输入输出、失败兜底和观测指标，避免只在 demo 场景下成立。
+
+#### 工程落地
+
+- 验证手段要具体：单元测试覆盖边界条件，集成测试覆盖主流程，必要时用 e2e 或回放数据验证真实链路。
+- 运行时要可观测：关键路径打日志或埋点，关注错误率、耗时、资源占用、用户可感知延迟和降级次数。
+- 发布策略要稳：高风险变更建议灰度、开关或回滚预案；如果会影响数据一致性，还要说明迁移和兼容策略。
+
+#### 易错点
+
+- 不要只背 API 或概念名，要说清楚适用条件；很多方案在小流量、单端、无异常时看起来都成立。
+- 不要忽略默认值、兼容性、异常回滚、性能退化和团队维护成本，这些往往是资深面试继续深挖的重点。
+- 如果答案里出现“总是”“一定”“完全替代”这类绝对表述，要主动补充例外场景。
+
+## monorepo-vs-multirepo-followup-1
+
+title: 追问：如果把「Monorepo 和 Multirepo 怎么选」用到真实项目里，你会重点关注哪些边界、验证手段和取舍
+difficulty: 进阶
+tags: [架构, Monorepo, 追问]
+parent: monorepo-vs-multirepo
+
+### 题目
+
+如果面试官追问：如果把「Monorepo 和 Multirepo 怎么选」用到真实项目里，你会重点关注哪些边界、验证手段和取舍？
+
+### 答案要点
+
+#### 回答思路
+
+- 先给一句结论：这个问题要从「为什么需要它」「它解决了什么问题」「代价是什么」三个角度回答。
+- 再把结论落回原题，不要脱离上下文泛泛而谈；面试官通常会顺着边界、异常和工程成本继续追问。
+- 如果涉及实现细节，按数据流、状态变化、调用顺序或生命周期拆开讲；如果涉及方案选择，必须说明为什么不用另一个方案。
+
+#### 结合原题展开
+
+- Monorepo 的优点
+- Monorepo 的缺点
+- Multirepo 的适用场景
+- 可以补充一个真实项目语境：上线前先约定输入输出、失败兜底和观测指标，避免只在 demo 场景下成立。
+
+#### 工程落地
+
+- 验证手段要具体：单元测试覆盖边界条件，集成测试覆盖主流程，必要时用 e2e 或回放数据验证真实链路。
+- 运行时要可观测：关键路径打日志或埋点，关注错误率、耗时、资源占用、用户可感知延迟和降级次数。
+- 发布策略要稳：高风险变更建议灰度、开关或回滚预案；如果会影响数据一致性，还要说明迁移和兼容策略。
+
+#### 易错点
+
+- 不要只背 API 或概念名，要说清楚适用条件；很多方案在小流量、单端、无异常时看起来都成立。
+- 不要忽略默认值、兼容性、异常回滚、性能退化和团队维护成本，这些往往是资深面试继续深挖的重点。
+- 如果答案里出现“总是”“一定”“完全替代”这类绝对表述，要主动补充例外场景。

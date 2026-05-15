@@ -7,17 +7,22 @@ description: 从 URL 到渲染、存储、事件循环、Service Worker、性能
 ---
 
 ## url-to-render
+
 title: 从输入 URL 到页面显示，浏览器经历了什么
+followups: [url-to-render-followup-1, url-to-render-followup-2, url-to-render-followup-3]
 
 ### 一句话
+
 DNS 解析 → 建连（TCP/TLS）→ 发请求拿 HTML → 解析 HTML 同时下载 CSS/JS → 构建 DOM/CSSOM → 合并 Render Tree → 布局 → 绘制 → 合成上屏。
 difficulty: 基础
 tags: [流程, 渲染]
 
 ### 题目
+
 请按时间顺序描述从输入 URL 到页面可交互的大致流程。
 
 ### 答案要点
+
 - 解析 URL，查缓存和 DNS，建立 TCP/TLS 连接
 - 发送 HTTP 请求，服务端返回 HTML
 - 浏览器边下载边解析 HTML，构建 DOM；遇到 CSS 构建 CSSOM；遇到同步脚本可能阻塞解析，`defer` / `type="module"` 与 `async` 的时机又不同
@@ -25,12 +30,17 @@ tags: [流程, 渲染]
 - JS 执行、事件绑定、异步数据请求完成后，页面逐渐进入可交互状态
 
 ### 代码示例
+
 ```html
 <!-- 影响关键路径的几种脚本加载方式 -->
-<script src="a.js"></script>           <!-- 阻塞解析与执行 -->
-<script src="b.js" defer></script>     <!-- 不阻塞解析，DOMContentLoaded 前按序执行 -->
-<script src="c.js" async></script>     <!-- 不阻塞解析，下载完立即执行（顺序不保证） -->
-<script type="module" src="d.js"></script>  <!-- 默认 defer 行为 -->
+<script src="a.js"></script>
+<!-- 阻塞解析与执行 -->
+<script src="b.js" defer></script>
+<!-- 不阻塞解析，DOMContentLoaded 前按序执行 -->
+<script src="c.js" async></script>
+<!-- 不阻塞解析，下载完立即执行（顺序不保证） -->
+<script type="module" src="d.js"></script>
+<!-- 默认 defer 行为 -->
 
 <!-- 提前建立连接 -->
 <link rel="preconnect" href="https://api.example.com" crossorigin />
@@ -51,53 +61,61 @@ addEventListener('load', () => {
 });
 ```
 
-
 ### 常见误区
+
 - DNS 查询不只是浏览器一层：操作系统、路由器、ISP 都有 cache
 - TCP 三次握手只在没复用连接时发生；HTTP/2 多路复用同 TCP
 - 渲染管线里 layout 和 paint 不是每次都触发——只读样式（getBoundingClientRect）会强制 reflow
 
 ### 追问
+
 - HTTPS 握手具体几个 RTT，TLS 1.3 优化了什么
 - preconnect / dns-prefetch / preload 的执行顺序
 - LCP 的衡量对象通常是哪些元素
 
 ### 延伸
+
 - 首屏性能优化的本质，就是缩短这条关键路径上的阻塞链
 - 真正的"可交互"不等于"首屏内容出现"
 - 浏览器通常还有预加载扫描器等并行优化机制，所以"严格串行流程图"只是帮助理解的简化模型
 
 ## render-pipeline
+
 title: DOM、CSSOM、Render Tree、Layout、Paint、Composite 的关系
+followups: [render-pipeline-followup-1, render-pipeline-followup-2, render-pipeline-followup-3]
 difficulty: 进阶
 tags: [渲染, 性能]
 
 ### 一句话
+
 DOM + CSSOM → Render Tree → Layout（算位置）→ Paint（画图层）→ Composite（GPU 合成）。改 transform/opacity 只走最后两步，所以最便宜。
 
 ### 题目
+
 什么操作会触发回流、重绘和合成？为什么 transform/opacity 常被认为更高性能？
 
 ### 答案要点
+
 - 回流（layout/reflow）是重新计算几何信息；重绘（paint）是重新绘制像素；合成（composite）是图层拼接
 - 修改尺寸、位置、字体、内容等更容易触发回流
 - 颜色、背景等可能只触发重绘
 - `transform` / `opacity` 通常只影响合成阶段，因此更适合动画
 
 ### 代码示例
+
 ```ts
 // ❌ 反例：读写交错触发多次强制布局
 function bad(items: HTMLElement[]) {
   for (const el of items) {
-    const w = el.offsetWidth;       // 读：强制同步布局
-    el.style.width = w * 2 + 'px';  // 写：使下次读再次失效
+    const w = el.offsetWidth; // 读：强制同步布局
+    el.style.width = w * 2 + 'px'; // 写：使下次读再次失效
   }
 }
 
 // ✅ 正解：先批量读，再批量写
 function good(items: HTMLElement[]) {
-  const widths = items.map(el => el.offsetWidth);   // 集中读
-  items.forEach((el, i) => el.style.width = widths[i] * 2 + 'px'); // 集中写
+  const widths = items.map((el) => el.offsetWidth); // 集中读
+  items.forEach((el, i) => (el.style.width = widths[i] * 2 + 'px')); // 集中写
 }
 
 // ✅ 用 class 切换，浏览器自动批处理
@@ -109,39 +127,47 @@ requestAnimationFrame(() => {
 });
 
 // ✅ Web Animations API：合成层动画
-el.animate(
-  [{ transform: 'translateX(0)' }, { transform: 'translateX(100px)' }],
-  { duration: 300, easing: 'ease-out', fill: 'forwards' },
-);
+el.animate([{ transform: 'translateX(0)' }, { transform: 'translateX(100px)' }], {
+  duration: 300,
+  easing: 'ease-out',
+  fill: 'forwards',
+});
 ```
 
-
 ### 常见误区
+
 - transform / opacity 通常 GPU 合成，不会触发 layout/paint，但**`will-change` 滥用反而让 layer 数量爆炸**
 - 改 width / height 会 layout；改 background-image 会 paint；改 transform 只 composite
 - `display: none` → 完全脱离渲染树，不再 layout；`visibility: hidden` 仍占位
 
 ### 追问
+
 - contain 属性能做什么
 - content-visibility: auto 和 IntersectionObserver 区别
 - 强制同步布局（layout thrashing）怎么排查
 
 ### 延伸
+
 - 读取布局信息（如 `offsetHeight`）可能强制浏览器同步刷新布局
 - 批量读写分离、使用 class 切换，比一条条改 style 更稳
 
 ## storage-cookie
+
 title: Cookie、localStorage、sessionStorage、IndexedDB、Cache Storage 如何取舍
+followups: [storage-cookie-followup-1]
 difficulty: 基础
 tags: [存储, Cookie]
 
 ### 一句话
+
 Cookie 体积小、会随请求自动发送，适合会话标识；支持 HttpOnly、Secure、SameSite；localStorage 同步 API、实现简单，但配额和行为依浏览器而异；不适合存大量数据和高频写…。
 
 ### 题目
+
 对比浏览器常见存储方案，并说明 Cookie 的几个关键安全属性。
 
 ### 答案要点
+
 - Cookie 体积小、会随请求自动发送，适合会话标识；支持 `HttpOnly`、`Secure`、`SameSite`
 - localStorage 同步 API、实现简单，但配额和行为依浏览器而异；不适合存大量数据和高频写
 - sessionStorage 生命周期跟 tab 绑定
@@ -149,6 +175,7 @@ Cookie 体积小、会随请求自动发送，适合会话标识；支持 HttpOn
 - Cache Storage 更适合存 Request/Response 对象，常与 Service Worker 配合
 
 ### 代码示例
+
 ```ts
 // 1. localStorage：同步、5MB 左右
 localStorage.setItem('settings', JSON.stringify({ theme: 'dark' }));
@@ -184,23 +211,33 @@ Set-Cookie: session=abc;
 Set-Cookie: __Host-session=abc; Secure; Path=/; SameSite=Strict
 ```
 
+### 追问
+
+- 如果把「Cookie、localStorage、sessionStorage、IndexedDB、Cache Storage 如何取舍」用到真实项目里，你会重点关注哪些边界、验证手段和取舍？
+
 ### 延伸
+
 - 敏感令牌不要因为"前端方便"就直接存 localStorage
 - localStorage 是同步的，在低端机和高频写场景会卡主线程
 - Cookie 若承载会话，通常还应结合 `__Host-` / `__Secure-` 前缀、`Path`、过期策略与服务端会话治理一起设计
 
 ## service-worker
+
 title: Service Worker 生命周期与常见缓存策略
+followups: [service-worker-followup-1]
 difficulty: 进阶
 tags: [PWA, 离线]
 
 ### 一句话
+
 Service Worker 只在安全上下文可用（通常是 HTTPS，localhost 例外）；install 适合预缓存静态资源；activate 适合清理旧缓存、接管客户端。
 
 ### 题目
+
 Service Worker 的 install、activate、fetch 分别做什么？常见缓存策略有哪些？
 
 ### 答案要点
+
 - Service Worker 只在安全上下文可用（通常是 HTTPS，`localhost` 例外）
 - `install` 适合预缓存静态资源
 - `activate` 适合清理旧缓存、接管客户端
@@ -208,32 +245,37 @@ Service Worker 的 install、activate、fetch 分别做什么？常见缓存策�
 - 常见策略：cache-first、network-first、stale-while-revalidate、cache-only、network-only
 
 ### 代码示例
+
 ```ts
 // service-worker.ts
 const CACHE = 'app-v3';
 const PRECACHE = ['/', '/index.html', '/main.js', '/style.css'];
 
 self.addEventListener('install', (e: any) => {
-  e.waitUntil(caches.open(CACHE).then(c => c.addAll(PRECACHE)));
-  self.skipWaiting();    // 立即激活新版本（注意兼容性）
+  e.waitUntil(caches.open(CACHE).then((c) => c.addAll(PRECACHE)));
+  self.skipWaiting(); // 立即激活新版本（注意兼容性）
 });
 
 self.addEventListener('activate', (e: any) => {
   e.waitUntil(
-    caches.keys().then(keys =>
-      Promise.all(keys.filter(k => k !== CACHE).map(k => caches.delete(k))),
-    ),
+    caches
+      .keys()
+      .then((keys) => Promise.all(keys.filter((k) => k !== CACHE).map((k) => caches.delete(k)))),
   );
   self.clients.claim();
 });
 
 // 1. cache-first（静态资源）
 function cacheFirst(req: Request) {
-  return caches.match(req).then(r => r || fetch(req).then(res => {
-    const clone = res.clone();
-    caches.open(CACHE).then(c => c.put(req, clone));
-    return res;
-  }));
+  return caches.match(req).then(
+    (r) =>
+      r ||
+      fetch(req).then((res) => {
+        const clone = res.clone();
+        caches.open(CACHE).then((c) => c.put(req, clone));
+        return res;
+      }),
+  );
 }
 
 // 2. network-first（API）
@@ -251,8 +293,8 @@ async function networkFirst(req: Request) {
 // 3. stale-while-revalidate（最常用）
 async function swr(req: Request) {
   const cached = await caches.match(req);
-  const fetchPromise = fetch(req).then(res => {
-    caches.open(CACHE).then(c => c.put(req, res.clone()));
+  const fetchPromise = fetch(req).then((res) => {
+    caches.open(CACHE).then((c) => c.put(req, res.clone()));
     return res;
   });
   return cached || fetchPromise;
@@ -266,38 +308,49 @@ self.addEventListener('fetch', (e: any) => {
 });
 ```
 
+### 追问
+
+- 如果把「Service Worker 生命周期与常见缓存策略」用到真实项目里，你会重点关注哪些边界、验证手段和取舍？
+
 ### 延伸
+
 - SW 更新策略要权衡"立即生效"与"避免打断用户"
 - 离线能力不是只缓存首页，数据和静态资源更新策略同样关键
 - `skipWaiting()` / `clients.claim()` 很常见，但是否立即接管页面要结合版本兼容与用户正在进行的操作一起评估
 
 ## event-loop-worker
+
 title: 浏览器事件循环、主线程限制与 Worker
+followups: [event-loop-worker-followup-1, event-loop-worker-followup-2, event-loop-worker-followup-3]
 difficulty: 进阶
 tags: [事件循环, Worker]
 
 ### 一句话
+
 主线程同时要处理 JS、样式、布局、绘制和用户输入，长任务会直接拖慢响应；Worker 可把计算密集型任务移到后台线程，如解析大 JSON、图像处理、搜索索引；Worker 不能直接访问 DOM…。
 
 ### 题目
+
 为什么浏览器里的 JS 要尽量避免长任务？Web Worker 能解决哪些问题，不能解决哪些问题？
 
 ### 答案要点
+
 - 主线程同时要处理 JS、样式、布局、绘制和用户输入，长任务会直接拖慢响应
 - Worker 可把计算密集型任务移到后台线程，如解析大 JSON、图像处理、搜索索引
 - Worker 不能直接访问 DOM，和主线程通常通过 `postMessage`、Transferable 对象通信；`SharedArrayBuffer` 还要求安全上下文和 cross-origin isolation
 
 ### 代码示例
+
 ```ts
 // 主线程：创建 Worker（Vite 推荐用 import.meta.url）
 const worker = new Worker(new URL('./crunch.worker.ts', import.meta.url), { type: 'module' });
 
 worker.postMessage({ data: largeArray });
-worker.onmessage = e => render(e.data);
-worker.onerror = e => console.error(e);
+worker.onmessage = (e) => render(e.data);
+worker.onerror = (e) => console.error(e);
 
 // crunch.worker.ts
-self.onmessage = e => {
+self.onmessage = (e) => {
   const { data } = e.data;
   const result = data.map(heavyCompute);
   // Transferable：避免结构化克隆，零拷贝转移
@@ -311,8 +364,12 @@ import * as Comlink from 'comlink';
 
 // worker.ts
 const api = {
-  async parseCSV(text: string) { /* ... */ return rows; },
-  async fuzzySearch(query: string) { /* ... */ },
+  async parseCSV(text: string) {
+    /* ... */ return rows;
+  },
+  async fuzzySearch(query: string) {
+    /* ... */
+  },
 };
 Comlink.expose(api);
 export type Api = typeof api;
@@ -320,46 +377,54 @@ export type Api = typeof api;
 // 主线程
 import type { Api } from './worker';
 const api = Comlink.wrap<Api>(new Worker(new URL('./worker', import.meta.url), { type: 'module' }));
-const rows = await api.parseCSV(largeText);   // 像调用本地异步函数
+const rows = await api.parseCSV(largeText); // 像调用本地异步函数
 ```
 
-
 ### 常见误区
+
 - Worker 里没有 DOM、window、document，访问就报错
 - 主线程 → Worker postMessage 是结构化克隆（不是引用），大数据要用 Transferable
 - requestAnimationFrame 在 inactive tab 不跑（Chrome 暂停渲染）
 
 ### 追问
+
 - requestIdleCallback 兼容性如何，什么时候用
 - SharedArrayBuffer 能跨线程零拷贝，需要哪些 HTTP 头
 - web worker 和 service worker 区别
 
 ### 延伸
+
 - 结构化克隆有成本，大数据频繁传输未必划算
 - OffscreenCanvas、AudioWorklet、PaintWorklet 都是更细分的线程化能力
 
 ## observer-performance-api
+
 title: Observer 家族与 Performance API 的实战用法
+followups: [observer-performance-api-followup-1]
 difficulty: 进阶
 tags: [Observer, 性能]
 
 ### 一句话
+
 IntersectionObserver：懒加载、曝光埋点、无限滚动；ResizeObserver：容器尺寸变化监听；MutationObserver：DOM 结构变化监听。
 
 ### 题目
+
 `IntersectionObserver`、`ResizeObserver`、`MutationObserver`、`PerformanceObserver` 各自适合什么场景？
 
 ### 答案要点
+
 - `IntersectionObserver`：懒加载、曝光埋点、无限滚动
 - `ResizeObserver`：容器尺寸变化监听
 - `MutationObserver`：DOM 结构变化监听
 - `PerformanceObserver`：监听长任务、LCP、布局偏移等性能条目；具体可观察类型要看浏览器支持的 `supportedEntryTypes`
 
 ### 代码示例
+
 ```ts
 // 1. IntersectionObserver：图片懒加载 + 曝光埋点
 const io = new IntersectionObserver(
-  entries => {
+  (entries) => {
     for (const entry of entries) {
       if (entry.isIntersecting) {
         const el = entry.target as HTMLImageElement;
@@ -371,10 +436,10 @@ const io = new IntersectionObserver(
   },
   { rootMargin: '100px', threshold: 0.1 },
 );
-document.querySelectorAll('img[data-src]').forEach(el => io.observe(el));
+document.querySelectorAll('img[data-src]').forEach((el) => io.observe(el));
 
 // 2. ResizeObserver：监听容器尺寸
-const ro = new ResizeObserver(entries => {
+const ro = new ResizeObserver((entries) => {
   for (const entry of entries) {
     chart.resize({
       width: entry.contentRect.width,
@@ -385,7 +450,7 @@ const ro = new ResizeObserver(entries => {
 ro.observe(containerEl);
 
 // 3. MutationObserver：检测 DOM 变更（如富文本编辑）
-const mo = new MutationObserver(records => {
+const mo = new MutationObserver((records) => {
   for (const r of records) {
     if (r.type === 'childList') console.log('children changed');
     if (r.type === 'attributes') console.log('attr', r.attributeName);
@@ -394,54 +459,67 @@ const mo = new MutationObserver(records => {
 mo.observe(editor, { childList: true, subtree: true, attributes: true });
 
 // 4. PerformanceObserver：监听核心指标
-new PerformanceObserver(list => {
-  list.getEntries().forEach(entry => {
+new PerformanceObserver((list) => {
+  list.getEntries().forEach((entry) => {
     console.log(entry.entryType, entry.name, entry.startTime, entry.duration);
   });
 }).observe({
   type: 'longtask',
-  buffered: true,                         // 拿历史条目
+  buffered: true, // 拿历史条目
 });
 
 // 监听 LCP（取最后一个）
-new PerformanceObserver(list => {
+new PerformanceObserver((list) => {
   const last = list.getEntries().at(-1);
   console.log('LCP', last?.startTime);
 }).observe({ type: 'largest-contentful-paint', buffered: true });
 ```
 
+### 追问
+
+- 如果把「Observer 家族与 Performance API 的实战用法」用到真实项目里，你会重点关注哪些边界、验证手段和取舍？
+
 ### 延伸
+
 - 这些 API 的价值在于"让浏览器帮你做监听批处理"，减少轮询与同步计算
 - 可观测性 SDK 常用 `PerformanceObserver + Beacon` 做基础指标上报
 - 性能条目缓冲区可能会满，工程上要考虑 `buffered` 读取和条目丢失问题
 
 ## devtools-memory
+
 title: 浏览器 DevTools 如何排查内存泄漏与卡顿
+followups: [devtools-memory-followup-1]
 difficulty: 进阶
 tags: [DevTools, 调试]
 
 ### 一句话
+
 Performance 面板看长任务、掉帧、布局抖动、脚本热点；Memory 面板做 heap snapshot，对比对象增长趋势，查 detached DOM、闭包引用链；Network 看资源瀑布、缓存命中、接口阻塞。
 
 ### 题目
+
 如果线上页面越用越卡，你会如何利用浏览器开发者工具定位问题？
 
 ### 答案要点
+
 - Performance 面板看长任务、掉帧、布局抖动、脚本热点
 - Memory 面板做 heap snapshot，对比对象增长趋势，查 detached DOM、闭包引用链
 - Network 看资源瀑布、缓存命中、接口阻塞
 - Coverage 看未使用代码比例，辅助包体治理
 
 ### 代码示例
+
 ```ts
 // 常见内存泄漏模式与修复
 
 // 1. 全局事件未移除
 class Widget {
   constructor() {
-    window.addEventListener('resize', this.onResize);  // ❌ 未保存引用
+    window.addEventListener('resize', this.onResize); // ❌ 未保存引用
   }
-  onResize = () => { /* ... */ };
+  onResize = () => {
+    /* ... */
+  };
   destroy() {
     window.removeEventListener('resize', this.onResize); // ✅ 同一引用才能移除
   }
@@ -452,16 +530,21 @@ let timer: any;
 function start() {
   timer = setInterval(() => poll(), 1000);
 }
-function stop() { clearInterval(timer); }
+function stop() {
+  clearInterval(timer);
+}
 
 // 3. 闭包引用大对象
 function attach(big: ArrayBuffer) {
-  return () => console.log('hi');   // ❌ 闭包仍然持有 big
+  return () => console.log('hi'); // ❌ 闭包仍然持有 big
 }
 // ✅ 用完释放
 function attachOk(big: ArrayBuffer) {
   let local: ArrayBuffer | null = big;
-  return () => { console.log(local?.byteLength); local = null; };
+  return () => {
+    console.log(local?.byteLength);
+    local = null;
+  };
 }
 
 // 4. detached DOM：被 JS 引用但已移出文档
@@ -480,25 +563,35 @@ setInterval(() => {
 ```ts
 // 用 WeakRef 弱引用避免长生命周期持有
 const ref = new WeakRef(someObj);
-const obj = ref.deref();   // 可能为 undefined（已被 GC）
+const obj = ref.deref(); // 可能为 undefined（已被 GC）
 ```
 
+### 追问
+
+- 如果把「浏览器 DevTools 如何排查内存泄漏与卡顿」用到真实项目里，你会重点关注哪些边界、验证手段和取舍？
+
 ### 延伸
+
 - 排查内存泄漏常做"三次快照对比"：初始、操作后、GC 后
 - 不要只盯总内存大小，更要看"该被释放的对象是否还活着"
 
 ## v8-engine
+
 title: V8 引擎工作机制（Ignition / TurboFan / 隐藏类）
+followups: [v8-engine-followup-1]
 difficulty: 资深
 tags: [V8, 引擎]
 
 ### 一句话
+
 解析 → 字节码：Parser 生成 AST，Ignition 直接解释字节码运行；优化编译：热点代码进入 TurboFan，做基于类型反馈的 JIT 编译；类型不稳定会被 deopt 回 Ignition…。
 
 ### 题目
+
 V8 是怎么把 JS 跑得越来越快的？理解这些对前端代码有什么实际意义？
 
 ### 答案要点
+
 - 解析 → 字节码：Parser 生成 AST，Ignition 直接解释字节码运行
 - 优化编译：热点代码进入 TurboFan，做基于类型反馈的 JIT 编译；类型不稳定会被 deopt 回 Ignition
 - 隐藏类（Hidden Class / Map）：对象按属性顺序生成 shape，频繁改变 shape 会让 V8 退化到字典模式
@@ -507,6 +600,7 @@ V8 是怎么把 JS 跑得越来越快的？理解这些对前端代码有什么�
 - 实践含义：保持对象 shape 稳定（构造时一次性赋值）、避免 megamorphic 调用、减少临时对象
 
 ### 代码示例
+
 ```ts
 class Slow {
   init(x: number) {
@@ -531,22 +625,32 @@ function callsite(o: { foo: () => void }) {
 }
 ```
 
+### 追问
+
+- 如果把「V8 引擎工作机制（Ignition / TurboFan / 隐藏类）」用到真实项目里，你会重点关注哪些边界、验证手段和取舍？
+
 ### 延伸
+
 - V8 团队博客和 v8.dev 文章常更新优化细节，比道听途说靠谱
 - "猜测优化"思路：根据代码运行时表现反馈类型，前端不需要手动加 type，但代码风格稳定能间接帮 V8
 
 ## webgpu-overview
+
 title: WebGPU 概览与适用场景
+followups: [webgpu-overview-followup-1]
 difficulty: 资深
 tags: [WebGPU, GPU]
 
 ### 一句话
+
 设计目标：现代显卡 API（基于 Metal / Vulkan / DX12），多线程提交、Compute Shader；性能：相比 WebGL 减少状态机切换开销，能用 GPU 做通用计算；资源：BindGroup / Pipeline 显式声明…。
 
 ### 题目
+
 WebGPU 跟 WebGL 的核心差异是什么？哪些场景值得切换？
 
 ### 答案要点
+
 - 设计目标：现代显卡 API（基于 Metal / Vulkan / DX12），多线程提交、Compute Shader
 - 性能：相比 WebGL 减少状态机切换开销，能用 GPU 做通用计算
 - 资源：BindGroup / Pipeline 显式声明，符合现代图形 API 习惯
@@ -554,6 +658,7 @@ WebGPU 跟 WebGL 的核心差异是什么？哪些场景值得切换？
 - 兼容：Chrome 113+ 默认开启，Safari 17.4+，移动端覆盖较慢，需要做 fallback
 
 ### 代码示例
+
 ```ts
 const adapter = await navigator.gpu?.requestAdapter();
 const device = await adapter?.requestDevice();
@@ -573,22 +678,32 @@ const pipeline = device.createComputePipeline({
 });
 ```
 
+### 追问
+
+- 如果把「WebGPU 概览与适用场景」用到真实项目里，你会重点关注哪些边界、验证手段和取舍？
+
 ### 延伸
+
 - 引擎层（Three.js、Babylon.js、PIXI v8、TensorFlow.js）已支持 WebGPU 后端，业务层切换成本不大
 - 没有 WebGPU 时回退 WebGL2 / WASM SIMD 是常见的做法
 
 ## reflow-vs-repaint
+
 title: 回流（reflow）和重绘（repaint）的区别与触发条件
+followups: [reflow-vs-repaint-followup-1]
 difficulty: 进阶
 tags: [渲染, 性能]
 
 ### 一句话
+
 回流 = 改了几何（位置、大小）需要重算布局；重绘 = 只改外观（颜色、阴影）。回流必定带重绘，反之不一定。
 
 ### 题目
+
 回流和重绘分别是什么？哪些操作会触发它们？怎么减少？
 
 ### 答案要点
+
 - 重绘（repaint）：只改变外观（颜色、背景、可见性），不影响布局
 - 回流（reflow / layout）：几何属性变化，浏览器需要重新计算布局
 - 回流一定会重绘，重绘不一定回流
@@ -597,6 +712,7 @@ tags: [渲染, 性能]
 - 优化：批量 DOM 改动、使用 transform/opacity（合成层）、避免强制同步布局、使用 requestAnimationFrame
 
 ### 代码示例
+
 ```js
 const el = document.querySelector('.box');
 
@@ -613,22 +729,32 @@ el.style.transform = 'translate3d(0,0,0)';
 el.style.willChange = 'transform';
 ```
 
+### 追问
+
+- 如果把「回流（reflow）和重绘（repaint）的区别与触发条件」用到真实项目里，你会重点关注哪些边界、验证手段和取舍？
+
 ### 延伸
+
 - Chrome DevTools → Performance → Layout/Paint 火焰图可定位
 - composite-only 属性：transform / opacity / filter（合成线程处理，不阻塞主线程）
 
 ## browser-cache-strategy
+
 title: 浏览器缓存的完整链路是什么样的
+followups: [browser-cache-strategy-followup-1]
 difficulty: 进阶
 tags: [缓存, 性能, HTTP]
 
 ### 一句话
+
 请求资源时浏览器按"Service Worker → 内存 → 磁盘 → 网络"顺序找；强缓存（Cache-Control / Expires）直接返回，过期再走协商缓存（ETag / Last-Modified）。
 
 ### 题目
+
 从内存到磁盘，从强缓存到协商缓存，请描述浏览器请求资源时缓存命中的完整流程。
 
 ### 答案要点
+
 - 优先级：Service Worker → Memory Cache → Disk Cache → Push Cache（HTTP/2） → 网络
 - 强缓存：`Cache-Control: max-age=31536000, immutable` / `Expires`，命中直接返回 200 (from cache)
 - 协商缓存：强缓存失效后带 `If-None-Match` (ETag) / `If-Modified-Since`；服务端 304 不带 body
@@ -637,6 +763,7 @@ tags: [缓存, 性能, HTTP]
 - Service Worker 自定义缓存策略：cache-first / network-first / stale-while-revalidate
 
 ### 代码示例
+
 ```js
 self.addEventListener('fetch', (e) => {
   const req = e.request;
@@ -648,29 +775,39 @@ self.addEventListener('fetch', (e) => {
         const res = await fetch(req);
         cache.put(req, res.clone());
         return res;
-      })
+      }),
     );
   }
 });
 ```
 
+### 追问
+
+- 如果把「浏览器缓存的完整链路是什么样的」用到真实项目里，你会重点关注哪些边界、验证手段和取舍？
+
 ### 延伸
+
 - 大公司常用 SWR（stale-while-revalidate）：先返回缓存再后台刷新
 - 注意 chrome 强制刷新（Ctrl+Shift+R）会跳过强缓存但仍可能命中协商缓存
 - HTTP/2 Push Cache 使用率低，已被 103 Early Hints + preload 取代
 
 ## cookie-localstorage-indexeddb
+
 title: Cookie / localStorage / sessionStorage / IndexedDB 选哪个
+followups: [cookie-localstorage-indexeddb-followup-1]
 difficulty: 基础
 tags: [存储, 安全]
 
 ### 一句话
+
 鉴权用 Cookie（自动发送 + HttpOnly 防 XSS）；少量配置用 localStorage；Tab 级临时数据用 sessionStorage；离线大数据用 IndexedDB。
 
 ### 题目
+
 不同的客户端存储场景下应该如何选择，安全性怎么保障？
 
 ### 答案要点
+
 - Cookie：4KB，每个请求自动携带（适合鉴权 token），可设 HttpOnly / Secure / SameSite
 - localStorage：5-10MB，同源持久存储，同步 API，纯字符串
 - sessionStorage：与 localStorage 相同 API，但生命周期=Tab
@@ -679,6 +816,7 @@ tags: [存储, 安全]
 - 安全：用户敏感数据 → Cookie + HttpOnly + Secure + SameSite=Lax/Strict；XSS 风险 → 不要在 localStorage 存 JWT
 
 ### 代码示例
+
 ```js
 document.cookie = 'session=xxx; HttpOnly; Secure; SameSite=Lax; Max-Age=86400';
 
@@ -692,23 +830,33 @@ req.onsuccess = () => {
 };
 ```
 
+### 追问
+
+- 如果把「Cookie / localStorage / sessionStorage / IndexedDB 选哪个」用到真实项目里，你会重点关注哪些边界、验证手段和取舍？
+
 ### 延伸
+
 - localStorage 同步阻塞主线程，不适合频繁写入
 - 复杂应用首选 IndexedDB（用 idb-keyval / Dexie 简化）
 - 跨子域共享存储用 cookie；跨主域用 postMessage + iframe
 
 ## web-worker-basics
+
 title: Web Worker 是什么，什么场景应该用
+followups: [web-worker-basics-followup-1]
 difficulty: 进阶
 tags: [Worker, 性能]
 
 ### 一句话
+
 Web Worker 让 JS 跑在独立的后台线程，不阻塞主线程；通过 `postMessage` 互通——非常适合"算得久、不需要直接操作 DOM"的任务。
 
 ### 题目
+
 普通 Worker、SharedWorker、ServiceWorker 各自定位是什么？什么时候用？
 
 ### 答案要点
+
 - **Dedicated Worker**：专属当前页面，主页关闭就销毁；通过 `postMessage` 通信，不能访问 DOM
 - **SharedWorker**：可在多个同源 Tab 共享，适合做"集中式 WebSocket 网关"
 - **ServiceWorker**：常驻后台，拦截网络请求 + 推送通知 + 离线缓存（PWA 的核心）
@@ -716,6 +864,7 @@ Web Worker 让 JS 跑在独立的后台线程，不阻塞主线程；通过 `pos
 - 数据传递：默认是 structured clone（开销大），可用 Transferable（ArrayBuffer / OffscreenCanvas / MessagePort）零拷贝
 
 ### 代码示例
+
 ```js
 const worker = new Worker(new URL('./hash.worker.js', import.meta.url), { type: 'module' });
 worker.postMessage({ buffer: arrayBuffer }, [arrayBuffer]);
@@ -728,23 +877,33 @@ self.onmessage = async (e) => {
 };
 ```
 
+### 追问
+
+- 如果把「Web Worker 是什么，什么场景应该用」用到真实项目里，你会重点关注哪些边界、验证手段和取舍？
+
 ### 延伸
+
 - Vite / webpack 都支持把 `?worker` 后缀的文件单独打包成 Worker
 - React / Vue 里推荐用 `Comlink` 让 Worker 通信像调用普通方法
 - OffscreenCanvas 让你在 Worker 里直接操作 Canvas，特别适合可视化/游戏
 
 ## browser-process-thread
+
 title: Chrome 多进程 + 多线程架构是什么样的
+followups: [browser-process-thread-followup-1]
 difficulty: 进阶
 tags: [架构, 进程]
 
 ### 一句话
+
 Chrome 把每个标签页放在独立的 Renderer 进程里（崩溃只影响当前页 + 安全沙盒）；Renderer 内部又有主线程、合成线程、光栅化线程、Worker 线程等多条线程协作。
 
 ### 题目
+
 Chrome 浏览器的进程模型和 Renderer 进程内部的线程模型分别是什么？
 
 ### 答案要点
+
 - 进程：
   - **Browser Process**：主控、UI、网络、磁盘 I/O 调度
   - **Renderer Process**：每个 Tab / iframe 一个，负责 HTML/CSS/JS 解析与渲染（沙盒）
@@ -760,29 +919,39 @@ Chrome 浏览器的进程模型和 Renderer 进程内部的线程模型分别是
 - Site Isolation：跨站 iframe 也用独立进程，更安全（Spectre/Meltdown 后默认开启）
 
 ### 代码示例
+
 ```js
 chrome://process-internals/
 chrome://memory-internals/
 ```
 
+### 追问
+
+- 如果把「Chrome 多进程 + 多线程架构是什么样的」用到真实项目里，你会重点关注哪些边界、验证手段和取舍？
+
 ### 延伸
+
 - 移动端 Chrome 进程数受限于内存，会做"进程合并"
 - Edge 与 Brave 同源 Chromium 架构相同
 - Safari 也用类似的 WebContent + Networking + GPU 进程拆分
 
-
 ## webgpu-pipeline-basics
+
 title: WebGPU 比 WebGL 强在哪？最小可用渲染管线
+followups: [webgpu-pipeline-basics-followup-1]
 difficulty: 资深
 tags: [WebGPU, 图形, 高频]
 
 ### 一句话
+
 WebGPU 是新一代 GPU API：① 同时面向**渲染和计算**（compute shader），② 多线程友好（command encoder 提交 GPU），③ 显式描述 pipeline / bind group，性能可预测；适合大数据可视化、ML 推理、3D 引擎。
 
 ### 题目
+
 WebGL 已经能做大部分图形需求，WebGPU 解决了什么新问题？写出最小三角形渲染管线的关键步骤。
 
 ### 答案要点
+
 - **WebGL 的痛点**
   - 状态机式 API：drawCall 前要 bind 一堆全局状态，难做并行
   - 没有 compute shader（WebGL 2 也没有，要绕到 fragment shader 计算）
@@ -817,6 +986,7 @@ WebGL 已经能做大部分图形需求，WebGPU 解决了什么新问题？写�
   - 调试工具不如 WebGL 成熟（Chrome DevTools 有 GPU panel）
 
 ### 代码示例
+
 ```ts
 const adapter = await navigator.gpu.requestAdapter();
 const device = await adapter!.requestDevice();
@@ -825,7 +995,7 @@ const ctx = canvas.getContext('webgpu')!;
 const format = navigator.gpu.getPreferredCanvasFormat();
 ctx.configure({ device, format, alphaMode: 'premultiplied' });
 
-const wgsl = /* wgsl */`
+const wgsl = /* wgsl */ `
 @vertex
 fn vs(@builtin(vertex_index) i: u32) -> @builtin(position) vec4f {
   let pos = array<vec2f, 3>(vec2f(0., .5), vec2f(-.5, -.5), vec2f(.5, -.5));
@@ -840,7 +1010,7 @@ const module = device.createShaderModule({ code: wgsl });
 
 const pipeline = device.createRenderPipeline({
   layout: 'auto',
-  vertex:   { module, entryPoint: 'vs' },
+  vertex: { module, entryPoint: 'vs' },
   fragment: { module, entryPoint: 'fs', targets: [{ format }] },
   primitive: { topology: 'triangle-list' },
 });
@@ -848,12 +1018,14 @@ const pipeline = device.createRenderPipeline({
 function frame() {
   const enc = device.createCommandEncoder();
   const pass = enc.beginRenderPass({
-    colorAttachments: [{
-      view: ctx.getCurrentTexture().createView(),
-      clearValue: { r: 0, g: 0, b: 0, a: 1 },
-      loadOp: 'clear',
-      storeOp: 'store',
-    }],
+    colorAttachments: [
+      {
+        view: ctx.getCurrentTexture().createView(),
+        clearValue: { r: 0, g: 0, b: 0, a: 1 },
+        loadOp: 'clear',
+        storeOp: 'store',
+      },
+    ],
   });
   pass.setPipeline(pipeline);
   pass.draw(3);
@@ -864,22 +1036,32 @@ function frame() {
 frame();
 ```
 
+### 追问
+
+- 如果把「WebGPU 比 WebGL 强在哪？最小可用渲染管线」用到真实项目里，你会重点关注哪些边界、验证手段和取舍？
+
 ### 延伸
+
 - WebNN（神经网络 API）配合 WebGPU 后端，未来浏览器原生跑 LLM
 - WebGPU 在 Node 也有实现（dawn / wgpu binding），跨端复用 shader
 
 ## webtransport-vs-websocket
+
 title: WebTransport 和 WebSocket 的关系？什么场景用
+followups: [webtransport-vs-websocket-followup-1]
 difficulty: 资深
 tags: [WebTransport, 实时通信]
 
 ### 一句话
+
 WebTransport 跑在 **HTTP/3（QUIC + UDP）** 上，提供**多个独立流 + 不可靠数据报**两种通道：避免 WebSocket 的"队头阻塞"，适合实时游戏、低延迟流媒体、远程渲染等对丢包/乱序敏感的场景。
 
 ### 题目
+
 WebSocket 用了十年还很稳，为什么浏览器要做 WebTransport？两者有什么本质差异？
 
 ### 答案要点
+
 - **WebSocket 的局限**
   - 跑在 TCP 上，单一有序字节流 → 一旦丢包整条连接 stall（队头阻塞 HOL）
   - 多消息类型必须复用同一条流，互相影响
@@ -913,6 +1095,7 @@ WebSocket 用了十年还很稳，为什么浏览器要做 WebTransport？两者
   - WebTransport 就是 client-server，工程化更简单
 
 ### 代码示例
+
 ```ts
 const transport = new WebTransport('https://example.com/realtime');
 await transport.ready;
@@ -944,22 +1127,32 @@ loop();
 })();
 ```
 
+### 追问
+
+- 如果把「WebTransport 和 WebSocket 的关系？什么场景用」用到真实项目里，你会重点关注哪些边界、验证手段和取舍？
+
 ### 延伸
+
 - WebRTC + WebTransport 组合：媒体走 RTC，控制信令走 WebTransport
 - 阿里 / 腾讯云的低延迟直播已有 WebTransport 试点
 
 ## webcodecs-streams
+
 title: WebCodecs + Streams 实现浏览器内视频处理
+followups: [webcodecs-streams-followup-1]
 difficulty: 资深
 tags: [WebCodecs, Streams, 视频]
 
 ### 一句话
+
 WebCodecs 暴露浏览器内置的硬件解码 / 编码（VideoDecoder/VideoEncoder/AudioDecoder/AudioEncoder），配合 ReadableStream / WritableStream 形成"零拷贝管道"：解码 → 处理 → 编码 → 上传，全程不离开 GPU，远比 ffmpeg.wasm 高效。
 
 ### 题目
+
 浏览器里要做"实时给视频加水印 + 转码上传"，传统方案 ffmpeg.wasm 太慢。WebCodecs 怎么帮你？
 
 ### 答案要点
+
 - **能力定位**
   - WebCodecs 不做封装格式（mp4 / mkv），只解 / 编 raw frame
   - 必须配合 demuxer（mp4box.js）做容器解析
@@ -990,6 +1183,7 @@ WebCodecs 暴露浏览器内置的硬件解码 / 编码（VideoDecoder/VideoEnco
   - 错误码不直观，VideoDecoder.error 回调要打日志
 
 ### 代码示例
+
 ```ts
 const decoder = new VideoDecoder({
   output: (frame) => writer.write(frame),
@@ -1026,18 +1220,879 @@ const watermarkTransform = new TransformStream<VideoFrame, VideoFrame>({
 
 const track = (await navigator.mediaDevices.getUserMedia({ video: true })).getVideoTracks()[0];
 const processor = new MediaStreamTrackProcessor({ track });
-processor.readable
-  .pipeThrough(watermarkTransform)
-  .pipeTo(new WritableStream({
+processor.readable.pipeThrough(watermarkTransform).pipeTo(
+  new WritableStream({
     write(frame) {
       encoder.encode(frame, { keyFrame: false });
       frame.close();
     },
-  }));
+  }),
+);
 ```
 
+### 追问
+
+- 如果把「WebCodecs + Streams 实现浏览器内视频处理」用到真实项目里，你会重点关注哪些边界、验证手段和取舍？
+
 ### 延伸
+
 - WebRTC Insertable Streams（同样 VideoFrame 概念）做端到端加密 / 滤镜
 - 实时 AI 处理：每帧扔到 WebGPU 跑模型 → 输出新 frame，全 GPU 管道
 - "无服务器视频转码"：浏览器用户机器算力替代后端
 
+## url-to-render-followup-1
+
+title: 追问：HTTPS 握手具体几个 RTT，TLS 1.3 优化了什么
+difficulty: 进阶
+tags: [追问]
+parent: url-to-render
+
+### 题目
+
+如果面试官追问：HTTPS 握手具体几个 RTT，TLS 1.3 优化了什么
+
+### 答案要点
+
+#### 回答思路
+
+- 先给一句结论：这个问题要从「为什么需要它」「它解决了什么问题」「代价是什么」三个角度回答。
+- 再把结论落回原题，不要脱离上下文泛泛而谈；面试官通常会顺着边界、异常和工程成本继续追问。
+- 如果涉及实现细节，按数据流、状态变化、调用顺序或生命周期拆开讲；如果涉及方案选择，必须说明为什么不用另一个方案。
+
+#### 结合原题展开
+
+- 解析 URL，查缓存和 DNS，建立 TCP/TLS 连接
+- TCP 三次握手只在没复用连接时发生；HTTP/2 多路复用同 TCP
+- 首屏性能优化的本质，就是缩短这条关键路径上的阻塞链
+- 可以补充一个真实项目语境：上线前先约定输入输出、失败兜底和观测指标，避免只在 demo 场景下成立。
+
+#### 工程落地
+
+- 验证手段要具体：单元测试覆盖边界条件，集成测试覆盖主流程，必要时用 e2e 或回放数据验证真实链路。
+- 运行时要可观测：关键路径打日志或埋点，关注错误率、耗时、资源占用、用户可感知延迟和降级次数。
+- 发布策略要稳：高风险变更建议灰度、开关或回滚预案；如果会影响数据一致性，还要说明迁移和兼容策略。
+
+#### 易错点
+
+- 不要只背 API 或概念名，要说清楚适用条件；很多方案在小流量、单端、无异常时看起来都成立。
+- 不要忽略默认值、兼容性、异常回滚、性能退化和团队维护成本，这些往往是资深面试继续深挖的重点。
+- 如果答案里出现“总是”“一定”“完全替代”这类绝对表述，要主动补充例外场景。
+
+## url-to-render-followup-2
+
+title: 追问：preconnect / dns-prefetch / preload 的执行顺序
+difficulty: 进阶
+tags: [追问]
+parent: url-to-render
+
+### 题目
+
+如果面试官追问：preconnect / dns-prefetch / preload 的执行顺序
+
+### 答案要点
+
+#### 回答思路
+
+- 先给一句结论：这个问题要从「为什么需要它」「它解决了什么问题」「代价是什么」三个角度回答。
+- 再把结论落回原题，不要脱离上下文泛泛而谈；面试官通常会顺着边界、异常和工程成本继续追问。
+- 如果涉及实现细节，按数据流、状态变化、调用顺序或生命周期拆开讲；如果涉及方案选择，必须说明为什么不用另一个方案。
+
+#### 结合原题展开
+
+- 先把问题拉回「从输入 URL 到页面显示，浏览器经历了什么」的核心机制，说明这个追问考察的是落地边界、失败条件和方案取舍，而不是单点定义。
+- 可以补充一个真实项目语境：上线前先约定输入输出、失败兜底和观测指标，避免只在 demo 场景下成立。
+
+#### 工程落地
+
+- 验证手段要具体：单元测试覆盖边界条件，集成测试覆盖主流程，必要时用 e2e 或回放数据验证真实链路。
+- 运行时要可观测：关键路径打日志或埋点，关注错误率、耗时、资源占用、用户可感知延迟和降级次数。
+- 发布策略要稳：高风险变更建议灰度、开关或回滚预案；如果会影响数据一致性，还要说明迁移和兼容策略。
+
+#### 易错点
+
+- 不要只背 API 或概念名，要说清楚适用条件；很多方案在小流量、单端、无异常时看起来都成立。
+- 不要忽略默认值、兼容性、异常回滚、性能退化和团队维护成本，这些往往是资深面试继续深挖的重点。
+- 如果答案里出现“总是”“一定”“完全替代”这类绝对表述，要主动补充例外场景。
+
+## url-to-render-followup-3
+
+title: 追问：LCP 的衡量对象通常是哪些元素
+difficulty: 进阶
+tags: [追问]
+parent: url-to-render
+
+### 题目
+
+如果面试官追问：LCP 的衡量对象通常是哪些元素
+
+### 答案要点
+
+#### 回答思路
+
+- 先给一句结论：这个问题要从「为什么需要它」「它解决了什么问题」「代价是什么」三个角度回答。
+- 再把结论落回原题，不要脱离上下文泛泛而谈；面试官通常会顺着边界、异常和工程成本继续追问。
+- 如果涉及实现细节，按数据流、状态变化、调用顺序或生命周期拆开讲；如果涉及方案选择，必须说明为什么不用另一个方案。
+
+#### 结合原题展开
+
+- 先把问题拉回「从输入 URL 到页面显示，浏览器经历了什么」的核心机制，说明这个追问考察的是落地边界、失败条件和方案取舍，而不是单点定义。
+- 可以补充一个真实项目语境：上线前先约定输入输出、失败兜底和观测指标，避免只在 demo 场景下成立。
+
+#### 工程落地
+
+- 验证手段要具体：单元测试覆盖边界条件，集成测试覆盖主流程，必要时用 e2e 或回放数据验证真实链路。
+- 运行时要可观测：关键路径打日志或埋点，关注错误率、耗时、资源占用、用户可感知延迟和降级次数。
+- 发布策略要稳：高风险变更建议灰度、开关或回滚预案；如果会影响数据一致性，还要说明迁移和兼容策略。
+
+#### 易错点
+
+- 不要只背 API 或概念名，要说清楚适用条件；很多方案在小流量、单端、无异常时看起来都成立。
+- 不要忽略默认值、兼容性、异常回滚、性能退化和团队维护成本，这些往往是资深面试继续深挖的重点。
+- 如果答案里出现“总是”“一定”“完全替代”这类绝对表述，要主动补充例外场景。
+
+## render-pipeline-followup-1
+
+title: 追问：contain 属性能做什么
+difficulty: 进阶
+tags: [渲染, 性能, 追问]
+parent: render-pipeline
+
+### 题目
+
+如果面试官追问：contain 属性能做什么
+
+### 答案要点
+
+#### 回答思路
+
+- 先给一句结论：这个问题要从「为什么需要它」「它解决了什么问题」「代价是什么」三个角度回答。
+- 再把结论落回原题，不要脱离上下文泛泛而谈；面试官通常会顺着边界、异常和工程成本继续追问。
+- 如果涉及实现细节，按数据流、状态变化、调用顺序或生命周期拆开讲；如果涉及方案选择，必须说明为什么不用另一个方案。
+
+#### 结合原题展开
+
+- 先把问题拉回「DOM、CSSOM、Render Tree、Layout、Paint、Composite 的关系」的核心机制，说明这个追问考察的是落地边界、失败条件和方案取舍，而不是单点定义。
+- 可以补充一个真实项目语境：上线前先约定输入输出、失败兜底和观测指标，避免只在 demo 场景下成立。
+
+#### 工程落地
+
+- 验证手段要具体：单元测试覆盖边界条件，集成测试覆盖主流程，必要时用 e2e 或回放数据验证真实链路。
+- 运行时要可观测：关键路径打日志或埋点，关注错误率、耗时、资源占用、用户可感知延迟和降级次数。
+- 发布策略要稳：高风险变更建议灰度、开关或回滚预案；如果会影响数据一致性，还要说明迁移和兼容策略。
+
+#### 易错点
+
+- 不要只背 API 或概念名，要说清楚适用条件；很多方案在小流量、单端、无异常时看起来都成立。
+- 不要忽略默认值、兼容性、异常回滚、性能退化和团队维护成本，这些往往是资深面试继续深挖的重点。
+- 如果答案里出现“总是”“一定”“完全替代”这类绝对表述，要主动补充例外场景。
+
+## render-pipeline-followup-2
+
+title: 追问：content-visibility: auto 和 IntersectionObserver 区别
+difficulty: 进阶
+tags: [渲染, 性能, 追问]
+parent: render-pipeline
+
+### 题目
+
+如果面试官追问：content-visibility: auto 和 IntersectionObserver 区别
+
+### 答案要点
+
+#### 回答思路
+
+- 先给一句结论：这个问题要从「为什么需要它」「它解决了什么问题」「代价是什么」三个角度回答。
+- 再把结论落回原题，不要脱离上下文泛泛而谈；面试官通常会顺着边界、异常和工程成本继续追问。
+- 如果涉及实现细节，按数据流、状态变化、调用顺序或生命周期拆开讲；如果涉及方案选择，必须说明为什么不用另一个方案。
+
+#### 结合原题展开
+
+- 先把问题拉回「DOM、CSSOM、Render Tree、Layout、Paint、Composite 的关系」的核心机制，说明这个追问考察的是落地边界、失败条件和方案取舍，而不是单点定义。
+- 可以补充一个真实项目语境：上线前先约定输入输出、失败兜底和观测指标，避免只在 demo 场景下成立。
+
+#### 工程落地
+
+- 验证手段要具体：单元测试覆盖边界条件，集成测试覆盖主流程，必要时用 e2e 或回放数据验证真实链路。
+- 运行时要可观测：关键路径打日志或埋点，关注错误率、耗时、资源占用、用户可感知延迟和降级次数。
+- 发布策略要稳：高风险变更建议灰度、开关或回滚预案；如果会影响数据一致性，还要说明迁移和兼容策略。
+
+#### 易错点
+
+- 不要只背 API 或概念名，要说清楚适用条件；很多方案在小流量、单端、无异常时看起来都成立。
+- 不要忽略默认值、兼容性、异常回滚、性能退化和团队维护成本，这些往往是资深面试继续深挖的重点。
+- 如果答案里出现“总是”“一定”“完全替代”这类绝对表述，要主动补充例外场景。
+
+## render-pipeline-followup-3
+
+title: 追问：强制同步布局怎么排查
+difficulty: 进阶
+tags: [渲染, 性能, 追问]
+parent: render-pipeline
+
+### 题目
+
+如果面试官追问：强制同步布局（layout thrashing）怎么排查
+
+### 答案要点
+
+#### 回答思路
+
+- 先给一句结论：这个问题要从「为什么需要它」「它解决了什么问题」「代价是什么」三个角度回答。
+- 再把结论落回原题，不要脱离上下文泛泛而谈；面试官通常会顺着边界、异常和工程成本继续追问。
+- 如果涉及实现细节，按数据流、状态变化、调用顺序或生命周期拆开讲；如果涉及方案选择，必须说明为什么不用另一个方案。
+
+#### 结合原题展开
+
+- 回流（layout/reflow）是重新计算几何信息；重绘（paint）是重新绘制像素；合成（composite）是图层拼接
+- transform / opacity 通常 GPU 合成，不会触发 layout/paint，但will-change 滥用反而让 layer 数量爆炸
+- 改 width / height 会 layout；改 background-image 会 paint；改 transform 只 composite
+- 可以补充一个真实项目语境：上线前先约定输入输出、失败兜底和观测指标，避免只在 demo 场景下成立。
+
+#### 工程落地
+
+- 验证手段要具体：单元测试覆盖边界条件，集成测试覆盖主流程，必要时用 e2e 或回放数据验证真实链路。
+- 运行时要可观测：关键路径打日志或埋点，关注错误率、耗时、资源占用、用户可感知延迟和降级次数。
+- 发布策略要稳：高风险变更建议灰度、开关或回滚预案；如果会影响数据一致性，还要说明迁移和兼容策略。
+
+#### 易错点
+
+- 不要只背 API 或概念名，要说清楚适用条件；很多方案在小流量、单端、无异常时看起来都成立。
+- 不要忽略默认值、兼容性、异常回滚、性能退化和团队维护成本，这些往往是资深面试继续深挖的重点。
+- 如果答案里出现“总是”“一定”“完全替代”这类绝对表述，要主动补充例外场景。
+
+## storage-cookie-followup-1
+
+title: 追问：如果把「Cookie、localStorage、sessionStorage、IndexedDB、Cache Storage 如何取舍」用到真实项目里，你会重点关注哪些边界、验证手段和取舍
+difficulty: 基础
+tags: [存储, Cookie, 追问]
+parent: storage-cookie
+
+### 题目
+
+如果面试官追问：如果把「Cookie、localStorage、sessionStorage、IndexedDB、Cache Storage 如何取舍」用到真实项目里，你会重点关注哪些边界、验证手段和取舍？
+
+### 答案要点
+
+#### 回答思路
+
+- 先给一句结论：这个问题要从「为什么需要它」「它解决了什么问题」「代价是什么」三个角度回答。
+- 再把结论落回原题，不要脱离上下文泛泛而谈；面试官通常会顺着边界、异常和工程成本继续追问。
+- 如果涉及实现细节，按数据流、状态变化、调用顺序或生命周期拆开讲；如果涉及方案选择，必须说明为什么不用另一个方案。
+
+#### 结合原题展开
+
+- Cookie 体积小、会随请求自动发送，适合会话标识；支持 HttpOnly、Secure、SameSite
+- localStorage 同步 API、实现简单，但配额和行为依浏览器而异；不适合存大量数据和高频写
+- sessionStorage 生命周期跟 tab 绑定
+- 可以补充一个真实项目语境：上线前先约定输入输出、失败兜底和观测指标，避免只在 demo 场景下成立。
+
+#### 工程落地
+
+- 验证手段要具体：单元测试覆盖边界条件，集成测试覆盖主流程，必要时用 e2e 或回放数据验证真实链路。
+- 运行时要可观测：关键路径打日志或埋点，关注错误率、耗时、资源占用、用户可感知延迟和降级次数。
+- 发布策略要稳：高风险变更建议灰度、开关或回滚预案；如果会影响数据一致性，还要说明迁移和兼容策略。
+
+#### 易错点
+
+- 不要只背 API 或概念名，要说清楚适用条件；很多方案在小流量、单端、无异常时看起来都成立。
+- 不要忽略默认值、兼容性、异常回滚、性能退化和团队维护成本，这些往往是资深面试继续深挖的重点。
+- 如果答案里出现“总是”“一定”“完全替代”这类绝对表述，要主动补充例外场景。
+
+## service-worker-followup-1
+
+title: 追问：如果把「Service Worker 生命周期与常见缓存策略」用到真实项目里，你会重点关注哪些边界、验证手段和取舍
+difficulty: 进阶
+tags: [PWA, 离线, 追问]
+parent: service-worker
+
+### 题目
+
+如果面试官追问：如果把「Service Worker 生命周期与常见缓存策略」用到真实项目里，你会重点关注哪些边界、验证手段和取舍？
+
+### 答案要点
+
+#### 回答思路
+
+- 先给一句结论：这个问题要从「为什么需要它」「它解决了什么问题」「代价是什么」三个角度回答。
+- 再把结论落回原题，不要脱离上下文泛泛而谈；面试官通常会顺着边界、异常和工程成本继续追问。
+- 如果涉及实现细节，按数据流、状态变化、调用顺序或生命周期拆开讲；如果涉及方案选择，必须说明为什么不用另一个方案。
+
+#### 结合原题展开
+
+- Service Worker 只在安全上下文可用（通常是 HTTPS，localhost 例外）
+- 可以补充一个真实项目语境：上线前先约定输入输出、失败兜底和观测指标，避免只在 demo 场景下成立。
+
+#### 工程落地
+
+- 验证手段要具体：单元测试覆盖边界条件，集成测试覆盖主流程，必要时用 e2e 或回放数据验证真实链路。
+- 运行时要可观测：关键路径打日志或埋点，关注错误率、耗时、资源占用、用户可感知延迟和降级次数。
+- 发布策略要稳：高风险变更建议灰度、开关或回滚预案；如果会影响数据一致性，还要说明迁移和兼容策略。
+
+#### 易错点
+
+- 不要只背 API 或概念名，要说清楚适用条件；很多方案在小流量、单端、无异常时看起来都成立。
+- 不要忽略默认值、兼容性、异常回滚、性能退化和团队维护成本，这些往往是资深面试继续深挖的重点。
+- 如果答案里出现“总是”“一定”“完全替代”这类绝对表述，要主动补充例外场景。
+
+## event-loop-worker-followup-1
+
+title: 追问：requestIdleCallback 兼容性如何，什么时候用
+difficulty: 进阶
+tags: [事件循环, Worker, 追问]
+parent: event-loop-worker
+
+### 题目
+
+如果面试官追问：requestIdleCallback 兼容性如何，什么时候用
+
+### 答案要点
+
+#### 回答思路
+
+- 先给一句结论：这个问题要从「为什么需要它」「它解决了什么问题」「代价是什么」三个角度回答。
+- 再把结论落回原题，不要脱离上下文泛泛而谈；面试官通常会顺着边界、异常和工程成本继续追问。
+- 如果涉及实现细节，按数据流、状态变化、调用顺序或生命周期拆开讲；如果涉及方案选择，必须说明为什么不用另一个方案。
+
+#### 结合原题展开
+
+- 先把问题拉回「浏览器事件循环、主线程限制与 Worker」的核心机制，说明这个追问考察的是落地边界、失败条件和方案取舍，而不是单点定义。
+- 可以补充一个真实项目语境：上线前先约定输入输出、失败兜底和观测指标，避免只在 demo 场景下成立。
+
+#### 工程落地
+
+- 验证手段要具体：单元测试覆盖边界条件，集成测试覆盖主流程，必要时用 e2e 或回放数据验证真实链路。
+- 运行时要可观测：关键路径打日志或埋点，关注错误率、耗时、资源占用、用户可感知延迟和降级次数。
+- 发布策略要稳：高风险变更建议灰度、开关或回滚预案；如果会影响数据一致性，还要说明迁移和兼容策略。
+
+#### 易错点
+
+- 不要只背 API 或概念名，要说清楚适用条件；很多方案在小流量、单端、无异常时看起来都成立。
+- 不要忽略默认值、兼容性、异常回滚、性能退化和团队维护成本，这些往往是资深面试继续深挖的重点。
+- 如果答案里出现“总是”“一定”“完全替代”这类绝对表述，要主动补充例外场景。
+
+## event-loop-worker-followup-2
+
+title: 追问：SharedArrayBuffer 能跨线程零拷贝，需要哪些 HTTP 头
+difficulty: 进阶
+tags: [事件循环, Worker, 追问]
+parent: event-loop-worker
+
+### 题目
+
+如果面试官追问：SharedArrayBuffer 能跨线程零拷贝，需要哪些 HTTP 头
+
+### 答案要点
+
+#### 回答思路
+
+- 先给一句结论：这个问题要从「为什么需要它」「它解决了什么问题」「代价是什么」三个角度回答。
+- 再把结论落回原题，不要脱离上下文泛泛而谈；面试官通常会顺着边界、异常和工程成本继续追问。
+- 如果涉及实现细节，按数据流、状态变化、调用顺序或生命周期拆开讲；如果涉及方案选择，必须说明为什么不用另一个方案。
+
+#### 结合原题展开
+
+- 主线程同时要处理 JS、样式、布局、绘制和用户输入，长任务会直接拖慢响应
+- Worker 可把计算密集型任务移到后台线程，如解析大 JSON、图像处理、搜索索引
+- Worker 不能直接访问 DOM，和主线程通常通过 postMessage、Transferable 对象通信；SharedArrayBuffer 还要求安全上下文和 cross-origin isolation
+- 可以补充一个真实项目语境：上线前先约定输入输出、失败兜底和观测指标，避免只在 demo 场景下成立。
+
+#### 工程落地
+
+- 验证手段要具体：单元测试覆盖边界条件，集成测试覆盖主流程，必要时用 e2e 或回放数据验证真实链路。
+- 运行时要可观测：关键路径打日志或埋点，关注错误率、耗时、资源占用、用户可感知延迟和降级次数。
+- 发布策略要稳：高风险变更建议灰度、开关或回滚预案；如果会影响数据一致性，还要说明迁移和兼容策略。
+
+#### 易错点
+
+- 不要只背 API 或概念名，要说清楚适用条件；很多方案在小流量、单端、无异常时看起来都成立。
+- 不要忽略默认值、兼容性、异常回滚、性能退化和团队维护成本，这些往往是资深面试继续深挖的重点。
+- 如果答案里出现“总是”“一定”“完全替代”这类绝对表述，要主动补充例外场景。
+
+## event-loop-worker-followup-3
+
+title: 追问：web worker 和 service worker 区别
+difficulty: 进阶
+tags: [事件循环, Worker, 追问]
+parent: event-loop-worker
+
+### 题目
+
+如果面试官追问：web worker 和 service worker 区别
+
+### 答案要点
+
+#### 回答思路
+
+- 先给一句结论：这个问题要从「为什么需要它」「它解决了什么问题」「代价是什么」三个角度回答。
+- 再把结论落回原题，不要脱离上下文泛泛而谈；面试官通常会顺着边界、异常和工程成本继续追问。
+- 如果涉及实现细节，按数据流、状态变化、调用顺序或生命周期拆开讲；如果涉及方案选择，必须说明为什么不用另一个方案。
+
+#### 结合原题展开
+
+- Worker 可把计算密集型任务移到后台线程，如解析大 JSON、图像处理、搜索索引
+- Worker 不能直接访问 DOM，和主线程通常通过 postMessage、Transferable 对象通信；SharedArrayBuffer 还要求安全上下文和 cross-origin isolation
+- Worker 里没有 DOM、window、document，访问就报错
+- 可以补充一个真实项目语境：上线前先约定输入输出、失败兜底和观测指标，避免只在 demo 场景下成立。
+
+#### 工程落地
+
+- 验证手段要具体：单元测试覆盖边界条件，集成测试覆盖主流程，必要时用 e2e 或回放数据验证真实链路。
+- 运行时要可观测：关键路径打日志或埋点，关注错误率、耗时、资源占用、用户可感知延迟和降级次数。
+- 发布策略要稳：高风险变更建议灰度、开关或回滚预案；如果会影响数据一致性，还要说明迁移和兼容策略。
+
+#### 易错点
+
+- 不要只背 API 或概念名，要说清楚适用条件；很多方案在小流量、单端、无异常时看起来都成立。
+- 不要忽略默认值、兼容性、异常回滚、性能退化和团队维护成本，这些往往是资深面试继续深挖的重点。
+- 如果答案里出现“总是”“一定”“完全替代”这类绝对表述，要主动补充例外场景。
+
+## observer-performance-api-followup-1
+
+title: 追问：如果把「Observer 家族与 Performance API 的实战用法」用到真实项目里，你会重点关注哪些边界、验证手段和取舍
+difficulty: 进阶
+tags: [Observer, 性能, 追问]
+parent: observer-performance-api
+
+### 题目
+
+如果面试官追问：如果把「Observer 家族与 Performance API 的实战用法」用到真实项目里，你会重点关注哪些边界、验证手段和取舍？
+
+### 答案要点
+
+#### 回答思路
+
+- 先给一句结论：这个问题要从「为什么需要它」「它解决了什么问题」「代价是什么」三个角度回答。
+- 再把结论落回原题，不要脱离上下文泛泛而谈；面试官通常会顺着边界、异常和工程成本继续追问。
+- 如果涉及实现细节，按数据流、状态变化、调用顺序或生命周期拆开讲；如果涉及方案选择，必须说明为什么不用另一个方案。
+
+#### 结合原题展开
+
+- IntersectionObserver：懒加载、曝光埋点、无限滚动
+- ResizeObserver：容器尺寸变化监听
+- MutationObserver：DOM 结构变化监听
+- 可以补充一个真实项目语境：上线前先约定输入输出、失败兜底和观测指标，避免只在 demo 场景下成立。
+
+#### 工程落地
+
+- 验证手段要具体：单元测试覆盖边界条件，集成测试覆盖主流程，必要时用 e2e 或回放数据验证真实链路。
+- 运行时要可观测：关键路径打日志或埋点，关注错误率、耗时、资源占用、用户可感知延迟和降级次数。
+- 发布策略要稳：高风险变更建议灰度、开关或回滚预案；如果会影响数据一致性，还要说明迁移和兼容策略。
+
+#### 易错点
+
+- 不要只背 API 或概念名，要说清楚适用条件；很多方案在小流量、单端、无异常时看起来都成立。
+- 不要忽略默认值、兼容性、异常回滚、性能退化和团队维护成本，这些往往是资深面试继续深挖的重点。
+- 如果答案里出现“总是”“一定”“完全替代”这类绝对表述，要主动补充例外场景。
+
+## devtools-memory-followup-1
+
+title: 追问：如果把「浏览器 DevTools 如何排查内存泄漏与卡顿」用到真实项目里，你会重点关注哪些边界、验证手段和取舍
+difficulty: 进阶
+tags: [DevTools, 调试, 追问]
+parent: devtools-memory
+
+### 题目
+
+如果面试官追问：如果把「浏览器 DevTools 如何排查内存泄漏与卡顿」用到真实项目里，你会重点关注哪些边界、验证手段和取舍？
+
+### 答案要点
+
+#### 回答思路
+
+- 先给一句结论：这个问题要从「为什么需要它」「它解决了什么问题」「代价是什么」三个角度回答。
+- 再把结论落回原题，不要脱离上下文泛泛而谈；面试官通常会顺着边界、异常和工程成本继续追问。
+- 如果涉及实现细节，按数据流、状态变化、调用顺序或生命周期拆开讲；如果涉及方案选择，必须说明为什么不用另一个方案。
+
+#### 结合原题展开
+
+- 排查内存泄漏常做"三次快照对比"：初始、操作后、GC 后
+- 不要只盯总内存大小，更要看"该被释放的对象是否还活着"
+- 可以补充一个真实项目语境：上线前先约定输入输出、失败兜底和观测指标，避免只在 demo 场景下成立。
+
+#### 工程落地
+
+- 验证手段要具体：单元测试覆盖边界条件，集成测试覆盖主流程，必要时用 e2e 或回放数据验证真实链路。
+- 运行时要可观测：关键路径打日志或埋点，关注错误率、耗时、资源占用、用户可感知延迟和降级次数。
+- 发布策略要稳：高风险变更建议灰度、开关或回滚预案；如果会影响数据一致性，还要说明迁移和兼容策略。
+
+#### 易错点
+
+- 不要只背 API 或概念名，要说清楚适用条件；很多方案在小流量、单端、无异常时看起来都成立。
+- 不要忽略默认值、兼容性、异常回滚、性能退化和团队维护成本，这些往往是资深面试继续深挖的重点。
+- 如果答案里出现“总是”“一定”“完全替代”这类绝对表述，要主动补充例外场景。
+
+## v8-engine-followup-1
+
+title: 追问：如果把「V8 引擎工作机制」用到真实项目里，你会重点关注哪些边界、验证手段和取舍
+difficulty: 资深
+tags: [V8, 引擎, 追问]
+parent: v8-engine
+
+### 题目
+
+如果面试官追问：如果把「V8 引擎工作机制（Ignition / TurboFan / 隐藏类）」用到真实项目里，你会重点关注哪些边界、验证手段和取舍？
+
+### 答案要点
+
+#### 回答思路
+
+- 先给一句结论：这个问题要从「为什么需要它」「它解决了什么问题」「代价是什么」三个角度回答。
+- 再把结论落回原题，不要脱离上下文泛泛而谈；面试官通常会顺着边界、异常和工程成本继续追问。
+- 如果涉及实现细节，按数据流、状态变化、调用顺序或生命周期拆开讲；如果涉及方案选择，必须说明为什么不用另一个方案。
+
+#### 结合原题展开
+
+- 解析 → 字节码：Parser 生成 AST，Ignition 直接解释字节码运行
+- 优化编译：热点代码进入 TurboFan，做基于类型反馈的 JIT 编译；类型不稳定会被 deopt 回 Ignition
+- 隐藏类（Hidden Class / Map）：对象按属性顺序生成 shape，频繁改变 shape 会让 V8 退化到字典模式
+- 可以补充一个真实项目语境：上线前先约定输入输出、失败兜底和观测指标，避免只在 demo 场景下成立。
+
+#### 工程落地
+
+- 验证手段要具体：单元测试覆盖边界条件，集成测试覆盖主流程，必要时用 e2e 或回放数据验证真实链路。
+- 运行时要可观测：关键路径打日志或埋点，关注错误率、耗时、资源占用、用户可感知延迟和降级次数。
+- 发布策略要稳：高风险变更建议灰度、开关或回滚预案；如果会影响数据一致性，还要说明迁移和兼容策略。
+
+#### 易错点
+
+- 不要只背 API 或概念名，要说清楚适用条件；很多方案在小流量、单端、无异常时看起来都成立。
+- 不要忽略默认值、兼容性、异常回滚、性能退化和团队维护成本，这些往往是资深面试继续深挖的重点。
+- 如果答案里出现“总是”“一定”“完全替代”这类绝对表述，要主动补充例外场景。
+
+## webgpu-overview-followup-1
+
+title: 追问：如果把「WebGPU 概览与适用场景」用到真实项目里，你会重点关注哪些边界、验证手段和取舍
+difficulty: 资深
+tags: [WebGPU, GPU, 追问]
+parent: webgpu-overview
+
+### 题目
+
+如果面试官追问：如果把「WebGPU 概览与适用场景」用到真实项目里，你会重点关注哪些边界、验证手段和取舍？
+
+### 答案要点
+
+#### 回答思路
+
+- 先给一句结论：这个问题要从「为什么需要它」「它解决了什么问题」「代价是什么」三个角度回答。
+- 再把结论落回原题，不要脱离上下文泛泛而谈；面试官通常会顺着边界、异常和工程成本继续追问。
+- 如果涉及实现细节，按数据流、状态变化、调用顺序或生命周期拆开讲；如果涉及方案选择，必须说明为什么不用另一个方案。
+
+#### 结合原题展开
+
+- 适用：3D 渲染、机器学习推理（TensorFlow.js WebGPU backend）、视频特效、粒子模拟
+- 引擎层（Three.js、Babylon.js、PIXI v8、TensorFlow.js）已支持 WebGPU 后端，业务层切换成本不大
+- 没有 WebGPU 时回退 WebGL2 / WASM SIMD 是常见的做法
+- 可以补充一个真实项目语境：上线前先约定输入输出、失败兜底和观测指标，避免只在 demo 场景下成立。
+
+#### 工程落地
+
+- 验证手段要具体：单元测试覆盖边界条件，集成测试覆盖主流程，必要时用 e2e 或回放数据验证真实链路。
+- 运行时要可观测：关键路径打日志或埋点，关注错误率、耗时、资源占用、用户可感知延迟和降级次数。
+- 发布策略要稳：高风险变更建议灰度、开关或回滚预案；如果会影响数据一致性，还要说明迁移和兼容策略。
+
+#### 易错点
+
+- 不要只背 API 或概念名，要说清楚适用条件；很多方案在小流量、单端、无异常时看起来都成立。
+- 不要忽略默认值、兼容性、异常回滚、性能退化和团队维护成本，这些往往是资深面试继续深挖的重点。
+- 如果答案里出现“总是”“一定”“完全替代”这类绝对表述，要主动补充例外场景。
+
+## reflow-vs-repaint-followup-1
+
+title: 追问：如果把「回流和重绘的区别与触发条件」用到真实项目里，你会重点关注哪些边界、验证手段和取舍
+difficulty: 进阶
+tags: [渲染, 性能, 追问]
+parent: reflow-vs-repaint
+
+### 题目
+
+如果面试官追问：如果把「回流（reflow）和重绘（repaint）的区别与触发条件」用到真实项目里，你会重点关注哪些边界、验证手段和取舍？
+
+### 答案要点
+
+#### 回答思路
+
+- 先给一句结论：这个问题要从「为什么需要它」「它解决了什么问题」「代价是什么」三个角度回答。
+- 再把结论落回原题，不要脱离上下文泛泛而谈；面试官通常会顺着边界、异常和工程成本继续追问。
+- 如果涉及实现细节，按数据流、状态变化、调用顺序或生命周期拆开讲；如果涉及方案选择，必须说明为什么不用另一个方案。
+
+#### 结合原题展开
+
+- 重绘（repaint）：只改变外观（颜色、背景、可见性），不影响布局
+- 回流（reflow / layout）：几何属性变化，浏览器需要重新计算布局
+- 回流一定会重绘，重绘不一定回流
+- 可以补充一个真实项目语境：上线前先约定输入输出、失败兜底和观测指标，避免只在 demo 场景下成立。
+
+#### 工程落地
+
+- 验证手段要具体：单元测试覆盖边界条件，集成测试覆盖主流程，必要时用 e2e 或回放数据验证真实链路。
+- 运行时要可观测：关键路径打日志或埋点，关注错误率、耗时、资源占用、用户可感知延迟和降级次数。
+- 发布策略要稳：高风险变更建议灰度、开关或回滚预案；如果会影响数据一致性，还要说明迁移和兼容策略。
+
+#### 易错点
+
+- 不要只背 API 或概念名，要说清楚适用条件；很多方案在小流量、单端、无异常时看起来都成立。
+- 不要忽略默认值、兼容性、异常回滚、性能退化和团队维护成本，这些往往是资深面试继续深挖的重点。
+- 如果答案里出现“总是”“一定”“完全替代”这类绝对表述，要主动补充例外场景。
+
+## browser-cache-strategy-followup-1
+
+title: 追问：如果把「浏览器缓存的完整链路是什么样的」用到真实项目里，你会重点关注哪些边界、验证手段和取舍
+difficulty: 进阶
+tags: [缓存, 性能, HTTP, 追问]
+parent: browser-cache-strategy
+
+### 题目
+
+如果面试官追问：如果把「浏览器缓存的完整链路是什么样的」用到真实项目里，你会重点关注哪些边界、验证手段和取舍？
+
+### 答案要点
+
+#### 回答思路
+
+- 先给一句结论：这个问题要从「为什么需要它」「它解决了什么问题」「代价是什么」三个角度回答。
+- 再把结论落回原题，不要脱离上下文泛泛而谈；面试官通常会顺着边界、异常和工程成本继续追问。
+- 如果涉及实现细节，按数据流、状态变化、调用顺序或生命周期拆开讲；如果涉及方案选择，必须说明为什么不用另一个方案。
+
+#### 结合原题展开
+
+- 先把问题拉回「浏览器缓存的完整链路是什么样的」的核心机制，说明这个追问考察的是落地边界、失败条件和方案取舍，而不是单点定义。
+- 可以补充一个真实项目语境：上线前先约定输入输出、失败兜底和观测指标，避免只在 demo 场景下成立。
+
+#### 工程落地
+
+- 验证手段要具体：单元测试覆盖边界条件，集成测试覆盖主流程，必要时用 e2e 或回放数据验证真实链路。
+- 运行时要可观测：关键路径打日志或埋点，关注错误率、耗时、资源占用、用户可感知延迟和降级次数。
+- 发布策略要稳：高风险变更建议灰度、开关或回滚预案；如果会影响数据一致性，还要说明迁移和兼容策略。
+
+#### 易错点
+
+- 不要只背 API 或概念名，要说清楚适用条件；很多方案在小流量、单端、无异常时看起来都成立。
+- 不要忽略默认值、兼容性、异常回滚、性能退化和团队维护成本，这些往往是资深面试继续深挖的重点。
+- 如果答案里出现“总是”“一定”“完全替代”这类绝对表述，要主动补充例外场景。
+
+## cookie-localstorage-indexeddb-followup-1
+
+title: 追问：如果把「Cookie / localStorage / sessionStorage / IndexedDB 选哪个」用到真实项目里，你会重点关注哪些边界、验证手段和取舍
+difficulty: 基础
+tags: [存储, 安全, 追问]
+parent: cookie-localstorage-indexeddb
+
+### 题目
+
+如果面试官追问：如果把「Cookie / localStorage / sessionStorage / IndexedDB 选哪个」用到真实项目里，你会重点关注哪些边界、验证手段和取舍？
+
+### 答案要点
+
+#### 回答思路
+
+- 先给一句结论：这个问题要从「为什么需要它」「它解决了什么问题」「代价是什么」三个角度回答。
+- 再把结论落回原题，不要脱离上下文泛泛而谈；面试官通常会顺着边界、异常和工程成本继续追问。
+- 如果涉及实现细节，按数据流、状态变化、调用顺序或生命周期拆开讲；如果涉及方案选择，必须说明为什么不用另一个方案。
+
+#### 结合原题展开
+
+- Cookie：4KB，每个请求自动携带（适合鉴权 token），可设 HttpOnly / Secure / SameSite
+- localStorage：5-10MB，同源持久存储，同步 API，纯字符串
+- sessionStorage：与 localStorage 相同 API，但生命周期=Tab
+- 可以补充一个真实项目语境：上线前先约定输入输出、失败兜底和观测指标，避免只在 demo 场景下成立。
+
+#### 工程落地
+
+- 验证手段要具体：单元测试覆盖边界条件，集成测试覆盖主流程，必要时用 e2e 或回放数据验证真实链路。
+- 运行时要可观测：关键路径打日志或埋点，关注错误率、耗时、资源占用、用户可感知延迟和降级次数。
+- 发布策略要稳：高风险变更建议灰度、开关或回滚预案；如果会影响数据一致性，还要说明迁移和兼容策略。
+
+#### 易错点
+
+- 不要只背 API 或概念名，要说清楚适用条件；很多方案在小流量、单端、无异常时看起来都成立。
+- 不要忽略默认值、兼容性、异常回滚、性能退化和团队维护成本，这些往往是资深面试继续深挖的重点。
+- 如果答案里出现“总是”“一定”“完全替代”这类绝对表述，要主动补充例外场景。
+
+## web-worker-basics-followup-1
+
+title: 追问：如果把「Web Worker 是什么，什么场景应该用」用到真实项目里，你会重点关注哪些边界、验证手段和取舍
+difficulty: 进阶
+tags: [Worker, 性能, 追问]
+parent: web-worker-basics
+
+### 题目
+
+如果面试官追问：如果把「Web Worker 是什么，什么场景应该用」用到真实项目里，你会重点关注哪些边界、验证手段和取舍？
+
+### 答案要点
+
+#### 回答思路
+
+- 先给一句结论：这个问题要从「为什么需要它」「它解决了什么问题」「代价是什么」三个角度回答。
+- 再把结论落回原题，不要脱离上下文泛泛而谈；面试官通常会顺着边界、异常和工程成本继续追问。
+- 如果涉及实现细节，按数据流、状态变化、调用顺序或生命周期拆开讲；如果涉及方案选择，必须说明为什么不用另一个方案。
+
+#### 结合原题展开
+
+- Dedicated Worker：专属当前页面，主页关闭就销毁；通过 postMessage 通信，不能访问 DOM
+- SharedWorker：可在多个同源 Tab 共享，适合做"集中式 WebSocket 网关"
+- ServiceWorker：常驻后台，拦截网络请求 + 推送通知 + 离线缓存（PWA 的核心）
+- 可以补充一个真实项目语境：上线前先约定输入输出、失败兜底和观测指标，避免只在 demo 场景下成立。
+
+#### 工程落地
+
+- 验证手段要具体：单元测试覆盖边界条件，集成测试覆盖主流程，必要时用 e2e 或回放数据验证真实链路。
+- 运行时要可观测：关键路径打日志或埋点，关注错误率、耗时、资源占用、用户可感知延迟和降级次数。
+- 发布策略要稳：高风险变更建议灰度、开关或回滚预案；如果会影响数据一致性，还要说明迁移和兼容策略。
+
+#### 易错点
+
+- 不要只背 API 或概念名，要说清楚适用条件；很多方案在小流量、单端、无异常时看起来都成立。
+- 不要忽略默认值、兼容性、异常回滚、性能退化和团队维护成本，这些往往是资深面试继续深挖的重点。
+- 如果答案里出现“总是”“一定”“完全替代”这类绝对表述，要主动补充例外场景。
+
+## browser-process-thread-followup-1
+
+title: 追问：如果把「Chrome 多进程 + 多线程架构是什么样的」用到真实项目里，你会重点关注哪些边界、验证手段和取舍
+difficulty: 进阶
+tags: [架构, 进程, 追问]
+parent: browser-process-thread
+
+### 题目
+
+如果面试官追问：如果把「Chrome 多进程 + 多线程架构是什么样的」用到真实项目里，你会重点关注哪些边界、验证手段和取舍？
+
+### 答案要点
+
+#### 回答思路
+
+- 先给一句结论：这个问题要从「为什么需要它」「它解决了什么问题」「代价是什么」三个角度回答。
+- 再把结论落回原题，不要脱离上下文泛泛而谈；面试官通常会顺着边界、异常和工程成本继续追问。
+- 如果涉及实现细节，按数据流、状态变化、调用顺序或生命周期拆开讲；如果涉及方案选择，必须说明为什么不用另一个方案。
+
+#### 结合原题展开
+
+- 移动端 Chrome 进程数受限于内存，会做"进程合并"
+- 可以补充一个真实项目语境：上线前先约定输入输出、失败兜底和观测指标，避免只在 demo 场景下成立。
+
+#### 工程落地
+
+- 验证手段要具体：单元测试覆盖边界条件，集成测试覆盖主流程，必要时用 e2e 或回放数据验证真实链路。
+- 运行时要可观测：关键路径打日志或埋点，关注错误率、耗时、资源占用、用户可感知延迟和降级次数。
+- 发布策略要稳：高风险变更建议灰度、开关或回滚预案；如果会影响数据一致性，还要说明迁移和兼容策略。
+
+#### 易错点
+
+- 不要只背 API 或概念名，要说清楚适用条件；很多方案在小流量、单端、无异常时看起来都成立。
+- 不要忽略默认值、兼容性、异常回滚、性能退化和团队维护成本，这些往往是资深面试继续深挖的重点。
+- 如果答案里出现“总是”“一定”“完全替代”这类绝对表述，要主动补充例外场景。
+
+## webgpu-pipeline-basics-followup-1
+
+title: 追问：如果把「WebGPU 比 WebGL 强在哪？最小可用渲染管线」用到真实项目里，你会重点关注哪些边界、验证手段和取舍
+difficulty: 资深
+tags: [WebGPU, 图形, 高频, 追问]
+parent: webgpu-pipeline-basics
+
+### 题目
+
+如果面试官追问：如果把「WebGPU 比 WebGL 强在哪？最小可用渲染管线」用到真实项目里，你会重点关注哪些边界、验证手段和取舍？
+
+### 答案要点
+
+#### 回答思路
+
+- 先给一句结论：这个问题要从「为什么需要它」「它解决了什么问题」「代价是什么」三个角度回答。
+- 再把结论落回原题，不要脱离上下文泛泛而谈；面试官通常会顺着边界、异常和工程成本继续追问。
+- 如果涉及实现细节，按数据流、状态变化、调用顺序或生命周期拆开讲；如果涉及方案选择，必须说明为什么不用另一个方案。
+
+#### 结合原题展开
+
+- 没有 compute shader（WebGL 2 也没有，要绕到 fragment shader 计算）
+- 3. canvas.getContext('webgpu') + configure
+- ML 推理：transformers.js、ONNX Runtime Web 都已支持 WebGPU 后端
+- 可以补充一个真实项目语境：上线前先约定输入输出、失败兜底和观测指标，避免只在 demo 场景下成立。
+
+#### 工程落地
+
+- 验证手段要具体：单元测试覆盖边界条件，集成测试覆盖主流程，必要时用 e2e 或回放数据验证真实链路。
+- 运行时要可观测：关键路径打日志或埋点，关注错误率、耗时、资源占用、用户可感知延迟和降级次数。
+- 发布策略要稳：高风险变更建议灰度、开关或回滚预案；如果会影响数据一致性，还要说明迁移和兼容策略。
+
+#### 易错点
+
+- 不要只背 API 或概念名，要说清楚适用条件；很多方案在小流量、单端、无异常时看起来都成立。
+- 不要忽略默认值、兼容性、异常回滚、性能退化和团队维护成本，这些往往是资深面试继续深挖的重点。
+- 如果答案里出现“总是”“一定”“完全替代”这类绝对表述，要主动补充例外场景。
+
+## webtransport-vs-websocket-followup-1
+
+title: 追问：如果把「WebTransport 和 WebSocket 的关系？什么场景用」用到真实项目里，你会重点关注哪些边界、验证手段和取舍
+difficulty: 资深
+tags: [WebTransport, 实时通信, 追问]
+parent: webtransport-vs-websocket
+
+### 题目
+
+如果面试官追问：如果把「WebTransport 和 WebSocket 的关系？什么场景用」用到真实项目里，你会重点关注哪些边界、验证手段和取舍？
+
+### 答案要点
+
+#### 回答思路
+
+- 先给一句结论：这个问题要从「为什么需要它」「它解决了什么问题」「代价是什么」三个角度回答。
+- 再把结论落回原题，不要脱离上下文泛泛而谈；面试官通常会顺着边界、异常和工程成本继续追问。
+- 如果涉及实现细节，按数据流、状态变化、调用顺序或生命周期拆开讲；如果涉及方案选择，必须说明为什么不用另一个方案。
+
+#### 结合原题展开
+
+- WebSocket 的局限
+- WebTransport 提供两种通道
+- streams（双向 / 单向）：可靠有序，类似 WebSocket，但多路复用——一条流堵了不影响其他
+- 可以补充一个真实项目语境：上线前先约定输入输出、失败兜底和观测指标，避免只在 demo 场景下成立。
+
+#### 工程落地
+
+- 验证手段要具体：单元测试覆盖边界条件，集成测试覆盖主流程，必要时用 e2e 或回放数据验证真实链路。
+- 运行时要可观测：关键路径打日志或埋点，关注错误率、耗时、资源占用、用户可感知延迟和降级次数。
+- 发布策略要稳：高风险变更建议灰度、开关或回滚预案；如果会影响数据一致性，还要说明迁移和兼容策略。
+
+#### 易错点
+
+- 不要只背 API 或概念名，要说清楚适用条件；很多方案在小流量、单端、无异常时看起来都成立。
+- 不要忽略默认值、兼容性、异常回滚、性能退化和团队维护成本，这些往往是资深面试继续深挖的重点。
+- 如果答案里出现“总是”“一定”“完全替代”这类绝对表述，要主动补充例外场景。
+
+## webcodecs-streams-followup-1
+
+title: 追问：如果把「WebCodecs + Streams 实现浏览器内视频处理」用到真实项目里，你会重点关注哪些边界、验证手段和取舍
+difficulty: 资深
+tags: [WebCodecs, Streams, 视频, 追问]
+parent: webcodecs-streams
+
+### 题目
+
+如果面试官追问：如果把「WebCodecs + Streams 实现浏览器内视频处理」用到真实项目里，你会重点关注哪些边界、验证手段和取舍？
+
+### 答案要点
+
+#### 回答思路
+
+- 先给一句结论：这个问题要从「为什么需要它」「它解决了什么问题」「代价是什么」三个角度回答。
+- 再把结论落回原题，不要脱离上下文泛泛而谈；面试官通常会顺着边界、异常和工程成本继续追问。
+- 如果涉及实现细节，按数据流、状态变化、调用顺序或生命周期拆开讲；如果涉及方案选择，必须说明为什么不用另一个方案。
+
+#### 结合原题展开
+
+- WebCodecs 不做封装格式（mp4 / mkv），只解 / 编 raw frame
+- VideoFrame → 处理（Canvas / WebGL / WebGPU 加水印）→ 新 VideoFrame
+- 配合 OffscreenCanvas / WebGPU texture import 零拷贝处理
+- 可以补充一个真实项目语境：上线前先约定输入输出、失败兜底和观测指标，避免只在 demo 场景下成立。
+
+#### 工程落地
+
+- 验证手段要具体：单元测试覆盖边界条件，集成测试覆盖主流程，必要时用 e2e 或回放数据验证真实链路。
+- 运行时要可观测：关键路径打日志或埋点，关注错误率、耗时、资源占用、用户可感知延迟和降级次数。
+- 发布策略要稳：高风险变更建议灰度、开关或回滚预案；如果会影响数据一致性，还要说明迁移和兼容策略。
+
+#### 易错点
+
+- 不要只背 API 或概念名，要说清楚适用条件；很多方案在小流量、单端、无异常时看起来都成立。
+- 不要忽略默认值、兼容性、异常回滚、性能退化和团队维护成本，这些往往是资深面试继续深挖的重点。
+- 如果答案里出现“总是”“一定”“完全替代”这类绝对表述，要主动补充例外场景。

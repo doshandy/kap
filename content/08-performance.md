@@ -7,42 +7,53 @@ description: Core Web Vitals、首屏与运行时优化、资源治理、监控�
 ---
 
 ## methodology
+
 title: 性能优化方法论：先度量，再定位，再治理
+followups: [methodology-followup-1]
 difficulty: 基础
 tags: [方法论, 指标]
 
 ### 一句话
+
 先明确目标：提升首屏、交互响应、稳定性还是成本；先度量再优化：RUM、Lighthouse、Performance 面板、业务埋点；找瓶颈：网络、脚本、渲染、图片、接口、缓存、第三方脚本。
 
 ### 题目
+
 为什么性能优化不能靠“经验主义手改”？请给出一套可落地的方法论。
 
 ### 答案要点
+
 - 先明确目标：提升首屏、交互响应、稳定性还是成本
 - 先度量再优化：RUM、Lighthouse、Performance 面板、业务埋点
 - 找瓶颈：网络、脚本、渲染、图片、接口、缓存、第三方脚本
 - 优化后持续监控，防止回归
 
 ### 代码示例
+
 ```ts
 // 业务侧 RUM：上报 Web Vitals + 自定义指标
 import { onLCP, onINP, onCLS, onFCP, onTTFB } from 'web-vitals';
 
 function reportMetric(name: string, value: number, id: string) {
-  navigator.sendBeacon('/api/rum', JSON.stringify({
-    name, value, id,
-    page: location.pathname,
-    ua: navigator.userAgent,
-    nt: (navigator as any).connection?.effectiveType,
-    ts: Date.now(),
-  }));
+  navigator.sendBeacon(
+    '/api/rum',
+    JSON.stringify({
+      name,
+      value,
+      id,
+      page: location.pathname,
+      ua: navigator.userAgent,
+      nt: (navigator as any).connection?.effectiveType,
+      ts: Date.now(),
+    }),
+  );
 }
 
-onLCP(m => reportMetric('LCP', m.value, m.id));
-onINP(m => reportMetric('INP', m.value, m.id));
-onCLS(m => reportMetric('CLS', m.value, m.id));
-onFCP(m => reportMetric('FCP', m.value, m.id));
-onTTFB(m => reportMetric('TTFB', m.value, m.id));
+onLCP((m) => reportMetric('LCP', m.value, m.id));
+onINP((m) => reportMetric('INP', m.value, m.id));
+onCLS((m) => reportMetric('CLS', m.value, m.id));
+onFCP((m) => reportMetric('FCP', m.value, m.id));
+onTTFB((m) => reportMetric('TTFB', m.value, m.id));
 
 // 自定义业务指标：列表渲染耗时
 performance.mark('list-render-start');
@@ -53,31 +64,42 @@ const m = performance.getEntriesByName('list-render')[0];
 reportMetric('list-render', m.duration, '');
 ```
 
+### 追问
+
+- 如果把「性能优化方法论：先度量，再定位，再治理」用到真实项目里，你会重点关注哪些边界、验证手段和取舍？
+
 ### 延伸
+
 - 没有指标的优化很容易沦为"玄学调参"
 - 性能是系统问题，不只是前端包体问题
 
 ## core-web-vitals
+
 title: LCP、INP、CLS 如何理解与治理
+followups: [core-web-vitals-followup-1, core-web-vitals-followup-2, core-web-vitals-followup-3]
 difficulty: 进阶
 tags: [CWV, WebVitals]
 
 ### 一句话
+
 LCP 衡量主要内容出现速度，重点看首屏 HTML、关键资源、服务端响应、首图/首屏块渲染；INP 衡量交互到下一帧视觉反馈的延迟，重点看长任务、主线程阻塞、重计算；CLS 衡量布局稳定性，重点防止图片/广告/异步内容无尺寸占位。
 
 ### 题目
+
 解释 LCP、INP、CLS 各自衡量什么，以及最常见的优化抓手。
 
 ### 答案要点
+
 - LCP 衡量主要内容出现速度，重点看首屏 HTML、关键资源、服务端响应、首图/首屏块渲染
 - INP 衡量交互到下一帧视觉反馈的延迟，重点看长任务、主线程阻塞、重计算
 - CLS 衡量布局稳定性，重点防止图片/广告/异步内容无尺寸占位
 - Core Web Vitals 通常以页面访问样本的第 75 百分位来评估；常见“良好”阈值是 LCP <= 2.5s、INP <= 200ms、CLS <= 0.1
 
 ### 代码示例
+
 ```ts
 // 监听长任务（INP 大头）
-new PerformanceObserver(list => {
+new PerformanceObserver((list) => {
   for (const entry of list.getEntries()) {
     if (entry.duration > 50) {
       console.warn('Long task:', entry.duration, 'ms', entry);
@@ -87,13 +109,13 @@ new PerformanceObserver(list => {
 }).observe({ type: 'longtask', buffered: true });
 
 // 监听 LCP 元素：找到首屏关键内容
-new PerformanceObserver(list => {
+new PerformanceObserver((list) => {
   const last = list.getEntries().at(-1) as any;
   console.log('LCP element:', last.element, 'time:', last.startTime);
 }).observe({ type: 'largest-contentful-paint', buffered: true });
 
 // 监听布局抖动（CLS 元凶）
-new PerformanceObserver(list => {
+new PerformanceObserver((list) => {
   for (const entry of list.getEntries() as any[]) {
     if (!entry.hadRecentInput && entry.value > 0.05)
       console.warn('Layout shift:', entry.value, entry.sources);
@@ -108,39 +130,47 @@ new PerformanceObserver(list => {
 <div style="aspect-ratio: 16/9"><img src="hero.webp" /></div>
 ```
 
-
 ### 常见误区
+
 - 只优化 LCP 元素本身（图片）忽略阻塞 CSS / JS
 - INP 误以为是首屏指标——它衡量的是「整次会话中最慢的交互响应时间」
 - CLS 出问题往往是图片 / 广告位没占位，不是字体闪屏
 
 ### 追问
+
 - TBT（Total Blocking Time）和 INP 关系
 - Web Vitals 的 P75 阈值各自是多少（LCP/INP/CLS）
 - 怎么衡量「长任务」（Long Tasks API）
 
 ### 延伸
+
 - INP 取代 FID，是因为它更能反映整个页面生命周期内真实交互体验
 - 只盯实验室数据不够，必须结合真实用户监控
 
 ## rum-vs-lab
+
 title: 实验室数据与真实用户数据为什么经常不一致
+followups: [rum-vs-lab-followup-1]
 difficulty: 进阶
 tags: [RUM, Lighthouse, WebVitals]
 
 ### 一句话
+
 实验室数据来自受控环境，适合做回归对比和本地定位；真实用户数据反映设备、网络、地域、登录态、个性化、缓存命中等真实差异；LCP、INP 等指标在 field 和 lab 中可能明显不同…。
 
 ### 题目
+
 为什么 Lighthouse 跑出来很好，线上用户却依然觉得慢？实验室数据和真实用户数据该怎么一起看？
 
 ### 答案要点
+
 - 实验室数据来自受控环境，适合做回归对比和本地定位；真实用户数据反映设备、网络、地域、登录态、个性化、缓存命中等真实差异
 - LCP、INP 等指标在 field 和 lab 中可能明显不同，例如线上会遇到重定向、冷缓存、Cookie 弹窗、A/B 实验脚本和第三方资源抖动
 - 排障时通常先用实验室工具定位主线程、网络瀑布、布局抖动，再用 RUM 验证问题是否真的影响主要用户群
 - 指标分析要分页面、设备、网络和国家地区分桶，否则平均值很容易掩盖真实瓶颈
 
 ### 代码示例
+
 ```js
 // lighthouserc.cjs：Lighthouse CI 在 CI 中跑实验室数据
 module.exports = {
@@ -179,28 +209,39 @@ function bucket(metric: any) {
 }
 ```
 
+### 追问
+
+- 如果把「实验室数据与真实用户数据为什么经常不一致」用到真实项目里，你会重点关注哪些边界、验证手段和取舍？
+
 ### 延伸
+
 - Lab 更擅长"发现为什么慢"，Field 更擅长"判断到底有多少用户受影响"
 - 只看单次 Lighthouse 分数，通常不足以指导长期性能治理
 
 ## initial-load
+
 title: 首屏优化：SSR、SSG、ISR、路由分包、Critical CSS
+followups: [initial-load-followup-1, initial-load-followup-2, initial-load-followup-3]
 difficulty: 进阶
 tags: [首屏, SSR]
 
 ### 一句话
+
 内容稳定、SEO 重要、首屏信息密度高时，SSG/SSR 往往收益更高；高频更新但允许增量生成时可考虑 ISR；纯 SPA 也能通过路由分包、预加载、关键 CSS、骨架屏优化首屏。
 
 ### 题目
+
 如果首页很慢，你会怎样判断该上 SSR、SSG 还是继续优化纯 SPA？
 
 ### 答案要点
+
 - 内容稳定、SEO 重要、首屏信息密度高时，SSG/SSR 往往收益更高
 - 高频更新但允许增量生成时可考虑 ISR
 - 纯 SPA 也能通过路由分包、预加载、关键 CSS、骨架屏优化首屏
 - 是否引入 SSR 取决于业务目标、团队运维能力和数据获取复杂度
 
 ### 代码示例
+
 ```ts
 // 路由级懒加载 + 关键路由预加载
 const routes = [
@@ -234,7 +275,10 @@ function preload(href: string) {
 
 <style scoped>
 /* 首屏关键 CSS（构建时被 critters 提取并 inline 到 HTML） */
-.hero { display: flex; min-height: 60vh; }
+.hero {
+  display: flex;
+  min-height: 60vh;
+}
 </style>
 ```
 
@@ -245,44 +289,55 @@ export default {
   plugins: [
     prerender({
       routes: ['/', '/about', '/pricing'],
-      postProcess: r => ({ ...r, html: r.html.replace(/<script[^>]*>([\s\S]*?)<\/script>/g, '') }),
+      postProcess: (r) => ({
+        ...r,
+        html: r.html.replace(/<script[^>]*>([\s\S]*?)<\/script>/g, ''),
+      }),
     }),
   ],
 };
 ```
 
-
 ### 常见误区
+
 - 一上来就开 SSR——但只是营销页，CSR + 静态 HTML 就够
 - 路由懒加载切得太碎，反而带来更多 HTTP 请求开销
 - 为了「图片不抖」加 placeholder，但 placeholder 自己还得请求才看到
 
 ### 追问
+
 - 关键 CSS 内联和 Above-the-fold 区别
 - preload as=font 和 link rel=stylesheet 哪个先
 - 304 和 200 (from cache) 的差别
 
 ### 延伸
+
 - "上 SSR"不是银弹，水合错误、缓存、边缘部署都会带来新复杂度
 
 ## runtime-optimization
+
 title: 运行时优化：虚拟列表、拆长任务、批量更新
+followups: [runtime-optimization-followup-1]
 difficulty: 进阶
 tags: [运行时, 长任务]
 
 ### 一句话
+
 减少一次渲染要处理的节点：分页、虚拟列表、按需展开、条件卸载不可见区域；拆分长任务：把大循环切片、移入 Worker、让出主线程；减少重复计算和重复渲染：缓存派生值、合并状态更新、避免无效 watcher。
 
 ### 题目
+
 用户操作时页面卡顿，前端最常见的运行时优化手段有哪些？
 
 ### 答案要点
+
 - 减少一次渲染要处理的节点：分页、虚拟列表、按需展开、条件卸载不可见区域
 - 拆分长任务：把大循环切片、移入 Worker、让出主线程
 - 减少重复计算和重复渲染：缓存派生值、合并状态更新、避免无效 watcher
 - 某些浏览器已提供 `scheduler.postTask()` 等调度能力，但它们并非所有环境都可用，落地时要准备降级路径
 
 ### 代码示例
+
 ```ts
 // 1. 把大循环切片，让出主线程
 async function processLargeData(data: any[]) {
@@ -292,7 +347,7 @@ async function processLargeData(data: any[]) {
       processItem(data[j]);
     }
     // 让出一帧给浏览器渲染
-    await new Promise(r => setTimeout(r, 0));
+    await new Promise((r) => setTimeout(r, 0));
   }
 }
 
@@ -313,7 +368,7 @@ async function priorityTask() {
   if ('scheduler' in window && 'postTask' in (window as any).scheduler) {
     await (window as any).scheduler.postTask(heavyWork, { priority: 'background' });
   } else {
-    await new Promise(r => setTimeout(r, 0));
+    await new Promise((r) => setTimeout(r, 0));
     heavyWork();
   }
 }
@@ -321,7 +376,7 @@ async function priorityTask() {
 // 4. CPU 密集移到 Web Worker
 const worker = new Worker(new URL('./crunch.worker.ts', import.meta.url), { type: 'module' });
 worker.postMessage({ data: largeArray });
-worker.onmessage = e => render(e.data);
+worker.onmessage = (e) => render(e.data);
 ```
 
 ```ts
@@ -331,22 +386,32 @@ worker.onmessage = e => render(e.data);
 // </li>
 ```
 
+### 追问
+
+- 如果把「运行时优化：虚拟列表、拆长任务、批量更新」用到真实项目里，你会重点关注哪些边界、验证手段和取舍？
+
 ### 延伸
+
 - 框架层的优化只是基础，真正的大头通常在业务代码和数据量
 - 卡顿问题要看 flame chart，而不是猜
 
 ## network-resource-hints
+
 title: preload、prefetch、modulepreload、preconnect 怎么用才不浪费
+followups: [network-resource-hints-followup-1]
 difficulty: 进阶
 tags: [资源提示, 网络]
 
 ### 一句话
+
 preload：当前导航很快就要用的关键资源；modulepreload：提前拉取模块依赖；prefetch：未来导航可能用到的低优先级资源，通常更适合同站后续页面资源。
 
 ### 题目
+
 说明几种常见 Resource Hints 的区别，并给出一个错误使用的例子。
 
 ### 答案要点
+
 - `preload`：当前导航很快就要用的关键资源
 - `modulepreload`：提前拉取模块依赖
 - `prefetch`：未来导航可能用到的低优先级资源，通常更适合同站后续页面资源
@@ -355,6 +420,7 @@ preload：当前导航很快就要用的关键资源；modulepreload：提前拉
 - 误用例：把大量非关键资源都 preload，会挤占真正关键资源带宽
 
 ### 代码示例
+
 ```html
 <!-- ✅ 关键资源用 preload + fetchpriority -->
 <link rel="preload" as="image" href="/hero.webp" fetchpriority="high" />
@@ -373,31 +439,44 @@ preload：当前导航很快就要用的关键资源；modulepreload：提前拉
 <!-- 后果：挤占首屏带宽，关键 CSS/JS 反而更晚拿到 -->
 
 <!-- ✅ 图片优先级控制 -->
-<img src="hero.webp" fetchpriority="high" />     <!-- 首屏主图 -->
-<img src="thumb.webp" fetchpriority="low" loading="lazy" />  <!-- 列表缩略图 -->
+<img src="hero.webp" fetchpriority="high" />
+<!-- 首屏主图 -->
+<img src="thumb.webp" fetchpriority="low" loading="lazy" />
+<!-- 列表缩略图 -->
 ```
 
+### 追问
+
+- 如果把「preload、prefetch、modulepreload、preconnect 怎么用才不浪费」用到真实项目里，你会重点关注哪些边界、验证手段和取舍？
+
 ### 延伸
+
 - 提示不是越多越好，关键在"优先级正确"
 - 模块脚本优先考虑 `modulepreload`；图片等资源若需要更细粒度优先级，还可以结合 `fetchpriority`
 
 ## image-font-bundle
+
 title: 图片、字体、JS 包体是最常见的三类资源瓶颈
+followups: [image-font-bundle-followup-1]
 difficulty: 基础
 tags: [图片, 字体, 包体]
 
 ### 一句话
+
 图片：压缩、响应式尺寸、懒加载、优先用 WebP/AVIF；字体：子集化、font-display: swap、减少变体数量；JS：路由分包、按需引入、删除无用依赖、分析第三方包体积。
 
 ### 题目
+
 针对图片、字体、JS 包体，分别列出 2 到 3 个最高收益优化动作。
 
 ### 答案要点
+
 - 图片：压缩、响应式尺寸、懒加载、优先用 WebP/AVIF
 - 字体：子集化、`font-display: swap`、减少变体数量
 - JS：路由分包、按需引入、删除无用依赖、分析第三方包体积
 
 ### 代码示例
+
 ```html
 <!-- 响应式图片 + 现代格式 -->
 <picture>
@@ -409,7 +488,8 @@ tags: [图片, 字体, 包体]
     sizes="(max-width: 600px) 400px, (max-width: 1200px) 800px, 1200px"
     loading="lazy"
     decoding="async"
-    width="1200" height="600"
+    width="1200"
+    height="600"
     alt="..."
   />
 </picture>
@@ -420,8 +500,8 @@ tags: [图片, 字体, 包体]
 @font-face {
   font-family: 'Main';
   src: url('/fonts/main-subset.woff2') format('woff2');
-  font-display: swap;       /* 字体加载时显示降级字体 */
-  unicode-range: U+0020-007F, U+4E00-9FFF;  /* 子集化：仅常用字符 */
+  font-display: swap; /* 字体加载时显示降级字体 */
+  unicode-range: U+0020-007F, U+4E00-9FFF; /* 子集化：仅常用字符 */
 }
 ```
 
@@ -430,9 +510,7 @@ tags: [图片, 字体, 包体]
 // vite.config.ts
 import { visualizer } from 'rollup-plugin-visualizer';
 export default {
-  plugins: [
-    visualizer({ open: true, gzipSize: true }),
-  ],
+  plugins: [visualizer({ open: true, gzipSize: true })],
 };
 
 // ❌ 全量引入
@@ -443,26 +521,37 @@ import debounce from 'lodash/debounce';
 import { debounce } from 'lodash-es';
 ```
 
+### 追问
+
+- 如果把「图片、字体、JS 包体是最常见的三类资源瓶颈」用到真实项目里，你会重点关注哪些边界、验证手段和取舍？
+
 ### 延伸
+
 - 很多页面"看起来像 JS 慢"，其实是大图和 Web 字体拖慢了可见内容
 
 ## monitoring-budget
+
 title: 性能预算与回归治理
+followups: [monitoring-budget-followup-1]
 difficulty: 进阶
 tags: [预算, 监控]
 
 ### 一句话
+
 建立性能预算：首屏 JS、图片体积、LCP/INP/CLS 阈值；在 CI 中接入 Lighthouse CI、bundle analyzer、包体阈值检查；线上持续收集 Web Vitals 和长任务数据，按页面、地区、设备分桶看趋势。
 
 ### 题目
+
 如何防止性能优化做完后几周内又被新需求吃回去？
 
 ### 答案要点
+
 - 建立性能预算：首屏 JS、图片体积、LCP/INP/CLS 阈值
 - 在 CI 中接入 Lighthouse CI、bundle analyzer、包体阈值检查
 - 线上持续收集 Web Vitals 和长任务数据，按页面、地区、设备分桶看趋势
 
 ### 代码示例
+
 ```js
 // vite.config.ts：bundle 大小阈值
 import { defineConfig } from 'vite';
@@ -518,22 +607,32 @@ jobs:
 }
 ```
 
+### 追问
+
+- 如果把「性能预算与回归治理」用到真实项目里，你会重点关注哪些边界、验证手段和取舍？
+
 ### 延伸
+
 - 性能预算不是为了挡需求，而是让团队知道"每次新增成本是多少"
 - 预算要可解释、可协商，而不是一刀切
 
 ## inp-deep
+
 title: INP 取代 FID 后，前端要怎么优化交互响应
+followups: [inp-deep-followup-1]
 difficulty: 资深
 tags: [INP, 交互]
 
 ### 一句话
+
 INP（Interaction to Next Paint）：从用户输入到下一帧渲染完成的最长延迟，整页生命周期内取 P98；FID 只看首次输入，INP 看所有交互，是更严格的指标…。
 
 ### 题目
+
 2024 年起 INP 取代 FID 成为 Core Web Vitals 之一，它衡量的是什么？前端如何系统性优化？
 
 ### 答案要点
+
 - INP（Interaction to Next Paint）：从用户输入到下一帧渲染完成的最长延迟，整页生命周期内取 P98
 - FID 只看首次输入，INP 看所有交互，是更严格的指标
 - 优化路径：拆长任务、`scheduler.yield()` / `requestIdleCallback`、脏检查降级、避免大列表 sync render
@@ -542,9 +641,12 @@ INP（Interaction to Next Paint）：从用户输入到下一帧渲染完成的�
 - 度量：`web-vitals` SDK 里 `onINP`，配合长任务采样（PerformanceObserver `longtask`）
 
 ### 代码示例
+
 ```ts
 import { onINP } from 'web-vitals';
-onINP((m) => navigator.sendBeacon('/beacon', JSON.stringify({ name: m.name, value: m.value, id: m.id })));
+onINP((m) =>
+  navigator.sendBeacon('/beacon', JSON.stringify({ name: m.name, value: m.value, id: m.id })),
+);
 
 if ('scheduler' in window && 'yield' in (window.scheduler as object)) {
   async function processChunks(items: unknown[]) {
@@ -569,22 +671,32 @@ function onTyping(value: string) {
 }
 ```
 
+### 追问
+
+- 如果把「INP 取代 FID 后，前端要怎么优化交互响应」用到真实项目里，你会重点关注哪些边界、验证手段和取舍？
+
 ### 延伸
+
 - React 18 的 `useTransition`、Vue 的 Suspense + defer、Solid 的细粒度更新都直接帮助 INP
 - 长任务（>50ms）治理是 INP 优化的根，老老实实拆 long task 收益最大
 
 ## image-modern-pipeline
+
 title: 现代图片处理流水线（AVIF / WebP / responsive / blur-up）
+followups: [image-modern-pipeline-followup-1]
 difficulty: 进阶
 tags: [图片, LCP]
 
 ### 一句话
+
 上传：原图存对象存储，不要直接服务客户端；处理：CDN / 服务端按需生成多尺寸 + 多格式（AVIF > WebP > JPEG）；命名：/img/{id}/{w}.{format}，方便缓存和回滚。
 
 ### 题目
+
 做内容站的图片优化，从源图到客户端展示完整链路有哪些环节？
 
 ### 答案要点
+
 - 上传：原图存对象存储，不要直接服务客户端
 - 处理：CDN / 服务端按需生成多尺寸 + 多格式（AVIF > WebP > JPEG）
 - 命名：`/img/{id}/{w}.{format}`，方便缓存和回滚
@@ -594,13 +706,23 @@ tags: [图片, LCP]
 - LCP：首屏图加 `fetchpriority="high" + preload`
 
 ### 代码示例
+
 ```html
 <picture>
-  <source type="image/avif" srcset="/img/x.avif?w=480 480w, /img/x.avif?w=960 960w" sizes="(max-width: 720px) 100vw, 720px" />
-  <source type="image/webp" srcset="/img/x.webp?w=480 480w, /img/x.webp?w=960 960w" sizes="(max-width: 720px) 100vw, 720px" />
+  <source
+    type="image/avif"
+    srcset="/img/x.avif?w=480 480w, /img/x.avif?w=960 960w"
+    sizes="(max-width: 720px) 100vw, 720px"
+  />
+  <source
+    type="image/webp"
+    srcset="/img/x.webp?w=480 480w, /img/x.webp?w=960 960w"
+    sizes="(max-width: 720px) 100vw, 720px"
+  />
   <img
     src="/img/x.jpg?w=720"
-    width="1440" height="810"
+    width="1440"
+    height="810"
     style="background-image: url('data:image/svg+xml;...')"
     loading="lazy"
     fetchpriority="auto"
@@ -616,22 +738,32 @@ function blurDataUrl(rgb: [number, number, number]) {
 }
 ```
 
+### 追问
+
+- 如果把「现代图片处理流水线（AVIF / WebP / responsive / blur-up）」用到真实项目里，你会重点关注哪些边界、验证手段和取舍？
+
 ### 延伸
+
 - AVIF 体积小但编码慢，CDN 端按需生成更合适，源站直接存比较费 CPU
 - 真正提升 LCP 的常常不是图片优化，而是 HTML 流式渲染让图片更早可发现
 
 ## core-web-vitals-explain
+
 title: Core Web Vitals 三个指标 LCP / INP / CLS 怎么解读和优化
+followups: [core-web-vitals-explain-followup-1]
 difficulty: 进阶
 tags: [Web Vitals, 性能]
 
 ### 一句话
+
 LCP（最大内容绘制 ≤2.5s）= 首屏多快；INP（交互到绘制 ≤200ms）= 操作多跟手；CLS（累计布局偏移 ≤0.1）= 页面多稳定。Google 用这三个指标排序网页体验。
 
 ### 题目
+
 请解释 LCP / INP / CLS 各自衡量什么、推荐阈值，以及典型优化手段。
 
 ### 答案要点
+
 - **LCP**：首屏最大元素的呈现时间。优化：服务端响应快（TTFB）、压缩图片 / 用 AVIF/WebP、首屏关键资源 preload、避免 render-blocking 的 CSS/JS、字体 `font-display: swap`
 - **INP**：用户交互到下一帧绘制的耗时（取一段时间内的 P98）。优化：减少长任务（拆分 + scheduler.yield）、`startTransition` / `useDeferredValue` 把昂贵渲染降级、事件处理器中避免大计算
 - **CLS**：可见元素位置突变的累积分数。优化：`<img>` 始终设置宽高 / aspect-ratio、不在已有内容上方插入广告、`min-height` 占位、字体回退尺寸匹配（`size-adjust`）
@@ -639,37 +771,52 @@ LCP（最大内容绘制 ≤2.5s）= 首屏多快；INP（交互到绘制 ≤200
 - 监控：Lighthouse / PageSpeed Insights / `web-vitals` 库 + 上报 RUM
 
 ### 代码示例
+
 ```js
 import { onLCP, onINP, onCLS } from 'web-vitals/attribution';
 
 onLCP(({ name, value, attribution }) => {
-  navigator.sendBeacon('/rum', JSON.stringify({
-    name, value,
-    element: attribution.element,
-    url: attribution.url,
-  }));
+  navigator.sendBeacon(
+    '/rum',
+    JSON.stringify({
+      name,
+      value,
+      element: attribution.element,
+      url: attribution.url,
+    }),
+  );
 });
 onINP(console.log);
 onCLS(console.log);
 ```
 
+### 追问
+
+- 如果把「Core Web Vitals 三个指标 LCP / INP / CLS 怎么解读和优化」用到真实项目里，你会重点关注哪些边界、验证手段和取舍？
+
 ### 延伸
+
 - 2024 年 INP 取代了 FID，更能反映真实交互卡顿
 - 移动端弱网场景下 LCP 优化空间更大
 - 业务侧多关注首屏关键路径，工程侧多关注 Bundle / CDN
 
 ## long-task-scheduling
+
 title: 长任务（Long Task）怎么定位与拆分
+followups: [long-task-scheduling-followup-1]
 difficulty: 进阶
 tags: [性能, 调度]
 
 ### 一句话
+
 浏览器主线程一旦执行单段超过 50ms 的任务，就会让用户感觉卡。解决思路是"把大任务拆小 + 让出主线程"——`requestIdleCallback`、`scheduler.yield()`、Web Worker。
 
 ### 题目
+
 什么是 Long Task？怎么发现、怎么拆？
 
 ### 答案要点
+
 - Long Task 定义：浏览器主线程任务执行时间 > 50ms
 - 发现：`PerformanceObserver({ entryTypes: ['longtask'] })`、Performance 面板的红色三角
 - 拆分思路：
@@ -680,6 +827,7 @@ tags: [性能, 调度]
   - 新 API `scheduler.yield()`（async 函数里直接 await）让浏览器有机会响应输入
 
 ### 代码示例
+
 ```js
 const po = new PerformanceObserver((list) => {
   for (const e of list.getEntries()) {
@@ -698,24 +846,33 @@ async function processLargeArray(items) {
 }
 ```
 
+### 追问
+
+- 如果把「长任务（Long Task）怎么定位与拆分」用到真实项目里，你会重点关注哪些边界、验证手段和取舍？
+
 ### 延伸
+
 - React 19 的 React Compiler 自动减少不必要 re-render，对 INP 友好
 - Worker 通信开销不可忽略，复杂数据用 SharedArrayBuffer 或转 transferable
 - 别为了"拆分"而拆分，正常一两次 80ms 任务不是问题，关键是用户操作后那一次
 
-
 ## bundle-split-strategy
+
 title: bundle 拆分与按需加载策略
+followups: [bundle-split-strategy-followup-1]
 difficulty: 进阶
 tags: [打包, 性能]
 
 ### 一句话
+
 首屏只加载"首屏要用的代码"——路由级懒加载 + 第三方库分 chunk + 首屏关键 JS 内联，非首屏走动态 import。
 
 ### 题目
+
 什么样的拆包策略能让首屏 JS 最小？常见的反模式有哪些？
 
 ### 答案要点
+
 - **路由级 code splitting**：`() => import('./pages/Settings.vue')`
 - **vendor 拆分**：把不常变的第三方库（vue / react / lodash）单独打成 chunk，长效缓存
 - **预加载提示**：路由切换前 `<link rel="modulepreload">` 提前下载
@@ -728,6 +885,7 @@ tags: [打包, 性能]
   - polyfill 全量打包（用 `useBuiltIns: 'usage'` 按需）
 
 ### 代码示例
+
 ```ts
 import { defineConfig } from 'vite';
 
@@ -749,27 +907,36 @@ export default defineConfig({
 ```
 
 ```html
-<link rel="modulepreload" href="/assets/Settings-xyz.js">
+<link rel="modulepreload" href="/assets/Settings-xyz.js" />
 ```
 
+### 追问
+
+- 如果把「bundle 拆分与按需加载策略」用到真实项目里，你会重点关注哪些边界、验证手段和取舍？
+
 ### 延伸
+
 - Webpack：`splitChunks` + `cacheGroups` 自定义；Vite：`manualChunks` 函数
 - 监控 bundle 体积：rollup-plugin-visualizer / webpack-bundle-analyzer，CI 加 size-limit 卡阈值
 - 加载分析用 Chrome Coverage 面板（看 JS 真实使用率）
 
-
 ## memory-leak-frontend
+
 title: 怎么排查前端内存泄漏？
+followups: [memory-leak-frontend-followup-1]
 difficulty: 资深
 tags: [性能, 内存, 高频]
 
 ### 一句话
+
 **复现路径 → 三次 Heap snapshot 对比 → 看 detached DOM / 闭包引用** 是经典三步法。常见根因：定时器没清、事件监听器没移除、闭包持引用、observer 没 disconnect、被全局变量持有。
 
 ### 题目
+
 SPA 应用打开几小时后明显变慢，怀疑内存泄漏。从工具到方法说说怎么排查、怎么修。
 
 ### 答案要点
+
 - **判断是否真的泄漏**
   - DevTools → Performance → Memory 录制：长时间使用后内存曲线持续上升不回落 = 泄漏
   - performance.memory.usedJSHeapSize（仅 Chrome）按时序采样上报
@@ -805,6 +972,7 @@ SPA 应用打开几小时后明显变慢，怀疑内存泄漏。从工具到方�
   - 同样路径再跑一次三次 snapshot，确认对象数稳定
 
 ### 代码示例
+
 ```ts
 import { onBeforeUnmount, onMounted } from 'vue';
 
@@ -838,8 +1006,686 @@ scope.run(() => {
 onBeforeUnmount(() => scope.stop());
 ```
 
+### 追问
+
+- 如果把「怎么排查前端内存泄漏？」用到真实项目里，你会重点关注哪些边界、验证手段和取舍？
+
 ### 延伸
+
 - WeakRef + FinalizationRegistry 适合做"对象失效时清理"，但浏览器 GC 时机不可控
 - Chrome `Performance Monitor` 实时看 JS heap / DOM nodes / listeners 数量
 - 大型应用周期性自动拍 snapshot 上报供分析（仅内部用）
 
+## methodology-followup-1
+
+title: 追问：如果把「性能优化方法论：先度量，再定位，再治理」用到真实项目里，你会重点关注哪些边界、验证手段和取舍
+difficulty: 基础
+tags: [方法论, 指标, 追问]
+parent: methodology
+
+### 题目
+
+如果面试官追问：如果把「性能优化方法论：先度量，再定位，再治理」用到真实项目里，你会重点关注哪些边界、验证手段和取舍？
+
+### 答案要点
+
+#### 回答思路
+
+- 先给一句结论：这个问题要从「为什么需要它」「它解决了什么问题」「代价是什么」三个角度回答。
+- 再把结论落回原题，不要脱离上下文泛泛而谈；面试官通常会顺着边界、异常和工程成本继续追问。
+- 如果涉及实现细节，按数据流、状态变化、调用顺序或生命周期拆开讲；如果涉及方案选择，必须说明为什么不用另一个方案。
+
+#### 结合原题展开
+
+- 先度量再优化：RUM、Lighthouse、Performance 面板、业务埋点
+- 优化后持续监控，防止回归
+- 没有指标的优化很容易沦为"玄学调参"
+- 可以补充一个真实项目语境：上线前先约定输入输出、失败兜底和观测指标，避免只在 demo 场景下成立。
+
+#### 工程落地
+
+- 验证手段要具体：单元测试覆盖边界条件，集成测试覆盖主流程，必要时用 e2e 或回放数据验证真实链路。
+- 运行时要可观测：关键路径打日志或埋点，关注错误率、耗时、资源占用、用户可感知延迟和降级次数。
+- 发布策略要稳：高风险变更建议灰度、开关或回滚预案；如果会影响数据一致性，还要说明迁移和兼容策略。
+
+#### 易错点
+
+- 不要只背 API 或概念名，要说清楚适用条件；很多方案在小流量、单端、无异常时看起来都成立。
+- 不要忽略默认值、兼容性、异常回滚、性能退化和团队维护成本，这些往往是资深面试继续深挖的重点。
+- 如果答案里出现“总是”“一定”“完全替代”这类绝对表述，要主动补充例外场景。
+
+## core-web-vitals-followup-1
+
+title: 追问：TBT和 INP 关系
+difficulty: 进阶
+tags: [CWV, WebVitals, 追问]
+parent: core-web-vitals
+
+### 题目
+
+如果面试官追问：TBT（Total Blocking Time）和 INP 关系
+
+### 答案要点
+
+#### 回答思路
+
+- 先给一句结论：这个问题要从「为什么需要它」「它解决了什么问题」「代价是什么」三个角度回答。
+- 再把结论落回原题，不要脱离上下文泛泛而谈；面试官通常会顺着边界、异常和工程成本继续追问。
+- 如果涉及实现细节，按数据流、状态变化、调用顺序或生命周期拆开讲；如果涉及方案选择，必须说明为什么不用另一个方案。
+
+#### 结合原题展开
+
+- INP 衡量交互到下一帧视觉反馈的延迟，重点看长任务、主线程阻塞、重计算
+- Core Web Vitals 通常以页面访问样本的第 75 百分位来评估；常见“良好”阈值是 LCP <= 2.5s、INP <= 200ms、CLS <= 0.1
+- INP 误以为是首屏指标——它衡量的是「整次会话中最慢的交互响应时间」
+- 可以补充一个真实项目语境：上线前先约定输入输出、失败兜底和观测指标，避免只在 demo 场景下成立。
+
+#### 工程落地
+
+- 验证手段要具体：单元测试覆盖边界条件，集成测试覆盖主流程，必要时用 e2e 或回放数据验证真实链路。
+- 运行时要可观测：关键路径打日志或埋点，关注错误率、耗时、资源占用、用户可感知延迟和降级次数。
+- 发布策略要稳：高风险变更建议灰度、开关或回滚预案；如果会影响数据一致性，还要说明迁移和兼容策略。
+
+#### 易错点
+
+- 不要只背 API 或概念名，要说清楚适用条件；很多方案在小流量、单端、无异常时看起来都成立。
+- 不要忽略默认值、兼容性、异常回滚、性能退化和团队维护成本，这些往往是资深面试继续深挖的重点。
+- 如果答案里出现“总是”“一定”“完全替代”这类绝对表述，要主动补充例外场景。
+
+## core-web-vitals-followup-2
+
+title: 追问：Web Vitals 的 P75 阈值各自是多少
+difficulty: 进阶
+tags: [CWV, WebVitals, 追问]
+parent: core-web-vitals
+
+### 题目
+
+如果面试官追问：Web Vitals 的 P75 阈值各自是多少（LCP/INP/CLS）
+
+### 答案要点
+
+#### 回答思路
+
+- 先给一句结论：这个问题要从「为什么需要它」「它解决了什么问题」「代价是什么」三个角度回答。
+- 再把结论落回原题，不要脱离上下文泛泛而谈；面试官通常会顺着边界、异常和工程成本继续追问。
+- 如果涉及实现细节，按数据流、状态变化、调用顺序或生命周期拆开讲；如果涉及方案选择，必须说明为什么不用另一个方案。
+
+#### 结合原题展开
+
+- Core Web Vitals 通常以页面访问样本的第 75 百分位来评估；常见“良好”阈值是 LCP <= 2.5s、INP <= 200ms、CLS <= 0.1
+- 可以补充一个真实项目语境：上线前先约定输入输出、失败兜底和观测指标，避免只在 demo 场景下成立。
+
+#### 工程落地
+
+- 验证手段要具体：单元测试覆盖边界条件，集成测试覆盖主流程，必要时用 e2e 或回放数据验证真实链路。
+- 运行时要可观测：关键路径打日志或埋点，关注错误率、耗时、资源占用、用户可感知延迟和降级次数。
+- 发布策略要稳：高风险变更建议灰度、开关或回滚预案；如果会影响数据一致性，还要说明迁移和兼容策略。
+
+#### 易错点
+
+- 不要只背 API 或概念名，要说清楚适用条件；很多方案在小流量、单端、无异常时看起来都成立。
+- 不要忽略默认值、兼容性、异常回滚、性能退化和团队维护成本，这些往往是资深面试继续深挖的重点。
+- 如果答案里出现“总是”“一定”“完全替代”这类绝对表述，要主动补充例外场景。
+
+## core-web-vitals-followup-3
+
+title: 追问：怎么衡量「长任务」
+difficulty: 进阶
+tags: [CWV, WebVitals, 追问]
+parent: core-web-vitals
+
+### 题目
+
+如果面试官追问：怎么衡量「长任务」（Long Tasks API）
+
+### 答案要点
+
+#### 回答思路
+
+- 先给一句结论：这个问题要从「为什么需要它」「它解决了什么问题」「代价是什么」三个角度回答。
+- 再把结论落回原题，不要脱离上下文泛泛而谈；面试官通常会顺着边界、异常和工程成本继续追问。
+- 如果涉及实现细节，按数据流、状态变化、调用顺序或生命周期拆开讲；如果涉及方案选择，必须说明为什么不用另一个方案。
+
+#### 结合原题展开
+
+- LCP 衡量主要内容出现速度，重点看首屏 HTML、关键资源、服务端响应、首图/首屏块渲染
+- INP 衡量交互到下一帧视觉反馈的延迟，重点看长任务、主线程阻塞、重计算
+- CLS 衡量布局稳定性，重点防止图片/广告/异步内容无尺寸占位
+- 可以补充一个真实项目语境：上线前先约定输入输出、失败兜底和观测指标，避免只在 demo 场景下成立。
+
+#### 工程落地
+
+- 验证手段要具体：单元测试覆盖边界条件，集成测试覆盖主流程，必要时用 e2e 或回放数据验证真实链路。
+- 运行时要可观测：关键路径打日志或埋点，关注错误率、耗时、资源占用、用户可感知延迟和降级次数。
+- 发布策略要稳：高风险变更建议灰度、开关或回滚预案；如果会影响数据一致性，还要说明迁移和兼容策略。
+
+#### 易错点
+
+- 不要只背 API 或概念名，要说清楚适用条件；很多方案在小流量、单端、无异常时看起来都成立。
+- 不要忽略默认值、兼容性、异常回滚、性能退化和团队维护成本，这些往往是资深面试继续深挖的重点。
+- 如果答案里出现“总是”“一定”“完全替代”这类绝对表述，要主动补充例外场景。
+
+## rum-vs-lab-followup-1
+
+title: 追问：如果把「实验室数据与真实用户数据为什么经常不一致」用到真实项目里，你会重点关注哪些边界、验证手段和取舍
+difficulty: 进阶
+tags: [RUM, Lighthouse, WebVitals, 追问]
+parent: rum-vs-lab
+
+### 题目
+
+如果面试官追问：如果把「实验室数据与真实用户数据为什么经常不一致」用到真实项目里，你会重点关注哪些边界、验证手段和取舍？
+
+### 答案要点
+
+#### 回答思路
+
+- 先给一句结论：这个问题要从「为什么需要它」「它解决了什么问题」「代价是什么」三个角度回答。
+- 再把结论落回原题，不要脱离上下文泛泛而谈；面试官通常会顺着边界、异常和工程成本继续追问。
+- 如果涉及实现细节，按数据流、状态变化、调用顺序或生命周期拆开讲；如果涉及方案选择，必须说明为什么不用另一个方案。
+
+#### 结合原题展开
+
+- 实验室数据来自受控环境，适合做回归对比和本地定位；真实用户数据反映设备、网络、地域、登录态、个性化、缓存命中等真实差异
+- LCP、INP 等指标在 field 和 lab 中可能明显不同，例如线上会遇到重定向、冷缓存、Cookie 弹窗、A/B 实验脚本和第三方资源抖动
+- 排障时通常先用实验室工具定位主线程、网络瀑布、布局抖动，再用 RUM 验证问题是否真的影响主要用户群
+- 可以补充一个真实项目语境：上线前先约定输入输出、失败兜底和观测指标，避免只在 demo 场景下成立。
+
+#### 工程落地
+
+- 验证手段要具体：单元测试覆盖边界条件，集成测试覆盖主流程，必要时用 e2e 或回放数据验证真实链路。
+- 运行时要可观测：关键路径打日志或埋点，关注错误率、耗时、资源占用、用户可感知延迟和降级次数。
+- 发布策略要稳：高风险变更建议灰度、开关或回滚预案；如果会影响数据一致性，还要说明迁移和兼容策略。
+
+#### 易错点
+
+- 不要只背 API 或概念名，要说清楚适用条件；很多方案在小流量、单端、无异常时看起来都成立。
+- 不要忽略默认值、兼容性、异常回滚、性能退化和团队维护成本，这些往往是资深面试继续深挖的重点。
+- 如果答案里出现“总是”“一定”“完全替代”这类绝对表述，要主动补充例外场景。
+
+## initial-load-followup-1
+
+title: 追问：关键 CSS 内联和 Above-the-fold 区别
+difficulty: 进阶
+tags: [首屏, SSR, 追问]
+parent: initial-load
+
+### 题目
+
+如果面试官追问：关键 CSS 内联和 Above-the-fold 区别
+
+### 答案要点
+
+#### 回答思路
+
+- 先给一句结论：这个问题要从「为什么需要它」「它解决了什么问题」「代价是什么」三个角度回答。
+- 再把结论落回原题，不要脱离上下文泛泛而谈；面试官通常会顺着边界、异常和工程成本继续追问。
+- 如果涉及实现细节，按数据流、状态变化、调用顺序或生命周期拆开讲；如果涉及方案选择，必须说明为什么不用另一个方案。
+
+#### 结合原题展开
+
+- 纯 SPA 也能通过路由分包、预加载、关键 CSS、骨架屏优化首屏
+- 可以补充一个真实项目语境：上线前先约定输入输出、失败兜底和观测指标，避免只在 demo 场景下成立。
+
+#### 工程落地
+
+- 验证手段要具体：单元测试覆盖边界条件，集成测试覆盖主流程，必要时用 e2e 或回放数据验证真实链路。
+- 运行时要可观测：关键路径打日志或埋点，关注错误率、耗时、资源占用、用户可感知延迟和降级次数。
+- 发布策略要稳：高风险变更建议灰度、开关或回滚预案；如果会影响数据一致性，还要说明迁移和兼容策略。
+
+#### 易错点
+
+- 不要只背 API 或概念名，要说清楚适用条件；很多方案在小流量、单端、无异常时看起来都成立。
+- 不要忽略默认值、兼容性、异常回滚、性能退化和团队维护成本，这些往往是资深面试继续深挖的重点。
+- 如果答案里出现“总是”“一定”“完全替代”这类绝对表述，要主动补充例外场景。
+
+## initial-load-followup-2
+
+title: 追问：preload as=font 和 link rel=stylesheet 哪个先
+difficulty: 进阶
+tags: [首屏, SSR, 追问]
+parent: initial-load
+
+### 题目
+
+如果面试官追问：preload as=font 和 link rel=stylesheet 哪个先
+
+### 答案要点
+
+#### 回答思路
+
+- 先给一句结论：这个问题要从「为什么需要它」「它解决了什么问题」「代价是什么」三个角度回答。
+- 再把结论落回原题，不要脱离上下文泛泛而谈；面试官通常会顺着边界、异常和工程成本继续追问。
+- 如果涉及实现细节，按数据流、状态变化、调用顺序或生命周期拆开讲；如果涉及方案选择，必须说明为什么不用另一个方案。
+
+#### 结合原题展开
+
+- 先把问题拉回「首屏优化：SSR、SSG、ISR、路由分包、Critical CSS」的核心机制，说明这个追问考察的是落地边界、失败条件和方案取舍，而不是单点定义。
+- 可以补充一个真实项目语境：上线前先约定输入输出、失败兜底和观测指标，避免只在 demo 场景下成立。
+
+#### 工程落地
+
+- 验证手段要具体：单元测试覆盖边界条件，集成测试覆盖主流程，必要时用 e2e 或回放数据验证真实链路。
+- 运行时要可观测：关键路径打日志或埋点，关注错误率、耗时、资源占用、用户可感知延迟和降级次数。
+- 发布策略要稳：高风险变更建议灰度、开关或回滚预案；如果会影响数据一致性，还要说明迁移和兼容策略。
+
+#### 易错点
+
+- 不要只背 API 或概念名，要说清楚适用条件；很多方案在小流量、单端、无异常时看起来都成立。
+- 不要忽略默认值、兼容性、异常回滚、性能退化和团队维护成本，这些往往是资深面试继续深挖的重点。
+- 如果答案里出现“总是”“一定”“完全替代”这类绝对表述，要主动补充例外场景。
+
+## initial-load-followup-3
+
+title: 追问：304 和 200 的差别
+difficulty: 进阶
+tags: [首屏, SSR, 追问]
+parent: initial-load
+
+### 题目
+
+如果面试官追问：304 和 200 (from cache) 的差别
+
+### 答案要点
+
+#### 回答思路
+
+- 先给一句结论：这个问题要从「为什么需要它」「它解决了什么问题」「代价是什么」三个角度回答。
+- 再把结论落回原题，不要脱离上下文泛泛而谈；面试官通常会顺着边界、异常和工程成本继续追问。
+- 如果涉及实现细节，按数据流、状态变化、调用顺序或生命周期拆开讲；如果涉及方案选择，必须说明为什么不用另一个方案。
+
+#### 结合原题展开
+
+- 先把问题拉回「首屏优化：SSR、SSG、ISR、路由分包、Critical CSS」的核心机制，说明这个追问考察的是落地边界、失败条件和方案取舍，而不是单点定义。
+- 可以补充一个真实项目语境：上线前先约定输入输出、失败兜底和观测指标，避免只在 demo 场景下成立。
+
+#### 工程落地
+
+- 验证手段要具体：单元测试覆盖边界条件，集成测试覆盖主流程，必要时用 e2e 或回放数据验证真实链路。
+- 运行时要可观测：关键路径打日志或埋点，关注错误率、耗时、资源占用、用户可感知延迟和降级次数。
+- 发布策略要稳：高风险变更建议灰度、开关或回滚预案；如果会影响数据一致性，还要说明迁移和兼容策略。
+
+#### 易错点
+
+- 不要只背 API 或概念名，要说清楚适用条件；很多方案在小流量、单端、无异常时看起来都成立。
+- 不要忽略默认值、兼容性、异常回滚、性能退化和团队维护成本，这些往往是资深面试继续深挖的重点。
+- 如果答案里出现“总是”“一定”“完全替代”这类绝对表述，要主动补充例外场景。
+
+## runtime-optimization-followup-1
+
+title: 追问：如果把「运行时优化：虚拟列表、拆长任务、批量更新」用到真实项目里，你会重点关注哪些边界、验证手段和取舍
+difficulty: 进阶
+tags: [运行时, 长任务, 追问]
+parent: runtime-optimization
+
+### 题目
+
+如果面试官追问：如果把「运行时优化：虚拟列表、拆长任务、批量更新」用到真实项目里，你会重点关注哪些边界、验证手段和取舍？
+
+### 答案要点
+
+#### 回答思路
+
+- 先给一句结论：这个问题要从「为什么需要它」「它解决了什么问题」「代价是什么」三个角度回答。
+- 再把结论落回原题，不要脱离上下文泛泛而谈；面试官通常会顺着边界、异常和工程成本继续追问。
+- 如果涉及实现细节，按数据流、状态变化、调用顺序或生命周期拆开讲；如果涉及方案选择，必须说明为什么不用另一个方案。
+
+#### 结合原题展开
+
+- 减少一次渲染要处理的节点：分页、虚拟列表、按需展开、条件卸载不可见区域
+- 拆分长任务：把大循环切片、移入 Worker、让出主线程
+- 减少重复计算和重复渲染：缓存派生值、合并状态更新、避免无效 watcher
+- 可以补充一个真实项目语境：上线前先约定输入输出、失败兜底和观测指标，避免只在 demo 场景下成立。
+
+#### 工程落地
+
+- 验证手段要具体：单元测试覆盖边界条件，集成测试覆盖主流程，必要时用 e2e 或回放数据验证真实链路。
+- 运行时要可观测：关键路径打日志或埋点，关注错误率、耗时、资源占用、用户可感知延迟和降级次数。
+- 发布策略要稳：高风险变更建议灰度、开关或回滚预案；如果会影响数据一致性，还要说明迁移和兼容策略。
+
+#### 易错点
+
+- 不要只背 API 或概念名，要说清楚适用条件；很多方案在小流量、单端、无异常时看起来都成立。
+- 不要忽略默认值、兼容性、异常回滚、性能退化和团队维护成本，这些往往是资深面试继续深挖的重点。
+- 如果答案里出现“总是”“一定”“完全替代”这类绝对表述，要主动补充例外场景。
+
+## network-resource-hints-followup-1
+
+title: 追问：如果把「preload、prefetch、modulepreload、preconnect 怎么用才不浪费」用到真实项目里，你会重点关注哪些边界、验证手段和取舍
+difficulty: 进阶
+tags: [资源提示, 网络, 追问]
+parent: network-resource-hints
+
+### 题目
+
+如果面试官追问：如果把「preload、prefetch、modulepreload、preconnect 怎么用才不浪费」用到真实项目里，你会重点关注哪些边界、验证手段和取舍？
+
+### 答案要点
+
+#### 回答思路
+
+- 先给一句结论：这个问题要从「为什么需要它」「它解决了什么问题」「代价是什么」三个角度回答。
+- 再把结论落回原题，不要脱离上下文泛泛而谈；面试官通常会顺着边界、异常和工程成本继续追问。
+- 如果涉及实现细节，按数据流、状态变化、调用顺序或生命周期拆开讲；如果涉及方案选择，必须说明为什么不用另一个方案。
+
+#### 结合原题展开
+
+- preload：当前导航很快就要用的关键资源
+- modulepreload：提前拉取模块依赖
+- prefetch：未来导航可能用到的低优先级资源，通常更适合同站后续页面资源
+- 可以补充一个真实项目语境：上线前先约定输入输出、失败兜底和观测指标，避免只在 demo 场景下成立。
+
+#### 工程落地
+
+- 验证手段要具体：单元测试覆盖边界条件，集成测试覆盖主流程，必要时用 e2e 或回放数据验证真实链路。
+- 运行时要可观测：关键路径打日志或埋点，关注错误率、耗时、资源占用、用户可感知延迟和降级次数。
+- 发布策略要稳：高风险变更建议灰度、开关或回滚预案；如果会影响数据一致性，还要说明迁移和兼容策略。
+
+#### 易错点
+
+- 不要只背 API 或概念名，要说清楚适用条件；很多方案在小流量、单端、无异常时看起来都成立。
+- 不要忽略默认值、兼容性、异常回滚、性能退化和团队维护成本，这些往往是资深面试继续深挖的重点。
+- 如果答案里出现“总是”“一定”“完全替代”这类绝对表述，要主动补充例外场景。
+
+## image-font-bundle-followup-1
+
+title: 追问：如果把「图片、字体、JS 包体是最常见的三类资源瓶颈」用到真实项目里，你会重点关注哪些边界、验证手段和取舍
+difficulty: 基础
+tags: [图片, 字体, 包体, 追问]
+parent: image-font-bundle
+
+### 题目
+
+如果面试官追问：如果把「图片、字体、JS 包体是最常见的三类资源瓶颈」用到真实项目里，你会重点关注哪些边界、验证手段和取舍？
+
+### 答案要点
+
+#### 回答思路
+
+- 先给一句结论：这个问题要从「为什么需要它」「它解决了什么问题」「代价是什么」三个角度回答。
+- 再把结论落回原题，不要脱离上下文泛泛而谈；面试官通常会顺着边界、异常和工程成本继续追问。
+- 如果涉及实现细节，按数据流、状态变化、调用顺序或生命周期拆开讲；如果涉及方案选择，必须说明为什么不用另一个方案。
+
+#### 结合原题展开
+
+- 图片：压缩、响应式尺寸、懒加载、优先用 WebP/AVIF
+- 字体：子集化、font-display: swap、减少变体数量
+- JS：路由分包、按需引入、删除无用依赖、分析第三方包体积
+- 可以补充一个真实项目语境：上线前先约定输入输出、失败兜底和观测指标，避免只在 demo 场景下成立。
+
+#### 工程落地
+
+- 验证手段要具体：单元测试覆盖边界条件，集成测试覆盖主流程，必要时用 e2e 或回放数据验证真实链路。
+- 运行时要可观测：关键路径打日志或埋点，关注错误率、耗时、资源占用、用户可感知延迟和降级次数。
+- 发布策略要稳：高风险变更建议灰度、开关或回滚预案；如果会影响数据一致性，还要说明迁移和兼容策略。
+
+#### 易错点
+
+- 不要只背 API 或概念名，要说清楚适用条件；很多方案在小流量、单端、无异常时看起来都成立。
+- 不要忽略默认值、兼容性、异常回滚、性能退化和团队维护成本，这些往往是资深面试继续深挖的重点。
+- 如果答案里出现“总是”“一定”“完全替代”这类绝对表述，要主动补充例外场景。
+
+## monitoring-budget-followup-1
+
+title: 追问：如果把「性能预算与回归治理」用到真实项目里，你会重点关注哪些边界、验证手段和取舍
+difficulty: 进阶
+tags: [预算, 监控, 追问]
+parent: monitoring-budget
+
+### 题目
+
+如果面试官追问：如果把「性能预算与回归治理」用到真实项目里，你会重点关注哪些边界、验证手段和取舍？
+
+### 答案要点
+
+#### 回答思路
+
+- 先给一句结论：这个问题要从「为什么需要它」「它解决了什么问题」「代价是什么」三个角度回答。
+- 再把结论落回原题，不要脱离上下文泛泛而谈；面试官通常会顺着边界、异常和工程成本继续追问。
+- 如果涉及实现细节，按数据流、状态变化、调用顺序或生命周期拆开讲；如果涉及方案选择，必须说明为什么不用另一个方案。
+
+#### 结合原题展开
+
+- 建立性能预算：首屏 JS、图片体积、LCP/INP/CLS 阈值
+- 性能预算不是为了挡需求，而是让团队知道"每次新增成本是多少"
+- 预算要可解释、可协商，而不是一刀切
+- 可以补充一个真实项目语境：上线前先约定输入输出、失败兜底和观测指标，避免只在 demo 场景下成立。
+
+#### 工程落地
+
+- 验证手段要具体：单元测试覆盖边界条件，集成测试覆盖主流程，必要时用 e2e 或回放数据验证真实链路。
+- 运行时要可观测：关键路径打日志或埋点，关注错误率、耗时、资源占用、用户可感知延迟和降级次数。
+- 发布策略要稳：高风险变更建议灰度、开关或回滚预案；如果会影响数据一致性，还要说明迁移和兼容策略。
+
+#### 易错点
+
+- 不要只背 API 或概念名，要说清楚适用条件；很多方案在小流量、单端、无异常时看起来都成立。
+- 不要忽略默认值、兼容性、异常回滚、性能退化和团队维护成本，这些往往是资深面试继续深挖的重点。
+- 如果答案里出现“总是”“一定”“完全替代”这类绝对表述，要主动补充例外场景。
+
+## inp-deep-followup-1
+
+title: 追问：如果把「INP 取代 FID 后，前端要怎么优化交互响应」用到真实项目里，你会重点关注哪些边界、验证手段和取舍
+difficulty: 资深
+tags: [INP, 交互, 追问]
+parent: inp-deep
+
+### 题目
+
+如果面试官追问：如果把「INP 取代 FID 后，前端要怎么优化交互响应」用到真实项目里，你会重点关注哪些边界、验证手段和取舍？
+
+### 答案要点
+
+#### 回答思路
+
+- 先给一句结论：这个问题要从「为什么需要它」「它解决了什么问题」「代价是什么」三个角度回答。
+- 再把结论落回原题，不要脱离上下文泛泛而谈；面试官通常会顺着边界、异常和工程成本继续追问。
+- 如果涉及实现细节，按数据流、状态变化、调用顺序或生命周期拆开讲；如果涉及方案选择，必须说明为什么不用另一个方案。
+
+#### 结合原题展开
+
+- INP（Interaction to Next Paint）：从用户输入到下一帧渲染完成的最长延迟，整页生命周期内取 P98
+- FID 只看首次输入，INP 看所有交互，是更严格的指标
+- 输入处理：onInput 内只 setState，重计算放到 useTransition 或 requestIdleCallback
+- 可以补充一个真实项目语境：上线前先约定输入输出、失败兜底和观测指标，避免只在 demo 场景下成立。
+
+#### 工程落地
+
+- 验证手段要具体：单元测试覆盖边界条件，集成测试覆盖主流程，必要时用 e2e 或回放数据验证真实链路。
+- 运行时要可观测：关键路径打日志或埋点，关注错误率、耗时、资源占用、用户可感知延迟和降级次数。
+- 发布策略要稳：高风险变更建议灰度、开关或回滚预案；如果会影响数据一致性，还要说明迁移和兼容策略。
+
+#### 易错点
+
+- 不要只背 API 或概念名，要说清楚适用条件；很多方案在小流量、单端、无异常时看起来都成立。
+- 不要忽略默认值、兼容性、异常回滚、性能退化和团队维护成本，这些往往是资深面试继续深挖的重点。
+- 如果答案里出现“总是”“一定”“完全替代”这类绝对表述，要主动补充例外场景。
+
+## image-modern-pipeline-followup-1
+
+title: 追问：如果把「现代图片处理流水线」用到真实项目里，你会重点关注哪些边界、验证手段和取舍
+difficulty: 进阶
+tags: [图片, LCP, 追问]
+parent: image-modern-pipeline
+
+### 题目
+
+如果面试官追问：如果把「现代图片处理流水线（AVIF / WebP / responsive / blur-up）」用到真实项目里，你会重点关注哪些边界、验证手段和取舍？
+
+### 答案要点
+
+#### 回答思路
+
+- 先给一句结论：这个问题要从「为什么需要它」「它解决了什么问题」「代价是什么」三个角度回答。
+- 再把结论落回原题，不要脱离上下文泛泛而谈；面试官通常会顺着边界、异常和工程成本继续追问。
+- 如果涉及实现细节，按数据流、状态变化、调用顺序或生命周期拆开讲；如果涉及方案选择，必须说明为什么不用另一个方案。
+
+#### 结合原题展开
+
+- 处理：CDN / 服务端按需生成多尺寸 + 多格式（AVIF > WebP > JPEG）
+- AVIF 体积小但编码慢，CDN 端按需生成更合适，源站直接存比较费 CPU
+- 真正提升 LCP 的常常不是图片优化，而是 HTML 流式渲染让图片更早可发现
+- 可以补充一个真实项目语境：上线前先约定输入输出、失败兜底和观测指标，避免只在 demo 场景下成立。
+
+#### 工程落地
+
+- 验证手段要具体：单元测试覆盖边界条件，集成测试覆盖主流程，必要时用 e2e 或回放数据验证真实链路。
+- 运行时要可观测：关键路径打日志或埋点，关注错误率、耗时、资源占用、用户可感知延迟和降级次数。
+- 发布策略要稳：高风险变更建议灰度、开关或回滚预案；如果会影响数据一致性，还要说明迁移和兼容策略。
+
+#### 易错点
+
+- 不要只背 API 或概念名，要说清楚适用条件；很多方案在小流量、单端、无异常时看起来都成立。
+- 不要忽略默认值、兼容性、异常回滚、性能退化和团队维护成本，这些往往是资深面试继续深挖的重点。
+- 如果答案里出现“总是”“一定”“完全替代”这类绝对表述，要主动补充例外场景。
+
+## core-web-vitals-explain-followup-1
+
+title: 追问：如果把「Core Web Vitals 三个指标 LCP / INP / CLS 怎么解读和优化」用到真实项目里，你会重点关注哪些边界、验证手段和取舍
+difficulty: 进阶
+tags: [Web Vitals, 性能, 追问]
+parent: core-web-vitals-explain
+
+### 题目
+
+如果面试官追问：如果把「Core Web Vitals 三个指标 LCP / INP / CLS 怎么解读和优化」用到真实项目里，你会重点关注哪些边界、验证手段和取舍？
+
+### 答案要点
+
+#### 回答思路
+
+- 先给一句结论：这个问题要从「为什么需要它」「它解决了什么问题」「代价是什么」三个角度回答。
+- 再把结论落回原题，不要脱离上下文泛泛而谈；面试官通常会顺着边界、异常和工程成本继续追问。
+- 如果涉及实现细节，按数据流、状态变化、调用顺序或生命周期拆开讲；如果涉及方案选择，必须说明为什么不用另一个方案。
+
+#### 结合原题展开
+
+- LCP：首屏最大元素的呈现时间。优化：服务端响应快（TTFB）、压缩图片 / 用 AVIF/WebP、首屏关键资源 preload、避免 render-blocking 的 CSS/JS、字体 font-display: swap
+- INP：用户交互到下一帧绘制的耗时（取一段时间内的 P98）。优化：减少长任务（拆分 + scheduler.yield）、startTransition / useDeferredValue 把昂贵渲染降级、事件处理器中避免大计算
+- CLS：可见元素位置突变的累积分数。优化： 始终设置宽高 / aspect-ratio、不在已有内容上方插入广告、min-height 占位、字体回退尺寸匹配（size-adjust）
+- 可以补充一个真实项目语境：上线前先约定输入输出、失败兜底和观测指标，避免只在 demo 场景下成立。
+
+#### 工程落地
+
+- 验证手段要具体：单元测试覆盖边界条件，集成测试覆盖主流程，必要时用 e2e 或回放数据验证真实链路。
+- 运行时要可观测：关键路径打日志或埋点，关注错误率、耗时、资源占用、用户可感知延迟和降级次数。
+- 发布策略要稳：高风险变更建议灰度、开关或回滚预案；如果会影响数据一致性，还要说明迁移和兼容策略。
+
+#### 易错点
+
+- 不要只背 API 或概念名，要说清楚适用条件；很多方案在小流量、单端、无异常时看起来都成立。
+- 不要忽略默认值、兼容性、异常回滚、性能退化和团队维护成本，这些往往是资深面试继续深挖的重点。
+- 如果答案里出现“总是”“一定”“完全替代”这类绝对表述，要主动补充例外场景。
+
+## long-task-scheduling-followup-1
+
+title: 追问：如果把「长任务怎么定位与拆分」用到真实项目里，你会重点关注哪些边界、验证手段和取舍
+difficulty: 进阶
+tags: [性能, 调度, 追问]
+parent: long-task-scheduling
+
+### 题目
+
+如果面试官追问：如果把「长任务（Long Task）怎么定位与拆分」用到真实项目里，你会重点关注哪些边界、验证手段和取舍？
+
+### 答案要点
+
+#### 回答思路
+
+- 先给一句结论：这个问题要从「为什么需要它」「它解决了什么问题」「代价是什么」三个角度回答。
+- 再把结论落回原题，不要脱离上下文泛泛而谈；面试官通常会顺着边界、异常和工程成本继续追问。
+- 如果涉及实现细节，按数据流、状态变化、调用顺序或生命周期拆开讲；如果涉及方案选择，必须说明为什么不用另一个方案。
+
+#### 结合原题展开
+
+- Long Task 定义：浏览器主线程任务执行时间 > 50ms
+- 发现：PerformanceObserver({ entryTypes: ['longtask'] })、Performance 面板的红色三角
+- 可以补充一个真实项目语境：上线前先约定输入输出、失败兜底和观测指标，避免只在 demo 场景下成立。
+
+#### 工程落地
+
+- 验证手段要具体：单元测试覆盖边界条件，集成测试覆盖主流程，必要时用 e2e 或回放数据验证真实链路。
+- 运行时要可观测：关键路径打日志或埋点，关注错误率、耗时、资源占用、用户可感知延迟和降级次数。
+- 发布策略要稳：高风险变更建议灰度、开关或回滚预案；如果会影响数据一致性，还要说明迁移和兼容策略。
+
+#### 易错点
+
+- 不要只背 API 或概念名，要说清楚适用条件；很多方案在小流量、单端、无异常时看起来都成立。
+- 不要忽略默认值、兼容性、异常回滚、性能退化和团队维护成本，这些往往是资深面试继续深挖的重点。
+- 如果答案里出现“总是”“一定”“完全替代”这类绝对表述，要主动补充例外场景。
+
+## bundle-split-strategy-followup-1
+
+title: 追问：如果把「bundle 拆分与按需加载策略」用到真实项目里，你会重点关注哪些边界、验证手段和取舍
+difficulty: 进阶
+tags: [打包, 性能, 追问]
+parent: bundle-split-strategy
+
+### 题目
+
+如果面试官追问：如果把「bundle 拆分与按需加载策略」用到真实项目里，你会重点关注哪些边界、验证手段和取舍？
+
+### 答案要点
+
+#### 回答思路
+
+- 先给一句结论：这个问题要从「为什么需要它」「它解决了什么问题」「代价是什么」三个角度回答。
+- 再把结论落回原题，不要脱离上下文泛泛而谈；面试官通常会顺着边界、异常和工程成本继续追问。
+- 如果涉及实现细节，按数据流、状态变化、调用顺序或生命周期拆开讲；如果涉及方案选择，必须说明为什么不用另一个方案。
+
+#### 结合原题展开
+
+- vendor 拆分：把不常变的第三方库（vue / react / lodash）单独打成 chunk，长效缓存
+- 首屏 import 了路由懒组件 → 拆分白做
+- 监控 bundle 体积：rollup-plugin-visualizer / webpack-bundle-analyzer，CI 加 size-limit 卡阈值
+- 可以补充一个真实项目语境：上线前先约定输入输出、失败兜底和观测指标，避免只在 demo 场景下成立。
+
+#### 工程落地
+
+- 验证手段要具体：单元测试覆盖边界条件，集成测试覆盖主流程，必要时用 e2e 或回放数据验证真实链路。
+- 运行时要可观测：关键路径打日志或埋点，关注错误率、耗时、资源占用、用户可感知延迟和降级次数。
+- 发布策略要稳：高风险变更建议灰度、开关或回滚预案；如果会影响数据一致性，还要说明迁移和兼容策略。
+
+#### 易错点
+
+- 不要只背 API 或概念名，要说清楚适用条件；很多方案在小流量、单端、无异常时看起来都成立。
+- 不要忽略默认值、兼容性、异常回滚、性能退化和团队维护成本，这些往往是资深面试继续深挖的重点。
+- 如果答案里出现“总是”“一定”“完全替代”这类绝对表述，要主动补充例外场景。
+
+## memory-leak-frontend-followup-1
+
+title: 追问：如果把「怎么排查前端内存泄漏？」用到真实项目里，你会重点关注哪些边界、验证手段和取舍
+difficulty: 资深
+tags: [性能, 内存, 高频, 追问]
+parent: memory-leak-frontend
+
+### 题目
+
+如果面试官追问：如果把「怎么排查前端内存泄漏？」用到真实项目里，你会重点关注哪些边界、验证手段和取舍？
+
+### 答案要点
+
+#### 回答思路
+
+- 先给一句结论：这个问题要从「为什么需要它」「它解决了什么问题」「代价是什么」三个角度回答。
+- 再把结论落回原题，不要脱离上下文泛泛而谈；面试官通常会顺着边界、异常和工程成本继续追问。
+- 如果涉及实现细节，按数据流、状态变化、调用顺序或生命周期拆开讲；如果涉及方案选择，必须说明为什么不用另一个方案。
+
+#### 结合原题展开
+
+- DevTools → Performance → Memory 录制：长时间使用后内存曲线持续上升不回落 = 泄漏
+- GC 后内存仍不降才算真泄漏（短时升降是正常）
+- 可以补充一个真实项目语境：上线前先约定输入输出、失败兜底和观测指标，避免只在 demo 场景下成立。
+
+#### 工程落地
+
+- 验证手段要具体：单元测试覆盖边界条件，集成测试覆盖主流程，必要时用 e2e 或回放数据验证真实链路。
+- 运行时要可观测：关键路径打日志或埋点，关注错误率、耗时、资源占用、用户可感知延迟和降级次数。
+- 发布策略要稳：高风险变更建议灰度、开关或回滚预案；如果会影响数据一致性，还要说明迁移和兼容策略。
+
+#### 易错点
+
+- 不要只背 API 或概念名，要说清楚适用条件；很多方案在小流量、单端、无异常时看起来都成立。
+- 不要忽略默认值、兼容性、异常回滚、性能退化和团队维护成本，这些往往是资深面试继续深挖的重点。
+- 如果答案里出现“总是”“一定”“完全替代”这类绝对表述，要主动补充例外场景。

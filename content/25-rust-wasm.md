@@ -7,17 +7,22 @@ description: Rust 重构前端工具链、WebAssembly 在浏览器与 Node 中�
 ---
 
 ## why-rust-tooling
+
 title: 为什么前端工具链都在被 Rust 重写
+followups: [why-rust-tooling-followup-1]
 difficulty: 进阶
 tags: [Rust, 工具链]
 
 ### 一句话
+
 性能：原生编译、零 GC、并行更彻底，10× ~ 100× 于 Node 实现；稳定：内存安全 + 强类型，比 JS 更适合写编译器 / lexer / linter；跨平台：单一二进制，CI / Docker 容易分发…。
 
 ### 题目
+
 Vite 5 默认仍是 esbuild，但 SWC、Rolldown、Turbopack、Biome、Lightning CSS 等都用 Rust，它们的核心收益是什么？
 
 ### 答案要点
+
 - 性能：原生编译、零 GC、并行更彻底，10× ~ 100× 于 Node 实现
 - 稳定：内存安全 + 强类型，比 JS 更适合写编译器 / lexer / linter
 - 跨平台：单一二进制，CI / Docker 容易分发；通过 napi-rs 暴露 Node 绑定
@@ -25,6 +30,7 @@ Vite 5 默认仍是 esbuild，但 SWC、Rolldown、Turbopack、Biome、Lightning
 - 风险：Rust 生态门槛高，二进制升级和补丁周期更长；老生态插件缺失
 
 ### 代码示例
+
 ```ts
 import swc from '@swc/core';
 
@@ -43,22 +49,32 @@ biome format --write src/
 oxlint --fix src/
 ```
 
+### 追问
+
+- 如果把「为什么前端工具链都在被 Rust 重写」用到真实项目里，你会重点关注哪些边界、验证手段和取舍？
+
 ### 延伸
+
 - 选型时考虑"现有插件是否齐全"，新工具往往要 6-12 个月才追上老生态
 - 自研基础设施（脚手架 / lint）建议优先 Rust，长期收益更大
 
 ## wasm-fundamentals
+
 title: WebAssembly 基础与运行模型
+followups: [wasm-fundamentals-followup-1]
 difficulty: 进阶
 tags: [WASM, 浏览器]
 
 ### 一句话
+
 二进制指令格式，跑在浏览器 / Node 内的栈机虚拟机里，与 JS 共享同一事件循环；优势：可预测的性能、接近原生速度、多语言（Rust/C/C++/Go/。
 
 ### 题目
+
 WASM 是什么？它和 JS 的关系如何，浏览器是怎么加载和运行的？
 
 ### 答案要点
+
 - 二进制指令格式，跑在浏览器 / Node 内的栈机虚拟机里，与 JS 共享同一事件循环
 - 优势：可预测的性能、接近原生速度、多语言（Rust/C/C++/Go/Zig/AssemblyScript）
 - 限制：不能直接访问 DOM；通过 JS 互操作，调用代价不可忽略
@@ -67,6 +83,7 @@ WASM 是什么？它和 JS 的关系如何，浏览器是怎么加载和运行�
 - 多线程：`SharedArrayBuffer` + Web Worker + Atomics，需要 cross-origin isolation
 
 ### 代码示例
+
 ```ts
 const { instance } = await WebAssembly.instantiateStreaming(fetch('/img.wasm'), {
   env: { abort: () => {}, log: (n: number) => console.log(n) },
@@ -85,22 +102,32 @@ function blurImage(rgba: Uint8ClampedArray, w: number, h: number) {
 }
 ```
 
+### 追问
+
+- 如果把「WebAssembly 基础与运行模型」用到真实项目里，你会重点关注哪些边界、验证手段和取舍？
+
 ### 延伸
+
 - WASM 不是用来"取代 JS"的，而是给计算密集型部分（图像 / 加解密 / 编辑器内核 / 编译器）加速
 - WASI 让 WASM 走出浏览器，作为可移植的服务器 / Edge 运行时
 
 ## rust-wasm-toolchain
+
 title: 用 Rust 写浏览器 WASM 模块的完整流程
+followups: [rust-wasm-toolchain-followup-1]
 difficulty: 资深
 tags: [Rust, wasm-bindgen]
 
 ### 一句话
+
 cargo new --lib，Cargo.toml 添加 crate-type = ["cdylib"]，依赖 wasm-bindgen；用 wasm-pack build --target web 生成 ESM + .wasm…。
 
 ### 题目
+
 从 0 写一个 Rust 模块给前端调用，工具链和工程化如何组织？
 
 ### 答案要点
+
 - `cargo new --lib`，`Cargo.toml` 添加 `crate-type = ["cdylib"]`，依赖 `wasm-bindgen`
 - 用 `wasm-pack build --target web` 生成 ESM + .wasm
 - `wasm-bindgen` 自动生成 JS 绑定，TypedArray、字符串自动序列化
@@ -109,6 +136,7 @@ cargo new --lib，Cargo.toml 添加 crate-type = ["cdylib"]，依赖 wasm-bindge
 - 调试：浏览器原生支持 wasm 断点，配合 source map
 
 ### 代码示例
+
 ```rust
 use wasm_bindgen::prelude::*;
 
@@ -136,22 +164,32 @@ process(data);
 console.log(data);
 ```
 
+### 追问
+
+- 如果把「用 Rust 写浏览器 WASM 模块的完整流程」用到真实项目里，你会重点关注哪些边界、验证手段和取舍？
+
 ### 延伸
+
 - 体积控制目标：业务模块 50–200KB gzip 可接受；超过就要拆功能 / 懒加载
 - AssemblyScript 学习曲线低（语法接近 TS），适合不想学 Rust 的团队入门 WASM
 
 ## wasm-perf-cases
+
 title: 哪些场景上 WASM 真的能提速
+followups: [wasm-perf-cases-followup-1]
 difficulty: 资深
 tags: [WASM, 性能]
 
 ### 一句话
+
 适合：图像/视频处理、加解密 / 哈希、PDF / Office / Excel 解析、CAD / 仿真、压缩 / 转码、游戏物理；不太适合：字符串 / DOM 操作密集、调用频繁但计算量小的（互操作开销大于 JS 自身）…。
 
 ### 题目
+
 什么样的前端任务用 WASM 才能拿到明显收益？哪些反而会变慢？
 
 ### 答案要点
+
 - 适合：图像/视频处理、加解密 / 哈希、PDF / Office / Excel 解析、CAD / 仿真、压缩 / 转码、游戏物理
 - 不太适合：字符串 / DOM 操作密集、调用频繁但计算量小的（互操作开销大于 JS 自身）
 - 互操作开销：每次 JS<->WASM 跨界 ~微秒级，频繁短调用就被开销吞掉
@@ -160,6 +198,7 @@ tags: [WASM, 性能]
 - 真实案例：Figma、Photoshop Web、ffmpeg.wasm、SQLite WASM、Skia、PDFium
 
 ### 代码示例
+
 ```ts
 performance.mark('js-start');
 const out1 = blurInJs(rgba, 1920, 1080);
@@ -174,22 +213,32 @@ performance.measure('wasm-blur', 'wasm-start', 'wasm-end');
 console.table(performance.getEntriesByType('measure'));
 ```
 
+### 追问
+
+- 如果把「哪些场景上 WASM 真的能提速」用到真实项目里，你会重点关注哪些边界、验证手段和取舍？
+
 ### 延伸
+
 - 上 WASM 前先做 JS 优化（typed array、避免 GC、批量化），很多时候已经够了
 - 真要落地，用 Web Worker 跑 WASM 不堵主线程，用户体感差异最大
 
 ## wasm-runtime-server
+
 title: 服务端 / Edge 跑 WASM 的现状
+followups: [wasm-runtime-server-followup-1]
 difficulty: 资深
 tags: [WASM, Edge, WASI]
 
 ### 一句话
+
 三大优势：启动毫秒级、内存隔离强、跨语言安全沙箱；WASI（WebAssembly System Interface）让 WASM 能访问文件 / 网络 / 时钟，逼近 Node…。
 
 ### 题目
+
 WASM 不只是浏览器技术，它在服务端有什么落地场景？为什么 Cloudflare / Fastly / Shopify 都在押注？
 
 ### 答案要点
+
 - 三大优势：启动毫秒级、内存隔离强、跨语言安全沙箱
 - WASI（WebAssembly System Interface）让 WASM 能访问文件 / 网络 / 时钟，逼近 Node
 - 边缘计算：Cloudflare Workers / Fastly Compute@Edge 跑 WASM 模块，比容器轻几个数量级
@@ -198,6 +247,7 @@ WASM 不只是浏览器技术，它在服务端有什么落地场景？为什么
 - 工具链：Wasmtime、WasmEdge、wasi-sdk、wasmCloud
 
 ### 代码示例
+
 ```rust
 use std::io::{self, Read, Write};
 
@@ -214,22 +264,32 @@ cargo build --target wasm32-wasi --release
 wasmtime run target/wasm32-wasi/release/upper.wasm < input.txt
 ```
 
+### 追问
+
+- 如果把「服务端 / Edge 跑 WASM 的现状」用到真实项目里，你会重点关注哪些边界、验证手段和取舍？
+
 ### 延伸
+
 - Component Model 标准化跨语言互操作，未来 WASM 模块可以像 npm 包一样组合
 - 不要为了用 WASM 而用 WASM，没有清晰收益（性能、隔离、跨语言）就别上
 
 ## js-rust-interop
+
 title: JS 与 Rust/WASM 的数据互操作模式
+followups: [js-rust-interop-followup-1]
 difficulty: 资深
 tags: [互操作, WASM]
 
 ### 一句话
+
 零拷贝：直接把 Uint8Array 视图建在 wasm memory.buffer 上，原地处理；池化：复用 wasm memory 中的 buffer，避免反复 alloc / free；分块：超大输入分块送进去…。
 
 ### 题目
+
 图像 / 大数组传给 WASM 处理后再回到 JS，怎么做能既快又不爆内存？
 
 ### 答案要点
+
 - 零拷贝：直接把 `Uint8Array` 视图建在 wasm `memory.buffer` 上，原地处理
 - 池化：复用 wasm memory 中的 buffer，避免反复 alloc / free
 - 分块：超大输入分块送进去，避免 wasm linear memory 增长（grow 不可缩）
@@ -237,6 +297,7 @@ tags: [互操作, WASM]
 - 错误处理：返回 Result，JS 侧把 wasm panic 转成可恢复异常，避免整个 instance 不可用
 
 ### 代码示例
+
 ```ts
 let cachedBuf: Uint8Array | null = null;
 
@@ -257,22 +318,32 @@ export function blur(rgba: Uint8Array, w: number, h: number) {
 }
 ```
 
+### 追问
+
+- 如果把「JS 与 Rust/WASM 的数据互操作模式」用到真实项目里，你会重点关注哪些边界、验证手段和取舍？
+
 ### 延伸
+
 - 多线程场景下要用 SAB + Atomics 做 lock，否则数据竞争会挂掉整个 wasm instance
 - 复杂数据结构（图、树）尽量在 wasm 内构建，对外只暴露不可变快照
 
 ## rust-frontend-tooling
+
 title: 前端工具链为什么开始用 Rust 重写
+followups: [rust-frontend-tooling-followup-1]
 difficulty: 进阶
 tags: [Rust, 工具链]
 
 ### 一句话
+
 Rust 编译到 native，单线程比 JS 快 10-100 倍 + 可放心多线程，所以编译 / 打包 / lint 这种 CPU 密集任务越来越多换成 Rust：SWC、Rolldown、Turbopack、Biome、Rspack。
 
 ### 题目
+
 为什么 Rust / Go 这些原生语言开始大量出现在前端工具链中？哪些工具值得关注？
 
 ### 答案要点
+
 - **Node.js 工具链的瓶颈**
   - 单线程 + V8 GC，编译大型项目时 CPU 用不满
   - 一些需要 AST 操作的工具（Babel / ESLint / Prettier）耗时占据 CI 大头
@@ -297,6 +368,7 @@ Rust 编译到 native，单线程比 JS 快 10-100 倍 + 可放心多线程，�
   - 应用层（业务逻辑）仍是 JS / TS 的主场
 
 ### 代码示例
+
 ```ts
 import { defineConfig } from 'vite';
 import { rollup } from 'rolldown';
@@ -312,24 +384,33 @@ rules.recommended = true
 indentStyle = "space"
 ```
 
+### 追问
+
+- 如果把「前端工具链为什么开始用 Rust 重写」用到真实项目里，你会重点关注哪些边界、验证手段和取舍？
+
 ### 延伸
+
 - 不是所有工具都需要 Rust，业务规模 < 万行项目用 ESLint / Prettier 完全够
 - Rust 工具链最大风险是"插件生态滞后"，迁移要做 PoC
 - 长期看 JS / Rust 分层共生：上层逻辑 JS、底层基建 Rust
 
-
 ## wasm-when-not-to-use
+
 title: WebAssembly 什么场景不该用？常见误区
+followups: [wasm-when-not-to-use-followup-1]
 difficulty: 资深
 tags: [WASM, 架构, 性能]
 
 ### 一句话
+
 DOM 操作密集 / 简单计算 / 启动时间敏感的小工具，**用 WASM 反而慢**——WASM 的强项是计算密集 + 复用现成 C/Rust 生态，不是"什么都能加速"。
 
 ### 题目
+
 团队听说 WASM 很快，想把所有热点逻辑都用 Rust 重写。哪些场景其实不该用 WASM？
 
 ### 答案要点
+
 - **WASM 的真实优势**
   - CPU 密集计算（codec / 加密 / 物理仿真 / 解析 AST）
   - 复用现成的 C / C++ / Rust 库（FFmpeg / SQLite / OpenCV）
@@ -361,6 +442,7 @@ DOM 操作密集 / 简单计算 / 启动时间敏感的小工具，**用 WASM �
   - 体积 / 加载时间能接受吗？
 
 ### 代码示例
+
 ```ts
 import init, { fft } from './wasm/dsp.js';
 await init();
@@ -368,7 +450,9 @@ await init();
 const samples = new Float32Array(8192);
 const result = fft(samples);
 
-const items = [/* ... */];
+const items = [
+  /* ... */
+];
 const out = items.map((x) => simpleProcess(x));
 
 import init, { batchProcess } from './wasm/dsp.js';
@@ -376,23 +460,33 @@ const buf = new Float32Array(items.flat());
 const out = batchProcess(buf);
 ```
 
+### 追问
+
+- 如果把「WebAssembly 什么场景不该用？常见误区」用到真实项目里，你会重点关注哪些边界、验证手段和取舍？
+
 ### 延伸
+
 - 体积优化：wasm-opt -Oz、wee_alloc 替代 std allocator
 - 加载优化：streaming compile（`WebAssembly.instantiateStreaming`）+ 拆 chunk
 - 真实指标：WebAssembly 启动时间在低端机可能 200ms+，要 lazy
 
 ## js-wasm-data-bridge
+
 title: JS 和 WASM 之间数据怎么高效传递
+followups: [js-wasm-data-bridge-followup-1]
 difficulty: 资深
 tags: [WASM, 性能, 互操作]
 
 ### 一句话
+
 WASM 内存就是一块 ArrayBuffer；**只能传数字**，复杂数据（字符串 / 对象）要先序列化到这块内存里 → 把指针 + 长度传过去；用 wasm-bindgen / Emscripten 自动生成 binding，但理解底层有助于性能调优。
 
 ### 题目
+
 你想从 JS 把一个 100MB 的图片像素 buffer 给 Rust 处理。怎么传才不会复制开销巨大？
 
 ### 答案要点
+
 - **WASM 内存模型**
   - WASM 实例有一块线性 Memory（默认 16MB，可增长）
   - JS 通过 `instance.exports.memory.buffer` 拿到 ArrayBuffer
@@ -419,6 +513,7 @@ WASM 内存就是一块 ArrayBuffer；**只能传数字**，复杂数据（字�
   - 大量字符串处理建议在 WASM 内闭环
 
 ### 代码示例
+
 ```rust
 use wasm_bindgen::prelude::*;
 
@@ -447,54 +542,509 @@ const out = new Uint8Array(memory, ptr, u8.length).slice();
 __wbindgen_free(ptr, u8.length, 1);
 ```
 
+### 追问
+
+- 如果把「JS 和 WASM 之间数据怎么高效传递」用到真实项目里，你会重点关注哪些边界、验证手段和取舍？
+
 ### 延伸
+
 - WASI 让 WASM 跑出浏览器（CLI / 服务端 / Edge）
 - Component Model：WASM 模块间标准化数据交换
 - AssemblyScript：用 TS 风格语法写 WASM，门槛低但生态没 Rust 大
 
-
 ## wasm-when-to-use-basic
+
 title: 什么场景下前端值得用 WebAssembly？什么场景不值得？
+followups: [wasm-when-to-use-basic-followup-1, wasm-when-to-use-basic-followup-2, wasm-when-to-use-basic-followup-3]
 difficulty: 基础
 tags: [WASM, 选型, 基础]
 
 ### 一句话
+
 WASM 适合 CPU 密集 + 算法稳定的场景（图像 / 音视频 / 编解码 / 几何计算），不适合频繁调 DOM 的业务逻辑——JS-WASM 边界跨越成本不低。
 
 ### 题目
+
 什么样的前端需求适合用 WebAssembly 改写？什么不适合？
 
 ### 答案要点
+
 - **适合**：图像处理（resize / filter）、音视频编解码（FFmpeg.wasm）、加密 / 哈希、3D 几何运算、压缩 / 解压（zstd / brotli）、SQL 解析器、CRDT 引擎
 - **不适合**：表单业务逻辑、DOM 操作密集（每次跨边界都有开销）、数据量小但调用频次高的场景
 - **关键约束**：JS ↔ WASM 之间通过 ArrayBuffer 复制 / 共享，复杂对象要序列化，结构化对象用 wasm-bindgen 包一层
 - **包体积**：WASM 二进制不小（几百 KB+），首屏要权衡是否值得
 
 ### 代码示例
+
 ```ts
-const { instance } = await WebAssembly.instantiateStreaming(
-  fetch('/img-resize.wasm'),
-);
+const { instance } = await WebAssembly.instantiateStreaming(fetch('/img-resize.wasm'));
 const { resize, memory } = instance.exports as any;
 const ptr = (resize as Function)(width, height);
-const out = new Uint8ClampedArray(
-  (memory as WebAssembly.Memory).buffer,
-  ptr,
-  width * height * 4,
-);
+const out = new Uint8ClampedArray((memory as WebAssembly.Memory).buffer, ptr, width * height * 4);
 ```
 
 ### 常见误区
+
 - 以为"WASM 一定比 JS 快"——简单算 JIT 后的 V8 也很快，WASM 优势在固定路径热代码
 - 在 main thread 跑大 WASM 任务，仍然会卡 UI；应放 Worker
 - 拉来一个 几 MB 的 WASM 替代 50KB 的 JS lib，得不偿失
 
 ### 追问
+
 - WASI 是什么，能跑 Node 上吗
 - WebGPU 和 WASM 的关系
 - 为什么 Figma 选了 C++ → WASM 而不是 JS
 
 ### 延伸
+
 - ffmpeg.wasm / image-magick wasm / sql.js 都是经典
 - Rust / Zig / AssemblyScript / Tinygo 是几大主流编译来源
 
+## why-rust-tooling-followup-1
+
+title: 追问：如果把「为什么前端工具链都在被 Rust 重写」用到真实项目里，你会重点关注哪些边界、验证手段和取舍
+difficulty: 进阶
+tags: [Rust, 工具链, 追问]
+parent: why-rust-tooling
+
+### 题目
+
+如果面试官追问：如果把「为什么前端工具链都在被 Rust 重写」用到真实项目里，你会重点关注哪些边界、验证手段和取舍？
+
+### 答案要点
+
+#### 回答思路
+
+- 先给一句结论：这个问题要从「为什么需要它」「它解决了什么问题」「代价是什么」三个角度回答。
+- 再把结论落回原题，不要脱离上下文泛泛而谈；面试官通常会顺着边界、异常和工程成本继续追问。
+- 如果涉及实现细节，按数据流、状态变化、调用顺序或生命周期拆开讲；如果涉及方案选择，必须说明为什么不用另一个方案。
+
+#### 结合原题展开
+
+- 风险：Rust 生态门槛高，二进制升级和补丁周期更长；老生态插件缺失
+- 自研基础设施（脚手架 / lint）建议优先 Rust，长期收益更大
+- 可以补充一个真实项目语境：上线前先约定输入输出、失败兜底和观测指标，避免只在 demo 场景下成立。
+
+#### 工程落地
+
+- 验证手段要具体：单元测试覆盖边界条件，集成测试覆盖主流程，必要时用 e2e 或回放数据验证真实链路。
+- 运行时要可观测：关键路径打日志或埋点，关注错误率、耗时、资源占用、用户可感知延迟和降级次数。
+- 发布策略要稳：高风险变更建议灰度、开关或回滚预案；如果会影响数据一致性，还要说明迁移和兼容策略。
+
+#### 易错点
+
+- 不要只背 API 或概念名，要说清楚适用条件；很多方案在小流量、单端、无异常时看起来都成立。
+- 不要忽略默认值、兼容性、异常回滚、性能退化和团队维护成本，这些往往是资深面试继续深挖的重点。
+- 如果答案里出现“总是”“一定”“完全替代”这类绝对表述，要主动补充例外场景。
+
+## wasm-fundamentals-followup-1
+
+title: 追问：如果把「WebAssembly 基础与运行模型」用到真实项目里，你会重点关注哪些边界、验证手段和取舍
+difficulty: 进阶
+tags: [WASM, 浏览器, 追问]
+parent: wasm-fundamentals
+
+### 题目
+
+如果面试官追问：如果把「WebAssembly 基础与运行模型」用到真实项目里，你会重点关注哪些边界、验证手段和取舍？
+
+### 答案要点
+
+#### 回答思路
+
+- 先给一句结论：这个问题要从「为什么需要它」「它解决了什么问题」「代价是什么」三个角度回答。
+- 再把结论落回原题，不要脱离上下文泛泛而谈；面试官通常会顺着边界、异常和工程成本继续追问。
+- 如果涉及实现细节，按数据流、状态变化、调用顺序或生命周期拆开讲；如果涉及方案选择，必须说明为什么不用另一个方案。
+
+#### 结合原题展开
+
+- 加载：fetch + WebAssembly.instantiate(Streaming)，可与 JS 并行解析
+- 可以补充一个真实项目语境：上线前先约定输入输出、失败兜底和观测指标，避免只在 demo 场景下成立。
+
+#### 工程落地
+
+- 验证手段要具体：单元测试覆盖边界条件，集成测试覆盖主流程，必要时用 e2e 或回放数据验证真实链路。
+- 运行时要可观测：关键路径打日志或埋点，关注错误率、耗时、资源占用、用户可感知延迟和降级次数。
+- 发布策略要稳：高风险变更建议灰度、开关或回滚预案；如果会影响数据一致性，还要说明迁移和兼容策略。
+
+#### 易错点
+
+- 不要只背 API 或概念名，要说清楚适用条件；很多方案在小流量、单端、无异常时看起来都成立。
+- 不要忽略默认值、兼容性、异常回滚、性能退化和团队维护成本，这些往往是资深面试继续深挖的重点。
+- 如果答案里出现“总是”“一定”“完全替代”这类绝对表述，要主动补充例外场景。
+
+## rust-wasm-toolchain-followup-1
+
+title: 追问：如果把「用 Rust 写浏览器 WASM 模块的完整流程」用到真实项目里，你会重点关注哪些边界、验证手段和取舍
+difficulty: 资深
+tags: [Rust, wasm-bindgen, 追问]
+parent: rust-wasm-toolchain
+
+### 题目
+
+如果面试官追问：如果把「用 Rust 写浏览器 WASM 模块的完整流程」用到真实项目里，你会重点关注哪些边界、验证手段和取舍？
+
+### 答案要点
+
+#### 回答思路
+
+- 先给一句结论：这个问题要从「为什么需要它」「它解决了什么问题」「代价是什么」三个角度回答。
+- 再把结论落回原题，不要脱离上下文泛泛而谈；面试官通常会顺着边界、异常和工程成本继续追问。
+- 如果涉及实现细节，按数据流、状态变化、调用顺序或生命周期拆开讲；如果涉及方案选择，必须说明为什么不用另一个方案。
+
+#### 结合原题展开
+
+- cargo new --lib，Cargo.toml 添加 crate-type = ["cdylib"]，依赖 wasm-bindgen
+- 用 wasm-pack build --target web 生成 ESM + .wasm
+- wasm-bindgen 自动生成 JS 绑定，TypedArray、字符串自动序列化
+- 可以补充一个真实项目语境：上线前先约定输入输出、失败兜底和观测指标，避免只在 demo 场景下成立。
+
+#### 工程落地
+
+- 验证手段要具体：单元测试覆盖边界条件，集成测试覆盖主流程，必要时用 e2e 或回放数据验证真实链路。
+- 运行时要可观测：关键路径打日志或埋点，关注错误率、耗时、资源占用、用户可感知延迟和降级次数。
+- 发布策略要稳：高风险变更建议灰度、开关或回滚预案；如果会影响数据一致性，还要说明迁移和兼容策略。
+
+#### 易错点
+
+- 不要只背 API 或概念名，要说清楚适用条件；很多方案在小流量、单端、无异常时看起来都成立。
+- 不要忽略默认值、兼容性、异常回滚、性能退化和团队维护成本，这些往往是资深面试继续深挖的重点。
+- 如果答案里出现“总是”“一定”“完全替代”这类绝对表述，要主动补充例外场景。
+
+## wasm-perf-cases-followup-1
+
+title: 追问：如果把「哪些场景上 WASM 真的能提速」用到真实项目里，你会重点关注哪些边界、验证手段和取舍
+difficulty: 资深
+tags: [WASM, 性能, 追问]
+parent: wasm-perf-cases
+
+### 题目
+
+如果面试官追问：如果把「哪些场景上 WASM 真的能提速」用到真实项目里，你会重点关注哪些边界、验证手段和取舍？
+
+### 答案要点
+
+#### 回答思路
+
+- 先给一句结论：这个问题要从「为什么需要它」「它解决了什么问题」「代价是什么」三个角度回答。
+- 再把结论落回原题，不要脱离上下文泛泛而谈；面试官通常会顺着边界、异常和工程成本继续追问。
+- 如果涉及实现细节，按数据流、状态变化、调用顺序或生命周期拆开讲；如果涉及方案选择，必须说明为什么不用另一个方案。
+
+#### 结合原题展开
+
+- 互操作开销：每次 JSWASM 跨界 ~微秒级，频繁短调用就被开销吞掉
+- 内存复制：把数据复制进 WASM 线性内存是大头，能直接传 buffer 就别 copy
+- 真实案例：Figma、Photoshop Web、ffmpeg.wasm、SQLite WASM、Skia、PDFium
+- 可以补充一个真实项目语境：上线前先约定输入输出、失败兜底和观测指标，避免只在 demo 场景下成立。
+
+#### 工程落地
+
+- 验证手段要具体：单元测试覆盖边界条件，集成测试覆盖主流程，必要时用 e2e 或回放数据验证真实链路。
+- 运行时要可观测：关键路径打日志或埋点，关注错误率、耗时、资源占用、用户可感知延迟和降级次数。
+- 发布策略要稳：高风险变更建议灰度、开关或回滚预案；如果会影响数据一致性，还要说明迁移和兼容策略。
+
+#### 易错点
+
+- 不要只背 API 或概念名，要说清楚适用条件；很多方案在小流量、单端、无异常时看起来都成立。
+- 不要忽略默认值、兼容性、异常回滚、性能退化和团队维护成本，这些往往是资深面试继续深挖的重点。
+- 如果答案里出现“总是”“一定”“完全替代”这类绝对表述，要主动补充例外场景。
+
+## wasm-runtime-server-followup-1
+
+title: 追问：如果把「服务端 / Edge 跑 WASM 的现状」用到真实项目里，你会重点关注哪些边界、验证手段和取舍
+difficulty: 资深
+tags: [WASM, Edge, WASI, 追问]
+parent: wasm-runtime-server
+
+### 题目
+
+如果面试官追问：如果把「服务端 / Edge 跑 WASM 的现状」用到真实项目里，你会重点关注哪些边界、验证手段和取舍？
+
+### 答案要点
+
+#### 回答思路
+
+- 先给一句结论：这个问题要从「为什么需要它」「它解决了什么问题」「代价是什么」三个角度回答。
+- 再把结论落回原题，不要脱离上下文泛泛而谈；面试官通常会顺着边界、异常和工程成本继续追问。
+- 如果涉及实现细节，按数据流、状态变化、调用顺序或生命周期拆开讲；如果涉及方案选择，必须说明为什么不用另一个方案。
+
+#### 结合原题展开
+
+- WASI（WebAssembly System Interface）让 WASM 能访问文件 / 网络 / 时钟，逼近 Node
+- 边缘计算：Cloudflare Workers / Fastly Compute@Edge 跑 WASM 模块，比容器轻几个数量级
+- 插件系统：Shopify、Envoy、Istio 用 WASM 做用户自定义插件，安全又跨语言
+- 可以补充一个真实项目语境：上线前先约定输入输出、失败兜底和观测指标，避免只在 demo 场景下成立。
+
+#### 工程落地
+
+- 验证手段要具体：单元测试覆盖边界条件，集成测试覆盖主流程，必要时用 e2e 或回放数据验证真实链路。
+- 运行时要可观测：关键路径打日志或埋点，关注错误率、耗时、资源占用、用户可感知延迟和降级次数。
+- 发布策略要稳：高风险变更建议灰度、开关或回滚预案；如果会影响数据一致性，还要说明迁移和兼容策略。
+
+#### 易错点
+
+- 不要只背 API 或概念名，要说清楚适用条件；很多方案在小流量、单端、无异常时看起来都成立。
+- 不要忽略默认值、兼容性、异常回滚、性能退化和团队维护成本，这些往往是资深面试继续深挖的重点。
+- 如果答案里出现“总是”“一定”“完全替代”这类绝对表述，要主动补充例外场景。
+
+## js-rust-interop-followup-1
+
+title: 追问：如果把「JS 与 Rust/WASM 的数据互操作模式」用到真实项目里，你会重点关注哪些边界、验证手段和取舍
+difficulty: 资深
+tags: [互操作, WASM, 追问]
+parent: js-rust-interop
+
+### 题目
+
+如果面试官追问：如果把「JS 与 Rust/WASM 的数据互操作模式」用到真实项目里，你会重点关注哪些边界、验证手段和取舍？
+
+### 答案要点
+
+#### 回答思路
+
+- 先给一句结论：这个问题要从「为什么需要它」「它解决了什么问题」「代价是什么」三个角度回答。
+- 再把结论落回原题，不要脱离上下文泛泛而谈；面试官通常会顺着边界、异常和工程成本继续追问。
+- 如果涉及实现细节，按数据流、状态变化、调用顺序或生命周期拆开讲；如果涉及方案选择，必须说明为什么不用另一个方案。
+
+#### 结合原题展开
+
+- 错误处理：返回 Result，JS 侧把 wasm panic 转成可恢复异常，避免整个 instance 不可用
+- 可以补充一个真实项目语境：上线前先约定输入输出、失败兜底和观测指标，避免只在 demo 场景下成立。
+
+#### 工程落地
+
+- 验证手段要具体：单元测试覆盖边界条件，集成测试覆盖主流程，必要时用 e2e 或回放数据验证真实链路。
+- 运行时要可观测：关键路径打日志或埋点，关注错误率、耗时、资源占用、用户可感知延迟和降级次数。
+- 发布策略要稳：高风险变更建议灰度、开关或回滚预案；如果会影响数据一致性，还要说明迁移和兼容策略。
+
+#### 易错点
+
+- 不要只背 API 或概念名，要说清楚适用条件；很多方案在小流量、单端、无异常时看起来都成立。
+- 不要忽略默认值、兼容性、异常回滚、性能退化和团队维护成本，这些往往是资深面试继续深挖的重点。
+- 如果答案里出现“总是”“一定”“完全替代”这类绝对表述，要主动补充例外场景。
+
+## rust-frontend-tooling-followup-1
+
+title: 追问：如果把「前端工具链为什么开始用 Rust 重写」用到真实项目里，你会重点关注哪些边界、验证手段和取舍
+difficulty: 进阶
+tags: [Rust, 工具链, 追问]
+parent: rust-frontend-tooling
+
+### 题目
+
+如果面试官追问：如果把「前端工具链为什么开始用 Rust 重写」用到真实项目里，你会重点关注哪些边界、验证手段和取舍？
+
+### 答案要点
+
+#### 回答思路
+
+- 先给一句结论：这个问题要从「为什么需要它」「它解决了什么问题」「代价是什么」三个角度回答。
+- 再把结论落回原题，不要脱离上下文泛泛而谈；面试官通常会顺着边界、异常和工程成本继续追问。
+- 如果涉及实现细节，按数据流、状态变化、调用顺序或生命周期拆开讲；如果涉及方案选择，必须说明为什么不用另一个方案。
+
+#### 结合原题展开
+
+- Node.js 工具链的瓶颈
+- 单线程 + V8 GC，编译大型项目时 CPU 用不满
+- 一些需要 AST 操作的工具（Babel / ESLint / Prettier）耗时占据 CI 大头
+- 可以补充一个真实项目语境：上线前先约定输入输出、失败兜底和观测指标，避免只在 demo 场景下成立。
+
+#### 工程落地
+
+- 验证手段要具体：单元测试覆盖边界条件，集成测试覆盖主流程，必要时用 e2e 或回放数据验证真实链路。
+- 运行时要可观测：关键路径打日志或埋点，关注错误率、耗时、资源占用、用户可感知延迟和降级次数。
+- 发布策略要稳：高风险变更建议灰度、开关或回滚预案；如果会影响数据一致性，还要说明迁移和兼容策略。
+
+#### 易错点
+
+- 不要只背 API 或概念名，要说清楚适用条件；很多方案在小流量、单端、无异常时看起来都成立。
+- 不要忽略默认值、兼容性、异常回滚、性能退化和团队维护成本，这些往往是资深面试继续深挖的重点。
+- 如果答案里出现“总是”“一定”“完全替代”这类绝对表述，要主动补充例外场景。
+
+## wasm-when-not-to-use-followup-1
+
+title: 追问：如果把「WebAssembly 什么场景不该用？常见误区」用到真实项目里，你会重点关注哪些边界、验证手段和取舍
+difficulty: 资深
+tags: [WASM, 架构, 性能, 追问]
+parent: wasm-when-not-to-use
+
+### 题目
+
+如果面试官追问：如果把「WebAssembly 什么场景不该用？常见误区」用到真实项目里，你会重点关注哪些边界、验证手段和取舍？
+
+### 答案要点
+
+#### 回答思路
+
+- 先给一句结论：这个问题要从「为什么需要它」「它解决了什么问题」「代价是什么」三个角度回答。
+- 再把结论落回原题，不要脱离上下文泛泛而谈；面试官通常会顺着边界、异常和工程成本继续追问。
+- 如果涉及实现细节，按数据流、状态变化、调用顺序或生命周期拆开讲；如果涉及方案选择，必须说明为什么不用另一个方案。
+
+#### 结合原题展开
+
+- 不该用 WASM 的场景
+- 加载优化：streaming compile（WebAssembly.instantiateStreaming）+ 拆 chunk
+- 真实指标：WebAssembly 启动时间在低端机可能 200ms+，要 lazy
+- 可以补充一个真实项目语境：上线前先约定输入输出、失败兜底和观测指标，避免只在 demo 场景下成立。
+
+#### 工程落地
+
+- 验证手段要具体：单元测试覆盖边界条件，集成测试覆盖主流程，必要时用 e2e 或回放数据验证真实链路。
+- 运行时要可观测：关键路径打日志或埋点，关注错误率、耗时、资源占用、用户可感知延迟和降级次数。
+- 发布策略要稳：高风险变更建议灰度、开关或回滚预案；如果会影响数据一致性，还要说明迁移和兼容策略。
+
+#### 易错点
+
+- 不要只背 API 或概念名，要说清楚适用条件；很多方案在小流量、单端、无异常时看起来都成立。
+- 不要忽略默认值、兼容性、异常回滚、性能退化和团队维护成本，这些往往是资深面试继续深挖的重点。
+- 如果答案里出现“总是”“一定”“完全替代”这类绝对表述，要主动补充例外场景。
+
+## js-wasm-data-bridge-followup-1
+
+title: 追问：如果把「JS 和 WASM 之间数据怎么高效传递」用到真实项目里，你会重点关注哪些边界、验证手段和取舍
+difficulty: 资深
+tags: [WASM, 性能, 互操作, 追问]
+parent: js-wasm-data-bridge
+
+### 题目
+
+如果面试官追问：如果把「JS 和 WASM 之间数据怎么高效传递」用到真实项目里，你会重点关注哪些边界、验证手段和取舍？
+
+### 答案要点
+
+#### 回答思路
+
+- 先给一句结论：这个问题要从「为什么需要它」「它解决了什么问题」「代价是什么」三个角度回答。
+- 再把结论落回原题，不要脱离上下文泛泛而谈；面试官通常会顺着边界、异常和工程成本继续追问。
+- 如果涉及实现细节，按数据流、状态变化、调用顺序或生命周期拆开讲；如果涉及方案选择，必须说明为什么不用另一个方案。
+
+#### 结合原题展开
+
+- WASM 实例有一块线性 Memory（默认 16MB，可增长）
+- JS 通过 instance.exports.memory.buffer 拿到 ArrayBuffer
+- 这块 buffer JS 和 WASM 直接共享（同一片内存）
+- 可以补充一个真实项目语境：上线前先约定输入输出、失败兜底和观测指标，避免只在 demo 场景下成立。
+
+#### 工程落地
+
+- 验证手段要具体：单元测试覆盖边界条件，集成测试覆盖主流程，必要时用 e2e 或回放数据验证真实链路。
+- 运行时要可观测：关键路径打日志或埋点，关注错误率、耗时、资源占用、用户可感知延迟和降级次数。
+- 发布策略要稳：高风险变更建议灰度、开关或回滚预案；如果会影响数据一致性，还要说明迁移和兼容策略。
+
+#### 易错点
+
+- 不要只背 API 或概念名，要说清楚适用条件；很多方案在小流量、单端、无异常时看起来都成立。
+- 不要忽略默认值、兼容性、异常回滚、性能退化和团队维护成本，这些往往是资深面试继续深挖的重点。
+- 如果答案里出现“总是”“一定”“完全替代”这类绝对表述，要主动补充例外场景。
+
+## wasm-when-to-use-basic-followup-1
+
+title: 追问：WASI 是什么，能跑 Node 上吗
+difficulty: 基础
+tags: [WASM, 选型, 基础, 追问]
+parent: wasm-when-to-use-basic
+
+### 题目
+
+如果面试官追问：WASI 是什么，能跑 Node 上吗
+
+### 答案要点
+
+#### 回答思路
+
+- 先给一句结论：这个问题要从「为什么需要它」「它解决了什么问题」「代价是什么」三个角度回答。
+- 再把结论落回原题，不要脱离上下文泛泛而谈；面试官通常会顺着边界、异常和工程成本继续追问。
+- 如果涉及实现细节，按数据流、状态变化、调用顺序或生命周期拆开讲；如果涉及方案选择，必须说明为什么不用另一个方案。
+
+#### 结合原题展开
+
+- 先把问题拉回「什么场景下前端值得用 WebAssembly？什么场景不值得？」的核心机制，说明这个追问考察的是落地边界、失败条件和方案取舍，而不是单点定义。
+- 可以补充一个真实项目语境：上线前先约定输入输出、失败兜底和观测指标，避免只在 demo 场景下成立。
+
+#### 工程落地
+
+- 验证手段要具体：单元测试覆盖边界条件，集成测试覆盖主流程，必要时用 e2e 或回放数据验证真实链路。
+- 运行时要可观测：关键路径打日志或埋点，关注错误率、耗时、资源占用、用户可感知延迟和降级次数。
+- 发布策略要稳：高风险变更建议灰度、开关或回滚预案；如果会影响数据一致性，还要说明迁移和兼容策略。
+
+#### 易错点
+
+- 不要只背 API 或概念名，要说清楚适用条件；很多方案在小流量、单端、无异常时看起来都成立。
+- 不要忽略默认值、兼容性、异常回滚、性能退化和团队维护成本，这些往往是资深面试继续深挖的重点。
+- 如果答案里出现“总是”“一定”“完全替代”这类绝对表述，要主动补充例外场景。
+
+## wasm-when-to-use-basic-followup-2
+
+title: 追问：WebGPU 和 WASM 的关系
+difficulty: 基础
+tags: [WASM, 选型, 基础, 追问]
+parent: wasm-when-to-use-basic
+
+### 题目
+
+如果面试官追问：WebGPU 和 WASM 的关系
+
+### 答案要点
+
+#### 回答思路
+
+- 先给一句结论：这个问题要从「为什么需要它」「它解决了什么问题」「代价是什么」三个角度回答。
+- 再把结论落回原题，不要脱离上下文泛泛而谈；面试官通常会顺着边界、异常和工程成本继续追问。
+- 如果涉及实现细节，按数据流、状态变化、调用顺序或生命周期拆开讲；如果涉及方案选择，必须说明为什么不用另一个方案。
+
+#### 结合原题展开
+
+- 适合：图像处理（resize / filter）、音视频编解码（FFmpeg.wasm）、加密 / 哈希、3D 几何运算、压缩 / 解压（zstd / brotli）、SQL 解析器、CRDT 引擎
+- 关键约束：JS ↔ WASM 之间通过 ArrayBuffer 复制 / 共享，复杂对象要序列化，结构化对象用 wasm-bindgen 包一层
+- 包体积：WASM 二进制不小（几百 KB+），首屏要权衡是否值得
+- 可以补充一个真实项目语境：上线前先约定输入输出、失败兜底和观测指标，避免只在 demo 场景下成立。
+
+#### 工程落地
+
+- 验证手段要具体：单元测试覆盖边界条件，集成测试覆盖主流程，必要时用 e2e 或回放数据验证真实链路。
+- 运行时要可观测：关键路径打日志或埋点，关注错误率、耗时、资源占用、用户可感知延迟和降级次数。
+- 发布策略要稳：高风险变更建议灰度、开关或回滚预案；如果会影响数据一致性，还要说明迁移和兼容策略。
+
+#### 易错点
+
+- 不要只背 API 或概念名，要说清楚适用条件；很多方案在小流量、单端、无异常时看起来都成立。
+- 不要忽略默认值、兼容性、异常回滚、性能退化和团队维护成本，这些往往是资深面试继续深挖的重点。
+- 如果答案里出现“总是”“一定”“完全替代”这类绝对表述，要主动补充例外场景。
+
+## wasm-when-to-use-basic-followup-3
+
+title: 追问：为什么 Figma 选了 C++ → WASM 而不是 JS
+difficulty: 基础
+tags: [WASM, 选型, 基础, 追问]
+parent: wasm-when-to-use-basic
+
+### 题目
+
+如果面试官追问：为什么 Figma 选了 C++ → WASM 而不是 JS
+
+### 答案要点
+
+#### 回答思路
+
+- 先给一句结论：这个问题要从「为什么需要它」「它解决了什么问题」「代价是什么」三个角度回答。
+- 再把结论落回原题，不要脱离上下文泛泛而谈；面试官通常会顺着边界、异常和工程成本继续追问。
+- 如果涉及实现细节，按数据流、状态变化、调用顺序或生命周期拆开讲；如果涉及方案选择，必须说明为什么不用另一个方案。
+
+#### 结合原题展开
+
+- 适合：图像处理（resize / filter）、音视频编解码（FFmpeg.wasm）、加密 / 哈希、3D 几何运算、压缩 / 解压（zstd / brotli）、SQL 解析器、CRDT 引擎
+- 关键约束：JS ↔ WASM 之间通过 ArrayBuffer 复制 / 共享，复杂对象要序列化，结构化对象用 wasm-bindgen 包一层
+- 包体积：WASM 二进制不小（几百 KB+），首屏要权衡是否值得
+- 可以补充一个真实项目语境：上线前先约定输入输出、失败兜底和观测指标，避免只在 demo 场景下成立。
+
+#### 工程落地
+
+- 验证手段要具体：单元测试覆盖边界条件，集成测试覆盖主流程，必要时用 e2e 或回放数据验证真实链路。
+- 运行时要可观测：关键路径打日志或埋点，关注错误率、耗时、资源占用、用户可感知延迟和降级次数。
+- 发布策略要稳：高风险变更建议灰度、开关或回滚预案；如果会影响数据一致性，还要说明迁移和兼容策略。
+
+#### 易错点
+
+- 不要只背 API 或概念名，要说清楚适用条件；很多方案在小流量、单端、无异常时看起来都成立。
+- 不要忽略默认值、兼容性、异常回滚、性能退化和团队维护成本，这些往往是资深面试继续深挖的重点。
+- 如果答案里出现“总是”“一定”“完全替代”这类绝对表述，要主动补充例外场景。

@@ -9,6 +9,7 @@ import { useSettingsStore } from '@/stores/settings';
 import { useMarksStore } from '@/stores/marks';
 import { stripHtml, useSpeechController } from '@/composables/useSpeech';
 import { exportQuestionMarkdown } from '@/composables/useExport';
+import { useContent } from '@/composables/useContent';
 import { buildPrompt, chatGptUrl } from '@/lib/ai';
 import ShareDialog from '@/components/share/ShareDialog.vue';
 import CodeRunner from '@/components/runner/CodeRunner.vue';
@@ -28,6 +29,7 @@ const review = useReviewStore();
 const settings = useSettingsStore();
 const marks = useMarksStore();
 const router = useRouter();
+const { questionMap } = useContent();
 
 const open = ref<boolean>(!!props.defaultOpen || settings.state.showAnswerByDefault);
 const showNote = ref(false);
@@ -37,6 +39,14 @@ const showAIPanel = ref(false);
 const aiStore = useAIStore();
 
 const status = computed(() => progress.get(props.question.id).status);
+const followupQuestions = computed(() =>
+  (props.question.followupQuestionIds || [])
+    .map((id) => questionMap.get(id))
+    .filter((q): q is Question => Boolean(q)),
+);
+const parentQuestion = computed(() =>
+  props.question.parentId ? questionMap.get(props.question.parentId) : undefined,
+);
 
 const { isSpeaking, toggle: toggleSpeak } = useSpeechController(() =>
   stripHtml(props.question.question + ' ' + props.question.answer),
@@ -71,6 +81,13 @@ function gotoDetail() {
   router.push({
     name: 'question',
     params: { categoryId: props.question.categoryId, slug: props.question.slug },
+  });
+}
+
+function gotoQuestion(q: Question) {
+  router.push({
+    name: 'question',
+    params: { categoryId: q.categoryId, slug: q.slug },
   });
 }
 
@@ -112,7 +129,11 @@ defineExpose({ toggle });
           需复习
         </span>
         <span v-else class="status-badge mute">未做</span>
-        <button class="btn btn-ghost" :title="open ? '收起 (Space)' : '展开 (Space)'" @click="toggle">
+        <button
+          class="btn btn-ghost"
+          :title="open ? '收起 (Space)' : '展开 (Space)'"
+          @click="toggle"
+        >
           {{ open ? '收起' : '展开' }}
         </button>
       </div>
@@ -134,7 +155,28 @@ defineExpose({ toggle });
           </div>
           <div v-if="question.followup" class="markdown-body block-followup">
             <h4><AppIcon name="question" /> 面试官追问</h4>
-            <div v-html="question.followup" />
+            <ul v-if="followupQuestions.length" class="followup-link-list">
+              <li v-for="item in followupQuestions" :key="item.id">
+                <button
+                  class="followup-link"
+                  :title="`查看追问题：${item.title}`"
+                  @click="gotoQuestion(item)"
+                >
+                  {{ item.title.replace(/^追问：/, '') }}
+                </button>
+              </li>
+            </ul>
+            <div v-else v-html="question.followup" />
+          </div>
+          <div v-if="parentQuestion" class="related-questions">
+            <h4><AppIcon name="bookmark" /> 原题</h4>
+            <button
+              class="btn btn-ghost related-question"
+              :title="`返回原题：${parentQuestion.title}`"
+              @click="gotoQuestion(parentQuestion)"
+            >
+              {{ parentQuestion.title }}
+            </button>
           </div>
           <div v-if="question.extra" class="markdown-body extra-block">
             <h4><AppIcon name="bookmark" /> 延伸</h4>
@@ -178,7 +220,11 @@ defineExpose({ toggle });
             >
               <AppIcon name="reload" /> 需复习 <kbd>r</kbd>
             </button>
-            <button class="btn btn-ghost" title="编辑这道题的笔记 (n)" @click="showNote = !showNote">
+            <button
+              class="btn btn-ghost"
+              title="编辑这道题的笔记 (n)"
+              @click="showNote = !showNote"
+            >
               <AppIcon name="edit" /> 笔记 <kbd>n</kbd>
             </button>
             <button
@@ -199,10 +245,18 @@ defineExpose({ toggle });
             >
               <AppIcon name="robot" /> AI 讲解（站内）
             </button>
-            <button class="btn btn-ghost" title="用 ChatGPT 打开预设 Prompt 求讲解" @click="aiExplain">
+            <button
+              class="btn btn-ghost"
+              title="用 ChatGPT 打开预设 Prompt 求讲解"
+              @click="aiExplain"
+            >
               <AppIcon name="robot" /> AI 讲解（外部）
             </button>
-            <button class="btn btn-ghost" title="复制 AI 讲解的 Prompt 到剪贴板" @click="copyPromptToClipboard">
+            <button
+              class="btn btn-ghost"
+              title="复制 AI 讲解的 Prompt 到剪贴板"
+              @click="copyPromptToClipboard"
+            >
               <AppIcon name="copy" /> 复制 Prompt
             </button>
             <button
@@ -217,7 +271,11 @@ defineExpose({ toggle });
             <button class="btn btn-ghost" title="分享题目链接 / 二维码" @click="shareOpen = true">
               <AppIcon name="share" /> 分享
             </button>
-            <button class="btn btn-ghost" title="导出为 Markdown 文件" @click="exportQuestionMarkdown(question)">
+            <button
+              class="btn btn-ghost"
+              title="导出为 Markdown 文件"
+              @click="exportQuestionMarkdown(question)"
+            >
               <AppIcon name="download" /> MD
             </button>
           </div>
@@ -252,13 +310,16 @@ defineExpose({ toggle });
 }
 .hd-left {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
+  flex: 1 1 auto;
   gap: 8px;
   flex-wrap: wrap;
+  min-width: 0;
 }
 .hd-right {
   display: flex;
   align-items: center;
+  flex-shrink: 0;
   gap: 8px;
 }
 .num {
@@ -270,12 +331,16 @@ defineExpose({ toggle });
   border-radius: 4px;
 }
 .title {
+  flex: 1 1 360px;
+  min-width: min(100%, 220px);
   font-size: 16px;
   font-weight: 600;
   color: var(--c-text);
   text-align: left;
   background: transparent;
   padding: 0;
+  white-space: normal;
+  overflow-wrap: anywhere;
 }
 .title:hover {
   color: var(--c-primary);
@@ -318,6 +383,22 @@ defineExpose({ toggle });
   padding-top: 12px;
   border-top: 1px dashed var(--c-border);
 }
+.answer > .markdown-body :deep(h4) {
+  display: inline-flex;
+  align-items: center;
+  margin: 14px 0 6px;
+  padding: 2px 10px;
+  border-radius: 999px;
+  background: var(--c-bg-mute);
+  color: var(--c-text-soft);
+  font-size: 13px;
+}
+.answer > .markdown-body :deep(ul) {
+  padding-left: 22px;
+}
+.answer > .markdown-body :deep(li) {
+  margin: 6px 0;
+}
 .extra-block {
   margin-top: 8px;
   padding: 10px 14px;
@@ -352,11 +433,59 @@ defineExpose({ toggle });
   align-items: center;
   gap: 6px;
 }
-.block-pitfall h4 { color: var(--c-warning, #d97706); }
-.block-followup h4 { color: #4f46e5; }
+.block-pitfall h4 {
+  color: var(--c-warning, #d97706);
+}
+.block-followup h4 {
+  color: #4f46e5;
+}
 .block-pitfall :deep(p),
 .block-followup :deep(p) {
   margin: 4px 0;
+}
+.followup-link-list {
+  margin: 6px 0 0;
+  padding-left: 20px;
+}
+.followup-link-list li {
+  margin: 6px 0;
+  padding-left: 2px;
+}
+.followup-link {
+  color: var(--c-text);
+  line-height: 1.7;
+  text-align: left;
+  text-decoration: underline;
+  text-decoration-color: rgba(99, 102, 241, 0.45);
+  text-underline-offset: 3px;
+  background: transparent;
+  padding: 0;
+}
+.followup-link:hover {
+  color: var(--c-primary);
+}
+.related-questions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-top: 10px;
+  padding: 10px 14px;
+  border-radius: var(--radius);
+  background: var(--c-bg-soft);
+}
+.related-questions h4 {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+  margin: 0;
+  font-size: 13px;
+  color: var(--c-text-soft);
+}
+.related-question {
+  max-width: 100%;
+  text-align: left;
 }
 .note-box {
   margin-top: 12px;
@@ -371,14 +500,18 @@ defineExpose({ toggle });
 }
 .actions {
   display: flex;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   gap: 6px;
   margin-top: 14px;
+  overflow-x: auto;
+  padding-bottom: 4px;
 }
 .actions .btn {
   display: inline-flex;
   align-items: center;
+  flex-shrink: 0;
   gap: 4px;
+  white-space: nowrap;
 }
 .actions kbd {
   display: inline-block;

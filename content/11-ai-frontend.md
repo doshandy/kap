@@ -9,6 +9,7 @@ description: 流式输出、工具调用、Prompt 工程、本地模型与 AI �
 ## streaming-ui
 
 title: AI 流式输出前端为什么不能只靠“边收边 append”
+followups: [streaming-ui-followup-1]
 difficulty: 进阶
 tags: [流式输出, SSE]
 
@@ -84,6 +85,10 @@ watch(fullText, (text) => {
 });
 ````
 
+### 追问
+
+- 如果把「AI 流式输出前端为什么不能只靠“边收边 append”」用到真实项目里，你会重点关注哪些边界、验证手段和取舍？
+
 ### 延伸
 
 - 用户感知的是"输出连贯性"，不是"你一秒刷了多少 token"
@@ -91,6 +96,7 @@ watch(fullText, (text) => {
 ## sse-fetch-stream
 
 title: SSE、fetch ReadableStream、WebSocket 在 AI 场景中的取舍
+followups: [sse-fetch-stream-followup-1]
 difficulty: 进阶
 tags: [SSE, Stream]
 
@@ -157,6 +163,10 @@ chatStream(prompt, onDelta, ctrl.signal).catch((e) => {
 stopBtn.onclick = () => ctrl.abort();
 ```
 
+### 追问
+
+- 如果把「SSE、fetch ReadableStream、WebSocket 在 AI 场景中的取舍」用到真实项目里，你会重点关注哪些边界、验证手段和取舍？
+
 ### 延伸
 
 - 是否选择 SSE 还要看服务端和边缘层是否稳定支持长连接刷流
@@ -166,6 +176,7 @@ stopBtn.onclick = () => ctrl.abort();
 ## prompt-schema
 
 title: Prompt 工程在前端里最重要的不是“会写提示词”，而是可控输出
+followups: [prompt-schema-followup-1]
 difficulty: 进阶
 tags: [Prompt, JSONSchema]
 
@@ -246,6 +257,10 @@ for await (const chunk of stream) {
 }
 ```
 
+### 追问
+
+- 如果把「Prompt 工程在前端里最重要的不是“会写提示词”，而是可控输出」用到真实项目里，你会重点关注哪些边界、验证手段和取舍？
+
 ### 延伸
 
 - "提示词写得花哨"不如"格式约束明确 + 错误处理完整"
@@ -254,6 +269,7 @@ for await (const chunk of stream) {
 ## tools-agents
 
 title: Function Calling、Tool Use、Agent 前端需要关心什么
+followups: [tools-agents-followup-1]
 difficulty: 资深
 tags: [ToolUse, Agent]
 
@@ -350,6 +366,10 @@ async function executeTool(call: ToolCall): Promise<any> {
 </template>
 ```
 
+### 追问
+
+- 如果把「Function Calling、Tool Use、Agent 前端需要关心什么」用到真实项目里，你会重点关注哪些边界、验证手段和取舍？
+
 ### 延伸
 
 - Agent UI 的核心不是炫酷，而是让用户知道"系统现在在做什么、为什么卡住"
@@ -358,6 +378,7 @@ async function executeTool(call: ToolCall): Promise<any> {
 ## local-model-privacy
 
 title: 本地模型、Worker 推理与隐私边界
+followups: [local-model-privacy-followup-1]
 difficulty: 进阶
 tags: [本地模型, 隐私]
 
@@ -430,6 +451,10 @@ if (!('gpu' in navigator)) {
 }
 ```
 
+### 追问
+
+- 如果把「本地模型、Worker 推理与隐私边界」用到真实项目里，你会重点关注哪些边界、验证手段和取舍？
+
 ### 延伸
 
 - 本地模型不是云模型的简单替代，而是另一类产品权衡
@@ -437,6 +462,7 @@ if (!('gpu' in navigator)) {
 ## prompt-injection
 
 title: AI 前端的提示注入与数据脱敏防御
+followups: [prompt-injection-followup-1]
 difficulty: 进阶
 tags: [安全, PromptInjection]
 
@@ -510,6 +536,10 @@ function safeLink(url: string): string {
 }
 ```
 
+### 追问
+
+- 如果把「AI 前端的提示注入与数据脱敏防御」用到真实项目里，你会重点关注哪些边界、验证手段和取舍？
+
 ### 延伸
 
 - AI 安全不是单点问题，前端、后端、模型策略和产品交互要协同设计
@@ -518,6 +548,7 @@ function safeLink(url: string): string {
 ## chat-history-context
 
 title: 多轮对话上下文窗口怎么管理？为什么不能一直堆历史
+followups: [chat-history-context-followup-1]
 difficulty: 进阶
 tags: [上下文, token, 对话]
 
@@ -579,6 +610,10 @@ export async function buildContext(
 }
 ```
 
+### 追问
+
+- 如果把「多轮对话上下文窗口怎么管理？为什么不能一直堆历史」用到真实项目里，你会重点关注哪些边界、验证手段和取舍？
+
 ### 延伸
 
 - 摘要本身有信息损失，关键事实建议在客户端独立结构化存储（"事实卡片"），每轮重新拼接
@@ -587,6 +622,7 @@ export async function buildContext(
 ## function-calling-ui
 
 title: Function Calling / Tool Use 在前端要怎么落地？
+followups: [function-calling-ui-followup-1]
 difficulty: 资深
 tags: [tool-call, agent, 流式]
 
@@ -684,6 +720,10 @@ export async function runToolCall(
 }
 ```
 
+### 追问
+
+- 如果把「Function Calling / Tool Use 在前端要怎么落地？」用到真实项目里，你会重点关注哪些边界、验证手段和取舍？
+
 ### 延伸
 
 - OpenAI / Anthropic / 智谱 / 通义 等的 function calling 协议大同小异，前端可以做统一适配层
@@ -692,6 +732,7 @@ export async function runToolCall(
 ## rag-ui
 
 title: RAG 检索增强在前端的实现要点
+followups: [rag-ui-followup-1]
 difficulty: 资深
 tags: [RAG, 向量, 检索]
 
@@ -742,6 +783,10 @@ export function renderAnswerWithCites(answer: string, docs: RagDoc[]) {
 }
 ```
 
+### 追问
+
+- 如果把「RAG 检索增强在前端的实现要点」用到真实项目里，你会重点关注哪些边界、验证手段和取舍？
+
 ### 延伸
 
 - 检索召回率不够时常用 hybrid search：BM25 + 向量；前端可以同时展示两路 hit 让用户切换
@@ -750,6 +795,7 @@ export function renderAnswerWithCites(answer: string, docs: RagDoc[]) {
 ## multi-modal-ui
 
 title: 多模态交互（图像 / 音频 / 视频）前端怎么实现
+followups: [multi-modal-ui-followup-1]
 difficulty: 资深
 tags: [多模态, 视觉, 语音]
 
@@ -818,6 +864,10 @@ export function attachWaveform(stream: MediaStream, canvas: HTMLCanvasElement) {
 }
 ```
 
+### 追问
+
+- 如果把「多模态交互（图像 / 音频 / 视频）前端怎么实现」用到真实项目里，你会重点关注哪些边界、验证手段和取舍？
+
 ### 延伸
 
 - 上行带宽是大头，移动端建议优先压缩图片到 1280px 内 + WebP 80%；音频建议 16kHz 单声道 Opus
@@ -826,6 +876,7 @@ export function attachWaveform(stream: MediaStream, canvas: HTMLCanvasElement) {
 ## cost-latency-budget
 
 title: AI 应用前端怎么控制成本和首字延迟
+followups: [cost-latency-budget-followup-1]
 difficulty: 进阶
 tags: [成本, 延迟, 缓存]
 
@@ -896,6 +947,10 @@ export function pickModel(question: string): 'small' | 'large' {
 }
 ```
 
+### 追问
+
+- 如果把「AI 应用前端怎么控制成本和首字延迟」用到真实项目里，你会重点关注哪些边界、验证手段和取舍？
+
 ### 延伸
 
 - 把"提示模板版本"埋点到日志里，方便后续把模板效果和成本一起可视化
@@ -904,6 +959,7 @@ export function pickModel(question: string): 'small' | 'large' {
 ## ai-evaluation
 
 title: 怎么评测一个 AI 前端功能的好坏？
+followups: [ai-evaluation-followup-1]
 difficulty: 资深
 tags: [评测, A/B, LLM-as-Judge]
 
@@ -956,6 +1012,10 @@ export async function judge(
 }
 ```
 
+### 追问
+
+- 如果把「怎么评测一个 AI 前端功能的好坏？」用到真实项目里，你会重点关注哪些边界、验证手段和取舍？
+
 ### 延伸
 
 - 黄金集要定期 review，因为产品需求和模型能力都在变，旧标签可能不再合理
@@ -964,6 +1024,7 @@ export async function judge(
 ## ai-moderation
 
 title: 模型输出内容审核与合规怎么做
+followups: [ai-moderation-followup-1]
 difficulty: 进阶
 tags: [安全, 合规, 审核]
 
@@ -1019,6 +1080,10 @@ export async function streamSafely(
 }
 ```
 
+### 追问
+
+- 如果把「模型输出内容审核与合规怎么做」用到真实项目里，你会重点关注哪些边界、验证手段和取舍？
+
 ### 延伸
 
 - 不同地区合规要求不同（GDPR / 网信办生成式 AI 服务管理办法），前端要支持按区域配置审核规则
@@ -1027,6 +1092,7 @@ export async function streamSafely(
 ## ai-form-copilot
 
 title: AI Copilot 嵌入表单 / 编辑器的体验设计
+followups: [ai-form-copilot-followup-1]
 difficulty: 进阶
 tags: [Copilot, 编辑器, UX]
 
@@ -1088,6 +1154,10 @@ export function attachCopilot(
 }
 ```
 
+### 追问
+
+- 如果把「AI Copilot 嵌入表单 / 编辑器的体验设计」用到真实项目里，你会重点关注哪些边界、验证手段和取舍？
+
 ### 延伸
 
 - 高频改写场景可以先在端侧用小模型给"建议预览"，用户点确认再走大模型精修
@@ -1096,6 +1166,7 @@ export function attachCopilot(
 ## ai-observability
 
 title: AI 应用的可观测性怎么做？要采哪些字段
+followups: [ai-observability-followup-1]
 difficulty: 资深
 tags: [可观测, trace, 成本]
 
@@ -1153,6 +1224,10 @@ export function reportTrace(t: AiTrace) {
 }
 ```
 
+### 追问
+
+- 如果把「AI 应用的可观测性怎么做？要采哪些字段」用到真实项目里，你会重点关注哪些边界、验证手段和取舍？
+
 ### 延伸
 
 - 保留必要的明文样本（脱敏后）有助于训练私有评测集，但要注意 GDPR / 数据驻留
@@ -1161,6 +1236,7 @@ export function reportTrace(t: AiTrace) {
 ## ai-prompt-engineering-front
 
 title: 前端开发者怎么用 Prompt Engineering 提升 AI 协作效果
+followups: [ai-prompt-engineering-front-followup-1]
 difficulty: 进阶
 tags: [AI, Prompt]
 
@@ -1217,6 +1293,10 @@ tags: [AI, Prompt]
 输出格式：直接输出 .vue 文件全文，再用一段 changelog 解释哪些 API 被替换。
 ```
 
+### 追问
+
+- 如果把「前端开发者怎么用 Prompt Engineering 提升 AI 协作效果」用到真实项目里，你会重点关注哪些边界、验证手段和取舍？
+
 ### 延伸
 
 - DSPy / LangChain / Promptfoo 是工程化 prompt 的工具
@@ -1226,6 +1306,7 @@ tags: [AI, Prompt]
 ## llm-basic-concepts
 
 title: 给前端讲清楚：LLM、Token、Context Window、Temperature 是什么？
+followups: [llm-basic-concepts-followup-1, llm-basic-concepts-followup-2, llm-basic-concepts-followup-3]
 difficulty: 基础
 tags: [LLM, 概念, 基础]
 
@@ -1285,6 +1366,7 @@ const res = await fetch('https://api.openai.com/v1/chat/completions', {
 ## llm-token-and-pricing
 
 title: Token 是什么？前端为什么必须懂 token 计费
+followups: [llm-token-and-pricing-followup-1, llm-token-and-pricing-followup-2, llm-token-and-pricing-followup-3]
 difficulty: 基础
 tags: [Token, 计费]
 
@@ -1347,6 +1429,7 @@ function truncate(text: string, maxTokens: number) {
 ## llm-temperature-topp-sampling
 
 title: Temperature、Top-p、Stop sequence 这些采样参数到底改的是什么
+followups: [llm-temperature-topp-sampling-followup-1, llm-temperature-topp-sampling-followup-2, llm-temperature-topp-sampling-followup-3]
 difficulty: 基础
 tags: [Sampling, 参数]
 
@@ -1409,6 +1492,7 @@ await openai.chat.completions.create({
 ## llm-context-window-and-truncation
 
 title: 上下文窗口与截断策略
+followups: [llm-context-window-and-truncation-followup-1, llm-context-window-and-truncation-followup-2, llm-context-window-and-truncation-followup-3]
 difficulty: 基础
 tags: [上下文, 窗口]
 
@@ -1473,6 +1557,7 @@ function buildMessages(history: ChatMessage[], userInput: string) {
 ## llm-system-vs-user-vs-assistant
 
 title: System / User / Assistant 三种角色 prompt 的差异与作用
+followups: [llm-system-vs-user-vs-assistant-followup-1, llm-system-vs-user-vs-assistant-followup-2, llm-system-vs-user-vs-assistant-followup-3]
 difficulty: 基础
 tags: [Prompt, 角色]
 
@@ -1528,6 +1613,7 @@ const messages = [
 ## llm-embedding-and-similarity
 
 title: Embedding 是什么？前端怎么用它做语义搜索
+followups: [llm-embedding-and-similarity-followup-1, llm-embedding-and-similarity-followup-2, llm-embedding-and-similarity-followup-3]
 difficulty: 基础
 tags: [Embedding, RAG]
 
@@ -1594,6 +1680,7 @@ console.log(cosine(v1, v3));
 ## llm-streaming-protocols
 
 title: 流式输出的协议有哪些？SSE / fetch stream / WebSocket 怎么选
+followups: [llm-streaming-protocols-followup-1, llm-streaming-protocols-followup-2, llm-streaming-protocols-followup-3]
 difficulty: 基础
 tags: [流式, SSE]
 
@@ -1670,6 +1757,7 @@ while (true) {
 ## llm-hallucination-and-grounding
 
 title: 模型幻觉是什么？前端能做什么减少幻觉
+followups: [llm-hallucination-and-grounding-followup-1, llm-hallucination-and-grounding-followup-2, llm-hallucination-and-grounding-followup-3]
 difficulty: 基础
 tags: [幻觉, Grounding]
 
@@ -1737,6 +1825,7 @@ function highlightUnsourced(html: string) {
 ## llm-modes-chat-vs-completion-vs-reasoning
 
 title: Chat / Completion / Reasoning 三种模型形态
+followups: [llm-modes-chat-vs-completion-vs-reasoning-followup-1, llm-modes-chat-vs-completion-vs-reasoning-followup-2, llm-modes-chat-vs-completion-vs-reasoning-followup-3]
 difficulty: 基础
 tags: [模型形态]
 
@@ -1798,6 +1887,7 @@ if (isReasoning) {
 ## llm-retry-and-backoff
 
 title: 调用失败的重试与退避策略
+followups: [llm-retry-and-backoff-followup-1, llm-retry-and-backoff-followup-2, llm-retry-and-backoff-followup-3]
 difficulty: 进阶
 tags: [可靠性, 重试]
 
@@ -1869,6 +1959,7 @@ async function callWithRetry<T>(
 ## llm-rate-limit-and-quota
 
 title: 客户端怎么处理限流（rate limit）和配额
+followups: [llm-rate-limit-and-quota-followup-1, llm-rate-limit-and-quota-followup-2, llm-rate-limit-and-quota-followup-3]
 difficulty: 进阶
 tags: [限流, 配额]
 
@@ -1946,6 +2037,7 @@ async function safeCall(prompt: string) {
 ## llm-streaming-cancel-and-resume
 
 title: 流式输出的中断与续写
+followups: [llm-streaming-cancel-and-resume-followup-1, llm-streaming-cancel-and-resume-followup-2, llm-streaming-cancel-and-resume-followup-3]
 difficulty: 进阶
 tags: [流式, 中断]
 
@@ -2025,6 +2117,7 @@ async function continueWriting(history: ChatMessage[]) {
 ## llm-prompt-caching-and-prefix
 
 title: Prompt Caching / Prefix Caching：让重复请求便宜 90%
+followups: [llm-prompt-caching-and-prefix-followup-1, llm-prompt-caching-and-prefix-followup-2, llm-prompt-caching-and-prefix-followup-3]
 difficulty: 进阶
 tags: [缓存, 性能]
 
@@ -2095,6 +2188,7 @@ console.log({
 ## llm-output-parser-and-recovery
 
 title: 模型输出 JSON 出错怎么办？前端的解析与恢复
+followups: [llm-output-parser-and-recovery-followup-1, llm-output-parser-and-recovery-followup-2, llm-output-parser-and-recovery-followup-3]
 difficulty: 进阶
 tags: [JSON, 容错]
 
@@ -2177,6 +2271,7 @@ function streamParse(buffer: string) {
 ## llm-multi-turn-memory-pattern
 
 title: 多轮对话的记忆模式：滑窗 / 摘要 / Memory Bank
+followups: [llm-multi-turn-memory-pattern-followup-1, llm-multi-turn-memory-pattern-followup-2, llm-multi-turn-memory-pattern-followup-3]
 difficulty: 进阶
 tags: [记忆, 多轮]
 
@@ -2252,6 +2347,7 @@ async function extractAndUpdate(userId: string, userMsg: string) {
 ## llm-agent-architecture
 
 title: AI Agent 架构：从单 LLM 到多步骤工具协作
+followups: [llm-agent-architecture-followup-1, llm-agent-architecture-followup-2, llm-agent-architecture-followup-3]
 difficulty: 资深
 tags: [Agent, 架构]
 
@@ -2341,6 +2437,7 @@ class Agent {
 ## llm-tool-design-and-router
 
 title: 工具（Function）设计原则与多工具路由
+followups: [llm-tool-design-and-router-followup-1, llm-tool-design-and-router-followup-2, llm-tool-design-and-router-followup-3]
 difficulty: 资深
 tags: [Tool, 路由]
 
@@ -2412,6 +2509,7 @@ async function route(userInput: string, allTools: ToolDef[]) {
 ## llm-rag-recall-quality
 
 title: RAG 召回质量：从 chunk 切分到 reranker
+followups: [llm-rag-recall-quality-followup-1, llm-rag-recall-quality-followup-2, llm-rag-recall-quality-followup-3]
 difficulty: 资深
 tags: [RAG, 召回]
 
@@ -2488,6 +2586,7 @@ async function ragQuery(question: string) {
 ## llm-multi-model-router
 
 title: 多模型路由：按任务复杂度 / 成本动态选模型
+followups: [llm-multi-model-router-followup-1, llm-multi-model-router-followup-2, llm-multi-model-router-followup-3]
 difficulty: 资深
 tags: [模型路由, 成本]
 
@@ -2565,6 +2664,7 @@ async function route(
 ## llm-output-streaming-with-tools
 
 title: 流式 + 工具调用怎么协同：边讲边查、边查边讲
+followups: [llm-output-streaming-with-tools-followup-1, llm-output-streaming-with-tools-followup-2, llm-output-streaming-with-tools-followup-3]
 difficulty: 资深
 tags: [流式, Tool]
 
@@ -2645,6 +2745,7 @@ for await (const chunk of stream) {
 ## llm-streaming-ui-state-machine
 
 title: 流式聊天的 UI 状态机
+followups: [llm-streaming-ui-state-machine-followup-1, llm-streaming-ui-state-machine-followup-2, llm-streaming-ui-state-machine-followup-3]
 difficulty: 资深
 tags: [UI, 状态机]
 
@@ -2721,6 +2822,7 @@ function reducer(state: ChatState, action: Action): ChatState {
 ## llm-prompt-versioning
 
 title: Prompt 版本管理：让 prompt 像代码一样可控
+followups: [llm-prompt-versioning-followup-1, llm-prompt-versioning-followup-2, llm-prompt-versioning-followup-3]
 difficulty: 资深
 tags: [Prompt, 工程化, 版本化]
 
@@ -2798,6 +2900,7 @@ function render(id: string, vars: Record<string, unknown>) {
 ## llm-eval-pipeline
 
 title: AI 功能的 Eval Pipeline：单测 / 回归 / 在线评测
+followups: [llm-eval-pipeline-followup-1, llm-eval-pipeline-followup-2, llm-eval-pipeline-followup-3]
 difficulty: 资深
 tags: [Eval, 测试, 工程化]
 
@@ -2902,6 +3005,7 @@ async function llmJudge(output: string, reference: string): Promise<number> {
 ## llm-ab-testing-and-rollout
 
 title: AI 功能的 A/B 测试与灰度发布
+followups: [llm-ab-testing-and-rollout-followup-1, llm-ab-testing-and-rollout-followup-2, llm-ab-testing-and-rollout-followup-3]
 difficulty: 资深
 tags: [A/B, 灰度, 工程化]
 
@@ -2979,6 +3083,7 @@ emitMetric('ai.session.handover', { variant, value: handover ? 1 : 0 });
 ## llm-cost-governance
 
 title: AI 成本治理：从看不见到可控
+followups: [llm-cost-governance-followup-1, llm-cost-governance-followup-2, llm-cost-governance-followup-3]
 difficulty: 资深
 tags: [成本, 治理, 工程化]
 
@@ -3059,6 +3164,7 @@ async function trackedCall(opts: {
 ## llm-observability-and-tracing
 
 title: AI 应用的可观测性：trace / log / metric 三件套
+followups: [llm-observability-and-tracing-followup-1, llm-observability-and-tracing-followup-2, llm-observability-and-tracing-followup-3]
 difficulty: 资深
 tags: [可观测性, OpenTelemetry, 工程化]
 
@@ -3146,6 +3252,7 @@ async function llmCall(opts: { promptId: string; messages: ChatMessage[]; model:
 ## llm-incident-and-replay
 
 title: AI 故障分类、回放与持续改进
+followups: [llm-incident-and-replay-followup-1, llm-incident-and-replay-followup-2, llm-incident-and-replay-followup-3]
 difficulty: 资深
 tags: [故障, 回放, 工程化]
 
@@ -3219,6 +3326,7 @@ interface FailureCase {
 ## llm-safety-guardrails-and-moderation
 
 title: 输入输出双向 Guardrails：安全与合规一体化
+followups: [llm-safety-guardrails-and-moderation-followup-1, llm-safety-guardrails-and-moderation-followup-2, llm-safety-guardrails-and-moderation-followup-3]
 difficulty: 资深
 tags: [安全, Moderation, 工程化]
 
@@ -3311,6 +3419,7 @@ function redactPII(text: string) {
 ## llm-data-pipeline-and-finetuning-frontend
 
 title: 用户反馈数据回流：从产品到数据集到 Fine-tune
+followups: [llm-data-pipeline-and-finetuning-frontend-followup-1, llm-data-pipeline-and-finetuning-frontend-followup-2, llm-data-pipeline-and-finetuning-frontend-followup-3]
 difficulty: 资深
 tags: [数据回流, Fine-tune, 工程化]
 
@@ -3403,6 +3512,7 @@ async function exportFineTune(entries: DatasetEntry[]) {
 ## llm-multi-tenant-isolation
 
 title: 多租户 AI 平台的隔离：数据 / 模型 / 配额
+followups: [llm-multi-tenant-isolation-followup-1, llm-multi-tenant-isolation-followup-2, llm-multi-tenant-isolation-followup-3]
 difficulty: 资深
 tags: [多租户, 隔离, 工程化]
 
@@ -3485,6 +3595,7 @@ async function tenantRagQuery(tenantId: string, userId: string, question: string
 ## llm-ci-cd-and-canary
 
 title: AI 应用的 CI/CD：把 prompt / model / eval 一起发布
+followups: [llm-ci-cd-and-canary-followup-1, llm-ci-cd-and-canary-followup-2, llm-ci-cd-and-canary-followup-3]
 difficulty: 资深
 tags: [CI/CD, 灰度, 工程化]
 
@@ -3568,6 +3679,7 @@ if (score.value < baseline - 0.05) {
 ## llm-frontend-security-checklist
 
 title: AI 前端安全清单：从 XSS 到 SSRF
+followups: [llm-frontend-security-checklist-followup-1, llm-frontend-security-checklist-followup-2, llm-frontend-security-checklist-followup-3]
 difficulty: 资深
 tags: [安全, 工程化]
 
@@ -3676,6 +3788,7 @@ function validateBaseUrl(url: string) {
 ## smart-search-with-embedding-intent
 
 title: 智能搜索框：意图识别 / embedding / 概率分布
+followups: [smart-search-with-embedding-intent-followup-1, smart-search-with-embedding-intent-followup-2, smart-search-with-embedding-intent-followup-3, smart-search-with-embedding-intent-followup-4, smart-search-with-embedding-intent-followup-5, smart-search-with-embedding-intent-followup-6, smart-search-with-embedding-intent-followup-7, smart-search-with-embedding-intent-followup-8]
 difficulty: 资深
 tags: [搜索, embedding, 高频]
 
@@ -3769,3 +3882,4497 @@ if (top.prob < 0.5) {
 
 - 进阶：Hybrid search（BM25 + Vector）通常优于单一向量，工业界主流
 - 工程：搜索点击日志回流模型微调；A/B 测 top-1 命中率 / MRR
+
+## streaming-ui-followup-1
+
+title: 追问：如果把「AI 流式输出前端为什么不能只靠“边收边 append”」用到真实项目里，你会重点关注哪些边界、验证手段和取舍
+difficulty: 进阶
+tags: [流式输出, SSE, 追问]
+parent: streaming-ui
+
+### 题目
+
+如果面试官追问：如果把「AI 流式输出前端为什么不能只靠“边收边 append”」用到真实项目里，你会重点关注哪些边界、验证手段和取舍？
+
+### 答案要点
+
+#### 回答思路
+
+- 先给一句结论：这个问题要从「为什么需要它」「它解决了什么问题」「代价是什么」三个角度回答。
+- 再把结论落回原题，不要脱离上下文泛泛而谈；面试官通常会顺着边界、异常和工程成本继续追问。
+- 如果涉及实现细节，按数据流、状态变化、调用顺序或生命周期拆开讲；如果涉及方案选择，必须说明为什么不用另一个方案。
+
+#### 结合原题展开
+
+- 原始流式片段可能非常碎，逐 token 或逐小 chunk 直接改 DOM 会造成频繁重排和闪烁
+- 通常需要做分片缓冲、节流刷屏、滚动跟随控制、代码块与 Markdown 边界处理
+- 用户感知的是"输出连贯性"，不是"你一秒刷了多少 token"
+- 可以补充一个真实项目语境：上线前先约定输入输出、失败兜底和观测指标，避免只在 demo 场景下成立。
+
+#### 工程落地
+
+- 验证手段要具体：单元测试覆盖边界条件，集成测试覆盖主流程，必要时用 e2e 或回放数据验证真实链路。
+- 运行时要可观测：关键路径打日志或埋点，关注错误率、耗时、资源占用、用户可感知延迟和降级次数。
+- 发布策略要稳：高风险变更建议灰度、开关或回滚预案；如果会影响数据一致性，还要说明迁移和兼容策略。
+
+#### 易错点
+
+- 不要只背 API 或概念名，要说清楚适用条件；很多方案在小流量、单端、无异常时看起来都成立。
+- 不要忽略默认值、兼容性、异常回滚、性能退化和团队维护成本，这些往往是资深面试继续深挖的重点。
+- 如果答案里出现“总是”“一定”“完全替代”这类绝对表述，要主动补充例外场景。
+
+## sse-fetch-stream-followup-1
+
+title: 追问：如果把「SSE、fetch ReadableStream、WebSocket 在 AI 场景中的取舍」用到真实项目里，你会重点关注哪些边界、验证手段和取舍
+difficulty: 进阶
+tags: [SSE, Stream, 追问]
+parent: sse-fetch-stream
+
+### 题目
+
+如果面试官追问：如果把「SSE、fetch ReadableStream、WebSocket 在 AI 场景中的取舍」用到真实项目里，你会重点关注哪些边界、验证手段和取舍？
+
+### 答案要点
+
+#### 回答思路
+
+- 先给一句结论：这个问题要从「为什么需要它」「它解决了什么问题」「代价是什么」三个角度回答。
+- 再把结论落回原题，不要脱离上下文泛泛而谈；面试官通常会顺着边界、异常和工程成本继续追问。
+- 如果涉及实现细节，按数据流、状态变化、调用顺序或生命周期拆开讲；如果涉及方案选择，必须说明为什么不用另一个方案。
+
+#### 结合原题展开
+
+- 大模型回复通常是服务端单向流，SSE/HTTP Stream 语义更直接，接入网关和鉴权也更顺手
+- fetch + response.body（ReadableStream）更灵活，可自定义协议、解码方式和中断
+- WebSocket 适合需要双向实时协商、长连接会话控制的复杂场景
+- 可以补充一个真实项目语境：上线前先约定输入输出、失败兜底和观测指标，避免只在 demo 场景下成立。
+
+#### 工程落地
+
+- 验证手段要具体：单元测试覆盖边界条件，集成测试覆盖主流程，必要时用 e2e 或回放数据验证真实链路。
+- 运行时要可观测：关键路径打日志或埋点，关注错误率、耗时、资源占用、用户可感知延迟和降级次数。
+- 发布策略要稳：高风险变更建议灰度、开关或回滚预案；如果会影响数据一致性，还要说明迁移和兼容策略。
+
+#### 易错点
+
+- 不要只背 API 或概念名，要说清楚适用条件；很多方案在小流量、单端、无异常时看起来都成立。
+- 不要忽略默认值、兼容性、异常回滚、性能退化和团队维护成本，这些往往是资深面试继续深挖的重点。
+- 如果答案里出现“总是”“一定”“完全替代”这类绝对表述，要主动补充例外场景。
+
+## prompt-schema-followup-1
+
+title: 追问：如果把「Prompt 工程在前端里最重要的不是“会写提示词”，而是可控输出」用到真实项目里，你会重点关注哪些边界、验证手段和取舍
+difficulty: 进阶
+tags: [Prompt, JSONSchema, 追问]
+parent: prompt-schema
+
+### 题目
+
+如果面试官追问：如果把「Prompt 工程在前端里最重要的不是“会写提示词”，而是可控输出」用到真实项目里，你会重点关注哪些边界、验证手段和取舍？
+
+### 答案要点
+
+#### 回答思路
+
+- 先给一句结论：这个问题要从「为什么需要它」「它解决了什么问题」「代价是什么」三个角度回答。
+- 再把结论落回原题，不要脱离上下文泛泛而谈；面试官通常会顺着边界、异常和工程成本继续追问。
+- 如果涉及实现细节，按数据流、状态变化、调用顺序或生命周期拆开讲；如果涉及方案选择，必须说明为什么不用另一个方案。
+
+#### 结合原题展开
+
+- 给足上下文（context）、角色（role）、边界（约束）、输出格式（schema）、失败策略五件套
+- 优先要求结构化输出：OpenAI response_format: { type: 'json_schema' } / Function Calling / 枚举字段
+- 用 zod / JSON Schema 做运行时校验，验证失败 → 重试或 fallback，不直接信任模型
+- 可以补充一个真实项目语境：上线前先约定输入输出、失败兜底和观测指标，避免只在 demo 场景下成立。
+
+#### 工程落地
+
+- 验证手段要具体：单元测试覆盖边界条件，集成测试覆盖主流程，必要时用 e2e 或回放数据验证真实链路。
+- 运行时要可观测：关键路径打日志或埋点，关注错误率、耗时、资源占用、用户可感知延迟和降级次数。
+- 发布策略要稳：高风险变更建议灰度、开关或回滚预案；如果会影响数据一致性，还要说明迁移和兼容策略。
+
+#### 易错点
+
+- 不要只背 API 或概念名，要说清楚适用条件；很多方案在小流量、单端、无异常时看起来都成立。
+- 不要忽略默认值、兼容性、异常回滚、性能退化和团队维护成本，这些往往是资深面试继续深挖的重点。
+- 如果答案里出现“总是”“一定”“完全替代”这类绝对表述，要主动补充例外场景。
+
+## tools-agents-followup-1
+
+title: 追问：如果把「Function Calling、Tool Use、Agent 前端需要关心什么」用到真实项目里，你会重点关注哪些边界、验证手段和取舍
+difficulty: 资深
+tags: [ToolUse, Agent, 追问]
+parent: tools-agents
+
+### 题目
+
+如果面试官追问：如果把「Function Calling、Tool Use、Agent 前端需要关心什么」用到真实项目里，你会重点关注哪些边界、验证手段和取舍？
+
+### 答案要点
+
+#### 回答思路
+
+- 先给一句结论：这个问题要从「为什么需要它」「它解决了什么问题」「代价是什么」三个角度回答。
+- 再把结论落回原题，不要脱离上下文泛泛而谈；面试官通常会顺着边界、异常和工程成本继续追问。
+- 如果涉及实现细节，按数据流、状态变化、调用顺序或生命周期拆开讲；如果涉及方案选择，必须说明为什么不用另一个方案。
+
+#### 结合原题展开
+
+- 多轮 agent：前端要画"执行轨迹（trace）"，方便 debug 和审计
+- Agent UI 的核心不是炫酷，而是让用户知道"系统现在在做什么、为什么卡住"
+- 一旦工具具备写操作、扣费、发消息、删改数据等副作用，前端就应把确认、权限、审计和回滚入口显式化
+- 可以补充一个真实项目语境：上线前先约定输入输出、失败兜底和观测指标，避免只在 demo 场景下成立。
+
+#### 工程落地
+
+- 验证手段要具体：单元测试覆盖边界条件，集成测试覆盖主流程，必要时用 e2e 或回放数据验证真实链路。
+- 运行时要可观测：关键路径打日志或埋点，关注错误率、耗时、资源占用、用户可感知延迟和降级次数。
+- 发布策略要稳：高风险变更建议灰度、开关或回滚预案；如果会影响数据一致性，还要说明迁移和兼容策略。
+
+#### 易错点
+
+- 不要只背 API 或概念名，要说清楚适用条件；很多方案在小流量、单端、无异常时看起来都成立。
+- 不要忽略默认值、兼容性、异常回滚、性能退化和团队维护成本，这些往往是资深面试继续深挖的重点。
+- 如果答案里出现“总是”“一定”“完全替代”这类绝对表述，要主动补充例外场景。
+
+## local-model-privacy-followup-1
+
+title: 追问：如果把「本地模型、Worker 推理与隐私边界」用到真实项目里，你会重点关注哪些边界、验证手段和取舍
+difficulty: 进阶
+tags: [本地模型, 隐私, 追问]
+parent: local-model-privacy
+
+### 题目
+
+如果面试官追问：如果把「本地模型、Worker 推理与隐私边界」用到真实项目里，你会重点关注哪些边界、验证手段和取舍？
+
+### 答案要点
+
+#### 回答思路
+
+- 先给一句结论：这个问题要从「为什么需要它」「它解决了什么问题」「代价是什么」三个角度回答。
+- 再把结论落回原题，不要脱离上下文泛泛而谈；面试官通常会顺着边界、异常和工程成本继续追问。
+- 如果涉及实现细节，按数据流、状态变化、调用顺序或生命周期拆开讲；如果涉及方案选择，必须说明为什么不用另一个方案。
+
+#### 结合原题展开
+
+- 需要考虑模型下载体积、显存/内存占用、首次冷启动、缓存策略和 Worker 隔离
+- 本地推理减少数据出站，但也增加设备资源消耗和兼容复杂度；若依赖 WebGPU，还要单独评估浏览器可用性与安全上下文要求
+- 本地模型不是云模型的简单替代，而是另一类产品权衡
+- 可以补充一个真实项目语境：上线前先约定输入输出、失败兜底和观测指标，避免只在 demo 场景下成立。
+
+#### 工程落地
+
+- 验证手段要具体：单元测试覆盖边界条件，集成测试覆盖主流程，必要时用 e2e 或回放数据验证真实链路。
+- 运行时要可观测：关键路径打日志或埋点，关注错误率、耗时、资源占用、用户可感知延迟和降级次数。
+- 发布策略要稳：高风险变更建议灰度、开关或回滚预案；如果会影响数据一致性，还要说明迁移和兼容策略。
+
+#### 易错点
+
+- 不要只背 API 或概念名，要说清楚适用条件；很多方案在小流量、单端、无异常时看起来都成立。
+- 不要忽略默认值、兼容性、异常回滚、性能退化和团队维护成本，这些往往是资深面试继续深挖的重点。
+- 如果答案里出现“总是”“一定”“完全替代”这类绝对表述，要主动补充例外场景。
+
+## prompt-injection-followup-1
+
+title: 追问：如果把「AI 前端的提示注入与数据脱敏防御」用到真实项目里，你会重点关注哪些边界、验证手段和取舍
+difficulty: 进阶
+tags: [安全, PromptInjection, 追问]
+parent: prompt-injection
+
+### 题目
+
+如果面试官追问：如果把「AI 前端的提示注入与数据脱敏防御」用到真实项目里，你会重点关注哪些边界、验证手段和取舍？
+
+### 答案要点
+
+#### 回答思路
+
+- 先给一句结论：这个问题要从「为什么需要它」「它解决了什么问题」「代价是什么」三个角度回答。
+- 再把结论落回原题，不要脱离上下文泛泛而谈；面试官通常会顺着边界、异常和工程成本继续追问。
+- 如果涉及实现细节，按数据流、状态变化、调用顺序或生命周期拆开讲；如果涉及方案选择，必须说明为什么不用另一个方案。
+
+#### 结合原题展开
+
+- 用户输入、网页内容、文档内容都可能成为提示注入载体
+- 前端要明确标注不可信上下文、最小化自动执行、避免把敏感信息无差别拼进 prompt
+- AI 安全不是单点问题，前端、后端、模型策略和产品交互要协同设计
+- 可以补充一个真实项目语境：上线前先约定输入输出、失败兜底和观测指标，避免只在 demo 场景下成立。
+
+#### 工程落地
+
+- 验证手段要具体：单元测试覆盖边界条件，集成测试覆盖主流程，必要时用 e2e 或回放数据验证真实链路。
+- 运行时要可观测：关键路径打日志或埋点，关注错误率、耗时、资源占用、用户可感知延迟和降级次数。
+- 发布策略要稳：高风险变更建议灰度、开关或回滚预案；如果会影响数据一致性，还要说明迁移和兼容策略。
+
+#### 易错点
+
+- 不要只背 API 或概念名，要说清楚适用条件；很多方案在小流量、单端、无异常时看起来都成立。
+- 不要忽略默认值、兼容性、异常回滚、性能退化和团队维护成本，这些往往是资深面试继续深挖的重点。
+- 如果答案里出现“总是”“一定”“完全替代”这类绝对表述，要主动补充例外场景。
+
+## chat-history-context-followup-1
+
+title: 追问：如果把「多轮对话上下文窗口怎么管理？为什么不能一直堆历史」用到真实项目里，你会重点关注哪些边界、验证手段和取舍
+difficulty: 进阶
+tags: [上下文, token, 对话, 追问]
+parent: chat-history-context
+
+### 题目
+
+如果面试官追问：如果把「多轮对话上下文窗口怎么管理？为什么不能一直堆历史」用到真实项目里，你会重点关注哪些边界、验证手段和取舍？
+
+### 答案要点
+
+#### 回答思路
+
+- 先给一句结论：这个问题要从「为什么需要它」「它解决了什么问题」「代价是什么」三个角度回答。
+- 再把结论落回原题，不要脱离上下文泛泛而谈；面试官通常会顺着边界、异常和工程成本继续追问。
+- 如果涉及实现细节，按数据流、状态变化、调用顺序或生命周期拆开讲；如果涉及方案选择，必须说明为什么不用另一个方案。
+
+#### 结合原题展开
+
+- token 总量 = 系统提示 + 历史消息 + 当前用户输入 + 模型预留输出，超出会报错或截断
+- 前端常用策略组合：滑动窗口（保留最近 N 轮）、摘要压缩（让模型把旧对话总结成一段）、关键事实提取（pin 重要信息）、按角色分级
+- 系统提示要尽量精简、稳定，因为它每轮都会被算进 token；动态上下文走「检索拼装」更省钱
+- 可以补充一个真实项目语境：上线前先约定输入输出、失败兜底和观测指标，避免只在 demo 场景下成立。
+
+#### 工程落地
+
+- 验证手段要具体：单元测试覆盖边界条件，集成测试覆盖主流程，必要时用 e2e 或回放数据验证真实链路。
+- 运行时要可观测：关键路径打日志或埋点，关注错误率、耗时、资源占用、用户可感知延迟和降级次数。
+- 发布策略要稳：高风险变更建议灰度、开关或回滚预案；如果会影响数据一致性，还要说明迁移和兼容策略。
+
+#### 易错点
+
+- 不要只背 API 或概念名，要说清楚适用条件；很多方案在小流量、单端、无异常时看起来都成立。
+- 不要忽略默认值、兼容性、异常回滚、性能退化和团队维护成本，这些往往是资深面试继续深挖的重点。
+- 如果答案里出现“总是”“一定”“完全替代”这类绝对表述，要主动补充例外场景。
+
+## function-calling-ui-followup-1
+
+title: 追问：如果把「Function Calling / Tool Use 在前端要怎么落地？」用到真实项目里，你会重点关注哪些边界、验证手段和取舍
+difficulty: 资深
+tags: [tool-call, agent, 流式, 追问]
+parent: function-calling-ui
+
+### 题目
+
+如果面试官追问：如果把「Function Calling / Tool Use 在前端要怎么落地？」用到真实项目里，你会重点关注哪些边界、验证手段和取舍？
+
+### 答案要点
+
+#### 回答思路
+
+- 先给一句结论：这个问题要从「为什么需要它」「它解决了什么问题」「代价是什么」三个角度回答。
+- 再把结论落回原题，不要脱离上下文泛泛而谈；面试官通常会顺着边界、异常和工程成本继续追问。
+- 如果涉及实现细节，按数据流、状态变化、调用顺序或生命周期拆开讲；如果涉及方案选择，必须说明为什么不用另一个方案。
+
+#### 结合原题展开
+
+- 协议层：定义 JSON Schema 工具描述，模型输出结构化 tool_call，前端校验后再执行
+- UI 层：把 tool_call 渲染成"步骤卡片"，展示参数、调用结果、耗时、错误，可手动重试
+- 幂等：每个 tool_call 带 client request id，结果可缓存复用
+- 可以补充一个真实项目语境：上线前先约定输入输出、失败兜底和观测指标，避免只在 demo 场景下成立。
+
+#### 工程落地
+
+- 验证手段要具体：单元测试覆盖边界条件，集成测试覆盖主流程，必要时用 e2e 或回放数据验证真实链路。
+- 运行时要可观测：关键路径打日志或埋点，关注错误率、耗时、资源占用、用户可感知延迟和降级次数。
+- 发布策略要稳：高风险变更建议灰度、开关或回滚预案；如果会影响数据一致性，还要说明迁移和兼容策略。
+
+#### 易错点
+
+- 不要只背 API 或概念名，要说清楚适用条件；很多方案在小流量、单端、无异常时看起来都成立。
+- 不要忽略默认值、兼容性、异常回滚、性能退化和团队维护成本，这些往往是资深面试继续深挖的重点。
+- 如果答案里出现“总是”“一定”“完全替代”这类绝对表述，要主动补充例外场景。
+
+## rag-ui-followup-1
+
+title: 追问：如果把「RAG 检索增强在前端的实现要点」用到真实项目里，你会重点关注哪些边界、验证手段和取舍
+difficulty: 资深
+tags: [RAG, 向量, 检索, 追问]
+parent: rag-ui
+
+### 题目
+
+如果面试官追问：如果把「RAG 检索增强在前端的实现要点」用到真实项目里，你会重点关注哪些边界、验证手段和取舍？
+
+### 答案要点
+
+#### 回答思路
+
+- 先给一句结论：这个问题要从「为什么需要它」「它解决了什么问题」「代价是什么」三个角度回答。
+- 再把结论落回原题，不要脱离上下文泛泛而谈；面试官通常会顺着边界、异常和工程成本继续追问。
+- 如果涉及实现细节，按数据流、状态变化、调用顺序或生命周期拆开讲；如果涉及方案选择，必须说明为什么不用另一个方案。
+
+#### 结合原题展开
+
+- 流程：用户问题 → 检索 top-k 文档 → 拼接到 prompt 的 context 段 → 模型作答 → 前端展示答案 + 引用
+- 安全：检索来源做权限隔离，避免越权读他人文档；展示时高亮 hit 片段方便核查
+- 检索召回率不够时常用 hybrid search：BM25 + 向量；前端可以同时展示两路 hit 让用户切换
+- 可以补充一个真实项目语境：上线前先约定输入输出、失败兜底和观测指标，避免只在 demo 场景下成立。
+
+#### 工程落地
+
+- 验证手段要具体：单元测试覆盖边界条件，集成测试覆盖主流程，必要时用 e2e 或回放数据验证真实链路。
+- 运行时要可观测：关键路径打日志或埋点，关注错误率、耗时、资源占用、用户可感知延迟和降级次数。
+- 发布策略要稳：高风险变更建议灰度、开关或回滚预案；如果会影响数据一致性，还要说明迁移和兼容策略。
+
+#### 易错点
+
+- 不要只背 API 或概念名，要说清楚适用条件；很多方案在小流量、单端、无异常时看起来都成立。
+- 不要忽略默认值、兼容性、异常回滚、性能退化和团队维护成本，这些往往是资深面试继续深挖的重点。
+- 如果答案里出现“总是”“一定”“完全替代”这类绝对表述，要主动补充例外场景。
+
+## multi-modal-ui-followup-1
+
+title: 追问：如果把「多模态交互前端怎么实现」用到真实项目里，你会重点关注哪些边界、验证手段和取舍
+difficulty: 资深
+tags: [多模态, 视觉, 语音, 追问]
+parent: multi-modal-ui
+
+### 题目
+
+如果面试官追问：如果把「多模态交互（图像 / 音频 / 视频）前端怎么实现」用到真实项目里，你会重点关注哪些边界、验证手段和取舍？
+
+### 答案要点
+
+#### 回答思路
+
+- 先给一句结论：这个问题要从「为什么需要它」「它解决了什么问题」「代价是什么」三个角度回答。
+- 再把结论落回原题，不要脱离上下文泛泛而谈；面试官通常会顺着边界、异常和工程成本继续追问。
+- 如果涉及实现细节，按数据流、状态变化、调用顺序或生命周期拆开讲；如果涉及方案选择，必须说明为什么不用另一个方案。
+
+#### 结合原题展开
+
+- 图像：File / 拖拽 / 粘贴上传 → 客户端压缩（canvas/webp）→ base64 或预签名 URL 传给模型
+- 音频：MediaRecorder 录制 → ASR（流式 WebSocket / 分片 HTTP）→ 文字 → 喂给 LLM
+- 输出：TTS 用 Web Speech 或服务端流式音频块（MSE / Audio Worklet）边收边播
+- 可以补充一个真实项目语境：上线前先约定输入输出、失败兜底和观测指标，避免只在 demo 场景下成立。
+
+#### 工程落地
+
+- 验证手段要具体：单元测试覆盖边界条件，集成测试覆盖主流程，必要时用 e2e 或回放数据验证真实链路。
+- 运行时要可观测：关键路径打日志或埋点，关注错误率、耗时、资源占用、用户可感知延迟和降级次数。
+- 发布策略要稳：高风险变更建议灰度、开关或回滚预案；如果会影响数据一致性，还要说明迁移和兼容策略。
+
+#### 易错点
+
+- 不要只背 API 或概念名，要说清楚适用条件；很多方案在小流量、单端、无异常时看起来都成立。
+- 不要忽略默认值、兼容性、异常回滚、性能退化和团队维护成本，这些往往是资深面试继续深挖的重点。
+- 如果答案里出现“总是”“一定”“完全替代”这类绝对表述，要主动补充例外场景。
+
+## cost-latency-budget-followup-1
+
+title: 追问：如果把「AI 应用前端怎么控制成本和首字延迟」用到真实项目里，你会重点关注哪些边界、验证手段和取舍
+difficulty: 进阶
+tags: [成本, 延迟, 缓存, 追问]
+parent: cost-latency-budget
+
+### 题目
+
+如果面试官追问：如果把「AI 应用前端怎么控制成本和首字延迟」用到真实项目里，你会重点关注哪些边界、验证手段和取舍？
+
+### 答案要点
+
+#### 回答思路
+
+- 先给一句结论：这个问题要从「为什么需要它」「它解决了什么问题」「代价是什么」三个角度回答。
+- 再把结论落回原题，不要脱离上下文泛泛而谈；面试官通常会顺着边界、异常和工程成本继续追问。
+- 如果涉及实现细节，按数据流、状态变化、调用顺序或生命周期拆开讲；如果涉及方案选择，必须说明为什么不用另一个方案。
+
+#### 结合原题展开
+
+- 客户端预热：会话开始时先发一个空 ping，建好长连接，避免首次 TLS 握手成为首字延迟瓶颈
+- 把"提示模板版本"埋点到日志里，方便后续把模板效果和成本一起可视化
+- 可以补充一个真实项目语境：上线前先约定输入输出、失败兜底和观测指标，避免只在 demo 场景下成立。
+
+#### 工程落地
+
+- 验证手段要具体：单元测试覆盖边界条件，集成测试覆盖主流程，必要时用 e2e 或回放数据验证真实链路。
+- 运行时要可观测：关键路径打日志或埋点，关注错误率、耗时、资源占用、用户可感知延迟和降级次数。
+- 发布策略要稳：高风险变更建议灰度、开关或回滚预案；如果会影响数据一致性，还要说明迁移和兼容策略。
+
+#### 易错点
+
+- 不要只背 API 或概念名，要说清楚适用条件；很多方案在小流量、单端、无异常时看起来都成立。
+- 不要忽略默认值、兼容性、异常回滚、性能退化和团队维护成本，这些往往是资深面试继续深挖的重点。
+- 如果答案里出现“总是”“一定”“完全替代”这类绝对表述，要主动补充例外场景。
+
+## ai-evaluation-followup-1
+
+title: 追问：如果把「怎么评测一个 AI 前端功能的好坏？」用到真实项目里，你会重点关注哪些边界、验证手段和取舍
+difficulty: 资深
+tags: [评测, A/B, LLM-as-Judge, 追问]
+parent: ai-evaluation
+
+### 题目
+
+如果面试官追问：如果把「怎么评测一个 AI 前端功能的好坏？」用到真实项目里，你会重点关注哪些边界、验证手段和取舍？
+
+### 答案要点
+
+#### 回答思路
+
+- 先给一句结论：这个问题要从「为什么需要它」「它解决了什么问题」「代价是什么」三个角度回答。
+- 再把结论落回原题，不要脱离上下文泛泛而谈；面试官通常会顺着边界、异常和工程成本继续追问。
+- 如果涉及实现细节，按数据流、状态变化、调用顺序或生命周期拆开讲；如果涉及方案选择，必须说明为什么不用另一个方案。
+
+#### 结合原题展开
+
+- 先把问题拉回「怎么评测一个 AI 前端功能的好坏？」的核心机制，说明这个追问考察的是落地边界、失败条件和方案取舍，而不是单点定义。
+- 可以补充一个真实项目语境：上线前先约定输入输出、失败兜底和观测指标，避免只在 demo 场景下成立。
+
+#### 工程落地
+
+- 验证手段要具体：单元测试覆盖边界条件，集成测试覆盖主流程，必要时用 e2e 或回放数据验证真实链路。
+- 运行时要可观测：关键路径打日志或埋点，关注错误率、耗时、资源占用、用户可感知延迟和降级次数。
+- 发布策略要稳：高风险变更建议灰度、开关或回滚预案；如果会影响数据一致性，还要说明迁移和兼容策略。
+
+#### 易错点
+
+- 不要只背 API 或概念名，要说清楚适用条件；很多方案在小流量、单端、无异常时看起来都成立。
+- 不要忽略默认值、兼容性、异常回滚、性能退化和团队维护成本，这些往往是资深面试继续深挖的重点。
+- 如果答案里出现“总是”“一定”“完全替代”这类绝对表述，要主动补充例外场景。
+
+## ai-moderation-followup-1
+
+title: 追问：如果把「模型输出内容审核与合规怎么做」用到真实项目里，你会重点关注哪些边界、验证手段和取舍
+difficulty: 进阶
+tags: [安全, 合规, 审核, 追问]
+parent: ai-moderation
+
+### 题目
+
+如果面试官追问：如果把「模型输出内容审核与合规怎么做」用到真实项目里，你会重点关注哪些边界、验证手段和取舍？
+
+### 答案要点
+
+#### 回答思路
+
+- 先给一句结论：这个问题要从「为什么需要它」「它解决了什么问题」「代价是什么」三个角度回答。
+- 再把结论落回原题，不要脱离上下文泛泛而谈；面试官通常会顺着边界、异常和工程成本继续追问。
+- 如果涉及实现细节，按数据流、状态变化、调用顺序或生命周期拆开讲；如果涉及方案选择，必须说明为什么不用另一个方案。
+
+#### 结合原题展开
+
+- 输出侧：模型回答完后过审核 API（开源 / 自研），有问题做替换 / 软回退
+- 流式中拦截：边收边过滤，命中后立即 abort 并回退到安全提示，注意已经吐出的内容要从 UI 里撤回或灰显
+- 隐私 / 数据合规：不要把用户 PII 送到第三方模型；必要时本地脱敏
+- 可以补充一个真实项目语境：上线前先约定输入输出、失败兜底和观测指标，避免只在 demo 场景下成立。
+
+#### 工程落地
+
+- 验证手段要具体：单元测试覆盖边界条件，集成测试覆盖主流程，必要时用 e2e 或回放数据验证真实链路。
+- 运行时要可观测：关键路径打日志或埋点，关注错误率、耗时、资源占用、用户可感知延迟和降级次数。
+- 发布策略要稳：高风险变更建议灰度、开关或回滚预案；如果会影响数据一致性，还要说明迁移和兼容策略。
+
+#### 易错点
+
+- 不要只背 API 或概念名，要说清楚适用条件；很多方案在小流量、单端、无异常时看起来都成立。
+- 不要忽略默认值、兼容性、异常回滚、性能退化和团队维护成本，这些往往是资深面试继续深挖的重点。
+- 如果答案里出现“总是”“一定”“完全替代”这类绝对表述，要主动补充例外场景。
+
+## ai-form-copilot-followup-1
+
+title: 追问：如果把「AI Copilot 嵌入表单 / 编辑器的体验设计」用到真实项目里，你会重点关注哪些边界、验证手段和取舍
+difficulty: 进阶
+tags: [Copilot, 编辑器, UX, 追问]
+parent: ai-form-copilot
+
+### 题目
+
+如果面试官追问：如果把「AI Copilot 嵌入表单 / 编辑器的体验设计」用到真实项目里，你会重点关注哪些边界、验证手段和取舍？
+
+### 答案要点
+
+#### 回答思路
+
+- 先给一句结论：这个问题要从「为什么需要它」「它解决了什么问题」「代价是什么」三个角度回答。
+- 再把结论落回原题，不要脱离上下文泛泛而谈；面试官通常会顺着边界、异常和工程成本继续追问。
+- 如果涉及实现细节，按数据流、状态变化、调用顺序或生命周期拆开讲；如果涉及方案选择，必须说明为什么不用另一个方案。
+
+#### 结合原题展开
+
+- 撤销：AI 修改要进编辑器自己的 undo stack，Cmd+Z 能回退
+- 错误：模型超时 / 失败要回退到本地状态，不能让用户半截编辑文档丢失
+- 多人协同场景下 AI 修改要走 OT / CRDT 系统，否则会和真人编辑冲突
+- 可以补充一个真实项目语境：上线前先约定输入输出、失败兜底和观测指标，避免只在 demo 场景下成立。
+
+#### 工程落地
+
+- 验证手段要具体：单元测试覆盖边界条件，集成测试覆盖主流程，必要时用 e2e 或回放数据验证真实链路。
+- 运行时要可观测：关键路径打日志或埋点，关注错误率、耗时、资源占用、用户可感知延迟和降级次数。
+- 发布策略要稳：高风险变更建议灰度、开关或回滚预案；如果会影响数据一致性，还要说明迁移和兼容策略。
+
+#### 易错点
+
+- 不要只背 API 或概念名，要说清楚适用条件；很多方案在小流量、单端、无异常时看起来都成立。
+- 不要忽略默认值、兼容性、异常回滚、性能退化和团队维护成本，这些往往是资深面试继续深挖的重点。
+- 如果答案里出现“总是”“一定”“完全替代”这类绝对表述，要主动补充例外场景。
+
+## ai-observability-followup-1
+
+title: 追问：如果把「AI 应用的可观测性怎么做？要采哪些字段」用到真实项目里，你会重点关注哪些边界、验证手段和取舍
+difficulty: 资深
+tags: [可观测, trace, 成本, 追问]
+parent: ai-observability
+
+### 题目
+
+如果面试官追问：如果把「AI 应用的可观测性怎么做？要采哪些字段」用到真实项目里，你会重点关注哪些边界、验证手段和取舍？
+
+### 答案要点
+
+#### 回答思路
+
+- 先给一句结论：这个问题要从「为什么需要它」「它解决了什么问题」「代价是什么」三个角度回答。
+- 再把结论落回原题，不要脱离上下文泛泛而谈；面试官通常会顺着边界、异常和工程成本继续追问。
+- 如果涉及实现细节，按数据流、状态变化、调用顺序或生命周期拆开讲；如果涉及方案选择，必须说明为什么不用另一个方案。
+
+#### 结合原题展开
+
+- 用 OpenTelemetry 协议把 AI 调用作为 span 接到现有 APM，便于和业务链路对齐
+- 可以补充一个真实项目语境：上线前先约定输入输出、失败兜底和观测指标，避免只在 demo 场景下成立。
+
+#### 工程落地
+
+- 验证手段要具体：单元测试覆盖边界条件，集成测试覆盖主流程，必要时用 e2e 或回放数据验证真实链路。
+- 运行时要可观测：关键路径打日志或埋点，关注错误率、耗时、资源占用、用户可感知延迟和降级次数。
+- 发布策略要稳：高风险变更建议灰度、开关或回滚预案；如果会影响数据一致性，还要说明迁移和兼容策略。
+
+#### 易错点
+
+- 不要只背 API 或概念名，要说清楚适用条件；很多方案在小流量、单端、无异常时看起来都成立。
+- 不要忽略默认值、兼容性、异常回滚、性能退化和团队维护成本，这些往往是资深面试继续深挖的重点。
+- 如果答案里出现“总是”“一定”“完全替代”这类绝对表述，要主动补充例外场景。
+
+## ai-prompt-engineering-front-followup-1
+
+title: 追问：如果把「前端开发者怎么用 Prompt Engineering 提升 AI 协作效果」用到真实项目里，你会重点关注哪些边界、验证手段和取舍
+difficulty: 进阶
+tags: [AI, Prompt, 追问]
+parent: ai-prompt-engineering-front
+
+### 题目
+
+如果面试官追问：如果把「前端开发者怎么用 Prompt Engineering 提升 AI 协作效果」用到真实项目里，你会重点关注哪些边界、验证手段和取舍？
+
+### 答案要点
+
+#### 回答思路
+
+- 先给一句结论：这个问题要从「为什么需要它」「它解决了什么问题」「代价是什么」三个角度回答。
+- 再把结论落回原题，不要脱离上下文泛泛而谈；面试官通常会顺着边界、异常和工程成本继续追问。
+- 如果涉及实现细节，按数据流、状态变化、调用顺序或生命周期拆开讲；如果涉及方案选择，必须说明为什么不用另一个方案。
+
+#### 结合原题展开
+
+- 上下文（贴关键代码 + 项目约束 + 团队规范）
+- 边界（不要引入新依赖 / 必须保持 API 兼容）
+- chain of thought：要求"先分析再写代码"，质量明显提升
+- 可以补充一个真实项目语境：上线前先约定输入输出、失败兜底和观测指标，避免只在 demo 场景下成立。
+
+#### 工程落地
+
+- 验证手段要具体：单元测试覆盖边界条件，集成测试覆盖主流程，必要时用 e2e 或回放数据验证真实链路。
+- 运行时要可观测：关键路径打日志或埋点，关注错误率、耗时、资源占用、用户可感知延迟和降级次数。
+- 发布策略要稳：高风险变更建议灰度、开关或回滚预案；如果会影响数据一致性，还要说明迁移和兼容策略。
+
+#### 易错点
+
+- 不要只背 API 或概念名，要说清楚适用条件；很多方案在小流量、单端、无异常时看起来都成立。
+- 不要忽略默认值、兼容性、异常回滚、性能退化和团队维护成本，这些往往是资深面试继续深挖的重点。
+- 如果答案里出现“总是”“一定”“完全替代”这类绝对表述，要主动补充例外场景。
+
+## llm-basic-concepts-followup-1
+
+title: 追问：streaming 模式下怎么计费
+difficulty: 基础
+tags: [LLM, 概念, 基础, 追问]
+parent: llm-basic-concepts
+
+### 题目
+
+如果面试官追问：streaming 模式下怎么计费（按返回的 token 数）
+
+### 答案要点
+
+#### 回答思路
+
+- 先给一句结论：这个问题要从「为什么需要它」「它解决了什么问题」「代价是什么」三个角度回答。
+- 再把结论落回原题，不要脱离上下文泛泛而谈；面试官通常会顺着边界、异常和工程成本继续追问。
+- 如果涉及实现细节，按数据流、状态变化、调用顺序或生命周期拆开讲；如果涉及方案选择，必须说明为什么不用另一个方案。
+
+#### 结合原题展开
+
+- LLM（Large Language Model）：本质是"给定前文，预测下一个 token"的概率模型
+- Token：模型理解的最小单位。中文 1 字常 ≈ 1.5-2 token，英文 1 单词常 ≈ 1 token；输入 + 输出都计费
+- Context Window：单次请求能放下的 token 总数。GPT-4o 128K，Claude 3.5 200K，超出就要截断或 RAG
+- 可以补充一个真实项目语境：上线前先约定输入输出、失败兜底和观测指标，避免只在 demo 场景下成立。
+
+#### 工程落地
+
+- 验证手段要具体：单元测试覆盖边界条件，集成测试覆盖主流程，必要时用 e2e 或回放数据验证真实链路。
+- 运行时要可观测：关键路径打日志或埋点，关注错误率、耗时、资源占用、用户可感知延迟和降级次数。
+- 发布策略要稳：高风险变更建议灰度、开关或回滚预案；如果会影响数据一致性，还要说明迁移和兼容策略。
+
+#### 易错点
+
+- 不要只背 API 或概念名，要说清楚适用条件；很多方案在小流量、单端、无异常时看起来都成立。
+- 不要忽略默认值、兼容性、异常回滚、性能退化和团队维护成本，这些往往是资深面试继续深挖的重点。
+- 如果答案里出现“总是”“一定”“完全替代”这类绝对表述，要主动补充例外场景。
+
+## llm-basic-concepts-followup-2
+
+title: 追问：同一个 prompt 多次请求，怎么得到完全可复现的结果
+difficulty: 基础
+tags: [LLM, 概念, 基础, 追问]
+parent: llm-basic-concepts
+
+### 题目
+
+如果面试官追问：同一个 prompt 多次请求，怎么得到完全可复现的结果（seed 参数 + temperature 0）
+
+### 答案要点
+
+#### 回答思路
+
+- 先给一句结论：这个问题要从「为什么需要它」「它解决了什么问题」「代价是什么」三个角度回答。
+- 再把结论落回原题，不要脱离上下文泛泛而谈；面试官通常会顺着边界、异常和工程成本继续追问。
+- 如果涉及实现细节，按数据流、状态变化、调用顺序或生命周期拆开讲；如果涉及方案选择，必须说明为什么不用另一个方案。
+
+#### 结合原题展开
+
+- Context Window：单次请求能放下的 token 总数。GPT-4o 128K，Claude 3.5 200K，超出就要截断或 RAG
+- Temperature：采样温度，0 = 总选概率最高的（确定），1 = 自由发挥；写代码常 0-0.3，创作常 0.7-1
+- top_p（nucleus sampling）：只从累计概率前 p% 的候选词里采样，常和 temperature 二选一
+- 可以补充一个真实项目语境：上线前先约定输入输出、失败兜底和观测指标，避免只在 demo 场景下成立。
+
+#### 工程落地
+
+- 验证手段要具体：单元测试覆盖边界条件，集成测试覆盖主流程，必要时用 e2e 或回放数据验证真实链路。
+- 运行时要可观测：关键路径打日志或埋点，关注错误率、耗时、资源占用、用户可感知延迟和降级次数。
+- 发布策略要稳：高风险变更建议灰度、开关或回滚预案；如果会影响数据一致性，还要说明迁移和兼容策略。
+
+#### 易错点
+
+- 不要只背 API 或概念名，要说清楚适用条件；很多方案在小流量、单端、无异常时看起来都成立。
+- 不要忽略默认值、兼容性、异常回滚、性能退化和团队维护成本，这些往往是资深面试继续深挖的重点。
+- 如果答案里出现“总是”“一定”“完全替代”这类绝对表述，要主动补充例外场景。
+
+## llm-basic-concepts-followup-3
+
+title: 追问：prompt caching 是什么，省钱多少
+difficulty: 基础
+tags: [LLM, 概念, 基础, 追问]
+parent: llm-basic-concepts
+
+### 题目
+
+如果面试官追问：prompt caching 是什么，省钱多少
+
+### 答案要点
+
+#### 回答思路
+
+- 先给一句结论：这个问题要从「为什么需要它」「它解决了什么问题」「代价是什么」三个角度回答。
+- 再把结论落回原题，不要脱离上下文泛泛而谈；面试官通常会顺着边界、异常和工程成本继续追问。
+- 如果涉及实现细节，按数据流、状态变化、调用顺序或生命周期拆开讲；如果涉及方案选择，必须说明为什么不用另一个方案。
+
+#### 结合原题展开
+
+- 先把问题拉回「给前端讲清楚：LLM、Token、Context Window、Temperature 是什么？」的核心机制，说明这个追问考察的是落地边界、失败条件和方案取舍，而不是单点定义。
+- 可以补充一个真实项目语境：上线前先约定输入输出、失败兜底和观测指标，避免只在 demo 场景下成立。
+
+#### 工程落地
+
+- 验证手段要具体：单元测试覆盖边界条件，集成测试覆盖主流程，必要时用 e2e 或回放数据验证真实链路。
+- 运行时要可观测：关键路径打日志或埋点，关注错误率、耗时、资源占用、用户可感知延迟和降级次数。
+- 发布策略要稳：高风险变更建议灰度、开关或回滚预案；如果会影响数据一致性，还要说明迁移和兼容策略。
+
+#### 易错点
+
+- 不要只背 API 或概念名，要说清楚适用条件；很多方案在小流量、单端、无异常时看起来都成立。
+- 不要忽略默认值、兼容性、异常回滚、性能退化和团队维护成本，这些往往是资深面试继续深挖的重点。
+- 如果答案里出现“总是”“一定”“完全替代”这类绝对表述，要主动补充例外场景。
+
+## llm-token-and-pricing-followup-1
+
+title: 追问：同一句话用 GPT-4o 和 Claude 算出的 token 数为什么不同
+difficulty: 基础
+tags: [Token, 计费, 追问]
+parent: llm-token-and-pricing
+
+### 题目
+
+如果面试官追问：同一句话用 GPT-4o 和 Claude 算出的 token 数为什么不同？
+
+### 答案要点
+
+#### 回答思路
+
+- 先给一句结论：这个问题要从「为什么需要它」「它解决了什么问题」「代价是什么」三个角度回答。
+- 再把结论落回原题，不要脱离上下文泛泛而谈；面试官通常会顺着边界、异常和工程成本继续追问。
+- 如果涉及实现细节，按数据流、状态变化、调用顺序或生命周期拆开讲；如果涉及方案选择，必须说明为什么不用另一个方案。
+
+#### 结合原题展开
+
+- Token 是 LLM 把文本切成的"子词单元"，由 tokenizer（如 BPE / SentencePiece）决定
+- 经验值：英文 ≈ 4 字符/token；中文 ≈ 1.5-2 token/字；JSON / 代码会更"碎"
+- 计费维度：输入 token + 输出 token + 缓存命中 token，单价不同，输出通常更贵
+- 可以补充一个真实项目语境：上线前先约定输入输出、失败兜底和观测指标，避免只在 demo 场景下成立。
+
+#### 工程落地
+
+- 验证手段要具体：单元测试覆盖边界条件，集成测试覆盖主流程，必要时用 e2e 或回放数据验证真实链路。
+- 运行时要可观测：关键路径打日志或埋点，关注错误率、耗时、资源占用、用户可感知延迟和降级次数。
+- 发布策略要稳：高风险变更建议灰度、开关或回滚预案；如果会影响数据一致性，还要说明迁移和兼容策略。
+
+#### 易错点
+
+- 不要只背 API 或概念名，要说清楚适用条件；很多方案在小流量、单端、无异常时看起来都成立。
+- 不要忽略默认值、兼容性、异常回滚、性能退化和团队维护成本，这些往往是资深面试继续深挖的重点。
+- 如果答案里出现“总是”“一定”“完全替代”这类绝对表述，要主动补充例外场景。
+
+## llm-token-and-pricing-followup-2
+
+title: 追问：怎么估算流式输出过程中的 token 消耗
+difficulty: 基础
+tags: [Token, 计费, 追问]
+parent: llm-token-and-pricing
+
+### 题目
+
+如果面试官追问：怎么估算流式输出过程中的 token 消耗？
+
+### 答案要点
+
+#### 回答思路
+
+- 先给一句结论：这个问题要从「为什么需要它」「它解决了什么问题」「代价是什么」三个角度回答。
+- 再把结论落回原题，不要脱离上下文泛泛而谈；面试官通常会顺着边界、异常和工程成本继续追问。
+- 如果涉及实现细节，按数据流、状态变化、调用顺序或生命周期拆开讲；如果涉及方案选择，必须说明为什么不用另一个方案。
+
+#### 结合原题展开
+
+- Token 是 LLM 把文本切成的"子词单元"，由 tokenizer（如 BPE / SentencePiece）决定
+- 经验值：英文 ≈ 4 字符/token；中文 ≈ 1.5-2 token/字；JSON / 代码会更"碎"
+- 计费维度：输入 token + 输出 token + 缓存命中 token，单价不同，输出通常更贵
+- 可以补充一个真实项目语境：上线前先约定输入输出、失败兜底和观测指标，避免只在 demo 场景下成立。
+
+#### 工程落地
+
+- 验证手段要具体：单元测试覆盖边界条件，集成测试覆盖主流程，必要时用 e2e 或回放数据验证真实链路。
+- 运行时要可观测：关键路径打日志或埋点，关注错误率、耗时、资源占用、用户可感知延迟和降级次数。
+- 发布策略要稳：高风险变更建议灰度、开关或回滚预案；如果会影响数据一致性，还要说明迁移和兼容策略。
+
+#### 易错点
+
+- 不要只背 API 或概念名，要说清楚适用条件；很多方案在小流量、单端、无异常时看起来都成立。
+- 不要忽略默认值、兼容性、异常回滚、性能退化和团队维护成本，这些往往是资深面试继续深挖的重点。
+- 如果答案里出现“总是”“一定”“完全替代”这类绝对表述，要主动补充例外场景。
+
+## llm-token-and-pricing-followup-3
+
+title: 追问：长上下文模型为什么收费比短上下文还贵
+difficulty: 基础
+tags: [Token, 计费, 追问]
+parent: llm-token-and-pricing
+
+### 题目
+
+如果面试官追问：长上下文模型为什么收费比短上下文还贵？
+
+### 答案要点
+
+#### 回答思路
+
+- 先给一句结论：这个问题要从「为什么需要它」「它解决了什么问题」「代价是什么」三个角度回答。
+- 再把结论落回原题，不要脱离上下文泛泛而谈；面试官通常会顺着边界、异常和工程成本继续追问。
+- 如果涉及实现细节，按数据流、状态变化、调用顺序或生命周期拆开讲；如果涉及方案选择，必须说明为什么不用另一个方案。
+
+#### 结合原题展开
+
+- 模型有最大上下文窗口（如 GPT-4o 128K、Claude 3.5 200K），超出会丢前面或报错
+- 把"上下文窗口"等同于"显存大小"——前者是模型可见的 token 总量，与显存不直接相关
+- 可以补充一个真实项目语境：上线前先约定输入输出、失败兜底和观测指标，避免只在 demo 场景下成立。
+
+#### 工程落地
+
+- 验证手段要具体：单元测试覆盖边界条件，集成测试覆盖主流程，必要时用 e2e 或回放数据验证真实链路。
+- 运行时要可观测：关键路径打日志或埋点，关注错误率、耗时、资源占用、用户可感知延迟和降级次数。
+- 发布策略要稳：高风险变更建议灰度、开关或回滚预案；如果会影响数据一致性，还要说明迁移和兼容策略。
+
+#### 易错点
+
+- 不要只背 API 或概念名，要说清楚适用条件；很多方案在小流量、单端、无异常时看起来都成立。
+- 不要忽略默认值、兼容性、异常回滚、性能退化和团队维护成本，这些往往是资深面试继续深挖的重点。
+- 如果答案里出现“总是”“一定”“完全替代”这类绝对表述，要主动补充例外场景。
+
+## llm-temperature-topp-sampling-followup-1
+
+title: 追问：为什么 reasoning 模型不让用户改 temperature
+difficulty: 基础
+tags: [Sampling, 参数, 追问]
+parent: llm-temperature-topp-sampling
+
+### 题目
+
+如果面试官追问：为什么 reasoning 模型（o1 / o3）不让用户改 temperature？
+
+### 答案要点
+
+#### 回答思路
+
+- 先给一句结论：这个问题要从「为什么需要它」「它解决了什么问题」「代价是什么」三个角度回答。
+- 再把结论落回原题，不要脱离上下文泛泛而谈；面试官通常会顺着边界、异常和工程成本继续追问。
+- 如果涉及实现细节，按数据流、状态变化、调用顺序或生命周期拆开讲；如果涉及方案选择，必须说明为什么不用另一个方案。
+
+#### 结合原题展开
+
+- Temperature (0~2)：调节 logits 分布锐度。低 → 确定性强；高 → 随机性强
+- Top-p (0~1)：核采样，从概率累计到 p 的最小集合中采样；常和 temperature 二选一
+- 代码 / 抽取 / 工具调用：temperature 0~0.2、top-p 1
+- 可以补充一个真实项目语境：上线前先约定输入输出、失败兜底和观测指标，避免只在 demo 场景下成立。
+
+#### 工程落地
+
+- 验证手段要具体：单元测试覆盖边界条件，集成测试覆盖主流程，必要时用 e2e 或回放数据验证真实链路。
+- 运行时要可观测：关键路径打日志或埋点，关注错误率、耗时、资源占用、用户可感知延迟和降级次数。
+- 发布策略要稳：高风险变更建议灰度、开关或回滚预案；如果会影响数据一致性，还要说明迁移和兼容策略。
+
+#### 易错点
+
+- 不要只背 API 或概念名，要说清楚适用条件；很多方案在小流量、单端、无异常时看起来都成立。
+- 不要忽略默认值、兼容性、异常回滚、性能退化和团队维护成本，这些往往是资深面试继续深挖的重点。
+- 如果答案里出现“总是”“一定”“完全替代”这类绝对表述，要主动补充例外场景。
+
+## llm-temperature-topp-sampling-followup-2
+
+title: 追问：多次调用想要稳定输出有什么手段
+difficulty: 基础
+tags: [Sampling, 参数, 追问]
+parent: llm-temperature-topp-sampling
+
+### 题目
+
+如果面试官追问：多次调用想要稳定输出有什么手段？
+
+### 答案要点
+
+#### 回答思路
+
+- 先给一句结论：这个问题要从「为什么需要它」「它解决了什么问题」「代价是什么」三个角度回答。
+- 再把结论落回原题，不要脱离上下文泛泛而谈；面试官通常会顺着边界、异常和工程成本继续追问。
+- 如果涉及实现细节，按数据流、状态变化、调用顺序或生命周期拆开讲；如果涉及方案选择，必须说明为什么不用另一个方案。
+
+#### 结合原题展开
+
+- Stop：命中字符串后立即停（如 \n\n / ），用来约束输出格式
+- 代码 / 抽取 / 工具调用：temperature 0~0.2、top-p 1
+- 以为 temperature=0 就一定确定性输出：模型并发或 sampling 实现差异仍可能造成微小波动
+- 可以补充一个真实项目语境：上线前先约定输入输出、失败兜底和观测指标，避免只在 demo 场景下成立。
+
+#### 工程落地
+
+- 验证手段要具体：单元测试覆盖边界条件，集成测试覆盖主流程，必要时用 e2e 或回放数据验证真实链路。
+- 运行时要可观测：关键路径打日志或埋点，关注错误率、耗时、资源占用、用户可感知延迟和降级次数。
+- 发布策略要稳：高风险变更建议灰度、开关或回滚预案；如果会影响数据一致性，还要说明迁移和兼容策略。
+
+#### 易错点
+
+- 不要只背 API 或概念名，要说清楚适用条件；很多方案在小流量、单端、无异常时看起来都成立。
+- 不要忽略默认值、兼容性、异常回滚、性能退化和团队维护成本，这些往往是资深面试继续深挖的重点。
+- 如果答案里出现“总是”“一定”“完全替代”这类绝对表述，要主动补充例外场景。
+
+## llm-temperature-topp-sampling-followup-3
+
+title: 追问：temperature 高时如何防止跑偏
+difficulty: 基础
+tags: [Sampling, 参数, 追问]
+parent: llm-temperature-topp-sampling
+
+### 题目
+
+如果面试官追问：temperature 高时如何防止跑偏？
+
+### 答案要点
+
+#### 回答思路
+
+- 先给一句结论：这个问题要从「为什么需要它」「它解决了什么问题」「代价是什么」三个角度回答。
+- 再把结论落回原题，不要脱离上下文泛泛而谈；面试官通常会顺着边界、异常和工程成本继续追问。
+- 如果涉及实现细节，按数据流、状态变化、调用顺序或生命周期拆开讲；如果涉及方案选择，必须说明为什么不用另一个方案。
+
+#### 结合原题展开
+
+- Temperature (0~2)：调节 logits 分布锐度。低 → 确定性强；高 → 随机性强
+- Top-p (0~1)：核采样，从概率累计到 p 的最小集合中采样；常和 temperature 二选一
+- 代码 / 抽取 / 工具调用：temperature 0~0.2、top-p 1
+- 可以补充一个真实项目语境：上线前先约定输入输出、失败兜底和观测指标，避免只在 demo 场景下成立。
+
+#### 工程落地
+
+- 验证手段要具体：单元测试覆盖边界条件，集成测试覆盖主流程，必要时用 e2e 或回放数据验证真实链路。
+- 运行时要可观测：关键路径打日志或埋点，关注错误率、耗时、资源占用、用户可感知延迟和降级次数。
+- 发布策略要稳：高风险变更建议灰度、开关或回滚预案；如果会影响数据一致性，还要说明迁移和兼容策略。
+
+#### 易错点
+
+- 不要只背 API 或概念名，要说清楚适用条件；很多方案在小流量、单端、无异常时看起来都成立。
+- 不要忽略默认值、兼容性、异常回滚、性能退化和团队维护成本，这些往往是资深面试继续深挖的重点。
+- 如果答案里出现“总是”“一定”“完全替代”这类绝对表述，要主动补充例外场景。
+
+## llm-context-window-and-truncation-followup-1
+
+title: 追问：上下文很长时，模型为什么会"失忆"或"漏看中间"
+difficulty: 基础
+tags: [上下文, 窗口, 追问]
+parent: llm-context-window-and-truncation
+
+### 题目
+
+如果面试官追问：上下文很长时，模型为什么会"失忆"或"漏看中间"？(lost-in-the-middle)
+
+### 答案要点
+
+#### 回答思路
+
+- 先给一句结论：这个问题要从「为什么需要它」「它解决了什么问题」「代价是什么」三个角度回答。
+- 再把结论落回原题，不要脱离上下文泛泛而谈；面试官通常会顺着边界、异常和工程成本继续追问。
+- 如果涉及实现细节，按数据流、状态变化、调用顺序或生命周期拆开讲；如果涉及方案选择，必须说明为什么不用另一个方案。
+
+#### 结合原题展开
+
+- 模型上下文窗口 = system + history + 当前 user + 函数 schema 总 token 上限
+- 摘要折叠：用小模型周期性把旧消息摘要成 1-2 段，留新消息原文
+- 输出预算：留 ≥ max_tokens 给输出，否则模型可能"想说但被截断"
+- 可以补充一个真实项目语境：上线前先约定输入输出、失败兜底和观测指标，避免只在 demo 场景下成立。
+
+#### 工程落地
+
+- 验证手段要具体：单元测试覆盖边界条件，集成测试覆盖主流程，必要时用 e2e 或回放数据验证真实链路。
+- 运行时要可观测：关键路径打日志或埋点，关注错误率、耗时、资源占用、用户可感知延迟和降级次数。
+- 发布策略要稳：高风险变更建议灰度、开关或回滚预案；如果会影响数据一致性，还要说明迁移和兼容策略。
+
+#### 易错点
+
+- 不要只背 API 或概念名，要说清楚适用条件；很多方案在小流量、单端、无异常时看起来都成立。
+- 不要忽略默认值、兼容性、异常回滚、性能退化和团队维护成本，这些往往是资深面试继续深挖的重点。
+- 如果答案里出现“总是”“一定”“完全替代”这类绝对表述，要主动补充例外场景。
+
+## llm-context-window-and-truncation-followup-2
+
+title: 追问：怎么权衡历史与最新一句话的权重
+difficulty: 基础
+tags: [上下文, 窗口, 追问]
+parent: llm-context-window-and-truncation
+
+### 题目
+
+如果面试官追问：怎么权衡历史与最新一句话的权重？
+
+### 答案要点
+
+#### 回答思路
+
+- 先给一句结论：这个问题要从「为什么需要它」「它解决了什么问题」「代价是什么」三个角度回答。
+- 再把结论落回原题，不要脱离上下文泛泛而谈；面试官通常会顺着边界、异常和工程成本继续追问。
+- 如果涉及实现细节，按数据流、状态变化、调用顺序或生命周期拆开讲；如果涉及方案选择，必须说明为什么不用另一个方案。
+
+#### 结合原题展开
+
+- 先把问题拉回「上下文窗口与截断策略」的核心机制，说明这个追问考察的是落地边界、失败条件和方案取舍，而不是单点定义。
+- 可以补充一个真实项目语境：上线前先约定输入输出、失败兜底和观测指标，避免只在 demo 场景下成立。
+
+#### 工程落地
+
+- 验证手段要具体：单元测试覆盖边界条件，集成测试覆盖主流程，必要时用 e2e 或回放数据验证真实链路。
+- 运行时要可观测：关键路径打日志或埋点，关注错误率、耗时、资源占用、用户可感知延迟和降级次数。
+- 发布策略要稳：高风险变更建议灰度、开关或回滚预案；如果会影响数据一致性，还要说明迁移和兼容策略。
+
+#### 易错点
+
+- 不要只背 API 或概念名，要说清楚适用条件；很多方案在小流量、单端、无异常时看起来都成立。
+- 不要忽略默认值、兼容性、异常回滚、性能退化和团队维护成本，这些往往是资深面试继续深挖的重点。
+- 如果答案里出现“总是”“一定”“完全替代”这类绝对表述，要主动补充例外场景。
+
+## llm-context-window-and-truncation-followup-3
+
+title: 追问：何时该把对话切成多个独立 session
+difficulty: 基础
+tags: [上下文, 窗口, 追问]
+parent: llm-context-window-and-truncation
+
+### 题目
+
+如果面试官追问：何时该把对话切成多个独立 session？
+
+### 答案要点
+
+#### 回答思路
+
+- 先给一句结论：这个问题要从「为什么需要它」「它解决了什么问题」「代价是什么」三个角度回答。
+- 再把结论落回原题，不要脱离上下文泛泛而谈；面试官通常会顺着边界、异常和工程成本继续追问。
+- 如果涉及实现细节，按数据流、状态变化、调用顺序或生命周期拆开讲；如果涉及方案选择，必须说明为什么不用另一个方案。
+
+#### 结合原题展开
+
+- 总是让用户重开对话以避免溢出 → 体验差，应该后台自动摘要
+- 可以补充一个真实项目语境：上线前先约定输入输出、失败兜底和观测指标，避免只在 demo 场景下成立。
+
+#### 工程落地
+
+- 验证手段要具体：单元测试覆盖边界条件，集成测试覆盖主流程，必要时用 e2e 或回放数据验证真实链路。
+- 运行时要可观测：关键路径打日志或埋点，关注错误率、耗时、资源占用、用户可感知延迟和降级次数。
+- 发布策略要稳：高风险变更建议灰度、开关或回滚预案；如果会影响数据一致性，还要说明迁移和兼容策略。
+
+#### 易错点
+
+- 不要只背 API 或概念名，要说清楚适用条件；很多方案在小流量、单端、无异常时看起来都成立。
+- 不要忽略默认值、兼容性、异常回滚、性能退化和团队维护成本，这些往往是资深面试继续深挖的重点。
+- 如果答案里出现“总是”“一定”“完全替代”这类绝对表述，要主动补充例外场景。
+
+## llm-system-vs-user-vs-assistant-followup-1
+
+title: 追问：system 太长会发生什么
+difficulty: 基础
+tags: [Prompt, 角色, 追问]
+parent: llm-system-vs-user-vs-assistant
+
+### 题目
+
+如果面试官追问：system 太长会发生什么？
+
+### 答案要点
+
+#### 回答思路
+
+- 先给一句结论：这个问题要从「为什么需要它」「它解决了什么问题」「代价是什么」三个角度回答。
+- 再把结论落回原题，不要脱离上下文泛泛而谈；面试官通常会顺着边界、异常和工程成本继续追问。
+- 如果涉及实现细节，按数据流、状态变化、调用顺序或生命周期拆开讲；如果涉及方案选择，必须说明为什么不用另一个方案。
+
+#### 结合原题展开
+
+- system：高权重的约束（角色、格式、禁忌、知识范围）；放在最前
+- role 分层 ≠ 完全隔离：用户仍可能 prompt injection 突破 system，前端要做防护（见 prompt-injection 题）
+- 多个 system 在新模型里可叠加（OpenAI 支持），但实践上首条最权威
+- 可以补充一个真实项目语境：上线前先约定输入输出、失败兜底和观测指标，避免只在 demo 场景下成立。
+
+#### 工程落地
+
+- 验证手段要具体：单元测试覆盖边界条件，集成测试覆盖主流程，必要时用 e2e 或回放数据验证真实链路。
+- 运行时要可观测：关键路径打日志或埋点，关注错误率、耗时、资源占用、用户可感知延迟和降级次数。
+- 发布策略要稳：高风险变更建议灰度、开关或回滚预案；如果会影响数据一致性，还要说明迁移和兼容策略。
+
+#### 易错点
+
+- 不要只背 API 或概念名，要说清楚适用条件；很多方案在小流量、单端、无异常时看起来都成立。
+- 不要忽略默认值、兼容性、异常回滚、性能退化和团队维护成本，这些往往是资深面试继续深挖的重点。
+- 如果答案里出现“总是”“一定”“完全替代”这类绝对表述，要主动补充例外场景。
+
+## llm-system-vs-user-vs-assistant-followup-2
+
+title: 追问：工具调用结果用什么 role 回灌
+difficulty: 基础
+tags: [Prompt, 角色, 追问]
+parent: llm-system-vs-user-vs-assistant
+
+### 题目
+
+如果面试官追问：工具调用结果用什么 role 回灌？
+
+### 答案要点
+
+#### 回答思路
+
+- 先给一句结论：这个问题要从「为什么需要它」「它解决了什么问题」「代价是什么」三个角度回答。
+- 再把结论落回原题，不要脱离上下文泛泛而谈；面试官通常会顺着边界、异常和工程成本继续追问。
+- 如果涉及实现细节，按数据流、状态变化、调用顺序或生命周期拆开讲；如果涉及方案选择，必须说明为什么不用另一个方案。
+
+#### 结合原题展开
+
+- role 分层 ≠ 完全隔离：用户仍可能 prompt injection 突破 system，前端要做防护（见 prompt-injection 题）
+- 工具调用模型还有 tool / function role 用于把工具结果回灌
+- 可以补充一个真实项目语境：上线前先约定输入输出、失败兜底和观测指标，避免只在 demo 场景下成立。
+
+#### 工程落地
+
+- 验证手段要具体：单元测试覆盖边界条件，集成测试覆盖主流程，必要时用 e2e 或回放数据验证真实链路。
+- 运行时要可观测：关键路径打日志或埋点，关注错误率、耗时、资源占用、用户可感知延迟和降级次数。
+- 发布策略要稳：高风险变更建议灰度、开关或回滚预案；如果会影响数据一致性，还要说明迁移和兼容策略。
+
+#### 易错点
+
+- 不要只背 API 或概念名，要说清楚适用条件；很多方案在小流量、单端、无异常时看起来都成立。
+- 不要忽略默认值、兼容性、异常回滚、性能退化和团队维护成本，这些往往是资深面试继续深挖的重点。
+- 如果答案里出现“总是”“一定”“完全替代”这类绝对表述，要主动补充例外场景。
+
+## llm-system-vs-user-vs-assistant-followup-3
+
+title: 追问：如何让模型"忘掉"一条历史消息
+difficulty: 基础
+tags: [Prompt, 角色, 追问]
+parent: llm-system-vs-user-vs-assistant
+
+### 题目
+
+如果面试官追问：如何让模型"忘掉"一条历史消息？
+
+### 答案要点
+
+#### 回答思路
+
+- 先给一句结论：这个问题要从「为什么需要它」「它解决了什么问题」「代价是什么」三个角度回答。
+- 再把结论落回原题，不要脱离上下文泛泛而谈；面试官通常会顺着边界、异常和工程成本继续追问。
+- 如果涉及实现细节，按数据流、状态变化、调用顺序或生命周期拆开讲；如果涉及方案选择，必须说明为什么不用另一个方案。
+
+#### 结合原题展开
+
+- 把规则全塞进 user 消息：用户后面一句"忽略上面要求"就可能生效
+- 可以补充一个真实项目语境：上线前先约定输入输出、失败兜底和观测指标，避免只在 demo 场景下成立。
+
+#### 工程落地
+
+- 验证手段要具体：单元测试覆盖边界条件，集成测试覆盖主流程，必要时用 e2e 或回放数据验证真实链路。
+- 运行时要可观测：关键路径打日志或埋点，关注错误率、耗时、资源占用、用户可感知延迟和降级次数。
+- 发布策略要稳：高风险变更建议灰度、开关或回滚预案；如果会影响数据一致性，还要说明迁移和兼容策略。
+
+#### 易错点
+
+- 不要只背 API 或概念名，要说清楚适用条件；很多方案在小流量、单端、无异常时看起来都成立。
+- 不要忽略默认值、兼容性、异常回滚、性能退化和团队维护成本，这些往往是资深面试继续深挖的重点。
+- 如果答案里出现“总是”“一定”“完全替代”这类绝对表述，要主动补充例外场景。
+
+## llm-embedding-and-similarity-followup-1
+
+title: 追问：chunk 切多大合适？怎么处理 chunk 之间语义连续性
+difficulty: 基础
+tags: [Embedding, RAG, 追问]
+parent: llm-embedding-and-similarity
+
+### 题目
+
+如果面试官追问：chunk 切多大合适？怎么处理 chunk 之间语义连续性？
+
+### 答案要点
+
+#### 回答思路
+
+- 先给一句结论：这个问题要从「为什么需要它」「它解决了什么问题」「代价是什么」三个角度回答。
+- 再把结论落回原题，不要脱离上下文泛泛而谈；面试官通常会顺着边界、异常和工程成本继续追问。
+- 如果涉及实现细节，按数据流、状态变化、调用顺序或生命周期拆开讲；如果涉及方案选择，必须说明为什么不用另一个方案。
+
+#### 结合原题展开
+
+- 同一向量空间里，语义近的文本余弦距离更近（即使没共同关键词）
+- 典型用途：RAG 召回 / 语义搜索 / 推荐 / 模糊去重 / 聚类 / 异常检测
+- 维度越高语义越细，但存储/计算开销大；常用 768 / 1024 / 1536
+- 可以补充一个真实项目语境：上线前先约定输入输出、失败兜底和观测指标，避免只在 demo 场景下成立。
+
+#### 工程落地
+
+- 验证手段要具体：单元测试覆盖边界条件，集成测试覆盖主流程，必要时用 e2e 或回放数据验证真实链路。
+- 运行时要可观测：关键路径打日志或埋点，关注错误率、耗时、资源占用、用户可感知延迟和降级次数。
+- 发布策略要稳：高风险变更建议灰度、开关或回滚预案；如果会影响数据一致性，还要说明迁移和兼容策略。
+
+#### 易错点
+
+- 不要只背 API 或概念名，要说清楚适用条件；很多方案在小流量、单端、无异常时看起来都成立。
+- 不要忽略默认值、兼容性、异常回滚、性能退化和团队维护成本，这些往往是资深面试继续深挖的重点。
+- 如果答案里出现“总是”“一定”“完全替代”这类绝对表述，要主动补充例外场景。
+
+## llm-embedding-and-similarity-followup-2
+
+title: 追问：怎么把 metadata和向量结合做混合检索
+difficulty: 基础
+tags: [Embedding, RAG, 追问]
+parent: llm-embedding-and-similarity
+
+### 题目
+
+如果面试官追问：怎么把 metadata（标签、时间）和向量结合做混合检索？
+
+### 答案要点
+
+#### 回答思路
+
+- 先给一句结论：这个问题要从「为什么需要它」「它解决了什么问题」「代价是什么」三个角度回答。
+- 再把结论落回原题，不要脱离上下文泛泛而谈；面试官通常会顺着边界、异常和工程成本继续追问。
+- 如果涉及实现细节，按数据流、状态变化、调用顺序或生命周期拆开讲；如果涉及方案选择，必须说明为什么不用另一个方案。
+
+#### 结合原题展开
+
+- 进阶：用 HNSW / IVF 等近似最近邻算法在百万级数据中毫秒检索
+- 可以补充一个真实项目语境：上线前先约定输入输出、失败兜底和观测指标，避免只在 demo 场景下成立。
+
+#### 工程落地
+
+- 验证手段要具体：单元测试覆盖边界条件，集成测试覆盖主流程，必要时用 e2e 或回放数据验证真实链路。
+- 运行时要可观测：关键路径打日志或埋点，关注错误率、耗时、资源占用、用户可感知延迟和降级次数。
+- 发布策略要稳：高风险变更建议灰度、开关或回滚预案；如果会影响数据一致性，还要说明迁移和兼容策略。
+
+#### 易错点
+
+- 不要只背 API 或概念名，要说清楚适用条件；很多方案在小流量、单端、无异常时看起来都成立。
+- 不要忽略默认值、兼容性、异常回滚、性能退化和团队维护成本，这些往往是资深面试继续深挖的重点。
+- 如果答案里出现“总是”“一定”“完全替代”这类绝对表述，要主动补充例外场景。
+
+## llm-embedding-and-similarity-followup-3
+
+title: 追问：怎么衡量召回质量
+difficulty: 基础
+tags: [Embedding, RAG, 追问]
+parent: llm-embedding-and-similarity
+
+### 题目
+
+如果面试官追问：怎么衡量召回质量？
+
+### 答案要点
+
+#### 回答思路
+
+- 先给一句结论：这个问题要从「为什么需要它」「它解决了什么问题」「代价是什么」三个角度回答。
+- 再把结论落回原题，不要脱离上下文泛泛而谈；面试官通常会顺着边界、异常和工程成本继续追问。
+- 如果涉及实现细节，按数据流、状态变化、调用顺序或生命周期拆开讲；如果涉及方案选择，必须说明为什么不用另一个方案。
+
+#### 结合原题展开
+
+- 典型用途：RAG 召回 / 语义搜索 / 推荐 / 模糊去重 / 聚类 / 异常检测
+- 可以补充一个真实项目语境：上线前先约定输入输出、失败兜底和观测指标，避免只在 demo 场景下成立。
+
+#### 工程落地
+
+- 验证手段要具体：单元测试覆盖边界条件，集成测试覆盖主流程，必要时用 e2e 或回放数据验证真实链路。
+- 运行时要可观测：关键路径打日志或埋点，关注错误率、耗时、资源占用、用户可感知延迟和降级次数。
+- 发布策略要稳：高风险变更建议灰度、开关或回滚预案；如果会影响数据一致性，还要说明迁移和兼容策略。
+
+#### 易错点
+
+- 不要只背 API 或概念名，要说清楚适用条件；很多方案在小流量、单端、无异常时看起来都成立。
+- 不要忽略默认值、兼容性、异常回滚、性能退化和团队维护成本，这些往往是资深面试继续深挖的重点。
+- 如果答案里出现“总是”“一定”“完全替代”这类绝对表述，要主动补充例外场景。
+
+## llm-streaming-protocols-followup-1
+
+title: 追问：服务器流式但被代理缓冲了怎么办
+difficulty: 基础
+tags: [流式, SSE, 追问]
+parent: llm-streaming-protocols
+
+### 题目
+
+如果面试官追问：服务器流式但被代理缓冲了怎么办？
+
+### 答案要点
+
+#### 回答思路
+
+- 先给一句结论：这个问题要从「为什么需要它」「它解决了什么问题」「代价是什么」三个角度回答。
+- 再把结论落回原题，不要脱离上下文泛泛而谈；面试官通常会顺着边界、异常和工程成本继续追问。
+- 如果涉及实现细节，按数据流、状态变化、调用顺序或生命周期拆开讲；如果涉及方案选择，必须说明为什么不用另一个方案。
+
+#### 结合原题展开
+
+- 先把问题拉回「流式输出的协议有哪些？SSE / fetch stream / WebSocket 怎么选」的核心机制，说明这个追问考察的是落地边界、失败条件和方案取舍，而不是单点定义。
+- 可以补充一个真实项目语境：上线前先约定输入输出、失败兜底和观测指标，避免只在 demo 场景下成立。
+
+#### 工程落地
+
+- 验证手段要具体：单元测试覆盖边界条件，集成测试覆盖主流程，必要时用 e2e 或回放数据验证真实链路。
+- 运行时要可观测：关键路径打日志或埋点，关注错误率、耗时、资源占用、用户可感知延迟和降级次数。
+- 发布策略要稳：高风险变更建议灰度、开关或回滚预案；如果会影响数据一致性，还要说明迁移和兼容策略。
+
+#### 易错点
+
+- 不要只背 API 或概念名，要说清楚适用条件；很多方案在小流量、单端、无异常时看起来都成立。
+- 不要忽略默认值、兼容性、异常回滚、性能退化和团队维护成本，这些往往是资深面试继续深挖的重点。
+- 如果答案里出现“总是”“一定”“完全替代”这类绝对表述，要主动补充例外场景。
+
+## llm-streaming-protocols-followup-2
+
+title: 追问：怎么实现 SSE 断线后从中断处续传
+difficulty: 基础
+tags: [流式, SSE, 追问]
+parent: llm-streaming-protocols
+
+### 题目
+
+如果面试官追问：怎么实现 SSE 断线后从中断处续传？
+
+### 答案要点
+
+#### 回答思路
+
+- 先给一句结论：这个问题要从「为什么需要它」「它解决了什么问题」「代价是什么」三个角度回答。
+- 再把结论落回原题，不要脱离上下文泛泛而谈；面试官通常会顺着边界、异常和工程成本继续追问。
+- 如果涉及实现细节，按数据流、状态变化、调用顺序或生命周期拆开讲；如果涉及方案选择，必须说明为什么不用另一个方案。
+
+#### 结合原题展开
+
+- SSE (Server-Sent Events)：单向 HTTP 长连接，文本协议简单，99% LLM 厂商首选
+- 文本流 + 一次请求 → SSE / fetch stream
+- 错误恢复：SSE 自带 Last-Event-ID 重连；fetch stream 要自己实现
+- 可以补充一个真实项目语境：上线前先约定输入输出、失败兜底和观测指标，避免只在 demo 场景下成立。
+
+#### 工程落地
+
+- 验证手段要具体：单元测试覆盖边界条件，集成测试覆盖主流程，必要时用 e2e 或回放数据验证真实链路。
+- 运行时要可观测：关键路径打日志或埋点，关注错误率、耗时、资源占用、用户可感知延迟和降级次数。
+- 发布策略要稳：高风险变更建议灰度、开关或回滚预案；如果会影响数据一致性，还要说明迁移和兼容策略。
+
+#### 易错点
+
+- 不要只背 API 或概念名，要说清楚适用条件；很多方案在小流量、单端、无异常时看起来都成立。
+- 不要忽略默认值、兼容性、异常回滚、性能退化和团队维护成本，这些往往是资深面试继续深挖的重点。
+- 如果答案里出现“总是”“一定”“完全替代”这类绝对表述，要主动补充例外场景。
+
+## llm-streaming-protocols-followup-3
+
+title: 追问：iOS Safari 的 SSE 限制有哪些
+difficulty: 基础
+tags: [流式, SSE, 追问]
+parent: llm-streaming-protocols
+
+### 题目
+
+如果面试官追问：iOS Safari 的 SSE 限制有哪些？
+
+### 答案要点
+
+#### 回答思路
+
+- 先给一句结论：这个问题要从「为什么需要它」「它解决了什么问题」「代价是什么」三个角度回答。
+- 再把结论落回原题，不要脱离上下文泛泛而谈；面试官通常会顺着边界、异常和工程成本继续追问。
+- 如果涉及实现细节，按数据流、状态变化、调用顺序或生命周期拆开讲；如果涉及方案选择，必须说明为什么不用另一个方案。
+
+#### 结合原题展开
+
+- SSE (Server-Sent Events)：单向 HTTP 长连接，文本协议简单，99% LLM 厂商首选
+- 文本流 + 一次请求 → SSE / fetch stream
+- 错误恢复：SSE 自带 Last-Event-ID 重连；fetch stream 要自己实现
+- 可以补充一个真实项目语境：上线前先约定输入输出、失败兜底和观测指标，避免只在 demo 场景下成立。
+
+#### 工程落地
+
+- 验证手段要具体：单元测试覆盖边界条件，集成测试覆盖主流程，必要时用 e2e 或回放数据验证真实链路。
+- 运行时要可观测：关键路径打日志或埋点，关注错误率、耗时、资源占用、用户可感知延迟和降级次数。
+- 发布策略要稳：高风险变更建议灰度、开关或回滚预案；如果会影响数据一致性，还要说明迁移和兼容策略。
+
+#### 易错点
+
+- 不要只背 API 或概念名，要说清楚适用条件；很多方案在小流量、单端、无异常时看起来都成立。
+- 不要忽略默认值、兼容性、异常回滚、性能退化和团队维护成本，这些往往是资深面试继续深挖的重点。
+- 如果答案里出现“总是”“一定”“完全替代”这类绝对表述，要主动补充例外场景。
+
+## llm-hallucination-and-grounding-followup-1
+
+title: 追问：RAG 召不到相关材料时怎么办
+difficulty: 基础
+tags: [幻觉, Grounding, 追问]
+parent: llm-hallucination-and-grounding
+
+### 题目
+
+如果面试官追问：RAG 召不到相关材料时怎么办？
+
+### 答案要点
+
+#### 回答思路
+
+- 先给一句结论：这个问题要从「为什么需要它」「它解决了什么问题」「代价是什么」三个角度回答。
+- 再把结论落回原题，不要脱离上下文泛泛而谈；面试官通常会顺着边界、异常和工程成本继续追问。
+- 如果涉及实现细节，按数据流、状态变化、调用顺序或生命周期拆开讲；如果涉及方案选择，必须说明为什么不用另一个方案。
+
+#### 结合原题展开
+
+- Grounding / RAG：把真实文档片段注入 prompt，并明确"仅基于以下材料回答"
+- 可以补充一个真实项目语境：上线前先约定输入输出、失败兜底和观测指标，避免只在 demo 场景下成立。
+
+#### 工程落地
+
+- 验证手段要具体：单元测试覆盖边界条件，集成测试覆盖主流程，必要时用 e2e 或回放数据验证真实链路。
+- 运行时要可观测：关键路径打日志或埋点，关注错误率、耗时、资源占用、用户可感知延迟和降级次数。
+- 发布策略要稳：高风险变更建议灰度、开关或回滚预案；如果会影响数据一致性，还要说明迁移和兼容策略。
+
+#### 易错点
+
+- 不要只背 API 或概念名，要说清楚适用条件；很多方案在小流量、单端、无异常时看起来都成立。
+- 不要忽略默认值、兼容性、异常回滚、性能退化和团队维护成本，这些往往是资深面试继续深挖的重点。
+- 如果答案里出现“总是”“一定”“完全替代”这类绝对表述，要主动补充例外场景。
+
+## llm-hallucination-and-grounding-followup-2
+
+title: 追问：长文档摘要里的幻觉怎么发现
+difficulty: 基础
+tags: [幻觉, Grounding, 追问]
+parent: llm-hallucination-and-grounding
+
+### 题目
+
+如果面试官追问：长文档摘要里的幻觉怎么发现？
+
+### 答案要点
+
+#### 回答思路
+
+- 先给一句结论：这个问题要从「为什么需要它」「它解决了什么问题」「代价是什么」三个角度回答。
+- 再把结论落回原题，不要脱离上下文泛泛而谈；面试官通常会顺着边界、异常和工程成本继续追问。
+- 如果涉及实现细节，按数据流、状态变化、调用顺序或生命周期拆开讲；如果涉及方案选择，必须说明为什么不用另一个方案。
+
+#### 结合原题展开
+
+- 先把问题拉回「模型幻觉是什么？前端能做什么减少幻觉」的核心机制，说明这个追问考察的是落地边界、失败条件和方案取舍，而不是单点定义。
+- 可以补充一个真实项目语境：上线前先约定输入输出、失败兜底和观测指标，避免只在 demo 场景下成立。
+
+#### 工程落地
+
+- 验证手段要具体：单元测试覆盖边界条件，集成测试覆盖主流程，必要时用 e2e 或回放数据验证真实链路。
+- 运行时要可观测：关键路径打日志或埋点，关注错误率、耗时、资源占用、用户可感知延迟和降级次数。
+- 发布策略要稳：高风险变更建议灰度、开关或回滚预案；如果会影响数据一致性，还要说明迁移和兼容策略。
+
+#### 易错点
+
+- 不要只背 API 或概念名，要说清楚适用条件；很多方案在小流量、单端、无异常时看起来都成立。
+- 不要忽略默认值、兼容性、异常回滚、性能退化和团队维护成本，这些往往是资深面试继续深挖的重点。
+- 如果答案里出现“总是”“一定”“完全替代”这类绝对表述，要主动补充例外场景。
+
+## llm-hallucination-and-grounding-followup-3
+
+title: 追问：用户问的问题超出材料范围时如何拒绝
+difficulty: 基础
+tags: [幻觉, Grounding, 追问]
+parent: llm-hallucination-and-grounding
+
+### 题目
+
+如果面试官追问：用户问的问题超出材料范围时如何拒绝？
+
+### 答案要点
+
+#### 回答思路
+
+- 先给一句结论：这个问题要从「为什么需要它」「它解决了什么问题」「代价是什么」三个角度回答。
+- 再把结论落回原题，不要脱离上下文泛泛而谈；面试官通常会顺着边界、异常和工程成本继续追问。
+- 如果涉及实现细节，按数据流、状态变化、调用顺序或生命周期拆开讲；如果涉及方案选择，必须说明为什么不用另一个方案。
+
+#### 结合原题展开
+
+- Grounding / RAG：把真实文档片段注入 prompt，并明确"仅基于以下材料回答"
+- 监控：把"用户标错"率作为质量指标，定期回看 case
+- 可以补充一个真实项目语境：上线前先约定输入输出、失败兜底和观测指标，避免只在 demo 场景下成立。
+
+#### 工程落地
+
+- 验证手段要具体：单元测试覆盖边界条件，集成测试覆盖主流程，必要时用 e2e 或回放数据验证真实链路。
+- 运行时要可观测：关键路径打日志或埋点，关注错误率、耗时、资源占用、用户可感知延迟和降级次数。
+- 发布策略要稳：高风险变更建议灰度、开关或回滚预案；如果会影响数据一致性，还要说明迁移和兼容策略。
+
+#### 易错点
+
+- 不要只背 API 或概念名，要说清楚适用条件；很多方案在小流量、单端、无异常时看起来都成立。
+- 不要忽略默认值、兼容性、异常回滚、性能退化和团队维护成本，这些往往是资深面试继续深挖的重点。
+- 如果答案里出现“总是”“一定”“完全替代”这类绝对表述，要主动补充例外场景。
+
+## llm-modes-chat-vs-completion-vs-reasoning-followup-1
+
+title: 追问：reasoning 模型为什么不能流式
+difficulty: 基础
+tags: [模型形态, 追问]
+parent: llm-modes-chat-vs-completion-vs-reasoning
+
+### 题目
+
+如果面试官追问：reasoning 模型为什么不能流式？（实际是先思考后输出）
+
+### 答案要点
+
+#### 回答思路
+
+- 先给一句结论：这个问题要从「为什么需要它」「它解决了什么问题」「代价是什么」三个角度回答。
+- 再把结论落回原题，不要脱离上下文泛泛而谈；面试官通常会顺着边界、异常和工程成本继续追问。
+- 如果涉及实现细节，按数据流、状态变化、调用顺序或生命周期拆开讲；如果涉及方案选择，必须说明为什么不用另一个方案。
+
+#### 结合原题展开
+
+- Reasoning（o1 / o3 / Claude thinking 模式）：模型先生成"思考链"再生成答案
+- 不能改 temperature / top_p / system message（部分模型）
+- 响应显著更慢（数秒到分钟）—— UI 必须给"思考中"占位
+- 可以补充一个真实项目语境：上线前先约定输入输出、失败兜底和观测指标，避免只在 demo 场景下成立。
+
+#### 工程落地
+
+- 验证手段要具体：单元测试覆盖边界条件，集成测试覆盖主流程，必要时用 e2e 或回放数据验证真实链路。
+- 运行时要可观测：关键路径打日志或埋点，关注错误率、耗时、资源占用、用户可感知延迟和降级次数。
+- 发布策略要稳：高风险变更建议灰度、开关或回滚预案；如果会影响数据一致性，还要说明迁移和兼容策略。
+
+#### 易错点
+
+- 不要只背 API 或概念名，要说清楚适用条件；很多方案在小流量、单端、无异常时看起来都成立。
+- 不要忽略默认值、兼容性、异常回滚、性能退化和团队维护成本，这些往往是资深面试继续深挖的重点。
+- 如果答案里出现“总是”“一定”“完全替代”这类绝对表述，要主动补充例外场景。
+
+## llm-modes-chat-vs-completion-vs-reasoning-followup-2
+
+title: 追问：如何让普通 Chat 模型"模拟 reasoning"
+difficulty: 基础
+tags: [模型形态, 追问]
+parent: llm-modes-chat-vs-completion-vs-reasoning
+
+### 题目
+
+如果面试官追问：如何让普通 Chat 模型"模拟 reasoning"？
+
+### 答案要点
+
+#### 回答思路
+
+- 先给一句结论：这个问题要从「为什么需要它」「它解决了什么问题」「代价是什么」三个角度回答。
+- 再把结论落回原题，不要脱离上下文泛泛而谈；面试官通常会顺着边界、异常和工程成本继续追问。
+- 如果涉及实现细节，按数据流、状态变化、调用顺序或生命周期拆开讲；如果涉及方案选择，必须说明为什么不用另一个方案。
+
+#### 结合原题展开
+
+- Chat (/v1/chat/completions)：传 messages 数组（system/user/assistant）；当前主流
+- Reasoning（o1 / o3 / Claude thinking 模式）：模型先生成"思考链"再生成答案
+- 不能改 temperature / top_p / system message（部分模型）
+- 可以补充一个真实项目语境：上线前先约定输入输出、失败兜底和观测指标，避免只在 demo 场景下成立。
+
+#### 工程落地
+
+- 验证手段要具体：单元测试覆盖边界条件，集成测试覆盖主流程，必要时用 e2e 或回放数据验证真实链路。
+- 运行时要可观测：关键路径打日志或埋点，关注错误率、耗时、资源占用、用户可感知延迟和降级次数。
+- 发布策略要稳：高风险变更建议灰度、开关或回滚预案；如果会影响数据一致性，还要说明迁移和兼容策略。
+
+#### 易错点
+
+- 不要只背 API 或概念名，要说清楚适用条件；很多方案在小流量、单端、无异常时看起来都成立。
+- 不要忽略默认值、兼容性、异常回滚、性能退化和团队维护成本，这些往往是资深面试继续深挖的重点。
+- 如果答案里出现“总是”“一定”“完全替代”这类绝对表述，要主动补充例外场景。
+
+## llm-modes-chat-vs-completion-vs-reasoning-followup-3
+
+title: 追问：怎么判断当前任务该不该用 reasoning
+difficulty: 基础
+tags: [模型形态, 追问]
+parent: llm-modes-chat-vs-completion-vs-reasoning
+
+### 题目
+
+如果面试官追问：怎么判断当前任务该不该用 reasoning？
+
+### 答案要点
+
+#### 回答思路
+
+- 先给一句结论：这个问题要从「为什么需要它」「它解决了什么问题」「代价是什么」三个角度回答。
+- 再把结论落回原题，不要脱离上下文泛泛而谈；面试官通常会顺着边界、异常和工程成本继续追问。
+- 如果涉及实现细节，按数据流、状态变化、调用顺序或生命周期拆开讲；如果涉及方案选择，必须说明为什么不用另一个方案。
+
+#### 结合原题展开
+
+- Chat (/v1/chat/completions)：传 messages 数组（system/user/assistant）；当前主流
+- Reasoning（o1 / o3 / Claude thinking 模式）：模型先生成"思考链"再生成答案
+- 数学推理 / 复杂规划 / 代码重构 → Reasoning
+- 可以补充一个真实项目语境：上线前先约定输入输出、失败兜底和观测指标，避免只在 demo 场景下成立。
+
+#### 工程落地
+
+- 验证手段要具体：单元测试覆盖边界条件，集成测试覆盖主流程，必要时用 e2e 或回放数据验证真实链路。
+- 运行时要可观测：关键路径打日志或埋点，关注错误率、耗时、资源占用、用户可感知延迟和降级次数。
+- 发布策略要稳：高风险变更建议灰度、开关或回滚预案；如果会影响数据一致性，还要说明迁移和兼容策略。
+
+#### 易错点
+
+- 不要只背 API 或概念名，要说清楚适用条件；很多方案在小流量、单端、无异常时看起来都成立。
+- 不要忽略默认值、兼容性、异常回滚、性能退化和团队维护成本，这些往往是资深面试继续深挖的重点。
+- 如果答案里出现“总是”“一定”“完全替代”这类绝对表述，要主动补充例外场景。
+
+## llm-retry-and-backoff-followup-1
+
+title: 追问：怎么实现"流式断线续写"？模型怎么知道接着写
+difficulty: 进阶
+tags: [可靠性, 重试, 追问]
+parent: llm-retry-and-backoff
+
+### 题目
+
+如果面试官追问：怎么实现"流式断线续写"？模型怎么知道接着写？
+
+### 答案要点
+
+#### 回答思路
+
+- 先给一句结论：这个问题要从「为什么需要它」「它解决了什么问题」「代价是什么」三个角度回答。
+- 再把结论落回原题，不要脱离上下文泛泛而谈；面试官通常会顺着边界、异常和工程成本继续追问。
+- 如果涉及实现细节，按数据流、状态变化、调用顺序或生命周期拆开讲；如果涉及方案选择，必须说明为什么不用另一个方案。
+
+#### 结合原题展开
+
+- 流式中途断（已经收到部分 token）：不要整体重试，应记录已生成内容，用 "继续从第 X 字符开始" 续写
+- 不同错误分别上报到 monitoring，区分"模型问题 / 网络问题 / 限流"
+- 流式断了从头重试 → 用户看到答案"重置"，体验差且双倍计费
+- 可以补充一个真实项目语境：上线前先约定输入输出、失败兜底和观测指标，避免只在 demo 场景下成立。
+
+#### 工程落地
+
+- 验证手段要具体：单元测试覆盖边界条件，集成测试覆盖主流程，必要时用 e2e 或回放数据验证真实链路。
+- 运行时要可观测：关键路径打日志或埋点，关注错误率、耗时、资源占用、用户可感知延迟和降级次数。
+- 发布策略要稳：高风险变更建议灰度、开关或回滚预案；如果会影响数据一致性，还要说明迁移和兼容策略。
+
+#### 易错点
+
+- 不要只背 API 或概念名，要说清楚适用条件；很多方案在小流量、单端、无异常时看起来都成立。
+- 不要忽略默认值、兼容性、异常回滚、性能退化和团队维护成本，这些往往是资深面试继续深挖的重点。
+- 如果答案里出现“总是”“一定”“完全替代”这类绝对表述，要主动补充例外场景。
+
+## llm-retry-and-backoff-followup-2
+
+title: 追问：重试期间用户改了输入怎么办
+difficulty: 进阶
+tags: [可靠性, 重试, 追问]
+parent: llm-retry-and-backoff
+
+### 题目
+
+如果面试官追问：重试期间用户改了输入怎么办？
+
+### 答案要点
+
+#### 回答思路
+
+- 先给一句结论：这个问题要从「为什么需要它」「它解决了什么问题」「代价是什么」三个角度回答。
+- 再把结论落回原题，不要脱离上下文泛泛而谈；面试官通常会顺着边界、异常和工程成本继续追问。
+- 如果涉及实现细节，按数据流、状态变化、调用顺序或生命周期拆开讲；如果涉及方案选择，必须说明为什么不用另一个方案。
+
+#### 结合原题展开
+
+- 可重试错误：网络抛异常、429 (Rate Limit)、500/502/503/504、请求被中间网关 reset
+- 不可重试：400 (参数错)、401 (鉴权)、403、404、422（schema 错）
+- 流式中途断（已经收到部分 token）：不要整体重试，应记录已生成内容，用 "继续从第 X 字符开始" 续写
+- 可以补充一个真实项目语境：上线前先约定输入输出、失败兜底和观测指标，避免只在 demo 场景下成立。
+
+#### 工程落地
+
+- 验证手段要具体：单元测试覆盖边界条件，集成测试覆盖主流程，必要时用 e2e 或回放数据验证真实链路。
+- 运行时要可观测：关键路径打日志或埋点，关注错误率、耗时、资源占用、用户可感知延迟和降级次数。
+- 发布策略要稳：高风险变更建议灰度、开关或回滚预案；如果会影响数据一致性，还要说明迁移和兼容策略。
+
+#### 易错点
+
+- 不要只背 API 或概念名，要说清楚适用条件；很多方案在小流量、单端、无异常时看起来都成立。
+- 不要忽略默认值、兼容性、异常回滚、性能退化和团队维护成本，这些往往是资深面试继续深挖的重点。
+- 如果答案里出现“总是”“一定”“完全替代”这类绝对表述，要主动补充例外场景。
+
+## llm-retry-and-backoff-followup-3
+
+title: 追问：怎么区分"模型超时"和"用户网络慢"
+difficulty: 进阶
+tags: [可靠性, 重试, 追问]
+parent: llm-retry-and-backoff
+
+### 题目
+
+如果面试官追问：怎么区分"模型超时"和"用户网络慢"？
+
+### 答案要点
+
+#### 回答思路
+
+- 先给一句结论：这个问题要从「为什么需要它」「它解决了什么问题」「代价是什么」三个角度回答。
+- 再把结论落回原题，不要脱离上下文泛泛而谈；面试官通常会顺着边界、异常和工程成本继续追问。
+- 如果涉及实现细节，按数据流、状态变化、调用顺序或生命周期拆开讲；如果涉及方案选择，必须说明为什么不用另一个方案。
+
+#### 结合原题展开
+
+- 可重试错误：网络抛异常、429 (Rate Limit)、500/502/503/504、请求被中间网关 reset
+- 用 AbortController 管理超时（如 60s 兜底）；不要无限等
+- 不同错误分别上报到 monitoring，区分"模型问题 / 网络问题 / 限流"
+- 可以补充一个真实项目语境：上线前先约定输入输出、失败兜底和观测指标，避免只在 demo 场景下成立。
+
+#### 工程落地
+
+- 验证手段要具体：单元测试覆盖边界条件，集成测试覆盖主流程，必要时用 e2e 或回放数据验证真实链路。
+- 运行时要可观测：关键路径打日志或埋点，关注错误率、耗时、资源占用、用户可感知延迟和降级次数。
+- 发布策略要稳：高风险变更建议灰度、开关或回滚预案；如果会影响数据一致性，还要说明迁移和兼容策略。
+
+#### 易错点
+
+- 不要只背 API 或概念名，要说清楚适用条件；很多方案在小流量、单端、无异常时看起来都成立。
+- 不要忽略默认值、兼容性、异常回滚、性能退化和团队维护成本，这些往往是资深面试继续深挖的重点。
+- 如果答案里出现“总是”“一定”“完全替代”这类绝对表述，要主动补充例外场景。
+
+## llm-rate-limit-and-quota-followup-1
+
+title: 追问：token-based limit 和 request-based limit 一起触发怎么处理
+difficulty: 进阶
+tags: [限流, 配额, 追问]
+parent: llm-rate-limit-and-quota
+
+### 题目
+
+如果面试官追问：token-based limit 和 request-based limit 一起触发怎么处理？
+
+### 答案要点
+
+#### 回答思路
+
+- 先给一句结论：这个问题要从「为什么需要它」「它解决了什么问题」「代价是什么」三个角度回答。
+- 再把结论落回原题，不要脱离上下文泛泛而谈；面试官通常会顺着边界、异常和工程成本继续追问。
+- 如果涉及实现细节，按数据流、状态变化、调用顺序或生命周期拆开讲；如果涉及方案选择，必须说明为什么不用另一个方案。
+
+#### 结合原题展开
+
+- 响应头：x-ratelimit-limit-requests / x-ratelimit-remaining-requests / x-ratelimit-reset-requests（OpenAI），Retry-After（通用）
+- 用令牌桶（token bucket）算法做客户端 rate limiter：每秒补 N，突发可借
+- 可以补充一个真实项目语境：上线前先约定输入输出、失败兜底和观测指标，避免只在 demo 场景下成立。
+
+#### 工程落地
+
+- 验证手段要具体：单元测试覆盖边界条件，集成测试覆盖主流程，必要时用 e2e 或回放数据验证真实链路。
+- 运行时要可观测：关键路径打日志或埋点，关注错误率、耗时、资源占用、用户可感知延迟和降级次数。
+- 发布策略要稳：高风险变更建议灰度、开关或回滚预案；如果会影响数据一致性，还要说明迁移和兼容策略。
+
+#### 易错点
+
+- 不要只背 API 或概念名，要说清楚适用条件；很多方案在小流量、单端、无异常时看起来都成立。
+- 不要忽略默认值、兼容性、异常回滚、性能退化和团队维护成本，这些往往是资深面试继续深挖的重点。
+- 如果答案里出现“总是”“一定”“完全替代”这类绝对表述，要主动补充例外场景。
+
+## llm-rate-limit-and-quota-followup-2
+
+title: 追问：怎么把"配额"做成产品功能
+difficulty: 进阶
+tags: [限流, 配额, 追问]
+parent: llm-rate-limit-and-quota
+
+### 题目
+
+如果面试官追问：怎么把"配额"做成产品功能（免费 vs 订阅）？
+
+### 答案要点
+
+#### 回答思路
+
+- 先给一句结论：这个问题要从「为什么需要它」「它解决了什么问题」「代价是什么」三个角度回答。
+- 再把结论落回原题，不要脱离上下文泛泛而谈；面试官通常会顺着边界、异常和工程成本继续追问。
+- 如果涉及实现细节，按数据流、状态变化、调用顺序或生命周期拆开讲；如果涉及方案选择，必须说明为什么不用另一个方案。
+
+#### 结合原题展开
+
+- UI 层面：显示"剩余 X 次 / 分钟"配额；超限时降级而非失败：
+- 可以补充一个真实项目语境：上线前先约定输入输出、失败兜底和观测指标，避免只在 demo 场景下成立。
+
+#### 工程落地
+
+- 验证手段要具体：单元测试覆盖边界条件，集成测试覆盖主流程，必要时用 e2e 或回放数据验证真实链路。
+- 运行时要可观测：关键路径打日志或埋点，关注错误率、耗时、资源占用、用户可感知延迟和降级次数。
+- 发布策略要稳：高风险变更建议灰度、开关或回滚预案；如果会影响数据一致性，还要说明迁移和兼容策略。
+
+#### 易错点
+
+- 不要只背 API 或概念名，要说清楚适用条件；很多方案在小流量、单端、无异常时看起来都成立。
+- 不要忽略默认值、兼容性、异常回滚、性能退化和团队维护成本，这些往往是资深面试继续深挖的重点。
+- 如果答案里出现“总是”“一定”“完全替代”这类绝对表述，要主动补充例外场景。
+
+## llm-rate-limit-and-quota-followup-3
+
+title: 追问：多模型多区域 key 池如何做负载均衡
+difficulty: 进阶
+tags: [限流, 配额, 追问]
+parent: llm-rate-limit-and-quota
+
+### 题目
+
+如果面试官追问：多模型多区域 key 池如何做负载均衡？
+
+### 答案要点
+
+#### 回答思路
+
+- 先给一句结论：这个问题要从「为什么需要它」「它解决了什么问题」「代价是什么」三个角度回答。
+- 再把结论落回原题，不要脱离上下文泛泛而谈；面试官通常会顺着边界、异常和工程成本继续追问。
+- 如果涉及实现细节，按数据流、状态变化、调用顺序或生命周期拆开讲；如果涉及方案选择，必须说明为什么不用另一个方案。
+
+#### 结合原题展开
+
+- 先把问题拉回「客户端怎么处理限流（rate limit）和配额」的核心机制，说明这个追问考察的是落地边界、失败条件和方案取舍，而不是单点定义。
+- 可以补充一个真实项目语境：上线前先约定输入输出、失败兜底和观测指标，避免只在 demo 场景下成立。
+
+#### 工程落地
+
+- 验证手段要具体：单元测试覆盖边界条件，集成测试覆盖主流程，必要时用 e2e 或回放数据验证真实链路。
+- 运行时要可观测：关键路径打日志或埋点，关注错误率、耗时、资源占用、用户可感知延迟和降级次数。
+- 发布策略要稳：高风险变更建议灰度、开关或回滚预案；如果会影响数据一致性，还要说明迁移和兼容策略。
+
+#### 易错点
+
+- 不要只背 API 或概念名，要说清楚适用条件；很多方案在小流量、单端、无异常时看起来都成立。
+- 不要忽略默认值、兼容性、异常回滚、性能退化和团队维护成本，这些往往是资深面试继续深挖的重点。
+- 如果答案里出现“总是”“一定”“完全替代”这类绝对表述，要主动补充例外场景。
+
+## llm-streaming-cancel-and-resume-followup-1
+
+title: 追问：流式过程中怎么实时显示"已生成 X 字 / Y tokens"
+difficulty: 进阶
+tags: [流式, 中断, 追问]
+parent: llm-streaming-cancel-and-resume
+
+### 题目
+
+如果面试官追问：流式过程中怎么实时显示"已生成 X 字 / Y tokens"？
+
+### 答案要点
+
+#### 回答思路
+
+- 先给一句结论：这个问题要从「为什么需要它」「它解决了什么问题」「代价是什么」三个角度回答。
+- 再把结论落回原题，不要脱离上下文泛泛而谈；面试官通常会顺着边界、异常和工程成本继续追问。
+- 如果涉及实现细节，按数据流、状态变化、调用顺序或生命周期拆开讲；如果涉及方案选择，必须说明为什么不用另一个方案。
+
+#### 结合原题展开
+
+- 流式中途用户改了 prompt：等于全新一轮，丢弃 partial
+- 可以补充一个真实项目语境：上线前先约定输入输出、失败兜底和观测指标，避免只在 demo 场景下成立。
+
+#### 工程落地
+
+- 验证手段要具体：单元测试覆盖边界条件，集成测试覆盖主流程，必要时用 e2e 或回放数据验证真实链路。
+- 运行时要可观测：关键路径打日志或埋点，关注错误率、耗时、资源占用、用户可感知延迟和降级次数。
+- 发布策略要稳：高风险变更建议灰度、开关或回滚预案；如果会影响数据一致性，还要说明迁移和兼容策略。
+
+#### 易错点
+
+- 不要只背 API 或概念名，要说清楚适用条件；很多方案在小流量、单端、无异常时看起来都成立。
+- 不要忽略默认值、兼容性、异常回滚、性能退化和团队维护成本，这些往往是资深面试继续深挖的重点。
+- 如果答案里出现“总是”“一定”“完全替代”这类绝对表述，要主动补充例外场景。
+
+## llm-streaming-cancel-and-resume-followup-2
+
+title: 追问：中断后用户切走再回来，怎么恢复界面
+difficulty: 进阶
+tags: [流式, 中断, 追问]
+parent: llm-streaming-cancel-and-resume
+
+### 题目
+
+如果面试官追问：中断后用户切走再回来，怎么恢复界面？
+
+### 答案要点
+
+#### 回答思路
+
+- 先给一句结论：这个问题要从「为什么需要它」「它解决了什么问题」「代价是什么」三个角度回答。
+- 再把结论落回原题，不要脱离上下文泛泛而谈；面试官通常会顺着边界、异常和工程成本继续追问。
+- 如果涉及实现细节，按数据流、状态变化、调用顺序或生命周期拆开讲；如果涉及方案选择，必须说明为什么不用另一个方案。
+
+#### 结合原题展开
+
+- 中断：AbortController.abort()；reader 会在下一次 read 时抛 AbortError
+- 中断时：保留已输出文本作为 partial assistant content，不要清空
+- 中断后把 partial 也清空：用户体验差且浪费 token
+- 可以补充一个真实项目语境：上线前先约定输入输出、失败兜底和观测指标，避免只在 demo 场景下成立。
+
+#### 工程落地
+
+- 验证手段要具体：单元测试覆盖边界条件，集成测试覆盖主流程，必要时用 e2e 或回放数据验证真实链路。
+- 运行时要可观测：关键路径打日志或埋点，关注错误率、耗时、资源占用、用户可感知延迟和降级次数。
+- 发布策略要稳：高风险变更建议灰度、开关或回滚预案；如果会影响数据一致性，还要说明迁移和兼容策略。
+
+#### 易错点
+
+- 不要只背 API 或概念名，要说清楚适用条件；很多方案在小流量、单端、无异常时看起来都成立。
+- 不要忽略默认值、兼容性、异常回滚、性能退化和团队维护成本，这些往往是资深面试继续深挖的重点。
+- 如果答案里出现“总是”“一定”“完全替代”这类绝对表述，要主动补充例外场景。
+
+## llm-streaming-cancel-and-resume-followup-3
+
+title: 追问：续写时怎么避免和原文风格不一致
+difficulty: 进阶
+tags: [流式, 中断, 追问]
+parent: llm-streaming-cancel-and-resume
+
+### 题目
+
+如果面试官追问：续写时怎么避免和原文风格不一致？
+
+### 答案要点
+
+#### 回答思路
+
+- 先给一句结论：这个问题要从「为什么需要它」「它解决了什么问题」「代价是什么」三个角度回答。
+- 再把结论落回原题，不要脱离上下文泛泛而谈；面试官通常会顺着边界、异常和工程成本继续追问。
+- 如果涉及实现细节，按数据流、状态变化、调用顺序或生命周期拆开讲；如果涉及方案选择，必须说明为什么不用另一个方案。
+
+#### 结合原题展开
+
+- 续写实现一：直接把 partial 作为 assistant message 加进 history，再发 user "请继续"
+- 续写实现二：服务端实现专门的 continue 接口，传入 previous_response_id（OpenAI Responses API 支持）
+- 输入 token 计费：续写时 partial 文本会再次作为输入计费一次
+- 可以补充一个真实项目语境：上线前先约定输入输出、失败兜底和观测指标，避免只在 demo 场景下成立。
+
+#### 工程落地
+
+- 验证手段要具体：单元测试覆盖边界条件，集成测试覆盖主流程，必要时用 e2e 或回放数据验证真实链路。
+- 运行时要可观测：关键路径打日志或埋点，关注错误率、耗时、资源占用、用户可感知延迟和降级次数。
+- 发布策略要稳：高风险变更建议灰度、开关或回滚预案；如果会影响数据一致性，还要说明迁移和兼容策略。
+
+#### 易错点
+
+- 不要只背 API 或概念名，要说清楚适用条件；很多方案在小流量、单端、无异常时看起来都成立。
+- 不要忽略默认值、兼容性、异常回滚、性能退化和团队维护成本，这些往往是资深面试继续深挖的重点。
+- 如果答案里出现“总是”“一定”“完全替代”这类绝对表述，要主动补充例外场景。
+
+## llm-prompt-caching-and-prefix-followup-1
+
+title: 追问：cache 命中怎么和"用户已删除聊天"协调
+difficulty: 进阶
+tags: [缓存, 性能, 追问]
+parent: llm-prompt-caching-and-prefix
+
+### 题目
+
+如果面试官追问：cache 命中怎么和"用户已删除聊天"协调（语义和合规）？
+
+### 答案要点
+
+#### 回答思路
+
+- 先给一句结论：这个问题要从「为什么需要它」「它解决了什么问题」「代价是什么」三个角度回答。
+- 再把结论落回原题，不要脱离上下文泛泛而谈；面试官通常会顺着边界、异常和工程成本继续追问。
+- 如果涉及实现细节，按数据流、状态变化、调用顺序或生命周期拆开讲；如果涉及方案选择，必须说明为什么不用另一个方案。
+
+#### 结合原题展开
+
+- OpenAI Prompt Caching：长度 ≥ 1024 token 的前缀自动 cache，命中部分输入 token 价 5 折
+- Anthropic Prompt Caching：用 cache_control: { type: "ephemeral" } 显式标记断点，命中价 1/10
+- 关键约束：前缀必须 byte-level 完全一致；变化部分（用户输入）放最后
+- 可以补充一个真实项目语境：上线前先约定输入输出、失败兜底和观测指标，避免只在 demo 场景下成立。
+
+#### 工程落地
+
+- 验证手段要具体：单元测试覆盖边界条件，集成测试覆盖主流程，必要时用 e2e 或回放数据验证真实链路。
+- 运行时要可观测：关键路径打日志或埋点，关注错误率、耗时、资源占用、用户可感知延迟和降级次数。
+- 发布策略要稳：高风险变更建议灰度、开关或回滚预案；如果会影响数据一致性，还要说明迁移和兼容策略。
+
+#### 易错点
+
+- 不要只背 API 或概念名，要说清楚适用条件；很多方案在小流量、单端、无异常时看起来都成立。
+- 不要忽略默认值、兼容性、异常回滚、性能退化和团队维护成本，这些往往是资深面试继续深挖的重点。
+- 如果答案里出现“总是”“一定”“完全替代”这类绝对表述，要主动补充例外场景。
+
+## llm-prompt-caching-and-prefix-followup-2
+
+title: 追问：多用户共享 system 但 RAG 数据不同，怎么分层缓存
+difficulty: 进阶
+tags: [缓存, 性能, 追问]
+parent: llm-prompt-caching-and-prefix
+
+### 题目
+
+如果面试官追问：多用户共享 system 但 RAG 数据不同，怎么分层缓存？
+
+### 答案要点
+
+#### 回答思路
+
+- 先给一句结论：这个问题要从「为什么需要它」「它解决了什么问题」「代价是什么」三个角度回答。
+- 再把结论落回原题，不要脱离上下文泛泛而谈；面试官通常会顺着边界、异常和工程成本继续追问。
+- 如果涉及实现细节，按数据流、状态变化、调用顺序或生命周期拆开讲；如果涉及方案选择，必须说明为什么不用另一个方案。
+
+#### 结合原题展开
+
+- System / few-shot / RAG 文档放前面（稳定）
+- 缓存有效期：OpenAI 5-10 分钟、Anthropic 5 分钟（写时刷新）
+- 把用户名放在 system 里：用户切换就 miss
+- 可以补充一个真实项目语境：上线前先约定输入输出、失败兜底和观测指标，避免只在 demo 场景下成立。
+
+#### 工程落地
+
+- 验证手段要具体：单元测试覆盖边界条件，集成测试覆盖主流程，必要时用 e2e 或回放数据验证真实链路。
+- 运行时要可观测：关键路径打日志或埋点，关注错误率、耗时、资源占用、用户可感知延迟和降级次数。
+- 发布策略要稳：高风险变更建议灰度、开关或回滚预案；如果会影响数据一致性，还要说明迁移和兼容策略。
+
+#### 易错点
+
+- 不要只背 API 或概念名，要说清楚适用条件；很多方案在小流量、单端、无异常时看起来都成立。
+- 不要忽略默认值、兼容性、异常回滚、性能退化和团队维护成本，这些往往是资深面试继续深挖的重点。
+- 如果答案里出现“总是”“一定”“完全替代”这类绝对表述，要主动补充例外场景。
+
+## llm-prompt-caching-and-prefix-followup-3
+
+title: 追问：怎么测算 cache 实际省了多少钱
+difficulty: 进阶
+tags: [缓存, 性能, 追问]
+parent: llm-prompt-caching-and-prefix
+
+### 题目
+
+如果面试官追问：怎么测算 cache 实际省了多少钱？
+
+### 答案要点
+
+#### 回答思路
+
+- 先给一句结论：这个问题要从「为什么需要它」「它解决了什么问题」「代价是什么」三个角度回答。
+- 再把结论落回原题，不要脱离上下文泛泛而谈；面试官通常会顺着边界、异常和工程成本继续追问。
+- 如果涉及实现细节，按数据流、状态变化、调用顺序或生命周期拆开讲；如果涉及方案选择，必须说明为什么不用另一个方案。
+
+#### 结合原题展开
+
+- OpenAI Prompt Caching：长度 ≥ 1024 token 的前缀自动 cache，命中部分输入 token 价 5 折
+- Anthropic Prompt Caching：用 cache_control: { type: "ephemeral" } 显式标记断点，命中价 1/10
+- 监控 prompt_cache_hit_tokens（OpenAI）或 cache_read_input_tokens（Anthropic）
+- 可以补充一个真实项目语境：上线前先约定输入输出、失败兜底和观测指标，避免只在 demo 场景下成立。
+
+#### 工程落地
+
+- 验证手段要具体：单元测试覆盖边界条件，集成测试覆盖主流程，必要时用 e2e 或回放数据验证真实链路。
+- 运行时要可观测：关键路径打日志或埋点，关注错误率、耗时、资源占用、用户可感知延迟和降级次数。
+- 发布策略要稳：高风险变更建议灰度、开关或回滚预案；如果会影响数据一致性，还要说明迁移和兼容策略。
+
+#### 易错点
+
+- 不要只背 API 或概念名，要说清楚适用条件；很多方案在小流量、单端、无异常时看起来都成立。
+- 不要忽略默认值、兼容性、异常回滚、性能退化和团队维护成本，这些往往是资深面试继续深挖的重点。
+- 如果答案里出现“总是”“一定”“完全替代”这类绝对表述，要主动补充例外场景。
+
+## llm-output-parser-and-recovery-followup-1
+
+title: 追问：怎么实现"边流式边渲染表单"
+difficulty: 进阶
+tags: [JSON, 容错, 追问]
+parent: llm-output-parser-and-recovery
+
+### 题目
+
+如果面试官追问：怎么实现"边流式边渲染表单"？
+
+### 答案要点
+
+#### 回答思路
+
+- 先给一句结论：这个问题要从「为什么需要它」「它解决了什么问题」「代价是什么」三个角度回答。
+- 再把结论落回原题，不要脱离上下文泛泛而谈；面试官通常会顺着边界、异常和工程成本继续追问。
+- 如果涉及实现细节，按数据流、状态变化、调用顺序或生命周期拆开讲；如果涉及方案选择，必须说明为什么不用另一个方案。
+
+#### 结合原题展开
+
+- 流式用 partial-json 增量解析（边接收边给 UI 渲染已完成字段）
+- UI 层：渲染"已确定字段"时把"未到的字段"用 skeleton 占位
+- 可以补充一个真实项目语境：上线前先约定输入输出、失败兜底和观测指标，避免只在 demo 场景下成立。
+
+#### 工程落地
+
+- 验证手段要具体：单元测试覆盖边界条件，集成测试覆盖主流程，必要时用 e2e 或回放数据验证真实链路。
+- 运行时要可观测：关键路径打日志或埋点，关注错误率、耗时、资源占用、用户可感知延迟和降级次数。
+- 发布策略要稳：高风险变更建议灰度、开关或回滚预案；如果会影响数据一致性，还要说明迁移和兼容策略。
+
+#### 易错点
+
+- 不要只背 API 或概念名，要说清楚适用条件；很多方案在小流量、单端、无异常时看起来都成立。
+- 不要忽略默认值、兼容性、异常回滚、性能退化和团队维护成本，这些往往是资深面试继续深挖的重点。
+- 如果答案里出现“总是”“一定”“完全替代”这类绝对表述，要主动补充例外场景。
+
+## llm-output-parser-and-recovery-followup-2
+
+title: 追问：schema 怎么和 TypeScript 类型对应起来
+difficulty: 进阶
+tags: [JSON, 容错, 追问]
+parent: llm-output-parser-and-recovery
+
+### 题目
+
+如果面试官追问：schema 怎么和 TypeScript 类型对应起来？
+
+### 答案要点
+
+#### 回答思路
+
+- 先给一句结论：这个问题要从「为什么需要它」「它解决了什么问题」「代价是什么」三个角度回答。
+- 再把结论落回原题，不要脱离上下文泛泛而谈；面试官通常会顺着边界、异常和工程成本继续追问。
+- 如果涉及实现细节，按数据流、状态变化、调用顺序或生命周期拆开讲；如果涉及方案选择，必须说明为什么不用另一个方案。
+
+#### 结合原题展开
+
+- OpenAI response_format: { type: 'json_schema', schema } 强制 schema
+- Anthropic 用 tool calling 让 schema 进入 function 参数
+- 第三招：schema 校验：用 zod 校验类型，失败 → 重试或降级
+- 可以补充一个真实项目语境：上线前先约定输入输出、失败兜底和观测指标，避免只在 demo 场景下成立。
+
+#### 工程落地
+
+- 验证手段要具体：单元测试覆盖边界条件，集成测试覆盖主流程，必要时用 e2e 或回放数据验证真实链路。
+- 运行时要可观测：关键路径打日志或埋点，关注错误率、耗时、资源占用、用户可感知延迟和降级次数。
+- 发布策略要稳：高风险变更建议灰度、开关或回滚预案；如果会影响数据一致性，还要说明迁移和兼容策略。
+
+#### 易错点
+
+- 不要只背 API 或概念名，要说清楚适用条件；很多方案在小流量、单端、无异常时看起来都成立。
+- 不要忽略默认值、兼容性、异常回滚、性能退化和团队维护成本，这些往往是资深面试继续深挖的重点。
+- 如果答案里出现“总是”“一定”“完全替代”这类绝对表述，要主动补充例外场景。
+
+## llm-output-parser-and-recovery-followup-3
+
+title: 追问：模型经常多了"解释性废话"前缀怎么治
+difficulty: 进阶
+tags: [JSON, 容错, 追问]
+parent: llm-output-parser-and-recovery
+
+### 题目
+
+如果面试官追问：模型经常多了"解释性废话"前缀怎么治？
+
+### 答案要点
+
+#### 回答思路
+
+- 先给一句结论：这个问题要从「为什么需要它」「它解决了什么问题」「代价是什么」三个角度回答。
+- 再把结论落回原题，不要脱离上下文泛泛而谈；面试官通常会顺着边界、异常和工程成本继续追问。
+- 如果涉及实现细节，按数据流、状态变化、调用顺序或生命周期拆开讲；如果涉及方案选择，必须说明为什么不用另一个方案。
+
+#### 结合原题展开
+
+- 工程化：把每次"JSON 解析失败"上报，按错误类型聚合分析模型
+- 可以补充一个真实项目语境：上线前先约定输入输出、失败兜底和观测指标，避免只在 demo 场景下成立。
+
+#### 工程落地
+
+- 验证手段要具体：单元测试覆盖边界条件，集成测试覆盖主流程，必要时用 e2e 或回放数据验证真实链路。
+- 运行时要可观测：关键路径打日志或埋点，关注错误率、耗时、资源占用、用户可感知延迟和降级次数。
+- 发布策略要稳：高风险变更建议灰度、开关或回滚预案；如果会影响数据一致性，还要说明迁移和兼容策略。
+
+#### 易错点
+
+- 不要只背 API 或概念名，要说清楚适用条件；很多方案在小流量、单端、无异常时看起来都成立。
+- 不要忽略默认值、兼容性、异常回滚、性能退化和团队维护成本，这些往往是资深面试继续深挖的重点。
+- 如果答案里出现“总是”“一定”“完全替代”这类绝对表述，要主动补充例外场景。
+
+## llm-multi-turn-memory-pattern-followup-1
+
+title: 追问：怎么避免 memory 之间冲突
+difficulty: 进阶
+tags: [记忆, 多轮, 追问]
+parent: llm-multi-turn-memory-pattern
+
+### 题目
+
+如果面试官追问：怎么避免 memory 之间冲突（"用户上周说喜欢深色，今天说喜欢浅色"）？
+
+### 答案要点
+
+#### 回答思路
+
+- 先给一句结论：这个问题要从「为什么需要它」「它解决了什么问题」「代价是什么」三个角度回答。
+- 再把结论落回原题，不要脱离上下文泛泛而谈；面试官通常会顺着边界、异常和工程成本继续追问。
+- 如果涉及实现细节，按数据流、状态变化、调用顺序或生命周期拆开讲；如果涉及方案选择，必须说明为什么不用另一个方案。
+
+#### 结合原题展开
+
+- Memory Bank（长期）：
+- 提取实体/偏好（用户名、语言、过敏、目标）→ 存 KV / DB
+- 每次对话开头注入相关 memory（"用户偏好：...."）
+- 可以补充一个真实项目语境：上线前先约定输入输出、失败兜底和观测指标，避免只在 demo 场景下成立。
+
+#### 工程落地
+
+- 验证手段要具体：单元测试覆盖边界条件，集成测试覆盖主流程，必要时用 e2e 或回放数据验证真实链路。
+- 运行时要可观测：关键路径打日志或埋点，关注错误率、耗时、资源占用、用户可感知延迟和降级次数。
+- 发布策略要稳：高风险变更建议灰度、开关或回滚预案；如果会影响数据一致性，还要说明迁移和兼容策略。
+
+#### 易错点
+
+- 不要只背 API 或概念名，要说清楚适用条件；很多方案在小流量、单端、无异常时看起来都成立。
+- 不要忽略默认值、兼容性、异常回滚、性能退化和团队维护成本，这些往往是资深面试继续深挖的重点。
+- 如果答案里出现“总是”“一定”“完全替代”这类绝对表述，要主动补充例外场景。
+
+## llm-multi-turn-memory-pattern-followup-2
+
+title: 追问：摘要本身会丢信息，怎么取舍
+difficulty: 进阶
+tags: [记忆, 多轮, 追问]
+parent: llm-multi-turn-memory-pattern
+
+### 题目
+
+如果面试官追问：摘要本身会丢信息，怎么取舍？
+
+### 答案要点
+
+#### 回答思路
+
+- 先给一句结论：这个问题要从「为什么需要它」「它解决了什么问题」「代价是什么」三个角度回答。
+- 再把结论落回原题，不要脱离上下文泛泛而谈；面试官通常会顺着边界、异常和工程成本继续追问。
+- 如果涉及实现细节，按数据流、状态变化、调用顺序或生命周期拆开讲；如果涉及方案选择，必须说明为什么不用另一个方案。
+
+#### 结合原题展开
+
+- 滑动窗口（短）：保留最近 N 轮原文，简单但易丢早期信息
+- 阶段性摘要（中）：当 history token > 阈值时调小模型摘要前半段，替换为摘要 message
+- 可以补充一个真实项目语境：上线前先约定输入输出、失败兜底和观测指标，避免只在 demo 场景下成立。
+
+#### 工程落地
+
+- 验证手段要具体：单元测试覆盖边界条件，集成测试覆盖主流程，必要时用 e2e 或回放数据验证真实链路。
+- 运行时要可观测：关键路径打日志或埋点，关注错误率、耗时、资源占用、用户可感知延迟和降级次数。
+- 发布策略要稳：高风险变更建议灰度、开关或回滚预案；如果会影响数据一致性，还要说明迁移和兼容策略。
+
+#### 易错点
+
+- 不要只背 API 或概念名，要说清楚适用条件；很多方案在小流量、单端、无异常时看起来都成立。
+- 不要忽略默认值、兼容性、异常回滚、性能退化和团队维护成本，这些往往是资深面试继续深挖的重点。
+- 如果答案里出现“总是”“一定”“完全替代”这类绝对表述，要主动补充例外场景。
+
+## llm-multi-turn-memory-pattern-followup-3
+
+title: 追问：多 agent 怎么共享 / 隔离 memory
+difficulty: 进阶
+tags: [记忆, 多轮, 追问]
+parent: llm-multi-turn-memory-pattern
+
+### 题目
+
+如果面试官追问：多 agent 怎么共享 / 隔离 memory？
+
+### 答案要点
+
+#### 回答思路
+
+- 先给一句结论：这个问题要从「为什么需要它」「它解决了什么问题」「代价是什么」三个角度回答。
+- 再把结论落回原题，不要脱离上下文泛泛而谈；面试官通常会顺着边界、异常和工程成本继续追问。
+- 如果涉及实现细节，按数据流、状态变化、调用顺序或生命周期拆开讲；如果涉及方案选择，必须说明为什么不用另一个方案。
+
+#### 结合原题展开
+
+- Memory Bank（长期）：
+- 每次对话开头注入相关 memory（"用户偏好：...."）
+- 隐私合规：memory 必须可查 / 可删除 / 可导出（GDPR / 用户预期）
+- 可以补充一个真实项目语境：上线前先约定输入输出、失败兜底和观测指标，避免只在 demo 场景下成立。
+
+#### 工程落地
+
+- 验证手段要具体：单元测试覆盖边界条件，集成测试覆盖主流程，必要时用 e2e 或回放数据验证真实链路。
+- 运行时要可观测：关键路径打日志或埋点，关注错误率、耗时、资源占用、用户可感知延迟和降级次数。
+- 发布策略要稳：高风险变更建议灰度、开关或回滚预案；如果会影响数据一致性，还要说明迁移和兼容策略。
+
+#### 易错点
+
+- 不要只背 API 或概念名，要说清楚适用条件；很多方案在小流量、单端、无异常时看起来都成立。
+- 不要忽略默认值、兼容性、异常回滚、性能退化和团队维护成本，这些往往是资深面试继续深挖的重点。
+- 如果答案里出现“总是”“一定”“完全替代”这类绝对表述，要主动补充例外场景。
+
+## llm-agent-architecture-followup-1
+
+title: 追问：怎么让 Agent 决定"何时停止 / 答案足够好"
+difficulty: 资深
+tags: [Agent, 架构, 追问]
+parent: llm-agent-architecture
+
+### 题目
+
+如果面试官追问：怎么让 Agent 决定"何时停止 / 答案足够好"？
+
+### 答案要点
+
+#### 回答思路
+
+- 先给一句结论：这个问题要从「为什么需要它」「它解决了什么问题」「代价是什么」三个角度回答。
+- 再把结论落回原题，不要脱离上下文泛泛而谈；面试官通常会顺着边界、异常和工程成本继续追问。
+- 如果涉及实现细节，按数据流、状态变化、调用顺序或生命周期拆开讲；如果涉及方案选择，必须说明为什么不用另一个方案。
+
+#### 结合原题展开
+
+- ReAct：交替 reasoning + action，每步 LLM 决定下一步
+- Multi-Agent：planner / coder / critic / executor 角色分离，互相审阅
+- 失败处理：单步失败要决定继续 / 重试 / 升级人工；最大步数兜底防死循环
+- 可以补充一个真实项目语境：上线前先约定输入输出、失败兜底和观测指标，避免只在 demo 场景下成立。
+
+#### 工程落地
+
+- 验证手段要具体：单元测试覆盖边界条件，集成测试覆盖主流程，必要时用 e2e 或回放数据验证真实链路。
+- 运行时要可观测：关键路径打日志或埋点，关注错误率、耗时、资源占用、用户可感知延迟和降级次数。
+- 发布策略要稳：高风险变更建议灰度、开关或回滚预案；如果会影响数据一致性，还要说明迁移和兼容策略。
+
+#### 易错点
+
+- 不要只背 API 或概念名，要说清楚适用条件；很多方案在小流量、单端、无异常时看起来都成立。
+- 不要忽略默认值、兼容性、异常回滚、性能退化和团队维护成本，这些往往是资深面试继续深挖的重点。
+- 如果答案里出现“总是”“一定”“完全替代”这类绝对表述，要主动补充例外场景。
+
+## llm-agent-architecture-followup-2
+
+title: 追问：multi-agent 如何避免互相内卷
+difficulty: 资深
+tags: [Agent, 架构, 追问]
+parent: llm-agent-architecture
+
+### 题目
+
+如果面试官追问：multi-agent 如何避免互相内卷？
+
+### 答案要点
+
+#### 回答思路
+
+- 先给一句结论：这个问题要从「为什么需要它」「它解决了什么问题」「代价是什么」三个角度回答。
+- 再把结论落回原题，不要脱离上下文泛泛而谈；面试官通常会顺着边界、异常和工程成本继续追问。
+- 如果涉及实现细节，按数据流、状态变化、调用顺序或生命周期拆开讲；如果涉及方案选择，必须说明为什么不用另一个方案。
+
+#### 结合原题展开
+
+- Multi-Agent：planner / coder / critic / executor 角色分离，互相审阅
+- 可以补充一个真实项目语境：上线前先约定输入输出、失败兜底和观测指标，避免只在 demo 场景下成立。
+
+#### 工程落地
+
+- 验证手段要具体：单元测试覆盖边界条件，集成测试覆盖主流程，必要时用 e2e 或回放数据验证真实链路。
+- 运行时要可观测：关键路径打日志或埋点，关注错误率、耗时、资源占用、用户可感知延迟和降级次数。
+- 发布策略要稳：高风险变更建议灰度、开关或回滚预案；如果会影响数据一致性，还要说明迁移和兼容策略。
+
+#### 易错点
+
+- 不要只背 API 或概念名，要说清楚适用条件；很多方案在小流量、单端、无异常时看起来都成立。
+- 不要忽略默认值、兼容性、异常回滚、性能退化和团队维护成本，这些往往是资深面试继续深挖的重点。
+- 如果答案里出现“总是”“一定”“完全替代”这类绝对表述，要主动补充例外场景。
+
+## llm-agent-architecture-followup-3
+
+title: 追问：Agent 涉及副作用时如何设计 confirm
+difficulty: 资深
+tags: [Agent, 架构, 追问]
+parent: llm-agent-architecture
+
+### 题目
+
+如果面试官追问：Agent 涉及副作用（删除 / 付款）时如何设计 confirm？
+
+### 答案要点
+
+#### 回答思路
+
+- 先给一句结论：这个问题要从「为什么需要它」「它解决了什么问题」「代价是什么」三个角度回答。
+- 再把结论落回原题，不要脱离上下文泛泛而谈；面试官通常会顺着边界、异常和工程成本继续追问。
+- 如果涉及实现细节，按数据流、状态变化、调用顺序或生命周期拆开讲；如果涉及方案选择，必须说明为什么不用另一个方案。
+
+#### 结合原题展开
+
+- Multi-Agent：planner / coder / critic / executor 角色分离，互相审阅
+- 人工接管：关键步骤暂停等审批（删数据、付款、发邮件）
+- 让 Agent 无限循环：必须设最大步数 + 死循环检测（重复相同 action）
+- 可以补充一个真实项目语境：上线前先约定输入输出、失败兜底和观测指标，避免只在 demo 场景下成立。
+
+#### 工程落地
+
+- 验证手段要具体：单元测试覆盖边界条件，集成测试覆盖主流程，必要时用 e2e 或回放数据验证真实链路。
+- 运行时要可观测：关键路径打日志或埋点，关注错误率、耗时、资源占用、用户可感知延迟和降级次数。
+- 发布策略要稳：高风险变更建议灰度、开关或回滚预案；如果会影响数据一致性，还要说明迁移和兼容策略。
+
+#### 易错点
+
+- 不要只背 API 或概念名，要说清楚适用条件；很多方案在小流量、单端、无异常时看起来都成立。
+- 不要忽略默认值、兼容性、异常回滚、性能退化和团队维护成本，这些往往是资深面试继续深挖的重点。
+- 如果答案里出现“总是”“一定”“完全替代”这类绝对表述，要主动补充例外场景。
+
+## llm-tool-design-and-router-followup-1
+
+title: 追问：怎么用 embedding 检索工具？冷启动如何处理
+difficulty: 资深
+tags: [Tool, 路由, 追问]
+parent: llm-tool-design-and-router
+
+### 题目
+
+如果面试官追问：怎么用 embedding 检索工具？冷启动如何处理？
+
+### 答案要点
+
+#### 回答思路
+
+- 先给一句结论：这个问题要从「为什么需要它」「它解决了什么问题」「代价是什么」三个角度回答。
+- 再把结论落回原题，不要脱离上下文泛泛而谈；面试官通常会顺着边界、异常和工程成本继续追问。
+- 如果涉及实现细节，按数据流、状态变化、调用顺序或生命周期拆开讲；如果涉及方案选择，必须说明为什么不用另一个方案。
+
+#### 结合原题展开
+
+- 工具单一职责：一个工具做一件事，参数明确，避免"什么都能干"的万能函数
+- 幂等：同样输入应得到同样输出；副作用工具要带 idempotency_key
+- 超过 ~20 个工具时：用两阶段路由
+- 可以补充一个真实项目语境：上线前先约定输入输出、失败兜底和观测指标，避免只在 demo 场景下成立。
+
+#### 工程落地
+
+- 验证手段要具体：单元测试覆盖边界条件，集成测试覆盖主流程，必要时用 e2e 或回放数据验证真实链路。
+- 运行时要可观测：关键路径打日志或埋点，关注错误率、耗时、资源占用、用户可感知延迟和降级次数。
+- 发布策略要稳：高风险变更建议灰度、开关或回滚预案；如果会影响数据一致性，还要说明迁移和兼容策略。
+
+#### 易错点
+
+- 不要只背 API 或概念名，要说清楚适用条件；很多方案在小流量、单端、无异常时看起来都成立。
+- 不要忽略默认值、兼容性、异常回滚、性能退化和团队维护成本，这些往往是资深面试继续深挖的重点。
+- 如果答案里出现“总是”“一定”“完全替代”这类绝对表述，要主动补充例外场景。
+
+## llm-tool-design-and-router-followup-2
+
+title: 追问：工具内部调用别的工具，是否要让模型知道
+difficulty: 资深
+tags: [Tool, 路由, 追问]
+parent: llm-tool-design-and-router
+
+### 题目
+
+如果面试官追问：工具内部调用别的工具，是否要让模型知道？
+
+### 答案要点
+
+#### 回答思路
+
+- 先给一句结论：这个问题要从「为什么需要它」「它解决了什么问题」「代价是什么」三个角度回答。
+- 再把结论落回原题，不要脱离上下文泛泛而谈；面试官通常会顺着边界、异常和工程成本继续追问。
+- 如果涉及实现细节，按数据流、状态变化、调用顺序或生命周期拆开讲；如果涉及方案选择，必须说明为什么不用另一个方案。
+
+#### 结合原题展开
+
+- 工具单一职责：一个工具做一件事，参数明确，避免"什么都能干"的万能函数
+- 幂等：同样输入应得到同样输出；副作用工具要带 idempotency_key
+- 错误明确：返回 { ok, data | error: { code, message, hint } }，error 给模型可据之纠正
+- 可以补充一个真实项目语境：上线前先约定输入输出、失败兜底和观测指标，避免只在 demo 场景下成立。
+
+#### 工程落地
+
+- 验证手段要具体：单元测试覆盖边界条件，集成测试覆盖主流程，必要时用 e2e 或回放数据验证真实链路。
+- 运行时要可观测：关键路径打日志或埋点，关注错误率、耗时、资源占用、用户可感知延迟和降级次数。
+- 发布策略要稳：高风险变更建议灰度、开关或回滚预案；如果会影响数据一致性，还要说明迁移和兼容策略。
+
+#### 易错点
+
+- 不要只背 API 或概念名，要说清楚适用条件；很多方案在小流量、单端、无异常时看起来都成立。
+- 不要忽略默认值、兼容性、异常回滚、性能退化和团队维护成本，这些往往是资深面试继续深挖的重点。
+- 如果答案里出现“总是”“一定”“完全替代”这类绝对表述，要主动补充例外场景。
+
+## llm-tool-design-and-router-followup-3
+
+title: 追问：怎么把人工审批节点嵌入工具调用流程
+difficulty: 资深
+tags: [Tool, 路由, 追问]
+parent: llm-tool-design-and-router
+
+### 题目
+
+如果面试官追问：怎么把人工审批节点嵌入工具调用流程？
+
+### 答案要点
+
+#### 回答思路
+
+- 先给一句结论：这个问题要从「为什么需要它」「它解决了什么问题」「代价是什么」三个角度回答。
+- 再把结论落回原题，不要脱离上下文泛泛而谈；面试官通常会顺着边界、异常和工程成本继续追问。
+- 如果涉及实现细节，按数据流、状态变化、调用顺序或生命周期拆开讲；如果涉及方案选择，必须说明为什么不用另一个方案。
+
+#### 结合原题展开
+
+- 先把问题拉回「工具（Function）设计原则与多工具路由」的核心机制，说明这个追问考察的是落地边界、失败条件和方案取舍，而不是单点定义。
+- 可以补充一个真实项目语境：上线前先约定输入输出、失败兜底和观测指标，避免只在 demo 场景下成立。
+
+#### 工程落地
+
+- 验证手段要具体：单元测试覆盖边界条件，集成测试覆盖主流程，必要时用 e2e 或回放数据验证真实链路。
+- 运行时要可观测：关键路径打日志或埋点，关注错误率、耗时、资源占用、用户可感知延迟和降级次数。
+- 发布策略要稳：高风险变更建议灰度、开关或回滚预案；如果会影响数据一致性，还要说明迁移和兼容策略。
+
+#### 易错点
+
+- 不要只背 API 或概念名，要说清楚适用条件；很多方案在小流量、单端、无异常时看起来都成立。
+- 不要忽略默认值、兼容性、异常回滚、性能退化和团队维护成本，这些往往是资深面试继续深挖的重点。
+- 如果答案里出现“总是”“一定”“完全替代”这类绝对表述，要主动补充例外场景。
+
+## llm-rag-recall-quality-followup-1
+
+title: 追问：文档更新了，向量库怎么增量同步
+difficulty: 资深
+tags: [RAG, 召回, 追问]
+parent: llm-rag-recall-quality
+
+### 题目
+
+如果面试官追问：文档更新了，向量库怎么增量同步？
+
+### 答案要点
+
+#### 回答思路
+
+- 先给一句结论：这个问题要从「为什么需要它」「它解决了什么问题」「代价是什么」三个角度回答。
+- 再把结论落回原题，不要脱离上下文泛泛而谈；面试官通常会顺着边界、异常和工程成本继续追问。
+- 如果涉及实现细节，按数据流、状态变化、调用顺序或生命周期拆开讲；如果涉及方案选择，必须说明为什么不用另一个方案。
+
+#### 结合原题展开
+
+- 每个 chunk 携带 metadata（文档名、章节、时间戳）
+- 向量（语义） + BM25（关键字） + metadata 过滤
+- 前端：把"参考来源"显式渲染（带文档跳转），让用户判断
+- 可以补充一个真实项目语境：上线前先约定输入输出、失败兜底和观测指标，避免只在 demo 场景下成立。
+
+#### 工程落地
+
+- 验证手段要具体：单元测试覆盖边界条件，集成测试覆盖主流程，必要时用 e2e 或回放数据验证真实链路。
+- 运行时要可观测：关键路径打日志或埋点，关注错误率、耗时、资源占用、用户可感知延迟和降级次数。
+- 发布策略要稳：高风险变更建议灰度、开关或回滚预案；如果会影响数据一致性，还要说明迁移和兼容策略。
+
+#### 易错点
+
+- 不要只背 API 或概念名，要说清楚适用条件；很多方案在小流量、单端、无异常时看起来都成立。
+- 不要忽略默认值、兼容性、异常回滚、性能退化和团队维护成本，这些往往是资深面试继续深挖的重点。
+- 如果答案里出现“总是”“一定”“完全替代”这类绝对表述，要主动补充例外场景。
+
+## llm-rag-recall-quality-followup-2
+
+title: 追问：多语言文档怎么 RAG
+difficulty: 资深
+tags: [RAG, 召回, 追问]
+parent: llm-rag-recall-quality
+
+### 题目
+
+如果面试官追问：多语言文档怎么 RAG？（混合语言问答）
+
+### 答案要点
+
+#### 回答思路
+
+- 先给一句结论：这个问题要从「为什么需要它」「它解决了什么问题」「代价是什么」三个角度回答。
+- 再把结论落回原题，不要脱离上下文泛泛而谈；面试官通常会顺着边界、异常和工程成本继续追问。
+- 如果涉及实现细节，按数据流、状态变化、调用顺序或生命周期拆开讲；如果涉及方案选择，必须说明为什么不用另一个方案。
+
+#### 结合原题展开
+
+- 闭环评估：用 RAGAs / TruLens 等工具评 faithfulness（忠实度）/ answer_relevance / context_recall
+- 工程化：RAG eval pipeline 和 prompt 版本绑定回归
+- 可以补充一个真实项目语境：上线前先约定输入输出、失败兜底和观测指标，避免只在 demo 场景下成立。
+
+#### 工程落地
+
+- 验证手段要具体：单元测试覆盖边界条件，集成测试覆盖主流程，必要时用 e2e 或回放数据验证真实链路。
+- 运行时要可观测：关键路径打日志或埋点，关注错误率、耗时、资源占用、用户可感知延迟和降级次数。
+- 发布策略要稳：高风险变更建议灰度、开关或回滚预案；如果会影响数据一致性，还要说明迁移和兼容策略。
+
+#### 易错点
+
+- 不要只背 API 或概念名，要说清楚适用条件；很多方案在小流量、单端、无异常时看起来都成立。
+- 不要忽略默认值、兼容性、异常回滚、性能退化和团队维护成本，这些往往是资深面试继续深挖的重点。
+- 如果答案里出现“总是”“一定”“完全替代”这类绝对表述，要主动补充例外场景。
+
+## llm-rag-recall-quality-followup-3
+
+title: 追问：怎么衡量某个 chunk 真的"被用上"了
+difficulty: 资深
+tags: [RAG, 召回, 追问]
+parent: llm-rag-recall-quality
+
+### 题目
+
+如果面试官追问：怎么衡量某个 chunk 真的"被用上"了？
+
+### 答案要点
+
+#### 回答思路
+
+- 先给一句结论：这个问题要从「为什么需要它」「它解决了什么问题」「代价是什么」三个角度回答。
+- 再把结论落回原题，不要脱离上下文泛泛而谈；面试官通常会顺着边界、异常和工程成本继续追问。
+- 如果涉及实现细节，按数据流、状态变化、调用顺序或生命周期拆开讲；如果涉及方案选择，必须说明为什么不用另一个方案。
+
+#### 结合原题展开
+
+- 每个 chunk 携带 metadata（文档名、章节、时间戳）
+- 限制注入 chunk 数（避免 lost-in-the-middle）
+- 每个 chunk 标编号 [1] [2]，要求模型引用
+- 可以补充一个真实项目语境：上线前先约定输入输出、失败兜底和观测指标，避免只在 demo 场景下成立。
+
+#### 工程落地
+
+- 验证手段要具体：单元测试覆盖边界条件，集成测试覆盖主流程，必要时用 e2e 或回放数据验证真实链路。
+- 运行时要可观测：关键路径打日志或埋点，关注错误率、耗时、资源占用、用户可感知延迟和降级次数。
+- 发布策略要稳：高风险变更建议灰度、开关或回滚预案；如果会影响数据一致性，还要说明迁移和兼容策略。
+
+#### 易错点
+
+- 不要只背 API 或概念名，要说清楚适用条件；很多方案在小流量、单端、无异常时看起来都成立。
+- 不要忽略默认值、兼容性、异常回滚、性能退化和团队维护成本，这些往往是资深面试继续深挖的重点。
+- 如果答案里出现“总是”“一定”“完全替代”这类绝对表述，要主动补充例外场景。
+
+## llm-multi-model-router-followup-1
+
+title: 追问：多模型回答如何确保"风格一致"
+difficulty: 资深
+tags: [模型路由, 成本, 追问]
+parent: llm-multi-model-router
+
+### 题目
+
+如果面试官追问：多模型回答如何确保"风格一致"？
+
+### 答案要点
+
+#### 回答思路
+
+- 先给一句结论：这个问题要从「为什么需要它」「它解决了什么问题」「代价是什么」三个角度回答。
+- 再把结论落回原题，不要脱离上下文泛泛而谈；面试官通常会顺着边界、异常和工程成本继续追问。
+- 如果涉及实现细节，按数据流、状态变化、调用顺序或生命周期拆开讲；如果涉及方案选择，必须说明为什么不用另一个方案。
+
+#### 结合原题展开
+
+- 任务类型：闲聊 / 代码 / 推理 / 多模态 / 工具调用
+- 可以补充一个真实项目语境：上线前先约定输入输出、失败兜底和观测指标，避免只在 demo 场景下成立。
+
+#### 工程落地
+
+- 验证手段要具体：单元测试覆盖边界条件，集成测试覆盖主流程，必要时用 e2e 或回放数据验证真实链路。
+- 运行时要可观测：关键路径打日志或埋点，关注错误率、耗时、资源占用、用户可感知延迟和降级次数。
+- 发布策略要稳：高风险变更建议灰度、开关或回滚预案；如果会影响数据一致性，还要说明迁移和兼容策略。
+
+#### 易错点
+
+- 不要只背 API 或概念名，要说清楚适用条件；很多方案在小流量、单端、无异常时看起来都成立。
+- 不要忽略默认值、兼容性、异常回滚、性能退化和团队维护成本，这些往往是资深面试继续深挖的重点。
+- 如果答案里出现“总是”“一定”“完全替代”这类绝对表述，要主动补充例外场景。
+
+## llm-multi-model-router-followup-2
+
+title: 追问：同一对话中可以切模型吗？历史怎么处理
+difficulty: 资深
+tags: [模型路由, 成本, 追问]
+parent: llm-multi-model-router
+
+### 题目
+
+如果面试官追问：同一对话中可以切模型吗？历史怎么处理？
+
+### 答案要点
+
+#### 回答思路
+
+- 先给一句结论：这个问题要从「为什么需要它」「它解决了什么问题」「代价是什么」三个角度回答。
+- 再把结论落回原题，不要脱离上下文泛泛而谈；面试官通常会顺着边界、异常和工程成本继续追问。
+- 如果涉及实现细节，按数据流、状态变化、调用顺序或生命周期拆开讲；如果涉及方案选择，必须说明为什么不用另一个方案。
+
+#### 结合原题展开
+
+- 用户分层：免费 / 付费 / 企业（不同模型上限）
+- 成本预算：本月剩余预算决定模型档次
+- embedding + 历史：拿历史相似 case 推断
+- 可以补充一个真实项目语境：上线前先约定输入输出、失败兜底和观测指标，避免只在 demo 场景下成立。
+
+#### 工程落地
+
+- 验证手段要具体：单元测试覆盖边界条件，集成测试覆盖主流程，必要时用 e2e 或回放数据验证真实链路。
+- 运行时要可观测：关键路径打日志或埋点，关注错误率、耗时、资源占用、用户可感知延迟和降级次数。
+- 发布策略要稳：高风险变更建议灰度、开关或回滚预案；如果会影响数据一致性，还要说明迁移和兼容策略。
+
+#### 易错点
+
+- 不要只背 API 或概念名，要说清楚适用条件；很多方案在小流量、单端、无异常时看起来都成立。
+- 不要忽略默认值、兼容性、异常回滚、性能退化和团队维护成本，这些往往是资深面试继续深挖的重点。
+- 如果答案里出现“总是”“一定”“完全替代”这类绝对表述，要主动补充例外场景。
+
+## llm-multi-model-router-followup-3
+
+title: 追问：企业级的 model gateway 应该具备哪些能力
+difficulty: 资深
+tags: [模型路由, 成本, 追问]
+parent: llm-multi-model-router
+
+### 题目
+
+如果面试官追问：企业级的 model gateway 应该具备哪些能力？
+
+### 答案要点
+
+#### 回答思路
+
+- 先给一句结论：这个问题要从「为什么需要它」「它解决了什么问题」「代价是什么」三个角度回答。
+- 再把结论落回原题，不要脱离上下文泛泛而谈；面试官通常会顺着边界、异常和工程成本继续追问。
+- 如果涉及实现细节，按数据流、状态变化、调用顺序或生命周期拆开讲；如果涉及方案选择，必须说明为什么不用另一个方案。
+
+#### 结合原题展开
+
+- 用户分层：免费 / 付费 / 企业（不同模型上限）
+- 可以补充一个真实项目语境：上线前先约定输入输出、失败兜底和观测指标，避免只在 demo 场景下成立。
+
+#### 工程落地
+
+- 验证手段要具体：单元测试覆盖边界条件，集成测试覆盖主流程，必要时用 e2e 或回放数据验证真实链路。
+- 运行时要可观测：关键路径打日志或埋点，关注错误率、耗时、资源占用、用户可感知延迟和降级次数。
+- 发布策略要稳：高风险变更建议灰度、开关或回滚预案；如果会影响数据一致性，还要说明迁移和兼容策略。
+
+#### 易错点
+
+- 不要只背 API 或概念名，要说清楚适用条件；很多方案在小流量、单端、无异常时看起来都成立。
+- 不要忽略默认值、兼容性、异常回滚、性能退化和团队维护成本，这些往往是资深面试继续深挖的重点。
+- 如果答案里出现“总是”“一定”“完全替代”这类绝对表述，要主动补充例外场景。
+
+## llm-output-streaming-with-tools-followup-1
+
+title: 追问：多个 toolcall 并发执行还是顺序执行
+difficulty: 资深
+tags: [流式, Tool, 追问]
+parent: llm-output-streaming-with-tools
+
+### 题目
+
+如果面试官追问：多个 tool_call 并发执行还是顺序执行？
+
+### 答案要点
+
+#### 回答思路
+
+- 先给一句结论：这个问题要从「为什么需要它」「它解决了什么问题」「代价是什么」三个角度回答。
+- 再把结论落回原题，不要脱离上下文泛泛而谈；面试官通常会顺着边界、异常和工程成本继续追问。
+- 如果涉及实现细节，按数据流、状态变化、调用顺序或生命周期拆开讲；如果涉及方案选择，必须说明为什么不用另一个方案。
+
+#### 结合原题展开
+
+- 工具：choices[0].delta.tool_calls[i].function.{ name, arguments }，arguments 是字符串增量
+- 前端要在内存里按 index 累计每个 tool_call 的 arguments 字符串，直到 finish_reason: 'tool_calls'
+- 拿到完整 arguments → JSON.parse（容错）→ 执行工具 → 拿到结果
+- 可以补充一个真实项目语境：上线前先约定输入输出、失败兜底和观测指标，避免只在 demo 场景下成立。
+
+#### 工程落地
+
+- 验证手段要具体：单元测试覆盖边界条件，集成测试覆盖主流程，必要时用 e2e 或回放数据验证真实链路。
+- 运行时要可观测：关键路径打日志或埋点，关注错误率、耗时、资源占用、用户可感知延迟和降级次数。
+- 发布策略要稳：高风险变更建议灰度、开关或回滚预案；如果会影响数据一致性，还要说明迁移和兼容策略。
+
+#### 易错点
+
+- 不要只背 API 或概念名，要说清楚适用条件；很多方案在小流量、单端、无异常时看起来都成立。
+- 不要忽略默认值、兼容性、异常回滚、性能退化和团队维护成本，这些往往是资深面试继续深挖的重点。
+- 如果答案里出现“总是”“一定”“完全替代”这类绝对表述，要主动补充例外场景。
+
+## llm-output-streaming-with-tools-followup-2
+
+title: 追问：工具执行很慢，怎么让用户看到进度
+difficulty: 资深
+tags: [流式, Tool, 追问]
+parent: llm-output-streaming-with-tools
+
+### 题目
+
+如果面试官追问：工具执行很慢，怎么让用户看到进度？
+
+### 答案要点
+
+#### 回答思路
+
+- 先给一句结论：这个问题要从「为什么需要它」「它解决了什么问题」「代价是什么」三个角度回答。
+- 再把结论落回原题，不要脱离上下文泛泛而谈；面试官通常会顺着边界、异常和工程成本继续追问。
+- 如果涉及实现细节，按数据流、状态变化、调用顺序或生命周期拆开讲；如果涉及方案选择，必须说明为什么不用另一个方案。
+
+#### 结合原题展开
+
+- 工具：choices[0].delta.tool_calls[i].function.{ name, arguments }，arguments 是字符串增量
+- 拿到完整 arguments → JSON.parse（容错）→ 执行工具 → 拿到结果
+- 把工具结果作为 role: 'tool' 消息插入 history → 再发起新 chat completion
+- 可以补充一个真实项目语境：上线前先约定输入输出、失败兜底和观测指标，避免只在 demo 场景下成立。
+
+#### 工程落地
+
+- 验证手段要具体：单元测试覆盖边界条件，集成测试覆盖主流程，必要时用 e2e 或回放数据验证真实链路。
+- 运行时要可观测：关键路径打日志或埋点，关注错误率、耗时、资源占用、用户可感知延迟和降级次数。
+- 发布策略要稳：高风险变更建议灰度、开关或回滚预案；如果会影响数据一致性，还要说明迁移和兼容策略。
+
+#### 易错点
+
+- 不要只背 API 或概念名，要说清楚适用条件；很多方案在小流量、单端、无异常时看起来都成立。
+- 不要忽略默认值、兼容性、异常回滚、性能退化和团队维护成本，这些往往是资深面试继续深挖的重点。
+- 如果答案里出现“总是”“一定”“完全替代”这类绝对表述，要主动补充例外场景。
+
+## llm-output-streaming-with-tools-followup-3
+
+title: 追问：怎么做"工具调用回放"用于 debug
+difficulty: 资深
+tags: [流式, Tool, 追问]
+parent: llm-output-streaming-with-tools
+
+### 题目
+
+如果面试官追问：怎么做"工具调用回放"用于 debug？
+
+### 答案要点
+
+#### 回答思路
+
+- 先给一句结论：这个问题要从「为什么需要它」「它解决了什么问题」「代价是什么」三个角度回答。
+- 再把结论落回原题，不要脱离上下文泛泛而谈；面试官通常会顺着边界、异常和工程成本继续追问。
+- 如果涉及实现细节，按数据流、状态变化、调用顺序或生命周期拆开讲；如果涉及方案选择，必须说明为什么不用另一个方案。
+
+#### 结合原题展开
+
+- 工具：choices[0].delta.tool_calls[i].function.{ name, arguments }，arguments 是字符串增量
+- 拿到完整 arguments → JSON.parse（容错）→ 执行工具 → 拿到结果
+- 把工具结果作为 role: 'tool' 消息插入 history → 再发起新 chat completion
+- 可以补充一个真实项目语境：上线前先约定输入输出、失败兜底和观测指标，避免只在 demo 场景下成立。
+
+#### 工程落地
+
+- 验证手段要具体：单元测试覆盖边界条件，集成测试覆盖主流程，必要时用 e2e 或回放数据验证真实链路。
+- 运行时要可观测：关键路径打日志或埋点，关注错误率、耗时、资源占用、用户可感知延迟和降级次数。
+- 发布策略要稳：高风险变更建议灰度、开关或回滚预案；如果会影响数据一致性，还要说明迁移和兼容策略。
+
+#### 易错点
+
+- 不要只背 API 或概念名，要说清楚适用条件；很多方案在小流量、单端、无异常时看起来都成立。
+- 不要忽略默认值、兼容性、异常回滚、性能退化和团队维护成本，这些往往是资深面试继续深挖的重点。
+- 如果答案里出现“总是”“一定”“完全替代”这类绝对表述，要主动补充例外场景。
+
+## llm-streaming-ui-state-machine-followup-1
+
+title: 追问：怎么测试一个状态机覆盖所有路径
+difficulty: 资深
+tags: [UI, 状态机, 追问]
+parent: llm-streaming-ui-state-machine
+
+### 题目
+
+如果面试官追问：怎么测试一个状态机覆盖所有路径？
+
+### 答案要点
+
+#### 回答思路
+
+- 先给一句结论：这个问题要从「为什么需要它」「它解决了什么问题」「代价是什么」三个角度回答。
+- 再把结论落回原题，不要脱离上下文泛泛而谈；面试官通常会顺着边界、异常和工程成本继续追问。
+- 如果涉及实现细节，按数据流、状态变化、调用顺序或生命周期拆开讲；如果涉及方案选择，必须说明为什么不用另一个方案。
+
+#### 结合原题展开
+
+- 用一组互斥状态而非散落的 boolean：
+- 任何状态 → aborted（用户停止）/ errored（异常）→ idle
+- 每个状态决定 UI：输入框是否可用、停止按钮是否显示、tool card 状态
+- 可以补充一个真实项目语境：上线前先约定输入输出、失败兜底和观测指标，避免只在 demo 场景下成立。
+
+#### 工程落地
+
+- 验证手段要具体：单元测试覆盖边界条件，集成测试覆盖主流程，必要时用 e2e 或回放数据验证真实链路。
+- 运行时要可观测：关键路径打日志或埋点，关注错误率、耗时、资源占用、用户可感知延迟和降级次数。
+- 发布策略要稳：高风险变更建议灰度、开关或回滚预案；如果会影响数据一致性，还要说明迁移和兼容策略。
+
+#### 易错点
+
+- 不要只背 API 或概念名，要说清楚适用条件；很多方案在小流量、单端、无异常时看起来都成立。
+- 不要忽略默认值、兼容性、异常回滚、性能退化和团队维护成本，这些往往是资深面试继续深挖的重点。
+- 如果答案里出现“总是”“一定”“完全替代”这类绝对表述，要主动补充例外场景。
+
+## llm-streaming-ui-state-machine-followup-2
+
+title: 追问：多 tab 共享同一个对话 stream 怎么协调
+difficulty: 资深
+tags: [UI, 状态机, 追问]
+parent: llm-streaming-ui-state-machine
+
+### 题目
+
+如果面试官追问：多 tab 共享同一个对话 stream 怎么协调？
+
+### 答案要点
+
+#### 回答思路
+
+- 先给一句结论：这个问题要从「为什么需要它」「它解决了什么问题」「代价是什么」三个角度回答。
+- 再把结论落回原题，不要脱离上下文泛泛而谈；面试官通常会顺着边界、异常和工程成本继续追问。
+- 如果涉及实现细节，按数据流、状态变化、调用顺序或生命周期拆开讲；如果涉及方案选择，必须说明为什么不用另一个方案。
+
+#### 结合原题展开
+
+- pending → streaming（正在输出文本）
+- streaming ↔ tool_calling（流式中调用工具，工具结束回到 streaming）
+- streaming → waiting_human（如果工具需要审批）
+- 可以补充一个真实项目语境：上线前先约定输入输出、失败兜底和观测指标，避免只在 demo 场景下成立。
+
+#### 工程落地
+
+- 验证手段要具体：单元测试覆盖边界条件，集成测试覆盖主流程，必要时用 e2e 或回放数据验证真实链路。
+- 运行时要可观测：关键路径打日志或埋点，关注错误率、耗时、资源占用、用户可感知延迟和降级次数。
+- 发布策略要稳：高风险变更建议灰度、开关或回滚预案；如果会影响数据一致性，还要说明迁移和兼容策略。
+
+#### 易错点
+
+- 不要只背 API 或概念名，要说清楚适用条件；很多方案在小流量、单端、无异常时看起来都成立。
+- 不要忽略默认值、兼容性、异常回滚、性能退化和团队维护成本，这些往往是资深面试继续深挖的重点。
+- 如果答案里出现“总是”“一定”“完全替代”这类绝对表述，要主动补充例外场景。
+
+## llm-streaming-ui-state-machine-followup-3
+
+title: 追问：状态机本身怎么持久化和恢复
+difficulty: 资深
+tags: [UI, 状态机, 追问]
+parent: llm-streaming-ui-state-machine
+
+### 题目
+
+如果面试官追问：状态机本身怎么持久化和恢复？
+
+### 答案要点
+
+#### 回答思路
+
+- 先给一句结论：这个问题要从「为什么需要它」「它解决了什么问题」「代价是什么」三个角度回答。
+- 再把结论落回原题，不要脱离上下文泛泛而谈；面试官通常会顺着边界、异常和工程成本继续追问。
+- 如果涉及实现细节，按数据流、状态变化、调用顺序或生命周期拆开讲；如果涉及方案选择，必须说明为什么不用另一个方案。
+
+#### 结合原题展开
+
+- 用一组互斥状态而非散落的 boolean：
+- 任何状态 → aborted（用户停止）/ errored（异常）→ idle
+- 每个状态决定 UI：输入框是否可用、停止按钮是否显示、tool card 状态
+- 可以补充一个真实项目语境：上线前先约定输入输出、失败兜底和观测指标，避免只在 demo 场景下成立。
+
+#### 工程落地
+
+- 验证手段要具体：单元测试覆盖边界条件，集成测试覆盖主流程，必要时用 e2e 或回放数据验证真实链路。
+- 运行时要可观测：关键路径打日志或埋点，关注错误率、耗时、资源占用、用户可感知延迟和降级次数。
+- 发布策略要稳：高风险变更建议灰度、开关或回滚预案；如果会影响数据一致性，还要说明迁移和兼容策略。
+
+#### 易错点
+
+- 不要只背 API 或概念名，要说清楚适用条件；很多方案在小流量、单端、无异常时看起来都成立。
+- 不要忽略默认值、兼容性、异常回滚、性能退化和团队维护成本，这些往往是资深面试继续深挖的重点。
+- 如果答案里出现“总是”“一定”“完全替代”这类绝对表述，要主动补充例外场景。
+
+## llm-prompt-versioning-followup-1
+
+title: 追问：prompt 的 i18n 怎么做
+difficulty: 资深
+tags: [Prompt, 工程化, 版本化, 追问]
+parent: llm-prompt-versioning
+
+### 题目
+
+如果面试官追问：prompt 的 i18n 怎么做？
+
+### 答案要点
+
+#### 回答思路
+
+- 先给一句结论：这个问题要从「为什么需要它」「它解决了什么问题」「代价是什么」三个角度回答。
+- 再把结论落回原题，不要脱离上下文泛泛而谈；面试官通常会顺着边界、异常和工程成本继续追问。
+- 如果涉及实现细节，按数据流、状态变化、调用顺序或生命周期拆开讲；如果涉及方案选择，必须说明为什么不用另一个方案。
+
+#### 结合原题展开
+
+- Prompt 即代码：放仓库、走 PR、写 changelog、必须 review
+- 结构化存储：每个 prompt 一个文件（或一行 DB 记录），含
+- 运行时获取：prompt 服务（DB / Edge KV）支持按用户分组返回不同版本（A/B）
+- 可以补充一个真实项目语境：上线前先约定输入输出、失败兜底和观测指标，避免只在 demo 场景下成立。
+
+#### 工程落地
+
+- 验证手段要具体：单元测试覆盖边界条件，集成测试覆盖主流程，必要时用 e2e 或回放数据验证真实链路。
+- 运行时要可观测：关键路径打日志或埋点，关注错误率、耗时、资源占用、用户可感知延迟和降级次数。
+- 发布策略要稳：高风险变更建议灰度、开关或回滚预案；如果会影响数据一致性，还要说明迁移和兼容策略。
+
+#### 易错点
+
+- 不要只背 API 或概念名，要说清楚适用条件；很多方案在小流量、单端、无异常时看起来都成立。
+- 不要忽略默认值、兼容性、异常回滚、性能退化和团队维护成本，这些往往是资深面试继续深挖的重点。
+- 如果答案里出现“总是”“一定”“完全替代”这类绝对表述，要主动补充例外场景。
+
+## llm-prompt-versioning-followup-2
+
+title: 追问：不同模型对同一 prompt 表现差异大，是否要每模型一个版本
+difficulty: 资深
+tags: [Prompt, 工程化, 版本化, 追问]
+parent: llm-prompt-versioning
+
+### 题目
+
+如果面试官追问：不同模型对同一 prompt 表现差异大，是否要每模型一个版本？
+
+### 答案要点
+
+#### 回答思路
+
+- 先给一句结论：这个问题要从「为什么需要它」「它解决了什么问题」「代价是什么」三个角度回答。
+- 再把结论落回原题，不要脱离上下文泛泛而谈；面试官通常会顺着边界、异常和工程成本继续追问。
+- 如果涉及实现细节，按数据流、状态变化、调用顺序或生命周期拆开讲；如果涉及方案选择，必须说明为什么不用另一个方案。
+
+#### 结合原题展开
+
+- Prompt 即代码：放仓库、走 PR、写 changelog、必须 review
+- 结构化存储：每个 prompt 一个文件（或一行 DB 记录），含
+- 版本号：semver（major.minor.patch），破坏性改 major
+- 可以补充一个真实项目语境：上线前先约定输入输出、失败兜底和观测指标，避免只在 demo 场景下成立。
+
+#### 工程落地
+
+- 验证手段要具体：单元测试覆盖边界条件，集成测试覆盖主流程，必要时用 e2e 或回放数据验证真实链路。
+- 运行时要可观测：关键路径打日志或埋点，关注错误率、耗时、资源占用、用户可感知延迟和降级次数。
+- 发布策略要稳：高风险变更建议灰度、开关或回滚预案；如果会影响数据一致性，还要说明迁移和兼容策略。
+
+#### 易错点
+
+- 不要只背 API 或概念名，要说清楚适用条件；很多方案在小流量、单端、无异常时看起来都成立。
+- 不要忽略默认值、兼容性、异常回滚、性能退化和团队维护成本，这些往往是资深面试继续深挖的重点。
+- 如果答案里出现“总是”“一定”“完全替代”这类绝对表述，要主动补充例外场景。
+
+## llm-prompt-versioning-followup-3
+
+title: 追问：历史版本能否保留几年
+difficulty: 资深
+tags: [Prompt, 工程化, 版本化, 追问]
+parent: llm-prompt-versioning
+
+### 题目
+
+如果面试官追问：历史版本能否保留几年（合规审计需要）？
+
+### 答案要点
+
+#### 回答思路
+
+- 先给一句结论：这个问题要从「为什么需要它」「它解决了什么问题」「代价是什么」三个角度回答。
+- 再把结论落回原题，不要脱离上下文泛泛而谈；面试官通常会顺着边界、异常和工程成本继续追问。
+- 如果涉及实现细节，按数据流、状态变化、调用顺序或生命周期拆开讲；如果涉及方案选择，必须说明为什么不用另一个方案。
+
+#### 结合原题展开
+
+- 版本号：semver（major.minor.patch），破坏性改 major
+- 评测分数：每个版本附测试集得分，回归低于阈值禁止发布
+- 运行时获取：prompt 服务（DB / Edge KV）支持按用户分组返回不同版本（A/B）
+- 可以补充一个真实项目语境：上线前先约定输入输出、失败兜底和观测指标，避免只在 demo 场景下成立。
+
+#### 工程落地
+
+- 验证手段要具体：单元测试覆盖边界条件，集成测试覆盖主流程，必要时用 e2e 或回放数据验证真实链路。
+- 运行时要可观测：关键路径打日志或埋点，关注错误率、耗时、资源占用、用户可感知延迟和降级次数。
+- 发布策略要稳：高风险变更建议灰度、开关或回滚预案；如果会影响数据一致性，还要说明迁移和兼容策略。
+
+#### 易错点
+
+- 不要只背 API 或概念名，要说清楚适用条件；很多方案在小流量、单端、无异常时看起来都成立。
+- 不要忽略默认值、兼容性、异常回滚、性能退化和团队维护成本，这些往往是资深面试继续深挖的重点。
+- 如果答案里出现“总是”“一定”“完全替代”这类绝对表述，要主动补充例外场景。
+
+## llm-eval-pipeline-followup-1
+
+title: 追问：LLM-as-judge 用什么模型？要不要比被评测模型更强
+difficulty: 资深
+tags: [Eval, 测试, 工程化, 追问]
+parent: llm-eval-pipeline
+
+### 题目
+
+如果面试官追问：LLM-as-judge 用什么模型？要不要比被评测模型更强？
+
+### 答案要点
+
+#### 回答思路
+
+- 先给一句结论：这个问题要从「为什么需要它」「它解决了什么问题」「代价是什么」三个角度回答。
+- 再把结论落回原题，不要脱离上下文泛泛而谈；面试官通常会顺着边界、异常和工程成本继续追问。
+- 如果涉及实现细节，按数据流、状态变化、调用顺序或生命周期拆开讲；如果涉及方案选择，必须说明为什么不用另一个方案。
+
+#### 结合原题展开
+
+- LLM-as-judge：用 GPT-4 给输出打 1-5 分，附理由
+- 只用 LLM-as-judge：评测器自身有偏差，要人工抽样校验 judge
+- 可以补充一个真实项目语境：上线前先约定输入输出、失败兜底和观测指标，避免只在 demo 场景下成立。
+
+#### 工程落地
+
+- 验证手段要具体：单元测试覆盖边界条件，集成测试覆盖主流程，必要时用 e2e 或回放数据验证真实链路。
+- 运行时要可观测：关键路径打日志或埋点，关注错误率、耗时、资源占用、用户可感知延迟和降级次数。
+- 发布策略要稳：高风险变更建议灰度、开关或回滚预案；如果会影响数据一致性，还要说明迁移和兼容策略。
+
+#### 易错点
+
+- 不要只背 API 或概念名，要说清楚适用条件；很多方案在小流量、单端、无异常时看起来都成立。
+- 不要忽略默认值、兼容性、异常回滚、性能退化和团队维护成本，这些往往是资深面试继续深挖的重点。
+- 如果答案里出现“总是”“一定”“完全替代”这类绝对表述，要主动补充例外场景。
+
+## llm-eval-pipeline-followup-2
+
+title: 追问：如何防止 eval 集被污染
+difficulty: 资深
+tags: [Eval, 测试, 工程化, 追问]
+parent: llm-eval-pipeline
+
+### 题目
+
+如果面试官追问：如何防止 eval 集被污染（被加入训练）？
+
+### 答案要点
+
+#### 回答思路
+
+- 先给一句结论：这个问题要从「为什么需要它」「它解决了什么问题」「代价是什么」三个角度回答。
+- 再把结论落回原题，不要脱离上下文泛泛而谈；面试官通常会顺着边界、异常和工程成本继续追问。
+- 如果涉及实现细节，按数据流、状态变化、调用顺序或生命周期拆开讲；如果涉及方案选择，必须说明为什么不用另一个方案。
+
+#### 结合原题展开
+
+- 在线 eval：每天抽样 1% 真实流量，跑 LLM judge，看是否漂移
+- 工具：promptfoo / Langfuse / OpenAI Evals / 自建
+- 只跑离线 eval：上线后用户 prompt 分布变了发现不了
+- 可以补充一个真实项目语境：上线前先约定输入输出、失败兜底和观测指标，避免只在 demo 场景下成立。
+
+#### 工程落地
+
+- 验证手段要具体：单元测试覆盖边界条件，集成测试覆盖主流程，必要时用 e2e 或回放数据验证真实链路。
+- 运行时要可观测：关键路径打日志或埋点，关注错误率、耗时、资源占用、用户可感知延迟和降级次数。
+- 发布策略要稳：高风险变更建议灰度、开关或回滚预案；如果会影响数据一致性，还要说明迁移和兼容策略。
+
+#### 易错点
+
+- 不要只背 API 或概念名，要说清楚适用条件；很多方案在小流量、单端、无异常时看起来都成立。
+- 不要忽略默认值、兼容性、异常回滚、性能退化和团队维护成本，这些往往是资深面试继续深挖的重点。
+- 如果答案里出现“总是”“一定”“完全替代”这类绝对表述，要主动补充例外场景。
+
+## llm-eval-pipeline-followup-3
+
+title: 追问：评测结果"我打 4 分但 GPT-4 打 5 分"如何调和
+difficulty: 资深
+tags: [Eval, 测试, 工程化, 追问]
+parent: llm-eval-pipeline
+
+### 题目
+
+如果面试官追问：评测结果"我打 4 分但 GPT-4 打 5 分"如何调和？
+
+### 答案要点
+
+#### 回答思路
+
+- 先给一句结论：这个问题要从「为什么需要它」「它解决了什么问题」「代价是什么」三个角度回答。
+- 再把结论落回原题，不要脱离上下文泛泛而谈；面试官通常会顺着边界、异常和工程成本继续追问。
+- 如果涉及实现细节，按数据流、状态变化、调用顺序或生命周期拆开讲；如果涉及方案选择，必须说明为什么不用另一个方案。
+
+#### 结合原题展开
+
+- LLM-as-judge：用 GPT-4 给输出打 1-5 分，附理由
+- 只用 LLM-as-judge：评测器自身有偏差，要人工抽样校验 judge
+- 可以补充一个真实项目语境：上线前先约定输入输出、失败兜底和观测指标，避免只在 demo 场景下成立。
+
+#### 工程落地
+
+- 验证手段要具体：单元测试覆盖边界条件，集成测试覆盖主流程，必要时用 e2e 或回放数据验证真实链路。
+- 运行时要可观测：关键路径打日志或埋点，关注错误率、耗时、资源占用、用户可感知延迟和降级次数。
+- 发布策略要稳：高风险变更建议灰度、开关或回滚预案；如果会影响数据一致性，还要说明迁移和兼容策略。
+
+#### 易错点
+
+- 不要只背 API 或概念名，要说清楚适用条件；很多方案在小流量、单端、无异常时看起来都成立。
+- 不要忽略默认值、兼容性、异常回滚、性能退化和团队维护成本，这些往往是资深面试继续深挖的重点。
+- 如果答案里出现“总是”“一定”“完全替代”这类绝对表述，要主动补充例外场景。
+
+## llm-ab-testing-and-rollout-followup-1
+
+title: 追问：AI 输出主观性强，怎么和老版本"严格对比"
+difficulty: 资深
+tags: [A/B, 灰度, 工程化, 追问]
+parent: llm-ab-testing-and-rollout
+
+### 题目
+
+如果面试官追问：AI 输出主观性强，怎么和老版本"严格对比"？
+
+### 答案要点
+
+#### 回答思路
+
+- 先给一句结论：这个问题要从「为什么需要它」「它解决了什么问题」「代价是什么」三个角度回答。
+- 再把结论落回原题，不要脱离上下文泛泛而谈；面试官通常会顺着边界、异常和工程成本继续追问。
+- 如果涉及实现细节，按数据流、状态变化、调用顺序或生命周期拆开讲；如果涉及方案选择，必须说明为什么不用另一个方案。
+
+#### 结合原题展开
+
+- 分桶策略：按 hash(user_id) % 100 或 feature flag，保证用户进入同一版本（可重现）
+- 样本量：因为 LLM 输出方差大，比传统 UI 实验需要更多样本（数千到数万）
+- 按"次"分桶：同一用户两次看到不同版本，结果不可解释
+- 可以补充一个真实项目语境：上线前先约定输入输出、失败兜底和观测指标，避免只在 demo 场景下成立。
+
+#### 工程落地
+
+- 验证手段要具体：单元测试覆盖边界条件，集成测试覆盖主流程，必要时用 e2e 或回放数据验证真实链路。
+- 运行时要可观测：关键路径打日志或埋点，关注错误率、耗时、资源占用、用户可感知延迟和降级次数。
+- 发布策略要稳：高风险变更建议灰度、开关或回滚预案；如果会影响数据一致性，还要说明迁移和兼容策略。
+
+#### 易错点
+
+- 不要只背 API 或概念名，要说清楚适用条件；很多方案在小流量、单端、无异常时看起来都成立。
+- 不要忽略默认值、兼容性、异常回滚、性能退化和团队维护成本，这些往往是资深面试继续深挖的重点。
+- 如果答案里出现“总是”“一定”“完全替代”这类绝对表述，要主动补充例外场景。
+
+## llm-ab-testing-and-rollout-followup-2
+
+title: 追问：用户感知到 AI 切版本会不会影响数据
+difficulty: 资深
+tags: [A/B, 灰度, 工程化, 追问]
+parent: llm-ab-testing-and-rollout
+
+### 题目
+
+如果面试官追问：用户感知到 AI 切版本会不会影响数据？
+
+### 答案要点
+
+#### 回答思路
+
+- 先给一句结论：这个问题要从「为什么需要它」「它解决了什么问题」「代价是什么」三个角度回答。
+- 再把结论落回原题，不要脱离上下文泛泛而谈；面试官通常会顺着边界、异常和工程成本继续追问。
+- 如果涉及实现细节，按数据流、状态变化、调用顺序或生命周期拆开讲；如果涉及方案选择，必须说明为什么不用另一个方案。
+
+#### 结合原题展开
+
+- 分桶策略：按 hash(user_id) % 100 或 feature flag，保证用户进入同一版本（可重现）
+- 正面：CTR、采纳率（用户点了"满意"）、停留时长、复购
+- 影响隔离：不同实验不要交叉，避免互相干扰
+- 可以补充一个真实项目语境：上线前先约定输入输出、失败兜底和观测指标，避免只在 demo 场景下成立。
+
+#### 工程落地
+
+- 验证手段要具体：单元测试覆盖边界条件，集成测试覆盖主流程，必要时用 e2e 或回放数据验证真实链路。
+- 运行时要可观测：关键路径打日志或埋点，关注错误率、耗时、资源占用、用户可感知延迟和降级次数。
+- 发布策略要稳：高风险变更建议灰度、开关或回滚预案；如果会影响数据一致性，还要说明迁移和兼容策略。
+
+#### 易错点
+
+- 不要只背 API 或概念名，要说清楚适用条件；很多方案在小流量、单端、无异常时看起来都成立。
+- 不要忽略默认值、兼容性、异常回滚、性能退化和团队维护成本，这些往往是资深面试继续深挖的重点。
+- 如果答案里出现“总是”“一定”“完全替代”这类绝对表述，要主动补充例外场景。
+
+## llm-ab-testing-and-rollout-followup-3
+
+title: 追问：多个实验同时跑会有何风险
+difficulty: 资深
+tags: [A/B, 灰度, 工程化, 追问]
+parent: llm-ab-testing-and-rollout
+
+### 题目
+
+如果面试官追问：多个实验同时跑会有何风险？
+
+### 答案要点
+
+#### 回答思路
+
+- 先给一句结论：这个问题要从「为什么需要它」「它解决了什么问题」「代价是什么」三个角度回答。
+- 再把结论落回原题，不要脱离上下文泛泛而谈；面试官通常会顺着边界、异常和工程成本继续追问。
+- 如果涉及实现细节，按数据流、状态变化、调用顺序或生命周期拆开讲；如果涉及方案选择，必须说明为什么不用另一个方案。
+
+#### 结合原题展开
+
+- 样本量：因为 LLM 输出方差大，比传统 UI 实验需要更多样本（数千到数万）
+- 影响隔离：不同实验不要交叉，避免互相干扰
+- 进阶：interleaving 实验（同一用户左右对比两版本）
+- 可以补充一个真实项目语境：上线前先约定输入输出、失败兜底和观测指标，避免只在 demo 场景下成立。
+
+#### 工程落地
+
+- 验证手段要具体：单元测试覆盖边界条件，集成测试覆盖主流程，必要时用 e2e 或回放数据验证真实链路。
+- 运行时要可观测：关键路径打日志或埋点，关注错误率、耗时、资源占用、用户可感知延迟和降级次数。
+- 发布策略要稳：高风险变更建议灰度、开关或回滚预案；如果会影响数据一致性，还要说明迁移和兼容策略。
+
+#### 易错点
+
+- 不要只背 API 或概念名，要说清楚适用条件；很多方案在小流量、单端、无异常时看起来都成立。
+- 不要忽略默认值、兼容性、异常回滚、性能退化和团队维护成本，这些往往是资深面试继续深挖的重点。
+- 如果答案里出现“总是”“一定”“完全替代”这类绝对表述，要主动补充例外场景。
+
+## llm-cost-governance-followup-1
+
+title: 追问：怎么发现"某用户疯狂刷免费额度"的滥用模式
+difficulty: 资深
+tags: [成本, 治理, 工程化, 追问]
+parent: llm-cost-governance
+
+### 题目
+
+如果面试官追问：怎么发现"某用户疯狂刷免费额度"的滥用模式？
+
+### 答案要点
+
+#### 回答思路
+
+- 先给一句结论：这个问题要从「为什么需要它」「它解决了什么问题」「代价是什么」三个角度回答。
+- 再把结论落回原题，不要脱离上下文泛泛而谈；面试官通常会顺着边界、异常和工程成本继续追问。
+- 如果涉及实现细节，按数据流、状态变化、调用顺序或生命周期拆开讲；如果涉及方案选择，必须说明为什么不用另一个方案。
+
+#### 结合原题展开
+
+- 先把问题拉回「AI 成本治理：从看不见到可控」的核心机制，说明这个追问考察的是落地边界、失败条件和方案取舍，而不是单点定义。
+- 可以补充一个真实项目语境：上线前先约定输入输出、失败兜底和观测指标，避免只在 demo 场景下成立。
+
+#### 工程落地
+
+- 验证手段要具体：单元测试覆盖边界条件，集成测试覆盖主流程，必要时用 e2e 或回放数据验证真实链路。
+- 运行时要可观测：关键路径打日志或埋点，关注错误率、耗时、资源占用、用户可感知延迟和降级次数。
+- 发布策略要稳：高风险变更建议灰度、开关或回滚预案；如果会影响数据一致性，还要说明迁移和兼容策略。
+
+#### 易错点
+
+- 不要只背 API 或概念名，要说清楚适用条件；很多方案在小流量、单端、无异常时看起来都成立。
+- 不要忽略默认值、兼容性、异常回滚、性能退化和团队维护成本，这些往往是资深面试继续深挖的重点。
+- 如果答案里出现“总是”“一定”“完全替代”这类绝对表述，要主动补充例外场景。
+
+## llm-cost-governance-followup-2
+
+title: 追问：缓存命中率多少算健康
+difficulty: 资深
+tags: [成本, 治理, 工程化, 追问]
+parent: llm-cost-governance
+
+### 题目
+
+如果面试官追问：缓存命中率多少算健康？
+
+### 答案要点
+
+#### 回答思路
+
+- 先给一句结论：这个问题要从「为什么需要它」「它解决了什么问题」「代价是什么」三个角度回答。
+- 再把结论落回原题，不要脱离上下文泛泛而谈；面试官通常会顺着边界、异常和工程成本继续追问。
+- 如果涉及实现细节，按数据流、状态变化、调用顺序或生命周期拆开讲；如果涉及方案选择，必须说明为什么不用另一个方案。
+
+#### 结合原题展开
+
+- prompt caching 命中（前文已述），输入 token 5-10 折
+- 去重缓存：相同 prompt 24h 内直返结果
+- 可以补充一个真实项目语境：上线前先约定输入输出、失败兜底和观测指标，避免只在 demo 场景下成立。
+
+#### 工程落地
+
+- 验证手段要具体：单元测试覆盖边界条件，集成测试覆盖主流程，必要时用 e2e 或回放数据验证真实链路。
+- 运行时要可观测：关键路径打日志或埋点，关注错误率、耗时、资源占用、用户可感知延迟和降级次数。
+- 发布策略要稳：高风险变更建议灰度、开关或回滚预案；如果会影响数据一致性，还要说明迁移和兼容策略。
+
+#### 易错点
+
+- 不要只背 API 或概念名，要说清楚适用条件；很多方案在小流量、单端、无异常时看起来都成立。
+- 不要忽略默认值、兼容性、异常回滚、性能退化和团队维护成本，这些往往是资深面试继续深挖的重点。
+- 如果答案里出现“总是”“一定”“完全替代”这类绝对表述，要主动补充例外场景。
+
+## llm-cost-governance-followup-3
+
+title: 追问：多团队共用模型，怎么 chargeback
+difficulty: 资深
+tags: [成本, 治理, 工程化, 追问]
+parent: llm-cost-governance
+
+### 题目
+
+如果面试官追问：多团队共用模型，怎么 chargeback？
+
+### 答案要点
+
+#### 回答思路
+
+- 先给一句结论：这个问题要从「为什么需要它」「它解决了什么问题」「代价是什么」三个角度回答。
+- 再把结论落回原题，不要脱离上下文泛泛而谈；面试官通常会顺着边界、异常和工程成本继续追问。
+- 如果涉及实现细节，按数据流、状态变化、调用顺序或生命周期拆开讲；如果涉及方案选择，必须说明为什么不用另一个方案。
+
+#### 结合原题展开
+
+- 每月对账：业务团队对自己功能的成本负责（chargeback model）
+- 可以补充一个真实项目语境：上线前先约定输入输出、失败兜底和观测指标，避免只在 demo 场景下成立。
+
+#### 工程落地
+
+- 验证手段要具体：单元测试覆盖边界条件，集成测试覆盖主流程，必要时用 e2e 或回放数据验证真实链路。
+- 运行时要可观测：关键路径打日志或埋点，关注错误率、耗时、资源占用、用户可感知延迟和降级次数。
+- 发布策略要稳：高风险变更建议灰度、开关或回滚预案；如果会影响数据一致性，还要说明迁移和兼容策略。
+
+#### 易错点
+
+- 不要只背 API 或概念名，要说清楚适用条件；很多方案在小流量、单端、无异常时看起来都成立。
+- 不要忽略默认值、兼容性、异常回滚、性能退化和团队维护成本，这些往往是资深面试继续深挖的重点。
+- 如果答案里出现“总是”“一定”“完全替代”这类绝对表述，要主动补充例外场景。
+
+## llm-observability-and-tracing-followup-1
+
+title: 追问：怎么把"AI 输出语义不正确"也作为可观测信号
+difficulty: 资深
+tags: [可观测性, OpenTelemetry, 工程化, 追问]
+parent: llm-observability-and-tracing
+
+### 题目
+
+如果面试官追问：怎么把"AI 输出语义不正确"也作为可观测信号？
+
+### 答案要点
+
+#### 回答思路
+
+- 先给一句结论：这个问题要从「为什么需要它」「它解决了什么问题」「代价是什么」三个角度回答。
+- 再把结论落回原题，不要脱离上下文泛泛而谈；面试官通常会顺着边界、异常和工程成本继续追问。
+- 如果涉及实现细节，按数据流、状态变化、调用顺序或生命周期拆开讲；如果涉及方案选择，必须说明为什么不用另一个方案。
+
+#### 结合原题展开
+
+- gen_ai.system（openai/anthropic/local）/ gen_ai.request.model / gen_ai.response.model
+- gen_ai.usage.input_tokens / output_tokens / cached_tokens
+- gen_ai.prompt（脱敏，留摘要 / hash）/ gen_ai.response（同）
+- 可以补充一个真实项目语境：上线前先约定输入输出、失败兜底和观测指标，避免只在 demo 场景下成立。
+
+#### 工程落地
+
+- 验证手段要具体：单元测试覆盖边界条件，集成测试覆盖主流程，必要时用 e2e 或回放数据验证真实链路。
+- 运行时要可观测：关键路径打日志或埋点，关注错误率、耗时、资源占用、用户可感知延迟和降级次数。
+- 发布策略要稳：高风险变更建议灰度、开关或回滚预案；如果会影响数据一致性，还要说明迁移和兼容策略。
+
+#### 易错点
+
+- 不要只背 API 或概念名，要说清楚适用条件；很多方案在小流量、单端、无异常时看起来都成立。
+- 不要忽略默认值、兼容性、异常回滚、性能退化和团队维护成本，这些往往是资深面试继续深挖的重点。
+- 如果答案里出现“总是”“一定”“完全替代”这类绝对表述，要主动补充例外场景。
+
+## llm-observability-and-tracing-followup-2
+
+title: 追问：流式调用的 span 起止时间怎么界定
+difficulty: 资深
+tags: [可观测性, OpenTelemetry, 工程化, 追问]
+parent: llm-observability-and-tracing
+
+### 题目
+
+如果面试官追问：流式调用的 span 起止时间怎么界定（首字 / 末字）？
+
+### 答案要点
+
+#### 回答思路
+
+- 先给一句结论：这个问题要从「为什么需要它」「它解决了什么问题」「代价是什么」三个角度回答。
+- 再把结论落回原题，不要脱离上下文泛泛而谈；面试官通常会顺着边界、异常和工程成本继续追问。
+- 如果涉及实现细节，按数据流、状态变化、调用顺序或生命周期拆开讲；如果涉及方案选择，必须说明为什么不用另一个方案。
+
+#### 结合原题展开
+
+- Trace（链路）：完整调用链，每个 span 是一次 LLM / 工具调用
+- 每个 LLM span 必带 attribute：
+- 没串 trace_id：跨服务调用看不到全貌
+- 可以补充一个真实项目语境：上线前先约定输入输出、失败兜底和观测指标，避免只在 demo 场景下成立。
+
+#### 工程落地
+
+- 验证手段要具体：单元测试覆盖边界条件，集成测试覆盖主流程，必要时用 e2e 或回放数据验证真实链路。
+- 运行时要可观测：关键路径打日志或埋点，关注错误率、耗时、资源占用、用户可感知延迟和降级次数。
+- 发布策略要稳：高风险变更建议灰度、开关或回滚预案；如果会影响数据一致性，还要说明迁移和兼容策略。
+
+#### 易错点
+
+- 不要只背 API 或概念名，要说清楚适用条件；很多方案在小流量、单端、无异常时看起来都成立。
+- 不要忽略默认值、兼容性、异常回滚、性能退化和团队维护成本，这些往往是资深面试继续深挖的重点。
+- 如果答案里出现“总是”“一定”“完全替代”这类绝对表述，要主动补充例外场景。
+
+## llm-observability-and-tracing-followup-3
+
+title: 追问：海量 trace 存储成本高，怎么采样
+difficulty: 资深
+tags: [可观测性, OpenTelemetry, 工程化, 追问]
+parent: llm-observability-and-tracing
+
+### 题目
+
+如果面试官追问：海量 trace 存储成本高，怎么采样？
+
+### 答案要点
+
+#### 回答思路
+
+- 先给一句结论：这个问题要从「为什么需要它」「它解决了什么问题」「代价是什么」三个角度回答。
+- 再把结论落回原题，不要脱离上下文泛泛而谈；面试官通常会顺着边界、异常和工程成本继续追问。
+- 如果涉及实现细节，按数据流、状态变化、调用顺序或生命周期拆开讲；如果涉及方案选择，必须说明为什么不用另一个方案。
+
+#### 结合原题展开
+
+- Trace（链路）：完整调用链，每个 span 是一次 LLM / 工具调用
+- Log（日志）：详细 input/output/error，结构化，关联 trace_id
+- Metric（指标）：延迟、成功率、token 数、成本
+- 可以补充一个真实项目语境：上线前先约定输入输出、失败兜底和观测指标，避免只在 demo 场景下成立。
+
+#### 工程落地
+
+- 验证手段要具体：单元测试覆盖边界条件，集成测试覆盖主流程，必要时用 e2e 或回放数据验证真实链路。
+- 运行时要可观测：关键路径打日志或埋点，关注错误率、耗时、资源占用、用户可感知延迟和降级次数。
+- 发布策略要稳：高风险变更建议灰度、开关或回滚预案；如果会影响数据一致性，还要说明迁移和兼容策略。
+
+#### 易错点
+
+- 不要只背 API 或概念名，要说清楚适用条件；很多方案在小流量、单端、无异常时看起来都成立。
+- 不要忽略默认值、兼容性、异常回滚、性能退化和团队维护成本，这些往往是资深面试继续深挖的重点。
+- 如果答案里出现“总是”“一定”“完全替代”这类绝对表述，要主动补充例外场景。
+
+## llm-incident-and-replay-followup-1
+
+title: 追问：怎么平衡"快速止血"和"找根因"的精力
+difficulty: 资深
+tags: [故障, 回放, 工程化, 追问]
+parent: llm-incident-and-replay
+
+### 题目
+
+如果面试官追问：怎么平衡"快速止血"和"找根因"的精力？
+
+### 答案要点
+
+#### 回答思路
+
+- 先给一句结论：这个问题要从「为什么需要它」「它解决了什么问题」「代价是什么」三个角度回答。
+- 再把结论落回原题，不要脱离上下文泛泛而谈；面试官通常会顺着边界、异常和工程成本继续追问。
+- 如果涉及实现细节，按数据流、状态变化、调用顺序或生命周期拆开讲；如果涉及方案选择，必须说明为什么不用另一个方案。
+
+#### 结合原题展开
+
+- 先把问题拉回「AI 故障分类、回放与持续改进」的核心机制，说明这个追问考察的是落地边界、失败条件和方案取舍，而不是单点定义。
+- 可以补充一个真实项目语境：上线前先约定输入输出、失败兜底和观测指标，避免只在 demo 场景下成立。
+
+#### 工程落地
+
+- 验证手段要具体：单元测试覆盖边界条件，集成测试覆盖主流程，必要时用 e2e 或回放数据验证真实链路。
+- 运行时要可观测：关键路径打日志或埋点，关注错误率、耗时、资源占用、用户可感知延迟和降级次数。
+- 发布策略要稳：高风险变更建议灰度、开关或回滚预案；如果会影响数据一致性，还要说明迁移和兼容策略。
+
+#### 易错点
+
+- 不要只背 API 或概念名，要说清楚适用条件；很多方案在小流量、单端、无异常时看起来都成立。
+- 不要忽略默认值、兼容性、异常回滚、性能退化和团队维护成本，这些往往是资深面试继续深挖的重点。
+- 如果答案里出现“总是”“一定”“完全替代”这类绝对表述，要主动补充例外场景。
+
+## llm-incident-and-replay-followup-2
+
+title: 追问：用户截图的 case 没 traceid 怎么定位
+difficulty: 资深
+tags: [故障, 回放, 工程化, 追问]
+parent: llm-incident-and-replay
+
+### 题目
+
+如果面试官追问：用户截图的 case 没 trace_id 怎么定位？
+
+### 答案要点
+
+#### 回答思路
+
+- 先给一句结论：这个问题要从「为什么需要它」「它解决了什么问题」「代价是什么」三个角度回答。
+- 再把结论落回原题，不要脱离上下文泛泛而谈；面试官通常会顺着边界、异常和工程成本继续追问。
+- 如果涉及实现细节，按数据流、状态变化、调用顺序或生命周期拆开讲；如果涉及方案选择，必须说明为什么不用另一个方案。
+
+#### 结合原题展开
+
+- Prompt 逻辑：模型理解错意图 → 改 prompt + 加 eval case
+- 用户输入：长尾 / 注入 / 滥用 → 加防御 / 用户教育
+- 用 trace 定位根因
+- 可以补充一个真实项目语境：上线前先约定输入输出、失败兜底和观测指标，避免只在 demo 场景下成立。
+
+#### 工程落地
+
+- 验证手段要具体：单元测试覆盖边界条件，集成测试覆盖主流程，必要时用 e2e 或回放数据验证真实链路。
+- 运行时要可观测：关键路径打日志或埋点，关注错误率、耗时、资源占用、用户可感知延迟和降级次数。
+- 发布策略要稳：高风险变更建议灰度、开关或回滚预案；如果会影响数据一致性，还要说明迁移和兼容策略。
+
+#### 易错点
+
+- 不要只背 API 或概念名，要说清楚适用条件；很多方案在小流量、单端、无异常时看起来都成立。
+- 不要忽略默认值、兼容性、异常回滚、性能退化和团队维护成本，这些往往是资深面试继续深挖的重点。
+- 如果答案里出现“总是”“一定”“完全替代”这类绝对表述，要主动补充例外场景。
+
+## llm-incident-and-replay-followup-3
+
+title: 追问：高频低危 vs 低频高危故障，处理优先级
+difficulty: 资深
+tags: [故障, 回放, 工程化, 追问]
+parent: llm-incident-and-replay
+
+### 题目
+
+如果面试官追问：高频低危 vs 低频高危故障，处理优先级？
+
+### 答案要点
+
+#### 回答思路
+
+- 先给一句结论：这个问题要从「为什么需要它」「它解决了什么问题」「代价是什么」三个角度回答。
+- 再把结论落回原题，不要脱离上下文泛泛而谈；面试官通常会顺着边界、异常和工程成本继续追问。
+- 如果涉及实现细节，按数据流、状态变化、调用顺序或生命周期拆开讲；如果涉及方案选择，必须说明为什么不用另一个方案。
+
+#### 结合原题展开
+
+- 上游故障：OpenAI 5xx / 限流 → 看 status page、切备用模型
+- 只关注严重故障：长尾低频问题积累成口碑伤害
+- 工程化：故障复盘录入数据库，定期统计分类占比
+- 可以补充一个真实项目语境：上线前先约定输入输出、失败兜底和观测指标，避免只在 demo 场景下成立。
+
+#### 工程落地
+
+- 验证手段要具体：单元测试覆盖边界条件，集成测试覆盖主流程，必要时用 e2e 或回放数据验证真实链路。
+- 运行时要可观测：关键路径打日志或埋点，关注错误率、耗时、资源占用、用户可感知延迟和降级次数。
+- 发布策略要稳：高风险变更建议灰度、开关或回滚预案；如果会影响数据一致性，还要说明迁移和兼容策略。
+
+#### 易错点
+
+- 不要只背 API 或概念名，要说清楚适用条件；很多方案在小流量、单端、无异常时看起来都成立。
+- 不要忽略默认值、兼容性、异常回滚、性能退化和团队维护成本，这些往往是资深面试继续深挖的重点。
+- 如果答案里出现“总是”“一定”“完全替代”这类绝对表述，要主动补充例外场景。
+
+## llm-safety-guardrails-and-moderation-followup-1
+
+title: 追问：海外业务 GDPR / 国内合规 / 不同地区敏感词列表怎么维护
+difficulty: 资深
+tags: [安全, Moderation, 工程化, 追问]
+parent: llm-safety-guardrails-and-moderation
+
+### 题目
+
+如果面试官追问：海外业务 GDPR / 国内合规 / 不同地区敏感词列表怎么维护？
+
+### 答案要点
+
+#### 回答思路
+
+- 先给一句结论：这个问题要从「为什么需要它」「它解决了什么问题」「代价是什么」三个角度回答。
+- 再把结论落回原题，不要脱离上下文泛泛而谈；面试官通常会顺着边界、异常和工程成本继续追问。
+- 如果涉及实现细节，按数据流、状态变化、调用顺序或生命周期拆开讲；如果涉及方案选择，必须说明为什么不用另一个方案。
+
+#### 结合原题展开
+
+- 业务规则：金额合法、SQL 非破坏、URL 在允许域内
+- 可以补充一个真实项目语境：上线前先约定输入输出、失败兜底和观测指标，避免只在 demo 场景下成立。
+
+#### 工程落地
+
+- 验证手段要具体：单元测试覆盖边界条件，集成测试覆盖主流程，必要时用 e2e 或回放数据验证真实链路。
+- 运行时要可观测：关键路径打日志或埋点，关注错误率、耗时、资源占用、用户可感知延迟和降级次数。
+- 发布策略要稳：高风险变更建议灰度、开关或回滚预案；如果会影响数据一致性，还要说明迁移和兼容策略。
+
+#### 易错点
+
+- 不要只背 API 或概念名，要说清楚适用条件；很多方案在小流量、单端、无异常时看起来都成立。
+- 不要忽略默认值、兼容性、异常回滚、性能退化和团队维护成本，这些往往是资深面试继续深挖的重点。
+- 如果答案里出现“总是”“一定”“完全替代”这类绝对表述，要主动补充例外场景。
+
+## llm-safety-guardrails-and-moderation-followup-2
+
+title: 追问：误判率高怎么调阈值
+difficulty: 资深
+tags: [安全, Moderation, 工程化, 追问]
+parent: llm-safety-guardrails-and-moderation
+
+### 题目
+
+如果面试官追问：误判率高怎么调阈值？
+
+### 答案要点
+
+#### 回答思路
+
+- 先给一句结论：这个问题要从「为什么需要它」「它解决了什么问题」「代价是什么」三个角度回答。
+- 再把结论落回原题，不要脱离上下文泛泛而谈；面试官通常会顺着边界、异常和工程成本继续追问。
+- 如果涉及实现细节，按数据流、状态变化、调用顺序或生命周期拆开讲；如果涉及方案选择，必须说明为什么不用另一个方案。
+
+#### 结合原题展开
+
+- 工程化：guardrail 命中率 / 误判率上线大盘
+- 可以补充一个真实项目语境：上线前先约定输入输出、失败兜底和观测指标，避免只在 demo 场景下成立。
+
+#### 工程落地
+
+- 验证手段要具体：单元测试覆盖边界条件，集成测试覆盖主流程，必要时用 e2e 或回放数据验证真实链路。
+- 运行时要可观测：关键路径打日志或埋点，关注错误率、耗时、资源占用、用户可感知延迟和降级次数。
+- 发布策略要稳：高风险变更建议灰度、开关或回滚预案；如果会影响数据一致性，还要说明迁移和兼容策略。
+
+#### 易错点
+
+- 不要只背 API 或概念名，要说清楚适用条件；很多方案在小流量、单端、无异常时看起来都成立。
+- 不要忽略默认值、兼容性、异常回滚、性能退化和团队维护成本，这些往往是资深面试继续深挖的重点。
+- 如果答案里出现“总是”“一定”“完全替代”这类绝对表述，要主动补充例外场景。
+
+## llm-safety-guardrails-and-moderation-followup-3
+
+title: 追问：用户故意试探 guardrail 怎么处置
+difficulty: 资深
+tags: [安全, Moderation, 工程化, 追问]
+parent: llm-safety-guardrails-and-moderation
+
+### 题目
+
+如果面试官追问：用户故意试探 guardrail 怎么处置？
+
+### 答案要点
+
+#### 回答思路
+
+- 先给一句结论：这个问题要从「为什么需要它」「它解决了什么问题」「代价是什么」三个角度回答。
+- 再把结论落回原题，不要脱离上下文泛泛而谈；面试官通常会顺着边界、异常和工程成本继续追问。
+- 如果涉及实现细节，按数据流、状态变化、调用顺序或生命周期拆开讲；如果涉及方案选择，必须说明为什么不用另一个方案。
+
+#### 结合原题展开
+
+- 审计：所有命中 guardrail 的请求都打日志，定期 review
+- 工具：Llama Guard、NeMo Guardrails、Anthropic policy、OpenAI mod
+- 仅靠 system prompt 防注入：用户一句"忽略上面"就破了
+- 可以补充一个真实项目语境：上线前先约定输入输出、失败兜底和观测指标，避免只在 demo 场景下成立。
+
+#### 工程落地
+
+- 验证手段要具体：单元测试覆盖边界条件，集成测试覆盖主流程，必要时用 e2e 或回放数据验证真实链路。
+- 运行时要可观测：关键路径打日志或埋点，关注错误率、耗时、资源占用、用户可感知延迟和降级次数。
+- 发布策略要稳：高风险变更建议灰度、开关或回滚预案；如果会影响数据一致性，还要说明迁移和兼容策略。
+
+#### 易错点
+
+- 不要只背 API 或概念名，要说清楚适用条件；很多方案在小流量、单端、无异常时看起来都成立。
+- 不要忽略默认值、兼容性、异常回滚、性能退化和团队维护成本，这些往往是资深面试继续深挖的重点。
+- 如果答案里出现“总是”“一定”“完全替代”这类绝对表述，要主动补充例外场景。
+
+## llm-data-pipeline-and-finetuning-frontend-followup-1
+
+title: 追问：few-shot vs RAG vs fine-tune，何时选哪个
+difficulty: 资深
+tags: [数据回流, Fine-tune, 工程化, 追问]
+parent: llm-data-pipeline-and-finetuning-frontend
+
+### 题目
+
+如果面试官追问：few-shot vs RAG vs fine-tune，何时选哪个？
+
+### 答案要点
+
+#### 回答思路
+
+- 先给一句结论：这个问题要从「为什么需要它」「它解决了什么问题」「代价是什么」三个角度回答。
+- 再把结论落回原题，不要脱离上下文泛泛而谈；面试官通常会顺着边界、异常和工程成本继续追问。
+- 如果涉及实现细节，按数据流、状态变化、调用顺序或生命周期拆开讲；如果涉及方案选择，必须说明为什么不用另一个方案。
+
+#### 结合原题展开
+
+- Few-shot 例子：把高质量 (input, output) 加进 prompt（增量上线最快）
+- RAG 知识：把高频 Q&A 入向量库，召回时直接给模型参考
+- Fine-tune / Distill：≥ 1000 条高质量数据可训自家小模型，提质降本
+- 可以补充一个真实项目语境：上线前先约定输入输出、失败兜底和观测指标，避免只在 demo 场景下成立。
+
+#### 工程落地
+
+- 验证手段要具体：单元测试覆盖边界条件，集成测试覆盖主流程，必要时用 e2e 或回放数据验证真实链路。
+- 运行时要可观测：关键路径打日志或埋点，关注错误率、耗时、资源占用、用户可感知延迟和降级次数。
+- 发布策略要稳：高风险变更建议灰度、开关或回滚预案；如果会影响数据一致性，还要说明迁移和兼容策略。
+
+#### 易错点
+
+- 不要只背 API 或概念名，要说清楚适用条件；很多方案在小流量、单端、无异常时看起来都成立。
+- 不要忽略默认值、兼容性、异常回滚、性能退化和团队维护成本，这些往往是资深面试继续深挖的重点。
+- 如果答案里出现“总是”“一定”“完全替代”这类绝对表述，要主动补充例外场景。
+
+## llm-data-pipeline-and-finetuning-frontend-followup-2
+
+title: 追问：用户改写后的 correction 怎么验证质量
+difficulty: 资深
+tags: [数据回流, Fine-tune, 工程化, 追问]
+parent: llm-data-pipeline-and-finetuning-frontend
+
+### 题目
+
+如果面试官追问：用户改写后的 correction 怎么验证质量？
+
+### 答案要点
+
+#### 回答思路
+
+- 先给一句结论：这个问题要从「为什么需要它」「它解决了什么问题」「代价是什么」三个角度回答。
+- 再把结论落回原题，不要脱离上下文泛泛而谈；面试官通常会顺着边界、异常和工程成本继续追问。
+- 如果涉及实现细节，按数据流、状态变化、调用顺序或生命周期拆开讲；如果涉及方案选择，必须说明为什么不用另一个方案。
+
+#### 结合原题展开
+
+- 采集：每条 AI 输出旁边放 👍/👎 + "改一下" 输入框；同步采集隐式信号（用户复制 / 关闭 / 二次提问）
+- 脱敏：用户原始消息要 PII 脱敏后才能进入数据集
+- Few-shot 例子：把高质量 (input, output) 加进 prompt（增量上线最快）
+- 可以补充一个真实项目语境：上线前先约定输入输出、失败兜底和观测指标，避免只在 demo 场景下成立。
+
+#### 工程落地
+
+- 验证手段要具体：单元测试覆盖边界条件，集成测试覆盖主流程，必要时用 e2e 或回放数据验证真实链路。
+- 运行时要可观测：关键路径打日志或埋点，关注错误率、耗时、资源占用、用户可感知延迟和降级次数。
+- 发布策略要稳：高风险变更建议灰度、开关或回滚预案；如果会影响数据一致性，还要说明迁移和兼容策略。
+
+#### 易错点
+
+- 不要只背 API 或概念名，要说清楚适用条件；很多方案在小流量、单端、无异常时看起来都成立。
+- 不要忽略默认值、兼容性、异常回滚、性能退化和团队维护成本，这些往往是资深面试继续深挖的重点。
+- 如果答案里出现“总是”“一定”“完全替代”这类绝对表述，要主动补充例外场景。
+
+## llm-data-pipeline-and-finetuning-frontend-followup-3
+
+title: 追问：distill 一个小模型替代 GPT-4 的成本测算
+difficulty: 资深
+tags: [数据回流, Fine-tune, 工程化, 追问]
+parent: llm-data-pipeline-and-finetuning-frontend
+
+### 题目
+
+如果面试官追问：distill 一个小模型替代 GPT-4 的成本测算？
+
+### 答案要点
+
+#### 回答思路
+
+- 先给一句结论：这个问题要从「为什么需要它」「它解决了什么问题」「代价是什么」三个角度回答。
+- 再把结论落回原题，不要脱离上下文泛泛而谈；面试官通常会顺着边界、异常和工程成本继续追问。
+- 如果涉及实现细节，按数据流、状态变化、调用顺序或生命周期拆开讲；如果涉及方案选择，必须说明为什么不用另一个方案。
+
+#### 结合原题展开
+
+- Fine-tune / Distill：≥ 1000 条高质量数据可训自家小模型，提质降本
+- 可以补充一个真实项目语境：上线前先约定输入输出、失败兜底和观测指标，避免只在 demo 场景下成立。
+
+#### 工程落地
+
+- 验证手段要具体：单元测试覆盖边界条件，集成测试覆盖主流程，必要时用 e2e 或回放数据验证真实链路。
+- 运行时要可观测：关键路径打日志或埋点，关注错误率、耗时、资源占用、用户可感知延迟和降级次数。
+- 发布策略要稳：高风险变更建议灰度、开关或回滚预案；如果会影响数据一致性，还要说明迁移和兼容策略。
+
+#### 易错点
+
+- 不要只背 API 或概念名，要说清楚适用条件；很多方案在小流量、单端、无异常时看起来都成立。
+- 不要忽略默认值、兼容性、异常回滚、性能退化和团队维护成本，这些往往是资深面试继续深挖的重点。
+- 如果答案里出现“总是”“一定”“完全替代”这类绝对表述，要主动补充例外场景。
+
+## llm-multi-tenant-isolation-followup-1
+
+title: 追问：BYOK 时怎么防止租户输入恶意 baseUrl 钓鱼
+difficulty: 资深
+tags: [多租户, 隔离, 工程化, 追问]
+parent: llm-multi-tenant-isolation
+
+### 题目
+
+如果面试官追问：BYOK 时怎么防止租户输入恶意 baseUrl 钓鱼？
+
+### 答案要点
+
+#### 回答思路
+
+- 先给一句结论：这个问题要从「为什么需要它」「它解决了什么问题」「代价是什么」三个角度回答。
+- 再把结论落回原题，不要脱离上下文泛泛而谈；面试官通常会顺着边界、异常和工程成本继续追问。
+- 如果涉及实现细节，按数据流、状态变化、调用顺序或生命周期拆开讲；如果涉及方案选择，必须说明为什么不用另一个方案。
+
+#### 结合原题展开
+
+- 模型选择：租户可自带 Key（BYOK）/ 用平台 Key（按用量计费）
+- BYOK 但不限速：恶意租户用便宜 Key 大量请求拖垮服务
+- 可以补充一个真实项目语境：上线前先约定输入输出、失败兜底和观测指标，避免只在 demo 场景下成立。
+
+#### 工程落地
+
+- 验证手段要具体：单元测试覆盖边界条件，集成测试覆盖主流程，必要时用 e2e 或回放数据验证真实链路。
+- 运行时要可观测：关键路径打日志或埋点，关注错误率、耗时、资源占用、用户可感知延迟和降级次数。
+- 发布策略要稳：高风险变更建议灰度、开关或回滚预案；如果会影响数据一致性，还要说明迁移和兼容策略。
+
+#### 易错点
+
+- 不要只背 API 或概念名，要说清楚适用条件；很多方案在小流量、单端、无异常时看起来都成立。
+- 不要忽略默认值、兼容性、异常回滚、性能退化和团队维护成本，这些往往是资深面试继续深挖的重点。
+- 如果答案里出现“总是”“一定”“完全替代”这类绝对表述，要主动补充例外场景。
+
+## llm-multi-tenant-isolation-followup-2
+
+title: 追问：跨租户共享的"通用知识"怎么处理
+difficulty: 资深
+tags: [多租户, 隔离, 工程化, 追问]
+parent: llm-multi-tenant-isolation
+
+### 题目
+
+如果面试官追问：跨租户共享的"通用知识"怎么处理？
+
+### 答案要点
+
+#### 回答思路
+
+- 先给一句结论：这个问题要从「为什么需要它」「它解决了什么问题」「代价是什么」三个角度回答。
+- 再把结论落回原题，不要脱离上下文泛泛而谈；面试官通常会顺着边界、异常和工程成本继续追问。
+- 如果涉及实现细节，按数据流、状态变化、调用顺序或生命周期拆开讲；如果涉及方案选择，必须说明为什么不用另一个方案。
+
+#### 结合原题展开
+
+- 向量库只用 prefix 区分：相似度搜索仍可能跨租户匹配
+- 可以补充一个真实项目语境：上线前先约定输入输出、失败兜底和观测指标，避免只在 demo 场景下成立。
+
+#### 工程落地
+
+- 验证手段要具体：单元测试覆盖边界条件，集成测试覆盖主流程，必要时用 e2e 或回放数据验证真实链路。
+- 运行时要可观测：关键路径打日志或埋点，关注错误率、耗时、资源占用、用户可感知延迟和降级次数。
+- 发布策略要稳：高风险变更建议灰度、开关或回滚预案；如果会影响数据一致性，还要说明迁移和兼容策略。
+
+#### 易错点
+
+- 不要只背 API 或概念名，要说清楚适用条件；很多方案在小流量、单端、无异常时看起来都成立。
+- 不要忽略默认值、兼容性、异常回滚、性能退化和团队维护成本，这些往往是资深面试继续深挖的重点。
+- 如果答案里出现“总是”“一定”“完全替代”这类绝对表述，要主动补充例外场景。
+
+## llm-multi-tenant-isolation-followup-3
+
+title: 追问：怎么测试隔离没漏洞
+difficulty: 资深
+tags: [多租户, 隔离, 工程化, 追问]
+parent: llm-multi-tenant-isolation
+
+### 题目
+
+如果面试官追问：怎么测试隔离没漏洞（红队演练）？
+
+### 答案要点
+
+#### 回答思路
+
+- 先给一句结论：这个问题要从「为什么需要它」「它解决了什么问题」「代价是什么」三个角度回答。
+- 再把结论落回原题，不要脱离上下文泛泛而谈；面试官通常会顺着边界、异常和工程成本继续追问。
+- 如果涉及实现细节，按数据流、状态变化、调用顺序或生命周期拆开讲；如果涉及方案选择，必须说明为什么不用另一个方案。
+
+#### 结合原题展开
+
+- 强隔离：每租户独立 DB / 向量 namespace（成本高，安全）
+- 弱隔离：共享 DB，行级 tenant_id 过滤（成本低，依赖代码）
+- 进阶：Confidential Computing（TEE）做端到端的数据隔离
+- 可以补充一个真实项目语境：上线前先约定输入输出、失败兜底和观测指标，避免只在 demo 场景下成立。
+
+#### 工程落地
+
+- 验证手段要具体：单元测试覆盖边界条件，集成测试覆盖主流程，必要时用 e2e 或回放数据验证真实链路。
+- 运行时要可观测：关键路径打日志或埋点，关注错误率、耗时、资源占用、用户可感知延迟和降级次数。
+- 发布策略要稳：高风险变更建议灰度、开关或回滚预案；如果会影响数据一致性，还要说明迁移和兼容策略。
+
+#### 易错点
+
+- 不要只背 API 或概念名，要说清楚适用条件；很多方案在小流量、单端、无异常时看起来都成立。
+- 不要忽略默认值、兼容性、异常回滚、性能退化和团队维护成本，这些往往是资深面试继续深挖的重点。
+- 如果答案里出现“总是”“一定”“完全替代”这类绝对表述，要主动补充例外场景。
+
+## llm-ci-cd-and-canary-followup-1
+
+title: 追问：模型厂商升级怎么对待
+difficulty: 资深
+tags: [CI/CD, 灰度, 工程化, 追问]
+parent: llm-ci-cd-and-canary
+
+### 题目
+
+如果面试官追问：模型厂商升级（GPT-4o → GPT-4.1）怎么对待？
+
+### 答案要点
+
+#### 回答思路
+
+- 先给一句结论：这个问题要从「为什么需要它」「它解决了什么问题」「代价是什么」三个角度回答。
+- 再把结论落回原题，不要脱离上下文泛泛而谈；面试官通常会顺着边界、异常和工程成本继续追问。
+- 如果涉及实现细节，按数据流、状态变化、调用顺序或生命周期拆开讲；如果涉及方案选择，必须说明为什么不用另一个方案。
+
+#### 结合原题展开
+
+- staging 不连真实模型：grpc / 请求结构差异，到生产才暴雷
+- 可以补充一个真实项目语境：上线前先约定输入输出、失败兜底和观测指标，避免只在 demo 场景下成立。
+
+#### 工程落地
+
+- 验证手段要具体：单元测试覆盖边界条件，集成测试覆盖主流程，必要时用 e2e 或回放数据验证真实链路。
+- 运行时要可观测：关键路径打日志或埋点，关注错误率、耗时、资源占用、用户可感知延迟和降级次数。
+- 发布策略要稳：高风险变更建议灰度、开关或回滚预案；如果会影响数据一致性，还要说明迁移和兼容策略。
+
+#### 易错点
+
+- 不要只背 API 或概念名，要说清楚适用条件；很多方案在小流量、单端、无异常时看起来都成立。
+- 不要忽略默认值、兼容性、异常回滚、性能退化和团队维护成本，这些往往是资深面试继续深挖的重点。
+- 如果答案里出现“总是”“一定”“完全替代”这类绝对表述，要主动补充例外场景。
+
+## llm-ci-cd-and-canary-followup-2
+
+title: 追问：canary 阶段发现 1% 流量数据不够显著怎么办
+difficulty: 资深
+tags: [CI/CD, 灰度, 工程化, 追问]
+parent: llm-ci-cd-and-canary
+
+### 题目
+
+如果面试官追问：canary 阶段发现 1% 流量数据不够显著怎么办？
+
+### 答案要点
+
+#### 回答思路
+
+- 先给一句结论：这个问题要从「为什么需要它」「它解决了什么问题」「代价是什么」三个角度回答。
+- 再把结论落回原题，不要脱离上下文泛泛而谈；面试官通常会顺着边界、异常和工程成本继续追问。
+- 如果涉及实现细节，按数据流、状态变化、调用顺序或生命周期拆开讲；如果涉及方案选择，必须说明为什么不用另一个方案。
+
+#### 结合原题展开
+
+- CI 阶段（PR 级别）：
+- CD 阶段（合并到 main）：
+- 通过 → canary 1% 真实流量
+- 可以补充一个真实项目语境：上线前先约定输入输出、失败兜底和观测指标，避免只在 demo 场景下成立。
+
+#### 工程落地
+
+- 验证手段要具体：单元测试覆盖边界条件，集成测试覆盖主流程，必要时用 e2e 或回放数据验证真实链路。
+- 运行时要可观测：关键路径打日志或埋点，关注错误率、耗时、资源占用、用户可感知延迟和降级次数。
+- 发布策略要稳：高风险变更建议灰度、开关或回滚预案；如果会影响数据一致性，还要说明迁移和兼容策略。
+
+#### 易错点
+
+- 不要只背 API 或概念名，要说清楚适用条件；很多方案在小流量、单端、无异常时看起来都成立。
+- 不要忽略默认值、兼容性、异常回滚、性能退化和团队维护成本，这些往往是资深面试继续深挖的重点。
+- 如果答案里出现“总是”“一定”“完全替代”这类绝对表述，要主动补充例外场景。
+
+## llm-ci-cd-and-canary-followup-3
+
+title: 追问：紧急 hotfix 该走 canary 还是直接全量
+difficulty: 资深
+tags: [CI/CD, 灰度, 工程化, 追问]
+parent: llm-ci-cd-and-canary
+
+### 题目
+
+如果面试官追问：紧急 hotfix 该走 canary 还是直接全量？
+
+### 答案要点
+
+#### 回答思路
+
+- 先给一句结论：这个问题要从「为什么需要它」「它解决了什么问题」「代价是什么」三个角度回答。
+- 再把结论落回原题，不要脱离上下文泛泛而谈；面试官通常会顺着边界、异常和工程成本继续追问。
+- 如果涉及实现细节，按数据流、状态变化、调用顺序或生命周期拆开讲；如果涉及方案选择，必须说明为什么不用另一个方案。
+
+#### 结合原题展开
+
+- 通过 → canary 1% 真实流量
+- prompt 不走 PR：被业务运营直接改生产，谁改的不知道
+- canary 期太短：AI 输出多样性需要更长样本
+- 可以补充一个真实项目语境：上线前先约定输入输出、失败兜底和观测指标，避免只在 demo 场景下成立。
+
+#### 工程落地
+
+- 验证手段要具体：单元测试覆盖边界条件，集成测试覆盖主流程，必要时用 e2e 或回放数据验证真实链路。
+- 运行时要可观测：关键路径打日志或埋点，关注错误率、耗时、资源占用、用户可感知延迟和降级次数。
+- 发布策略要稳：高风险变更建议灰度、开关或回滚预案；如果会影响数据一致性，还要说明迁移和兼容策略。
+
+#### 易错点
+
+- 不要只背 API 或概念名，要说清楚适用条件；很多方案在小流量、单端、无异常时看起来都成立。
+- 不要忽略默认值、兼容性、异常回滚、性能退化和团队维护成本，这些往往是资深面试继续深挖的重点。
+- 如果答案里出现“总是”“一定”“完全替代”这类绝对表述，要主动补充例外场景。
+
+## llm-frontend-security-checklist-followup-1
+
+title: 追问：AI 输出包含可执行代码，怎么安全展示但又能复制运行
+difficulty: 资深
+tags: [安全, 工程化, 追问]
+parent: llm-frontend-security-checklist
+
+### 题目
+
+如果面试官追问：AI 输出包含可执行代码（用户问"写个 todo"），怎么安全展示但又能复制运行？
+
+### 答案要点
+
+#### 回答思路
+
+- 先给一句结论：这个问题要从「为什么需要它」「它解决了什么问题」「代价是什么」三个角度回答。
+- 再把结论落回原题，不要脱离上下文泛泛而谈；面试官通常会顺着边界、异常和工程成本继续追问。
+- 如果涉及实现细节，按数据流、状态变化、调用顺序或生命周期拆开讲；如果涉及方案选择，必须说明为什么不用另一个方案。
+
+#### 结合原题展开
+
+- 模型输出 markdown → HTML 必须用 DOMPurify sanitize
+- v-html / dangerouslySetInnerHTML 直接渲染模型输出
+- 工程化：把安全检查清单做成自动化扫描（snyk / git secrets）
+- 可以补充一个真实项目语境：上线前先约定输入输出、失败兜底和观测指标，避免只在 demo 场景下成立。
+
+#### 工程落地
+
+- 验证手段要具体：单元测试覆盖边界条件，集成测试覆盖主流程，必要时用 e2e 或回放数据验证真实链路。
+- 运行时要可观测：关键路径打日志或埋点，关注错误率、耗时、资源占用、用户可感知延迟和降级次数。
+- 发布策略要稳：高风险变更建议灰度、开关或回滚预案；如果会影响数据一致性，还要说明迁移和兼容策略。
+
+#### 易错点
+
+- 不要只背 API 或概念名，要说清楚适用条件；很多方案在小流量、单端、无异常时看起来都成立。
+- 不要忽略默认值、兼容性、异常回滚、性能退化和团队维护成本，这些往往是资深面试继续深挖的重点。
+- 如果答案里出现“总是”“一定”“完全替代”这类绝对表述，要主动补充例外场景。
+
+## llm-frontend-security-checklist-followup-2
+
+title: 追问：多用户共享 baseUrl 时怎么防"我用别人的 Key"
+difficulty: 资深
+tags: [安全, 工程化, 追问]
+parent: llm-frontend-security-checklist
+
+### 题目
+
+如果面试官追问：多用户共享 baseUrl 时怎么防"我用别人的 Key"？
+
+### 答案要点
+
+#### 回答思路
+
+- 先给一句结论：这个问题要从「为什么需要它」「它解决了什么问题」「代价是什么」三个角度回答。
+- 再把结论落回原题，不要脱离上下文泛泛而谈；面试官通常会顺着边界、异常和工程成本继续追问。
+- 如果涉及实现细节，按数据流、状态变化、调用顺序或生命周期拆开讲；如果涉及方案选择，必须说明为什么不用另一个方案。
+
+#### 结合原题展开
+
+- 自带 baseUrl 必须 https + 域名白名单（防 SSRF / 钓鱼）
+- API Key 存 localStorage 要 UI 显著提示 + 一键清除
+- 不要把 Key 放 URL 或 query 参数
+- 可以补充一个真实项目语境：上线前先约定输入输出、失败兜底和观测指标，避免只在 demo 场景下成立。
+
+#### 工程落地
+
+- 验证手段要具体：单元测试覆盖边界条件，集成测试覆盖主流程，必要时用 e2e 或回放数据验证真实链路。
+- 运行时要可观测：关键路径打日志或埋点，关注错误率、耗时、资源占用、用户可感知延迟和降级次数。
+- 发布策略要稳：高风险变更建议灰度、开关或回滚预案；如果会影响数据一致性，还要说明迁移和兼容策略。
+
+#### 易错点
+
+- 不要只背 API 或概念名，要说清楚适用条件；很多方案在小流量、单端、无异常时看起来都成立。
+- 不要忽略默认值、兼容性、异常回滚、性能退化和团队维护成本，这些往往是资深面试继续深挖的重点。
+- 如果答案里出现“总是”“一定”“完全替代”这类绝对表述，要主动补充例外场景。
+
+## llm-frontend-security-checklist-followup-3
+
+title: 追问：WebGPU 本地模型加载的安全风险有哪些
+difficulty: 资深
+tags: [安全, 工程化, 追问]
+parent: llm-frontend-security-checklist
+
+### 题目
+
+如果面试官追问：WebGPU 本地模型加载的安全风险有哪些？
+
+### 答案要点
+
+#### 回答思路
+
+- 先给一句结论：这个问题要从「为什么需要它」「它解决了什么问题」「代价是什么」三个角度回答。
+- 再把结论落回原题，不要脱离上下文泛泛而谈；面试官通常会顺着边界、异常和工程成本继续追问。
+- 如果涉及实现细节，按数据流、状态变化、调用顺序或生命周期拆开讲；如果涉及方案选择，必须说明为什么不用另一个方案。
+
+#### 结合原题展开
+
+- 模型输出 markdown → HTML 必须用 DOMPurify sanitize
+- WASM / WebGPU 模型加载用 SRI 校验
+- 不要把模型权重加密存 localStorage（容量限制）
+- 可以补充一个真实项目语境：上线前先约定输入输出、失败兜底和观测指标，避免只在 demo 场景下成立。
+
+#### 工程落地
+
+- 验证手段要具体：单元测试覆盖边界条件，集成测试覆盖主流程，必要时用 e2e 或回放数据验证真实链路。
+- 运行时要可观测：关键路径打日志或埋点，关注错误率、耗时、资源占用、用户可感知延迟和降级次数。
+- 发布策略要稳：高风险变更建议灰度、开关或回滚预案；如果会影响数据一致性，还要说明迁移和兼容策略。
+
+#### 易错点
+
+- 不要只背 API 或概念名，要说清楚适用条件；很多方案在小流量、单端、无异常时看起来都成立。
+- 不要忽略默认值、兼容性、异常回滚、性能退化和团队维护成本，这些往往是资深面试继续深挖的重点。
+- 如果答案里出现“总是”“一定”“完全替代”这类绝对表述，要主动补充例外场景。
+
+## smart-search-with-embedding-intent-followup-1
+
+title: 追问：概率分布 < 0.5 时是"模糊问题"，UI 怎么设计
+difficulty: 资深
+tags: [搜索, embedding, 高频, 追问]
+parent: smart-search-with-embedding-intent
+
+### 题目
+
+如果面试官追问：概率分布 < 0.5 时是"模糊问题"，UI 怎么设计？
+
+### 答案要点
+
+#### 回答思路
+
+- 先给一句结论：这个问题要从「为什么需要它」「它解决了什么问题」「代价是什么」三个角度回答。
+- 再把结论落回原题，不要脱离上下文泛泛而谈；面试官通常会顺着边界、异常和工程成本继续追问。
+- 如果涉及实现细节，按数据流、状态变化、调用顺序或生命周期拆开讲；如果涉及方案选择，必须说明为什么不用另一个方案。
+
+#### 结合原题展开
+
+- 方案 B：多 intent 概率分布
+- 当 intent 概率分布模糊（top-1 < 0.5）时显示"你是想问 A 还是 B？"分流 UI
+- 极少数场景前端做 client-side cosine（如内置词典模糊匹配），这时前端要拿到向量
+- 可以补充一个真实项目语境：上线前先约定输入输出、失败兜底和观测指标，避免只在 demo 场景下成立。
+
+#### 工程落地
+
+- 验证手段要具体：单元测试覆盖边界条件，集成测试覆盖主流程，必要时用 e2e 或回放数据验证真实链路。
+- 运行时要可观测：关键路径打日志或埋点，关注错误率、耗时、资源占用、用户可感知延迟和降级次数。
+- 发布策略要稳：高风险变更建议灰度、开关或回滚预案；如果会影响数据一致性，还要说明迁移和兼容策略。
+
+#### 易错点
+
+- 不要只背 API 或概念名，要说清楚适用条件；很多方案在小流量、单端、无异常时看起来都成立。
+- 不要忽略默认值、兼容性、异常回滚、性能退化和团队维护成本，这些往往是资深面试继续深挖的重点。
+- 如果答案里出现“总是”“一定”“完全替代”这类绝对表述，要主动补充例外场景。
+
+## smart-search-with-embedding-intent-followup-2
+
+title: 追问：给 chip 二选一让用户点；或在 placeholder 提示更具体
+difficulty: 资深
+tags: [搜索, embedding, 高频, 追问]
+parent: smart-search-with-embedding-intent
+
+### 题目
+
+如果面试官追问：给 chip 二选一让用户点；或在 placeholder 提示更具体
+
+### 答案要点
+
+#### 回答思路
+
+- 先给一句结论：这个问题要从「为什么需要它」「它解决了什么问题」「代价是什么」三个角度回答。
+- 再把结论落回原题，不要脱离上下文泛泛而谈；面试官通常会顺着边界、异常和工程成本继续追问。
+- 如果涉及实现细节，按数据流、状态变化、调用顺序或生命周期拆开讲；如果涉及方案选择，必须说明为什么不用另一个方案。
+
+#### 结合原题展开
+
+- 用户 click 反馈写回服务端用于在线学习
+- 直接展示分数给用户：分数无业务意义，应转成"很相关 / 一般 / 弱"
+- 没 abort 旧请求：用户连续输入会拿到老结果
+- 可以补充一个真实项目语境：上线前先约定输入输出、失败兜底和观测指标，避免只在 demo 场景下成立。
+
+#### 工程落地
+
+- 验证手段要具体：单元测试覆盖边界条件，集成测试覆盖主流程，必要时用 e2e 或回放数据验证真实链路。
+- 运行时要可观测：关键路径打日志或埋点，关注错误率、耗时、资源占用、用户可感知延迟和降级次数。
+- 发布策略要稳：高风险变更建议灰度、开关或回滚预案；如果会影响数据一致性，还要说明迁移和兼容策略。
+
+#### 易错点
+
+- 不要只背 API 或概念名，要说清楚适用条件；很多方案在小流量、单端、无异常时看起来都成立。
+- 不要忽略默认值、兼容性、异常回滚、性能退化和团队维护成本，这些往往是资深面试继续深挖的重点。
+- 如果答案里出现“总是”“一定”“完全替代”这类绝对表述，要主动补充例外场景。
+
+## smart-search-with-embedding-intent-followup-3
+
+title: 追问：前端如何感知召回失败 / 模型超时
+difficulty: 资深
+tags: [搜索, embedding, 高频, 追问]
+parent: smart-search-with-embedding-intent
+
+### 题目
+
+如果面试官追问：前端如何感知召回失败 / 模型超时？
+
+### 答案要点
+
+#### 回答思路
+
+- 先给一句结论：这个问题要从「为什么需要它」「它解决了什么问题」「代价是什么」三个角度回答。
+- 再把结论落回原题，不要脱离上下文泛泛而谈；面试官通常会顺着边界、异常和工程成本继续追问。
+- 如果涉及实现细节，按数据流、状态变化、调用顺序或生命周期拆开讲；如果涉及方案选择，必须说明为什么不用另一个方案。
+
+#### 结合原题展开
+
+- 99% 场景做在后端：模型大、数据敏感、向量库在服务端
+- 前端能做的（轻量）：用 transformers.js 在浏览器跑小模型，做端侧重排或纠错；适合隐私 / 离线场景
+- \*前端拿到的常见格式\*\*
+- 可以补充一个真实项目语境：上线前先约定输入输出、失败兜底和观测指标，避免只在 demo 场景下成立。
+
+#### 工程落地
+
+- 验证手段要具体：单元测试覆盖边界条件，集成测试覆盖主流程，必要时用 e2e 或回放数据验证真实链路。
+- 运行时要可观测：关键路径打日志或埋点，关注错误率、耗时、资源占用、用户可感知延迟和降级次数。
+- 发布策略要稳：高风险变更建议灰度、开关或回滚预案；如果会影响数据一致性，还要说明迁移和兼容策略。
+
+#### 易错点
+
+- 不要只背 API 或概念名，要说清楚适用条件；很多方案在小流量、单端、无异常时看起来都成立。
+- 不要忽略默认值、兼容性、异常回滚、性能退化和团队维护成本，这些往往是资深面试继续深挖的重点。
+- 如果答案里出现“总是”“一定”“完全替代”这类绝对表述，要主动补充例外场景。
+
+## smart-search-with-embedding-intent-followup-4
+
+title: 追问：后端给降级标记 degraded: true 让前端走 BM25 兜底
+difficulty: 资深
+tags: [搜索, embedding, 高频, 追问]
+parent: smart-search-with-embedding-intent
+
+### 题目
+
+如果面试官追问：后端给降级标记 `degraded: true` 让前端走 BM25 兜底
+
+### 答案要点
+
+#### 回答思路
+
+- 先给一句结论：这个问题要从「为什么需要它」「它解决了什么问题」「代价是什么」三个角度回答。
+- 再把结论落回原题，不要脱离上下文泛泛而谈；面试官通常会顺着边界、异常和工程成本继续追问。
+- 如果涉及实现细节，按数据流、状态变化、调用顺序或生命周期拆开讲；如果涉及方案选择，必须说明为什么不用另一个方案。
+
+#### 结合原题展开
+
+- 99% 场景做在后端：模型大、数据敏感、向量库在服务端
+- 方案 D：混合：BM25 + 向量召回结果各自带分数，前端融合或后端融合
+- 前端通常不直接看向量；后端向量库做相似度召回返回结果
+- 可以补充一个真实项目语境：上线前先约定输入输出、失败兜底和观测指标，避免只在 demo 场景下成立。
+
+#### 工程落地
+
+- 验证手段要具体：单元测试覆盖边界条件，集成测试覆盖主流程，必要时用 e2e 或回放数据验证真实链路。
+- 运行时要可观测：关键路径打日志或埋点，关注错误率、耗时、资源占用、用户可感知延迟和降级次数。
+- 发布策略要稳：高风险变更建议灰度、开关或回滚预案；如果会影响数据一致性，还要说明迁移和兼容策略。
+
+#### 易错点
+
+- 不要只背 API 或概念名，要说清楚适用条件；很多方案在小流量、单端、无异常时看起来都成立。
+- 不要忽略默认值、兼容性、异常回滚、性能退化和团队维护成本，这些往往是资深面试继续深挖的重点。
+- 如果答案里出现“总是”“一定”“完全替代”这类绝对表述，要主动补充例外场景。
+
+## smart-search-with-embedding-intent-followup-5
+
+title: 追问：embedding 模型升级怎么平滑过渡
+difficulty: 资深
+tags: [搜索, embedding, 高频, 追问]
+parent: smart-search-with-embedding-intent
+
+### 题目
+
+如果面试官追问：embedding 模型升级怎么平滑过渡？
+
+### 答案要点
+
+#### 回答思路
+
+- 先给一句结论：这个问题要从「为什么需要它」「它解决了什么问题」「代价是什么」三个角度回答。
+- 再把结论落回原题，不要脱离上下文泛泛而谈；面试官通常会顺着边界、异常和工程成本继续追问。
+- 如果涉及实现细节，按数据流、状态变化、调用顺序或生命周期拆开讲；如果涉及方案选择，必须说明为什么不用另一个方案。
+
+#### 结合原题展开
+
+- \*embedding 做在哪\*\*
+- 99% 场景做在后端：模型大、数据敏感、向量库在服务端
+- 前端能做的（轻量）：用 transformers.js 在浏览器跑小模型，做端侧重排或纠错；适合隐私 / 离线场景
+- 可以补充一个真实项目语境：上线前先约定输入输出、失败兜底和观测指标，避免只在 demo 场景下成立。
+
+#### 工程落地
+
+- 验证手段要具体：单元测试覆盖边界条件，集成测试覆盖主流程，必要时用 e2e 或回放数据验证真实链路。
+- 运行时要可观测：关键路径打日志或埋点，关注错误率、耗时、资源占用、用户可感知延迟和降级次数。
+- 发布策略要稳：高风险变更建议灰度、开关或回滚预案；如果会影响数据一致性，还要说明迁移和兼容策略。
+
+#### 易错点
+
+- 不要只背 API 或概念名，要说清楚适用条件；很多方案在小流量、单端、无异常时看起来都成立。
+- 不要忽略默认值、兼容性、异常回滚、性能退化和团队维护成本，这些往往是资深面试继续深挖的重点。
+- 如果答案里出现“总是”“一定”“完全替代”这类绝对表述，要主动补充例外场景。
+
+## smart-search-with-embedding-intent-followup-6
+
+title: 追问：双索引并行 + 灰度切；前端用同一接口
+difficulty: 资深
+tags: [搜索, embedding, 高频, 追问]
+parent: smart-search-with-embedding-intent
+
+### 题目
+
+如果面试官追问：双索引并行 + 灰度切；前端用同一接口
+
+### 答案要点
+
+#### 回答思路
+
+- 先给一句结论：这个问题要从「为什么需要它」「它解决了什么问题」「代价是什么」三个角度回答。
+- 再把结论落回原题，不要脱离上下文泛泛而谈；面试官通常会顺着边界、异常和工程成本继续追问。
+- 如果涉及实现细节，按数据流、状态变化、调用顺序或生命周期拆开讲；如果涉及方案选择，必须说明为什么不用另一个方案。
+
+#### 结合原题展开
+
+- 前端能做的（轻量）：用 transformers.js 在浏览器跑小模型，做端侧重排或纠错；适合隐私 / 离线场景
+- \*前端拿到的常见格式\*\*
+- 方案 D：混合：BM25 + 向量召回结果各自带分数，前端融合或后端融合
+- 可以补充一个真实项目语境：上线前先约定输入输出、失败兜底和观测指标，避免只在 demo 场景下成立。
+
+#### 工程落地
+
+- 验证手段要具体：单元测试覆盖边界条件，集成测试覆盖主流程，必要时用 e2e 或回放数据验证真实链路。
+- 运行时要可观测：关键路径打日志或埋点，关注错误率、耗时、资源占用、用户可感知延迟和降级次数。
+- 发布策略要稳：高风险变更建议灰度、开关或回滚预案；如果会影响数据一致性，还要说明迁移和兼容策略。
+
+#### 易错点
+
+- 不要只背 API 或概念名，要说清楚适用条件；很多方案在小流量、单端、无异常时看起来都成立。
+- 不要忽略默认值、兼容性、异常回滚、性能退化和团队维护成本，这些往往是资深面试继续深挖的重点。
+- 如果答案里出现“总是”“一定”“完全替代”这类绝对表述，要主动补充例外场景。
+
+## smart-search-with-embedding-intent-followup-7
+
+title: 追问：怎么避免泄漏内部分数体系
+difficulty: 资深
+tags: [搜索, embedding, 高频, 追问]
+parent: smart-search-with-embedding-intent
+
+### 题目
+
+如果面试官追问：怎么避免泄漏内部分数体系？
+
+### 答案要点
+
+#### 回答思路
+
+- 先给一句结论：这个问题要从「为什么需要它」「它解决了什么问题」「代价是什么」三个角度回答。
+- 再把结论落回原题，不要脱离上下文泛泛而谈；面试官通常会顺着边界、异常和工程成本继续追问。
+- 如果涉及实现细节，按数据流、状态变化、调用顺序或生命周期拆开讲；如果涉及方案选择，必须说明为什么不用另一个方案。
+
+#### 结合原题展开
+
+- 方案 A：ranked list + 单一相似度分数
+- 方案 D：混合：BM25 + 向量召回结果各自带分数，前端融合或后端融合
+- 直接展示分数给用户：分数无业务意义，应转成"很相关 / 一般 / 弱"
+- 可以补充一个真实项目语境：上线前先约定输入输出、失败兜底和观测指标，避免只在 demo 场景下成立。
+
+#### 工程落地
+
+- 验证手段要具体：单元测试覆盖边界条件，集成测试覆盖主流程，必要时用 e2e 或回放数据验证真实链路。
+- 运行时要可观测：关键路径打日志或埋点，关注错误率、耗时、资源占用、用户可感知延迟和降级次数。
+- 发布策略要稳：高风险变更建议灰度、开关或回滚预案；如果会影响数据一致性，还要说明迁移和兼容策略。
+
+#### 易错点
+
+- 不要只背 API 或概念名，要说清楚适用条件；很多方案在小流量、单端、无异常时看起来都成立。
+- 不要忽略默认值、兼容性、异常回滚、性能退化和团队维护成本，这些往往是资深面试继续深挖的重点。
+- 如果答案里出现“总是”“一定”“完全替代”这类绝对表述，要主动补充例外场景。
+
+## smart-search-with-embedding-intent-followup-8
+
+title: 追问：后端归一化为 0/1 或 1-5 星，不直接吐 cosine 数
+difficulty: 资深
+tags: [搜索, embedding, 高频, 追问]
+parent: smart-search-with-embedding-intent
+
+### 题目
+
+如果面试官追问：后端归一化为 0/1 或 1-5 星，不直接吐 cosine 数
+
+### 答案要点
+
+#### 回答思路
+
+- 先给一句结论：这个问题要从「为什么需要它」「它解决了什么问题」「代价是什么」三个角度回答。
+- 再把结论落回原题，不要脱离上下文泛泛而谈；面试官通常会顺着边界、异常和工程成本继续追问。
+- 如果涉及实现细节，按数据流、状态变化、调用顺序或生命周期拆开讲；如果涉及方案选择，必须说明为什么不用另一个方案。
+
+#### 结合原题展开
+
+- 99% 场景做在后端：模型大、数据敏感、向量库在服务端
+- 方案 D：混合：BM25 + 向量召回结果各自带分数，前端融合或后端融合
+- 前端通常不直接看向量；后端向量库做相似度召回返回结果
+- 可以补充一个真实项目语境：上线前先约定输入输出、失败兜底和观测指标，避免只在 demo 场景下成立。
+
+#### 工程落地
+
+- 验证手段要具体：单元测试覆盖边界条件，集成测试覆盖主流程，必要时用 e2e 或回放数据验证真实链路。
+- 运行时要可观测：关键路径打日志或埋点，关注错误率、耗时、资源占用、用户可感知延迟和降级次数。
+- 发布策略要稳：高风险变更建议灰度、开关或回滚预案；如果会影响数据一致性，还要说明迁移和兼容策略。
+
+#### 易错点
+
+- 不要只背 API 或概念名，要说清楚适用条件；很多方案在小流量、单端、无异常时看起来都成立。
+- 不要忽略默认值、兼容性、异常回滚、性能退化和团队维护成本，这些往往是资深面试继续深挖的重点。
+- 如果答案里出现“总是”“一定”“完全替代”这类绝对表述，要主动补充例外场景。
