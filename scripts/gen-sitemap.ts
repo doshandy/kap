@@ -1,14 +1,30 @@
 import { readdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import matter from 'gray-matter';
 
-const ROOT = new URL('../content/', import.meta.url).pathname;
-const OUT = new URL('../public/sitemap.xml', import.meta.url).pathname;
+const ROOT = fileURLToPath(new URL('../content/', import.meta.url));
+const OUT = fileURLToPath(new URL('../public/sitemap.xml', import.meta.url));
 const SITE = 'https://doshandy.github.io/kap';
 
-const staticPaths = ['/', '/learn', '/quiz', '/review', '/roadmap', '/changelog', '/settings'];
+const staticPaths = [
+  '/',
+  '/learn',
+  '/plan',
+  '/quiz',
+  '/exam',
+  '/review',
+  '/marks',
+  '/roadmap',
+  '/interview-guide',
+  '/graph',
+  '/changelog',
+  '/settings',
+];
 
-const files = readdirSync(ROOT).filter((file) => file.endsWith('.md')).sort();
+const files = readdirSync(ROOT)
+  .filter((file) => file.endsWith('.md'))
+  .sort();
 
 const questionPaths: string[] = [];
 const categoryPaths: string[] = [];
@@ -29,14 +45,11 @@ for (const file of files) {
 }
 
 const urls = [...new Set([...staticPaths, ...categoryPaths, ...questionPaths])];
-const lastmod = new Date().toISOString().slice(0, 10);
 
 const xml = [
   '<?xml version="1.0" encoding="UTF-8"?>',
   '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">',
-  ...urls.map(
-    (path) => `  <url><loc>${SITE}${path}</loc><lastmod>${lastmod}</lastmod></url>`,
-  ),
+  ...urls.map((path) => `  <url><loc>${SITE}${path}</loc></url>`),
   '</urlset>',
   '',
 ].join('\n');

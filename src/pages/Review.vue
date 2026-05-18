@@ -50,10 +50,7 @@ const fmtDate = (ts: number) => {
       <ul class="upcoming">
         <li v-for="u in upcoming" :key="u.q!.id">
           <span class="date">{{ fmtDate(u.due) }}</span>
-          <RouterLink
-            :to="`/q/${u.q!.categoryId}/${u.q!.slug}`"
-            class="link"
-          >
+          <RouterLink :to="`/q/${u.q!.categoryId}/${u.q!.slug}`" class="link">
             {{ u.q!.title }}
           </RouterLink>
           <span class="cat">{{ u.q!.categoryId }}</span>
@@ -113,5 +110,20 @@ section h3 {
   color: var(--c-text-mute);
   text-align: right;
   font-size: 11px;
+}
+
+@media (max-width: 560px) {
+  .upcoming li {
+    grid-template-columns: 1fr;
+    gap: 4px;
+    padding: 10px 0;
+  }
+  .link {
+    order: -1;
+    line-height: 1.5;
+  }
+  .cat {
+    text-align: left;
+  }
 }
 </style>

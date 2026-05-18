@@ -1,5 +1,4 @@
 import type { Category, ContentIndex, Question } from '@/types/content';
-import { parseCategoryMarkdown } from './parseMarkdown';
 
 /**
  * 关键性能优化：把 28 个 markdown 文件改为按需异步 chunk。
@@ -17,16 +16,22 @@ let pending: Promise<ContentIndex> | null = null;
 
 async function buildIndex(): Promise<ContentIndex> {
   const entries = Object.entries(modules);
-  const rawList = await Promise.all(
-    entries.map(async ([path, loader]) => ({ path, raw: await loader() })),
-  );
+  const [parser, rawList] = await Promise.all([
+    import('./parseMarkdown'),
+    Promise.all(entries.map(async ([path, loader]) => ({ path, raw: await loader() }))),
+  ]);
   const categories: Category[] = [];
+  const errors: Error[] = [];
   for (const { path, raw } of rawList) {
     try {
-      categories.push(parseCategoryMarkdown(raw));
+      categories.push(parser.parseCategoryMarkdown(raw));
     } catch (e) {
-      console.error('[content] failed to parse', path, e);
+      const reason = e instanceof Error ? e.message : String(e);
+      errors.push(new Error(`${path}: ${reason}`));
     }
+  }
+  if (errors.length) {
+    throw new AggregateError(errors, `[content] ${errors.length} markdown file(s) failed to parse`);
   }
   categories.sort((a, b) => a.order - b.order);
   const allQuestions: Question[] = [];
@@ -47,7 +52,10 @@ async function buildIndex(): Promise<ContentIndex> {
 export async function initContent(): Promise<ContentIndex> {
   if (cache) return cache;
   if (pending) return pending;
-  pending = buildIndex();
+  pending = buildIndex().catch((e) => {
+    pending = null;
+    throw e;
+  });
   return pending;
 }
 

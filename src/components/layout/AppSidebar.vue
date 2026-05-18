@@ -18,11 +18,13 @@ const stats = computed(() => {
   return progress.statsByCategory(map);
 });
 
-const totalQuestions = computed(() =>
-  categories.value.reduce((s, c) => s + c.questions.length, 0),
-);
+const totalQuestions = computed(() => categories.value.reduce((s, c) => s + c.questions.length, 0));
 
-const totalDone = computed(() => progress.totalDone);
+const totalDone = computed(() =>
+  progress.totalDoneFor(
+    categories.value.flatMap((category) => category.questions.map((question) => question.id)),
+  ),
+);
 
 function onNavClick() {
   if (window.innerWidth <= 768) emit('close');
@@ -30,65 +32,80 @@ function onNavClick() {
 </script>
 
 <template>
-  <aside class="sb" :class="{ open: props.open }">
-    <div class="sb-head">
-      <RouterLink to="/" class="home-link" @click="onNavClick">
-        <AppIcon name="dashboard" /> 总览
-      </RouterLink>
-      <div class="overall">
-        <div class="bar">
-          <div
-            class="bar-fill"
-            :style="{ width: totalQuestions ? `${(totalDone / totalQuestions) * 100}%` : '0%' }"
-          />
+  <div class="sb-shell">
+    <aside class="sb" :class="{ open: props.open }">
+      <div class="sb-head">
+        <RouterLink to="/" class="home-link" @click="onNavClick">
+          <AppIcon name="dashboard" /> 总览
+        </RouterLink>
+        <div class="quick-links">
+          <RouterLink to="/plan" @click="onNavClick"><AppIcon name="calendar" /> 计划</RouterLink>
+          <RouterLink to="/exam" @click="onNavClick"><AppIcon name="trophy" /> 临考</RouterLink>
+          <RouterLink to="/graph" @click="onNavClick"
+            ><AppIcon name="deployment" /> 图谱</RouterLink
+          >
+          <RouterLink to="/interview-guide" @click="onNavClick"
+            ><AppIcon name="fileText" /> 技巧</RouterLink
+          >
         </div>
-        <div class="overall-text">
-          已完成 <b>{{ totalDone }}</b> / {{ totalQuestions }}
+        <div class="overall">
+          <div class="bar">
+            <div
+              class="bar-fill"
+              :style="{ width: totalQuestions ? `${(totalDone / totalQuestions) * 100}%` : '0%' }"
+            />
+          </div>
+          <div class="overall-text">
+            已完成 <b>{{ totalDone }}</b> / {{ totalQuestions }}
+          </div>
         </div>
       </div>
-    </div>
-    <nav class="cat-list">
-      <RouterLink
-        v-for="c in categories"
-        :key="c.id"
-        :to="`/c/${c.id}`"
-        class="cat-item"
-        :class="{ active: route.params.categoryId === c.id }"
-        @click="onNavClick"
-      >
-        <span class="icon">{{ c.icon }}</span>
-        <span class="title">{{ c.title }}</span>
-        <span class="counter">
-          {{ stats[c.id]?.done ?? 0 }}/{{ c.questions.length }}
-        </span>
-        <div class="cat-progress">
-          <div
-            class="cat-progress-fill"
-            :style="{
-              width: c.questions.length
-                ? `${((stats[c.id]?.done ?? 0) / c.questions.length) * 100}%`
-                : '0%',
-            }"
-          />
-        </div>
-      </RouterLink>
-    </nav>
-    <div class="sb-foot">
-      <RouterLink to="/changelog" class="foot-link" @click="onNavClick">
-        <AppIcon name="fileText" /> 更新日志
-      </RouterLink>
-      <a class="foot-link" href="https://github.com/doshandy/kap" target="_blank" rel="noopener">
-        <AppIcon name="github" /> GitHub
-      </a>
-    </div>
+      <nav class="cat-list">
+        <RouterLink
+          v-for="c in categories"
+          :key="c.id"
+          :to="`/c/${c.id}`"
+          class="cat-item"
+          :class="{ active: route.params.categoryId === c.id }"
+          @click="onNavClick"
+        >
+          <span class="icon">{{ c.icon }}</span>
+          <span class="title">{{ c.title }}</span>
+          <span class="counter"> {{ stats[c.id]?.done ?? 0 }}/{{ c.questions.length }} </span>
+          <div class="cat-progress">
+            <div
+              class="cat-progress-fill"
+              :style="{
+                width: c.questions.length
+                  ? `${((stats[c.id]?.done ?? 0) / c.questions.length) * 100}%`
+                  : '0%',
+              }"
+            />
+          </div>
+        </RouterLink>
+      </nav>
+      <div class="sb-foot">
+        <RouterLink to="/changelog" class="foot-link" @click="onNavClick">
+          <AppIcon name="fileText" /> 更新日志
+        </RouterLink>
+        <a class="foot-link" href="https://github.com/doshandy/kap" target="_blank" rel="noopener">
+          <AppIcon name="github" /> GitHub
+        </a>
+      </div>
+    </aside>
     <div v-if="props.open" class="mask" @click="emit('close')" />
-  </aside>
+  </div>
 </template>
 
 <style scoped>
+.sb-shell {
+  display: flex;
+  min-height: 0;
+}
 .sb {
   display: flex;
   flex-direction: column;
+  flex: 1;
   background: var(--c-surface);
   border-right: 1px solid var(--c-border);
   overflow: hidden;
@@ -108,6 +125,28 @@ function onNavClick() {
 .home-link:hover {
   background: var(--c-bg-mute);
   text-decoration: none;
+}
+.quick-links {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 6px;
+  margin-top: 8px;
+}
+.quick-links a {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  padding: 6px;
+  border: 1px solid var(--c-border);
+  border-radius: var(--radius);
+  color: var(--c-text-soft);
+  font-size: 12px;
+  text-decoration: none;
+}
+.quick-links a:hover {
+  border-color: var(--c-primary);
+  color: var(--c-primary);
 }
 .overall {
   margin-top: 10px;
@@ -204,8 +243,9 @@ function onNavClick() {
   .sb {
     position: fixed;
     inset: 0 auto 0 0;
-    width: 78%;
+    width: min(86vw, 320px);
     max-width: 320px;
+    padding-top: env(safe-area-inset-top);
     transform: translateX(-100%);
     transition: transform 0.2s;
     z-index: 30;
@@ -219,7 +259,8 @@ function onNavClick() {
     position: fixed;
     inset: 0;
     background: rgba(0, 0, 0, 0.4);
-    z-index: 20;
+    z-index: 28;
+    backdrop-filter: blur(1px);
   }
 }
 </style>

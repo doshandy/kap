@@ -81,4 +81,19 @@ function gotoOffset(d: number) {
 .empty .hint {
   font-size: 12px;
 }
+@media (max-width: 560px) {
+  .crumb {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .paging {
+    gap: 8px;
+  }
+  .paging .btn {
+    flex: 1;
+    justify-content: center;
+    text-align: center;
+  }
+}
 </style>

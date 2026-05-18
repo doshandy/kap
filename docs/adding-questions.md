@@ -1,11 +1,13 @@
 # 添加题目指南
 
-本项目的题库内容全部放在 [`/Users/csh/work/kap/content`](/Users/csh/work/kap/content) 下，每个分类对应一个 Markdown 文件。
+本项目的题库内容全部放在 [`content/`](../content) 下，每个分类对应一个 Markdown 文件。
 
 ## 目录约定
 
 - 一个分类一个文件，例如 `03-vue.md`
 - 文件顶部必须有 frontmatter
+- frontmatter 的 `id` 必须与文件名一致，例如 `03-vue.md` 对应 `id: 03-vue`
+- `order` 必须是正整数，且全局唯一
 - 正文中每个 `## <slug>` 表示一题
 - `slug` 是稳定 ID，请避免随意修改；它会影响分享链接、本地进度和复习记录
 
@@ -38,6 +40,7 @@ title: Vue3 为什么用 Proxy 替代 Object.defineProperty
 difficulty: 进阶
 tags: [响应式, 原理]
 followups: [proxy-vs-defineproperty-followup-1]
+links: [03-vue/effect-track-trigger, 01-javascript/proxy-reflect]
 
 ### 题目
 
@@ -79,6 +82,8 @@ const reactive = <T extends object>(target: T) =>
 - `tags`：标签数组，建议控制在 2 到 5 个
 - `followups`：原题关联的追问题 slug 或完整题目 ID，可选
 - `parent`：追问题所属原题 slug 或完整题目 ID，可选
+- `links`：跨题相关题目 slug 或完整题目 ID，可选；不带 `/` 默认指向当前分类，带 `/` 表示跨分类完整 ID
+- 题目元数据必须写在第一个 `###` 子段落之前
 - `### 题目`：题干，必填
 - `### 答案要点`：答案正文，必填
 - `### 代码示例`：可选
@@ -113,6 +118,7 @@ parent: proxy-vs-defineproperty
 - 一题聚焦一个核心知识点或一个强关联问题簇
 - 先给结论，再解释原理，再补边界和工程实践
 - 代码示例尽量短小但能说明关键点
+- 如果代码块里需要展示 Markdown 标题，请放在 fenced code block 内；校验器会跳过代码块内的 `##`
 - 延伸部分适合放易错点、对比项、追问方向
 
 ## 提交前检查
@@ -120,7 +126,9 @@ parent: proxy-vs-defineproperty
 ```bash
 pnpm validate:content
 pnpm lint
+pnpm lint:style
 pnpm typecheck
+pnpm typecheck:node
 pnpm generate:sitemap
 pnpm build
 ```
@@ -129,12 +137,34 @@ pnpm build
 
 - `content/` 目录是否为空
 - 分类 frontmatter 是否包含 `id/title/order`
+- 分类 `id` 是否与文件名一致，`order` 是否为唯一正整数
 - 每题是否包含 `title`
 - 每题是否至少有 `### 题目` 与 `### 答案要点`
-- 同分类内 `slug` 是否重复
+- 同分类内 `slug`、全局题目 ID 是否重复
+- 题目元数据是否误写到 `###` 段落之后
+- `tags` / `followups` 是否使用内联数组格式
+- `parent` / `followups` 是否存在、自引用或重复
+- `links` 是否存在、自引用或重复
+- `###` 段落是否重复或为空
+- fenced code block 是否闭合、是否有语言标识
+- 是否出现常见生成损坏片段，例如尖括号内容丢失、HTML 标签名缺失、模板变量被错误转义
+- 同一文件内是否残留大量模板化追问句式；默认只提示，`STRICT_VALIDATE=1` 下会失败
 
 ## 维护建议
 
 - 尽量不要修改已发布题目的 `slug`
 - 如果需要重构某题，优先保留稳定 ID，只更新标题和内容
 - 新增题目时，尽量遵守当前分类下已有的命名和写作风格
+
+## 批量维护脚本
+
+内容批量脚本默认应先预览，不直接落盘：
+
+- `pnpm content:summary`：预览缺失「一句话」的补全文案；确认后用 `pnpm content:summary:write`
+- `pnpm content:pitfall`：通过 stdin 预览注入「常见误区 / 追问」段落；确认后用 `pnpm content:pitfall:write`
+- `pnpm content:followups`：预览追问题生成和刷新结果；确认后用 `pnpm content:followups:write`
+- `pnpm content:links`：预览跨题相关题目的高置信关联；确认后用 `pnpm content:links:write`
+- `pnpm content:polish`：预览移除泛化追问、收敛过密 links、清理生成模板句；确认后用 `pnpm content:polish:write`
+- `pnpm tsx scripts/enhance-content-quality.ts`：预览补常见误区、扩写短答案和改写模板追问；确认后加 `--write`
+
+推荐流程：先用 `--only=xx.md` 小范围验证，再看 git diff，最后运行 `pnpm validate:content`；大范围改写后再跑 `pnpm build`。

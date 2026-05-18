@@ -16,5 +16,11 @@ module.exports = {
     'media-feature-range-notation': null,
     'color-function-notation': null,
     'declaration-block-no-redundant-longhand-properties': null,
+    'selector-pseudo-class-no-unknown': [
+      true,
+      {
+        ignorePseudoClasses: ['deep'],
+      },
+    ],
   },
 };

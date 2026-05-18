@@ -4,37 +4,20 @@ import { useContent } from '@/composables/useContent';
 import { useProgressStore } from '@/stores/progress';
 import { useReviewStore } from '@/stores/review';
 import { useMarksStore } from '@/stores/marks';
+import { buildContentFingerprint, useContentUpdatesStore } from '@/stores/contentUpdates';
 import AppIcon from '@/components/icon/AppIcon.vue';
+import type { EChartsLite } from '@/lib/echartsLite';
 
-type EChartsModule = typeof import('echarts/core');
-let echarts: EChartsModule | null = null;
-let echartsReady: Promise<EChartsModule> | null = null;
+let echarts: EChartsLite | null = null;
+let echartsReady: Promise<EChartsLite> | null = null;
 
-async function loadECharts(): Promise<EChartsModule> {
+async function loadECharts(): Promise<EChartsLite> {
   if (echarts) return echarts;
   if (echartsReady) return echartsReady;
-  echartsReady = (async () => {
-    const [core, charts, components, renderers] = await Promise.all([
-      import('echarts/core'),
-      import('echarts/charts'),
-      import('echarts/components'),
-      import('echarts/renderers'),
-    ]);
-    core.use([
-      charts.PieChart,
-      charts.BarChart,
-      charts.HeatmapChart,
-      components.TitleComponent,
-      components.TooltipComponent,
-      components.LegendComponent,
-      components.GridComponent,
-      components.VisualMapComponent,
-      components.CalendarComponent,
-      renderers.CanvasRenderer,
-    ]);
-    echarts = core;
-    return core;
-  })();
+  echartsReady = import('@/lib/echartsLite').then((module) => {
+    echarts = module.default;
+    return module.default;
+  });
   return echartsReady;
 }
 
@@ -42,9 +25,12 @@ const { categories, allQuestions } = useContent();
 const progress = useProgressStore();
 const review = useReviewStore();
 const marks = useMarksStore();
+const updates = useContentUpdatesStore();
 
 const totalQuestions = computed(() => allQuestions.value.length);
-const totalDone = computed(() => progress.totalDone);
+const questionIds = computed(() => allQuestions.value.map((q) => q.id));
+const questionIdSet = computed(() => new Set(questionIds.value));
+const totalDone = computed(() => progress.totalDoneFor(questionIds.value));
 const dueCount = computed(() => review.dueIds.length);
 
 const stats = computed(() => {
@@ -74,7 +60,7 @@ const weakRanking = computed(() => {
  * 最近 14 天每日完成数（节奏曲线）
  */
 const rhythm14 = computed(() => {
-  const map = progress.heatmap;
+  const map = progress.heatmapFor(questionIds.value);
   const today = new Date();
   const out: { date: string; count: number }[] = [];
   for (let i = 13; i >= 0; i--) {
@@ -97,11 +83,12 @@ const readiness = computed(() => {
   const total = totalQuestions.value;
   if (!total) return { score: 0, level: '空仓' };
   const done = totalDone.value;
-  const masteredCount = Object.values(progress.state.records).filter(
-    (r) => r.status === 'mastered',
-  ).length;
-  const reviewSet = Object.values(progress.state.records).filter(
-    (r) => r.status === 'review' || r.status === 'fuzzy',
+  const currentRecords = Object.entries(progress.state.records).filter(([id]) =>
+    questionIdSet.value.has(id),
+  );
+  const masteredCount = currentRecords.filter(([, r]) => r.status === 'mastered').length;
+  const reviewSet = currentRecords.filter(
+    ([, r]) => r.status === 'review' || r.status === 'fuzzy',
   ).length;
 
   const coverScore = (done / total) * 60;
@@ -118,10 +105,46 @@ const readiness = computed(() => {
 });
 
 const starredCount = computed(() => marks.starredCount);
+const contentFingerprint = computed(() => buildContentFingerprint(allQuestions.value));
+const hasContentUpdates = computed(() => updates.hasUpdates(contentFingerprint.value));
+const weeklyReport = computed(() => {
+  const sevenDays = rhythm14.value.slice(-7);
+  const weeklyDone = sevenDays.reduce((sum, item) => sum + item.count, 0);
+  const weak = weakRanking.value[0];
+  const currentRecords = Object.entries(progress.state.records).filter(([id]) =>
+    questionIdSet.value.has(id),
+  );
+  const highFrequencyTotal = allQuestions.value.filter((q) =>
+    q.tags.some((tag) => /高频|核心|面试/.test(tag)),
+  ).length;
+  const highFrequencyDone = allQuestions.value.filter(
+    (q) => q.tags.some((tag) => /高频|核心|面试/.test(tag)) && progress.get(q.id).status !== 'todo',
+  ).length;
+  const reviewCount = currentRecords.filter(
+    ([, record]) => record.status === 'review' || record.status === 'fuzzy',
+  ).length;
+  return {
+    weeklyDone,
+    activeDays: sevenDays.filter((item) => item.count > 0).length,
+    weakTitle: weak?.title || '暂无明显薄弱分类',
+    reviewCount,
+    highFrequencyRate: highFrequencyTotal
+      ? Math.round((highFrequencyDone / highFrequencyTotal) * 100)
+      : 0,
+  };
+});
 
 const pieRef = ref<HTMLDivElement | null>(null);
 const barRef = ref<HTMLDivElement | null>(null);
 const heatRef = ref<HTMLDivElement | null>(null);
+
+watch(
+  contentFingerprint,
+  (fingerprint) => {
+    if (fingerprint && !updates.hasSeenAnyVersion) updates.markSeen(fingerprint);
+  },
+  { immediate: true },
+);
 
 function isDark() {
   return document.documentElement.classList.contains('dark');
@@ -216,13 +239,17 @@ function getBarOption() {
 }
 
 function getHeatmapOption() {
-  const map = progress.heatmap;
+  const map = progress.heatmapFor(questionIds.value);
   const points = Object.entries(map).map(([d, v]) => [d, v]);
   const max = Math.max(1, ...points.map((p) => p[1] as number));
+  const compact =
+    typeof window !== 'undefined' &&
+    typeof window.matchMedia === 'function' &&
+    window.matchMedia('(max-width: 640px)').matches;
   const today = new Date();
   const end = today.toISOString().slice(0, 10);
   const startDate = new Date(today);
-  startDate.setMonth(startDate.getMonth() - 11);
+  startDate.setMonth(startDate.getMonth() - (compact ? 5 : 11));
   startDate.setDate(1);
   const start = startDate.toISOString().slice(0, 10);
   return {
@@ -235,8 +262,8 @@ function getHeatmapOption() {
       orient: 'horizontal',
       left: 'center',
       top: 0,
-      itemWidth: 14,
-      itemHeight: 12,
+      itemWidth: compact ? 12 : 14,
+      itemHeight: compact ? 10 : 12,
       textStyle: { color: palette.textSoft, fontSize: 11 },
       inRange: {
         color: isDark()
@@ -245,12 +272,12 @@ function getHeatmapOption() {
       },
     },
     calendar: {
-      top: 50,
-      left: 40,
-      right: 20,
+      top: compact ? 42 : 50,
+      left: compact ? 28 : 40,
+      right: compact ? 8 : 20,
       bottom: 10,
       range: [start, end],
-      cellSize: [16, 16],
+      cellSize: compact ? [12, 12] : [16, 16],
       splitLine: { show: false },
       itemStyle: { borderColor: palette.surface, borderWidth: 1, color: palette.bgMute },
       yearLabel: { show: false },
@@ -270,7 +297,7 @@ function getHeatmapOption() {
   };
 }
 
-type EChartsInstance = ReturnType<EChartsModule['init']>;
+type EChartsInstance = ReturnType<EChartsLite['init']>;
 
 let pie: EChartsInstance | null = null;
 let bar: EChartsInstance | null = null;
@@ -349,7 +376,7 @@ onBeforeUnmount(() => {
 });
 
 watch(
-  () => [totalDone.value, dueCount.value, document.documentElement.className],
+  () => [totalDone.value, dueCount.value],
   () => {
     void renderAll();
   },
@@ -363,14 +390,19 @@ watch(
       <p class="subtitle">Vue 前端工程师知识图谱 · 自查 · 面试 · 复习一站式</p>
       <div class="quick">
         <RouterLink class="btn btn-primary" to="/learn">
-          <AppIcon name="read" /> 顺序学习（从第 1 题开始）
+          <AppIcon name="read" /> 顺序学习
         </RouterLink>
+        <RouterLink class="btn" to="/plan"> <AppIcon name="calendar" /> 学习计划 </RouterLink>
         <RouterLink class="btn" to="/quiz"> <AppIcon name="experiment" /> 抽题模拟 </RouterLink>
+        <RouterLink class="btn" to="/exam"> <AppIcon name="trophy" /> 临考模式 </RouterLink>
+        <RouterLink class="btn" to="/interview-guide">
+          <AppIcon name="fileText" /> 面试技巧
+        </RouterLink>
         <RouterLink class="btn" to="/review">
           <AppIcon name="reload" /> 待复习
           <b v-if="dueCount">{{ dueCount }}</b>
         </RouterLink>
-        <RouterLink class="btn" to="/roadmap"> <AppIcon name="compass" /> 学习路线 </RouterLink>
+        <RouterLink class="btn" to="/graph"> <AppIcon name="deployment" /> 关系图谱 </RouterLink>
       </div>
       <div class="kpi">
         <div>
@@ -390,6 +422,47 @@ watch(
           <div class="kpi-lbl">今日待复习</div>
         </div>
       </div>
+    </section>
+
+    <section v-if="hasContentUpdates" class="card update-card">
+      <div>
+        <h2><AppIcon name="thunderbolt" /> 题库有新内容</h2>
+        <p class="muted">
+          当前题库共 {{ totalQuestions }} 道题。已为你保留新增 /
+          更新提示入口，复习前建议先看学习计划和关系图谱。
+        </p>
+      </div>
+      <button class="btn btn-primary" @click="updates.markSeen(contentFingerprint)">
+        标记已读
+      </button>
+    </section>
+
+    <section class="card weekly-report">
+      <div class="section-head">
+        <h2><AppIcon name="pieChart" /> 本周学习报告</h2>
+        <RouterLink class="btn btn-ghost" to="/plan">生成今日计划</RouterLink>
+      </div>
+      <div class="report-grid">
+        <div>
+          <b>{{ weeklyReport.weeklyDone }}</b>
+          <span>本周完成</span>
+        </div>
+        <div>
+          <b>{{ weeklyReport.activeDays }}</b>
+          <span>活跃天数</span>
+        </div>
+        <div>
+          <b>{{ weeklyReport.reviewCount }}</b>
+          <span>需复习 / 模糊</span>
+        </div>
+        <div>
+          <b>{{ weeklyReport.highFrequencyRate }}%</b>
+          <span>高频题覆盖</span>
+        </div>
+      </div>
+      <p class="muted">
+        建议下一步：优先复盘「{{ weeklyReport.weakTitle }}」，再进入临考模式抽 10 道高频题。
+      </p>
     </section>
 
     <section class="grid">
@@ -442,8 +515,12 @@ watch(
       <div class="card rhythm">
         <h3><AppIcon name="thunderbolt" /> 学习节奏（近 14 天）</h3>
         <div class="rhythm-summary">
-          <span>总完成 <b>{{ rhythmTotal }}</b> 次</span>
-          <span>活跃天数 <b>{{ rhythmActiveDays }}</b> / 14</span>
+          <span
+            >总完成 <b>{{ rhythmTotal }}</b> 次</span
+          >
+          <span
+            >活跃天数 <b>{{ rhythmActiveDays }}</b> / 14</span
+          >
         </div>
         <div class="rhythm-bars" role="img" :aria-label="`近14天每日完成数`">
           <div
@@ -510,9 +587,9 @@ watch(
 }
 .quick {
   margin-top: 14px;
-  display: flex;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
   gap: 8px;
-  flex-wrap: wrap;
 }
 .kpi {
   margin-top: 18px;
@@ -534,6 +611,46 @@ watch(
 .kpi-lbl {
   font-size: 12px;
   color: var(--c-text-mute);
+}
+.update-card,
+.weekly-report {
+  padding: 16px 18px;
+}
+.update-card,
+.section-head {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: center;
+}
+.update-card h2,
+.section-head h2 {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0 0 6px;
+  font-size: 18px;
+}
+.report-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+  margin: 12px 0;
+}
+.report-grid > div {
+  display: grid;
+  gap: 4px;
+  padding: 12px;
+  border-radius: var(--radius);
+  background: var(--c-bg-soft);
+}
+.report-grid b {
+  color: var(--c-primary);
+  font-size: 22px;
+}
+.report-grid span {
+  color: var(--c-text-mute);
+  font-size: 12px;
 }
 .grid {
   display: grid;
@@ -561,11 +678,42 @@ watch(
   overflow-x: auto;
 }
 @media (max-width: 768px) {
+  .hero {
+    padding: 20px 16px;
+  }
+  .hero h1 {
+    font-size: 24px;
+  }
   .grid {
     grid-template-columns: 1fr;
   }
   .kpi {
     grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+  }
+  .quick .btn {
+    width: 100%;
+    justify-content: center;
+    min-height: 40px;
+    text-align: center;
+  }
+  .update-card,
+  .section-head {
+    align-items: stretch;
+    flex-direction: column;
+  }
+  .report-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .chart-box {
+    height: 240px;
+  }
+  .chart-box.heat {
+    height: 170px;
+    min-width: 0;
+  }
+  .chart.heat-wrap {
+    overflow: hidden;
   }
 }
 
@@ -622,7 +770,6 @@ watch(
 }
 .ring-fg {
   fill: none;
-  stroke: url(#none);
   stroke: var(--c-primary);
   stroke-width: 12;
   stroke-linecap: round;
@@ -705,6 +852,10 @@ watch(
 .weak {
   /* 让"无数据"提示时整卡纵向居中，避免出现大片空白 */
 }
+.muted.small {
+  font-size: 12px;
+  color: var(--c-text-mute);
+}
 .weak-list {
   list-style: none;
   padding: 0;
@@ -765,8 +916,27 @@ watch(
   color: var(--c-text-soft);
   text-align: right;
 }
-.muted.small {
-  font-size: 12px;
-  color: var(--c-text-mute);
+@media (max-width: 480px) {
+  .home {
+    gap: 14px;
+  }
+  .quick {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .quick .btn {
+    padding-inline: 8px;
+    font-size: 13px;
+  }
+  .kpi > div {
+    padding: 12px 10px;
+  }
+  .weak-list li {
+    grid-template-columns: 22px minmax(0, 1fr) 40px;
+    gap: 8px;
+  }
+  .weak-bar {
+    grid-column: 2 / span 2;
+    width: 100%;
+  }
 }
 </style>

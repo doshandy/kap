@@ -18,3 +18,7 @@ export function buildPrompt(q: Question): string {
 export function chatGptUrl(prompt: string): string {
   return `https://chatgpt.com/?q=${encodeURIComponent(prompt)}`;
 }
+
+export function domesticAiUrl(): string {
+  return 'https://kimi.moonshot.cn/';
+}

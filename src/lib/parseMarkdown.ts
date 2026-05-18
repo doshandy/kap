@@ -1,5 +1,6 @@
 import MarkdownIt from 'markdown-it';
 import anchor from 'markdown-it-anchor';
+import DOMPurify from 'dompurify';
 import Prism from 'prismjs';
 import 'prismjs/components/prism-typescript';
 import 'prismjs/components/prism-jsx';
@@ -31,6 +32,46 @@ const md: MarkdownIt = new MarkdownIt({
   },
 });
 md.use(anchor, { permalink: false });
+
+DOMPurify.addHook('afterSanitizeAttributes', (node) => {
+  if (node.nodeName !== 'A') return;
+  const el = node as HTMLAnchorElement;
+  if (el.getAttribute('target') === '_blank') {
+    el.setAttribute('rel', 'noopener noreferrer');
+  }
+});
+
+const defaultLinkOpen =
+  md.renderer.rules.link_open ||
+  ((tokens, idx, options, _env, self) => self.renderToken(tokens, idx, options));
+
+md.renderer.rules.link_open = (tokens, idx, options, env, self) => {
+  const token = tokens[idx];
+  const href = token.attrGet('href') || '';
+  const isExternal = /^(https?:)?\/\//i.test(href);
+  const isUnsafe = /^\s*javascript:/i.test(href);
+  if (isUnsafe) {
+    token.attrSet('href', '#');
+  }
+  if (isExternal) {
+    token.attrSet('target', '_blank');
+    token.attrSet('rel', 'noopener noreferrer');
+  }
+  return defaultLinkOpen(tokens, idx, options, env, self);
+};
+
+export function sanitizeHtml(html: string): string {
+  return DOMPurify.sanitize(html, {
+    USE_PROFILES: { html: true },
+    FORBID_TAGS: ['script', 'iframe', 'object', 'embed', 'form', 'input', 'button'],
+    FORBID_ATTR: ['style', 'onerror', 'onload', 'onclick', 'onmouseover'],
+    ADD_ATTR: ['target'],
+  });
+}
+
+export function renderMarkdown(src: string): string {
+  return sanitizeHtml(md.render(src));
+}
 
 interface RawCategoryFront {
   id: string;
@@ -77,6 +118,8 @@ interface RawQuestionFront {
   parentId?: string;
   followups?: string[];
   followupQuestionIds?: string[];
+  links?: string[];
+  relatedQuestionIds?: string[];
 }
 
 const QUESTION_HEADING_RE = /^##\s+([a-z][a-z0-9-]*)\s*$/;
@@ -110,6 +153,8 @@ function splitQuestions(body: string): ParsedQuestionBlock[] {
   let currentSection: string | null = null;
   let metaBuffer: string[] = [];
   let collectingMeta = false;
+  let inFence = false;
+  let fenceMarker = '';
 
   const flushMeta = () => {
     if (!current) return;
@@ -134,8 +179,18 @@ function splitQuestions(body: string): ParsedQuestionBlock[] {
   };
 
   for (const line of lines) {
+    const fence = line.match(/^(`{3,})/);
+    if (fence) {
+      if (!inFence) {
+        inFence = true;
+        fenceMarker = fence[1];
+      } else if (fence[1].length >= fenceMarker.length) {
+        inFence = false;
+        fenceMarker = '';
+      }
+    }
     const headMatch = line.match(QUESTION_HEADING_RE);
-    if (headMatch) {
+    if (!inFence && headMatch) {
       if (current) {
         flushMeta();
         blocks.push(current);
@@ -155,7 +210,7 @@ function splitQuestions(body: string): ParsedQuestionBlock[] {
     current.raw += line + '\n';
 
     const subMatch = line.match(SUBSECTION_RE);
-    if (subMatch) {
+    if (!inFence && subMatch) {
       flushMeta();
       currentSection = subMatch[1];
       current.sections[currentSection] = '';
@@ -195,6 +250,7 @@ export function parseCategoryMarkdown(raw: string): Category {
     const tags = Array.isArray(b.meta.tags) ? b.meta.tags : [];
     const parentValue = b.meta.parentId || b.meta.parent;
     const followupValues = b.meta.followupQuestionIds || b.meta.followups;
+    const relatedValues = b.meta.relatedQuestionIds || b.meta.links;
     return {
       id: `${front.id}/${b.slug}`,
       categoryId: front.id,
@@ -202,15 +258,16 @@ export function parseCategoryMarkdown(raw: string): Category {
       title: b.meta.title,
       difficulty,
       tags,
-      summary: b.sections['一句话'] ? md.render(b.sections['一句话']) : undefined,
-      question: md.render(b.sections['题目'] || ''),
-      answer: md.render(b.sections['答案要点'] || ''),
-      code: b.sections['代码示例'] ? md.render(b.sections['代码示例']) : undefined,
-      pitfall: b.sections['常见误区'] ? md.render(b.sections['常见误区']) : undefined,
-      followup: b.sections['追问'] ? md.render(b.sections['追问']) : undefined,
+      summary: b.sections['一句话'] ? renderMarkdown(b.sections['一句话']) : undefined,
+      question: renderMarkdown(b.sections['题目'] || ''),
+      answer: renderMarkdown(b.sections['答案要点'] || ''),
+      code: b.sections['代码示例'] ? renderMarkdown(b.sections['代码示例']) : undefined,
+      pitfall: b.sections['常见误区'] ? renderMarkdown(b.sections['常见误区']) : undefined,
+      followup: b.sections['追问'] ? renderMarkdown(b.sections['追问']) : undefined,
       parentId: parentValue ? normalizeQuestionId(front.id, parentValue) : undefined,
       followupQuestionIds: normalizeQuestionIds(front.id, followupValues),
-      extra: b.sections['延伸'] ? md.render(b.sections['延伸']) : undefined,
+      relatedQuestionIds: normalizeQuestionIds(front.id, relatedValues),
+      extra: b.sections['延伸'] ? renderMarkdown(b.sections['延伸']) : undefined,
       raw: b.raw,
     };
   });

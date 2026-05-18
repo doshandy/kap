@@ -90,14 +90,9 @@ function catCount(id: string) {
       </RouterLink>
     </div>
     <ol v-if="(paths.find((p) => p.id === active)?.ordering || []).length" class="path">
-      <li
-        v-for="(c, i) in paths.find((p) => p.id === active)?.ordering || []"
-        :key="c"
-      >
+      <li v-for="(c, i) in paths.find((p) => p.id === active)?.ordering || []" :key="c">
         <span class="step">{{ i + 1 }}</span>
-        <RouterLink :to="`/c/${c}`" class="link">
-          {{ catIcon(c) }} {{ catTitle(c) }}
-        </RouterLink>
+        <RouterLink :to="`/c/${c}`" class="link"> {{ catIcon(c) }} {{ catTitle(c) }} </RouterLink>
         <span class="count">{{ catCount(c) }} 题</span>
       </li>
     </ol>
@@ -120,6 +115,21 @@ header h1 {
   display: inline-flex;
   align-items: center;
   gap: 6px;
+  padding: 10px 16px;
+  border-radius: var(--radius);
+  background: var(--c-primary);
+  color: #fff;
+  font-size: 13px;
+  text-decoration: none;
+  font-weight: 600;
+}
+.cta-btn:hover {
+  filter: brightness(1.05);
+}
+.cta-btn.ghost {
+  background: var(--c-bg-mute);
+  color: var(--c-text);
+  font-weight: 500;
 }
 .muted {
   color: var(--c-text-mute);
@@ -192,26 +202,6 @@ header h1 {
   flex-wrap: wrap;
   gap: 8px;
   margin: 0 0 16px;
-}
-.cta-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 10px 16px;
-  border-radius: var(--radius);
-  background: var(--c-primary);
-  color: #fff;
-  font-size: 13px;
-  text-decoration: none;
-  font-weight: 600;
-}
-.cta-btn:hover {
-  filter: brightness(1.05);
-}
-.cta-btn.ghost {
-  background: var(--c-bg-mute);
-  color: var(--c-text);
-  font-weight: 500;
 }
 .empty {
   padding: 32px;

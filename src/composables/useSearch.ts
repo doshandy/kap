@@ -27,7 +27,10 @@ async function ensureFuse(): Promise<FuseType<Question>> {
       includeMatches: true,
     });
     return fuse;
-  })();
+  })().catch((e) => {
+    fusePending = null;
+    throw e;
+  });
   return fusePending;
 }
 
@@ -52,7 +55,11 @@ const HISTORY_MAX = 8;
 export function getSearchHistory(): string[] {
   try {
     const raw = localStorage.getItem(HISTORY_KEY);
-    return raw ? (JSON.parse(raw) as string[]) : [];
+    const parsed: unknown = raw ? JSON.parse(raw) : [];
+    if (!Array.isArray(parsed)) return [];
+    return parsed
+      .filter((item): item is string => typeof item === 'string' && !!item.trim())
+      .slice(0, HISTORY_MAX);
   } catch {
     return [];
   }
@@ -156,6 +163,7 @@ function toHit(r: FuseResult<Question>): SearchHit {
 export function useSearch() {
   const keyword = ref('');
   const ready = ref(!!fuse);
+  const error = ref<string | null>(null);
 
   /**
    * 搜索结果是 computed：它会跟随 keyword 变化，但在 fuse 未就绪时输出空数组。
@@ -163,9 +171,14 @@ export function useSearch() {
    */
   const hits = computed<SearchHit[]>(() => {
     if (!ready.value) {
-      void ensureFuse().then(() => {
-        ready.value = true;
-      });
+      void ensureFuse()
+        .then(() => {
+          error.value = null;
+          ready.value = true;
+        })
+        .catch((e) => {
+          error.value = e instanceof Error ? e.message : String(e);
+        });
     }
     const k = keyword.value.trim();
     if (!k || !fuse) return [];
@@ -174,5 +187,5 @@ export function useSearch() {
 
   const results = computed<Question[]>(() => hits.value.map((h) => h.item));
 
-  return { keyword, results, hits, ready };
+  return { keyword, results, hits, ready, error };
 }

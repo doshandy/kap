@@ -1,9 +1,10 @@
 <script setup lang="ts">
-import { computed, watchEffect } from 'vue';
+import { computed, watch, watchEffect } from 'vue';
 import { useRoute } from 'vue-router';
 import { useContent } from '@/composables/useContent';
 import { useFilterStore } from '@/stores/filter';
 import { useProgressStore } from '@/stores/progress';
+import { useMarksStore } from '@/stores/marks';
 import { useFilterSync } from '@/composables/useFilterSync';
 import QuestionCard from '@/components/question/QuestionCard.vue';
 import QuestionFilters from '@/components/question/QuestionFilters.vue';
@@ -12,6 +13,7 @@ const route = useRoute();
 const { getCategory } = useContent();
 const filter = useFilterStore();
 const progress = useProgressStore();
+const marks = useMarksStore();
 
 useFilterSync();
 
@@ -28,10 +30,22 @@ const tags = computed(() => {
   return Array.from(set).sort();
 });
 
+watch(
+  tags,
+  (available) => {
+    if (!filter.state.tags.length) return;
+    const set = new Set(available);
+    const next = filter.state.tags.filter((tag) => set.has(tag));
+    if (next.length !== filter.state.tags.length) filter.state.tags = next;
+  },
+  { immediate: true },
+);
+
 const filtered = computed(() => {
   if (!cat.value) return [];
   const k = filter.state.keyword.trim().toLowerCase();
   return cat.value.questions.filter((q) => {
+    if (marks.isSkipped(q.id)) return false;
     if (filter.state.difficulties.length && !filter.state.difficulties.includes(q.difficulty))
       return false;
     if (filter.state.tags.length && !filter.state.tags.some((t) => q.tags.includes(t)))
@@ -86,7 +100,7 @@ const filtered = computed(() => {
   font-weight: 400;
 }
 .desc {
-  margin-top: 6px;
+  margin: 6px 0;
   color: var(--c-text-soft);
   font-size: 13px;
 }
@@ -94,5 +108,19 @@ const filtered = computed(() => {
   padding: 40px;
   text-align: center;
   color: var(--c-text-mute);
+}
+@media (max-width: 560px) {
+  .hd h1 {
+    align-items: flex-start;
+    font-size: 20px;
+    line-height: 1.3;
+  }
+  .count {
+    margin-left: auto;
+    white-space: nowrap;
+  }
+  .empty {
+    padding: 28px 12px;
+  }
 }
 </style>

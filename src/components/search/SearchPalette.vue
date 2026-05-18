@@ -13,7 +13,7 @@ const props = defineProps<{ open: boolean }>();
 const emit = defineEmits<{ (e: 'update:open', v: boolean): void }>();
 
 const router = useRouter();
-const { keyword, hits } = useSearch();
+const { keyword, hits, error } = useSearch();
 const inputRef = ref<HTMLInputElement | null>(null);
 const active = ref(0);
 const history = ref<string[]>(getSearchHistory());
@@ -97,14 +97,14 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onGlobalKey));
 <template>
   <Teleport to="body">
     <div v-if="props.open" class="overlay" @click.self="close">
-      <div class="palette card">
+      <div class="palette card" role="dialog" aria-modal="true" aria-label="全站搜索">
         <div class="search-row">
           <AppIcon name="search" class="search-icon" />
           <input
             ref="inputRef"
             v-model="keyword"
             class="search-input"
-            placeholder="搜索题目、标签、答案... (⌘K)"
+            placeholder="搜索题目、标签、答案..."
             role="combobox"
             aria-expanded="true"
             aria-controls="kap-search-listbox"
@@ -116,6 +116,9 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onGlobalKey));
           />
           <button v-if="keyword" class="clear-btn" title="清空" @click="keyword = ''">
             <AppIcon name="close" />
+          </button>
+          <button class="close-btn" title="关闭搜索" aria-label="关闭搜索" @click="close">
+            关闭
           </button>
         </div>
 
@@ -132,7 +135,8 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onGlobalKey));
         </div>
 
         <ul id="kap-search-listbox" class="result-list" role="listbox">
-          <li v-if="!grouped.length && keyword" class="empty">未找到匹配项</li>
+          <li v-if="error" class="empty">搜索模块加载失败，请检查网络后重试：{{ error }}</li>
+          <li v-else-if="!grouped.length && keyword" class="empty">未找到匹配项</li>
           <li
             v-for="(r, i) in grouped"
             :id="`kap-search-opt-${i}`"
@@ -216,6 +220,18 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onGlobalKey));
 .clear-btn:hover {
   color: var(--c-text);
 }
+.close-btn {
+  min-height: 34px;
+  padding: 0 10px;
+  color: var(--c-text-soft);
+  background: var(--c-bg-mute);
+  border-radius: var(--radius);
+  font-size: 12px;
+}
+.close-btn:hover {
+  color: var(--c-text);
+  background: var(--c-primary-soft);
+}
 
 .history {
   padding: 10px 14px;
@@ -289,7 +305,7 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onGlobalKey));
   font-size: 14px;
   color: var(--c-text);
   flex: 1;
-  word-break: break-word;
+  overflow-wrap: anywhere;
 }
 .title :deep(mark),
 .excerpt :deep(mark) {
@@ -311,7 +327,7 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onGlobalKey));
   font-size: 12px;
   color: var(--c-text-soft);
   line-height: 1.5;
-  word-break: break-word;
+  overflow-wrap: anywhere;
 }
 .meta {
   margin-top: 6px;
@@ -338,5 +354,26 @@ kbd {
   border-radius: 4px;
   padding: 0 4px;
   background: var(--c-bg-mute);
+}
+@media (max-width: 540px) {
+  .overlay {
+    align-items: flex-start;
+    padding: 8px;
+    padding-top: calc(8px + env(safe-area-inset-top));
+  }
+  .palette {
+    width: 100%;
+    max-height: calc(100dvh - 24px - env(safe-area-inset-top));
+  }
+  .search-row {
+    padding: 10px;
+  }
+  .close-btn {
+    min-height: 40px;
+    padding: 0 12px;
+  }
+  .hints {
+    display: none;
+  }
 }
 </style>

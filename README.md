@@ -19,7 +19,7 @@
 - **个人笔记**：每题可写笔记，本地存储
 - **题目分享**：复制链接 + 二维码
 - **朗读题目**：原生 SpeechSynthesis
-- **AI 讲解**：一键跳转 ChatGPT，自动附题目 prompt，并支持复制给 Cursor / 其他 AI 工具
+- **AI 讲解**：一键跳转 ChatGPT，自动附题目 prompt；站内 AI Key 默认仅会话保存，可显式选择本地记住
 - **数据备份**：JSON 一键导入导出，换设备无痛迁移
 - **PWA 离线**：装到桌面，断网也能查
 - **打印友好**：`@media print` 单独优化，可打印为纸质资料
@@ -32,7 +32,7 @@
 - 构建：Vite 6 + Vue 3.5 + TypeScript
 - 状态：Pinia
 - 路由：Vue Router 4（history 模式 + 404.html SPA fallback）
-- 内容：Markdown（gray-matter + markdown-it + Prism，按需异步 chunk）
+- 内容：Markdown（自定义 frontmatter 解析 + markdown-it + Prism + DOMPurify，按需异步 chunk）
 - 搜索：Fuse.js
 - 图表：ECharts 5（懒加载，仅 Home 用）
 - 二维码：qrcode
@@ -66,9 +66,11 @@ pnpm dev
 ### 二、本地校验与构建
 
 ```bash
-pnpm validate:content   # 校验 21 个 content/*.md 的格式与必填字段
+pnpm validate:content   # 校验 content/*.md 的格式与必填字段
 pnpm lint               # ESLint
+pnpm lint:style         # Stylelint
 pnpm typecheck          # vue-tsc
+pnpm typecheck:node     # Vite 配置与 scripts 类型检查
 pnpm generate:sitemap   # 生成 public/sitemap.xml
 pnpm build              # 上述校验 + Vite 构建
 ```

@@ -1,7 +1,8 @@
 import { onMounted, onUnmounted } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useSettingsStore } from '@/stores/settings';
-import { useContent } from './useContent';
+import { loadContent } from '@/lib/loadContent';
+import type { ContentIndex } from '@/types/content';
 
 type Handler = () => void;
 
@@ -17,19 +18,29 @@ export function useShortcuts(handlers: Record<string, Handler> = {}) {
   const settings = useSettingsStore();
   const router = useRouter();
   const route = useRoute();
-  const { categories, allQuestions } = useContent();
+
+  function getContent(): ContentIndex | null {
+    try {
+      return loadContent();
+    } catch {
+      return null;
+    }
+  }
 
   function jumpRelative(delta: 1 | -1) {
     if (route.name !== 'question') return;
+    const content = getContent();
+    if (!content) return;
+    const { allQuestions } = content;
     const id = `${route.params.categoryId}/${route.params.slug}`;
-    const idx = allQuestions.value.findIndex((q) => q.id === id);
+    const idx = allQuestions.findIndex((q) => q.id === id);
     if (idx < 0) return;
-    const next = allQuestions.value[(idx + delta + allQuestions.value.length) % allQuestions.value.length];
+    const next = allQuestions[(idx + delta + allQuestions.length) % allQuestions.length];
     router.push({ name: 'question', params: { categoryId: next.categoryId, slug: next.slug } });
   }
 
   function jumpCategoryRelative(delta: 1 | -1) {
-    const cats = categories.value;
+    const cats = getContent()?.categories ?? [];
     if (!cats.length) return;
     let idx = cats.findIndex((c) => c.id === route.params.categoryId);
     if (idx < 0) idx = 0;

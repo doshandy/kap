@@ -1,5 +1,5 @@
 /// <reference types="vitest" />
-import { defineConfig } from 'vite';
+import { defineConfig } from 'vitest/config';
 import vue from '@vitejs/plugin-vue';
 import { VitePWA } from 'vite-plugin-pwa';
 import { visualizer } from 'rollup-plugin-visualizer';
@@ -38,6 +38,7 @@ export default defineConfig({
         ],
       },
       workbox: {
+        cacheId: 'kap',
         // precache 排除大体积按需 vendor，由 runtimeCaching 池真正用到时再下载
         globPatterns: ['**/*.{js,css,html,svg,png,ico,woff2}'],
         globIgnores: ['**/vendor-echarts-*.js', '**/vendor-markdown-*.js', '**/vendor-icons-*.js'],
@@ -86,16 +87,10 @@ export default defineConfig({
             if (id.includes('echarts') || id.includes('zrender') || id.includes('tslib')) {
               return 'vendor-echarts';
             }
-            if (id.includes('@vue/repl') || id.includes('monaco-editor')) {
-              return 'vendor-repl';
-            }
-            if (id.includes('jspdf') || id.includes('html2canvas')) {
-              return 'vendor-export';
-            }
             if (id.includes('@ant-design/icons-vue')) {
               return 'vendor-icons';
             }
-            if (id.includes('markdown-it') || id.includes('prismjs')) {
+            if (id.includes('markdown-it') || id.includes('prismjs') || id.includes('dompurify')) {
               return 'vendor-markdown';
             }
             if (id.includes('fuse.js')) {

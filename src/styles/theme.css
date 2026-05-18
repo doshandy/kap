@@ -30,6 +30,18 @@
 
   --sidebar-w: 280px;
   --header-h: 56px;
+  --markdown-font-size: 15px;
+  --markdown-font-size-mobile: 14px;
+}
+
+:root[data-font-size='sm'] {
+  --markdown-font-size: 14px;
+  --markdown-font-size-mobile: 13.5px;
+}
+
+:root[data-font-size='lg'] {
+  --markdown-font-size: 17px;
+  --markdown-font-size-mobile: 16px;
 }
 
 :root.dark {
@@ -143,7 +155,8 @@
 .markdown-body {
   color: var(--c-text);
   line-height: 1.75;
-  font-size: 15px;
+  font-size: var(--markdown-font-size);
+  overflow-wrap: anywhere;
 }
 .markdown-body h1,
 .markdown-body h2,
@@ -171,6 +184,7 @@
   border-radius: var(--radius);
   padding: 14px 16px;
   overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
   margin: 0.8em 0;
   font-size: 13px;
 }
@@ -183,13 +197,88 @@
   border-radius: 0 var(--radius) var(--radius) 0;
 }
 .markdown-body table {
+  display: block;
+  width: max-content;
+  max-width: 100%;
   border-collapse: collapse;
   margin: 0.6em 0;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
 }
 .markdown-body th,
 .markdown-body td {
   border: 1px solid var(--c-border);
   padding: 6px 12px;
+}
+
+@media (max-width: 768px) {
+  .btn {
+    min-height: 40px;
+    padding: 8px 12px;
+  }
+  .card {
+    border-radius: var(--radius);
+  }
+  .markdown-body {
+    font-size: var(--markdown-font-size-mobile);
+    line-height: 1.7;
+  }
+  .markdown-body pre {
+    margin-right: -2px;
+    margin-left: -2px;
+    padding: 12px;
+    font-size: 12px;
+  }
+  .markdown-body th,
+  .markdown-body td {
+    padding: 6px 10px;
+    white-space: nowrap;
+  }
+  input,
+  textarea,
+  select {
+    font-size: 16px;
+  }
+}
+
+.startup-error {
+  display: grid;
+  min-height: 100vh;
+  min-height: 100dvh;
+  place-items: center;
+  padding: 24px;
+  background: var(--c-bg);
+  color: var(--c-text);
+}
+.startup-error-card {
+  width: min(100%, 520px);
+  padding: 24px;
+  background: var(--c-surface);
+  border: 1px solid var(--c-border);
+  border-radius: var(--radius-lg);
+}
+.startup-error-card h1 {
+  margin-bottom: 8px;
+  font-size: 22px;
+}
+.startup-error-card p {
+  color: var(--c-text-soft);
+}
+.startup-error-card pre {
+  margin: 16px 0;
+  padding: 12px;
+  overflow: auto;
+  color: var(--c-text-soft);
+  white-space: pre-wrap;
+  background: var(--c-bg-mute);
+  border-radius: var(--radius);
+}
+.startup-error-card button {
+  min-height: 40px;
+  padding: 8px 14px;
+  color: #fff;
+  background: var(--c-primary);
+  border-radius: var(--radius);
 }
 
 @media (prefers-reduced-motion: reduce) {

@@ -1,9 +1,10 @@
 /**
  * 给指定 categoryId/slug 的题目插入「常见误区」+「追问」段落。
  * 写法：
- *   pnpm tsx scripts/inject-pitfall-followup.ts < data.json
+ *   pnpm tsx scripts/inject-pitfall-followup.ts --write < data.json
  *   data.json 是 { 'cat-id/slug': { pitfall?: string, followup?: string } } 的 dict
  *
+ * 默认 dry-run，只预览影响范围；传入 --write 才落盘。
  * 重要：本脚本不会重复插入，已有同名段会跳过。
  * 段落插入位置：紧贴 `### 延伸` 前（若没有延伸，则追加到题块末尾）。
  */
@@ -15,14 +16,39 @@ interface Patch {
   followup?: string;
 }
 
+const args = process.argv.slice(2);
+const write = args.includes('--write');
+const dryRun = !write || args.includes('--dry') || args.includes('--dry-run');
+const onlyArg = args.find((arg) => arg.startsWith('--only='));
+const only = onlyArg ? onlyArg.slice('--only='.length) : '';
+
 const stdinData = readFileSync(0, 'utf8');
-const patches = JSON.parse(stdinData) as Record<string, Patch>;
+if (!stdinData.trim()) {
+  console.error(
+    '请通过 stdin 传入 JSON patch，例如：pnpm tsx scripts/inject-pitfall-followup.ts --write < data.json',
+  );
+  process.exit(1);
+}
+
+let patches: Record<string, Patch>;
+try {
+  patches = JSON.parse(stdinData) as Record<string, Patch>;
+} catch (e) {
+  console.error('JSON 解析失败：' + (e instanceof Error ? e.message : String(e)));
+  process.exit(1);
+}
 
 const CONTENT_DIR = join(process.cwd(), 'content');
-const files = readdirSync(CONTENT_DIR).filter((f) => /^\d.*\.md$/.test(f));
+const files = readdirSync(CONTENT_DIR)
+  .filter((f) => /^\d.*\.md$/.test(f))
+  .filter((f) => (only ? f === only || f.replace(/\.md$/, '') === only : true));
 
-interface Stat { added: number; skipped: number; missing: string[] }
-const stat: Stat = { added: 0, skipped: 0, missing: [] };
+interface Stat {
+  added: number;
+  skipped: number;
+  touchedFiles: number;
+}
+const stat: Stat = { added: 0, skipped: 0, touchedFiles: 0 };
 const seen = new Set<string>();
 
 for (const file of files) {
@@ -87,12 +113,19 @@ for (const file of files) {
     out += work;
   }
   out += text.slice(cursor);
-  if (out !== text) writeFileSync(filePath, out);
+  if (out !== text) {
+    stat.touchedFiles++;
+    if (!dryRun) writeFileSync(filePath, out);
+  }
 }
 
 const missing = Object.keys(patches).filter((k) => !seen.has(k));
-console.log(`已写入段落数：${stat.added}，跳过（已有）：${stat.skipped}`);
+console.log(
+  `已${dryRun ? '预览' : '写入'}段落数：${stat.added}，跳过（已有）：${stat.skipped}，影响文件：${stat.touchedFiles}`,
+);
+if (dryRun) console.log('dry-run 模式，未写入文件。传入 --write 才会落盘。');
 if (missing.length) {
   console.log('未匹配到的题：');
   missing.forEach((k) => console.log('  ' + k));
+  process.exitCode = 1;
 }

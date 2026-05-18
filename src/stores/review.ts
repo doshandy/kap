@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia';
-import { computed, reactive, watch } from 'vue';
+import { computed, reactive, ref, watch } from 'vue';
 import { readState, writeState } from './persist';
 
 /** SM-2 简化版状态 */
@@ -53,6 +53,12 @@ export const useReviewStore = defineStore('review', () => {
   const state = reactive<{ items: Record<string, ReviewItem> }>(
     readState<{ items: Record<string, ReviewItem> }>(KEY, { items: {} }),
   );
+  const now = ref(Date.now());
+  if (typeof window !== 'undefined') {
+    window.setInterval(() => {
+      now.value = Date.now();
+    }, 60_000);
+  }
   watch(state, (v) => writeState(KEY, v), { deep: true });
 
   function rate(id: string, q: Quality): void {
@@ -65,9 +71,8 @@ export const useReviewStore = defineStore('review', () => {
   }
 
   const dueIds = computed(() => {
-    const now = Date.now();
     return Object.entries(state.items)
-      .filter(([, v]) => v.due <= now)
+      .filter(([, v]) => v.due <= now.value)
       .sort((a, b) => a[1].due - b[1].due)
       .map(([k]) => k);
   });

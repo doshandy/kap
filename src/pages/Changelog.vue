@@ -1,10 +1,10 @@
 <script setup lang="ts">
 import { computed } from 'vue';
-import { markdown } from '@/lib/parseMarkdown';
+import { renderMarkdown } from '@/lib/parseMarkdown';
 import raw from '../../CHANGELOG.md?raw';
 import AppIcon from '@/components/icon/AppIcon.vue';
 
-const html = computed(() => markdown.render(raw));
+const html = computed(() => renderMarkdown(raw));
 </script>
 
 <template>

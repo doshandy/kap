@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue';
 import { useContent } from '@/composables/useContent';
-import { useMarksStore } from '@/stores/marks';
+import { useMarksStore, WRONG_REASON_OPTIONS, type WrongReason } from '@/stores/marks';
 import { useProgressStore } from '@/stores/progress';
 import QuestionCard from '@/components/question/QuestionCard.vue';
 import AppIcon from '@/components/icon/AppIcon.vue';
@@ -10,15 +10,19 @@ const { allQuestions } = useContent();
 const marks = useMarksStore();
 const progress = useProgressStore();
 
-type Tab = 'starred' | 'skipped';
+type Tab = 'starred' | 'skipped' | 'wrong';
 const tab = ref<Tab>('starred');
 const filterStatus = ref<'all' | 'todo' | 'review' | 'mastered'>('all');
+const filterReason = ref<WrongReason | 'all'>('all');
 const keyword = ref('');
 
 const list = computed(() => {
-  const base = allQuestions.value.filter((q) =>
-    tab.value === 'starred' ? marks.isStarred(q.id) : marks.isSkipped(q.id),
-  );
+  const base = allQuestions.value.filter((q) => {
+    if (tab.value === 'starred') return marks.isStarred(q.id);
+    if (tab.value === 'skipped') return marks.isSkipped(q.id);
+    const reasons = marks.wrongReasonsOf(q.id);
+    return filterReason.value === 'all' ? reasons.length > 0 : reasons.includes(filterReason.value);
+  });
   let filtered = base;
   if (filterStatus.value !== 'all') {
     filtered = filtered.filter((q) => {
@@ -31,9 +35,7 @@ const list = computed(() => {
   if (keyword.value.trim()) {
     const k = keyword.value.trim().toLowerCase();
     filtered = filtered.filter(
-      (q) =>
-        q.title.toLowerCase().includes(k) ||
-        q.tags.some((t) => t.toLowerCase().includes(k)),
+      (q) => q.title.toLowerCase().includes(k) || q.tags.some((t) => t.toLowerCase().includes(k)),
     );
   }
   return filtered;
@@ -54,7 +56,9 @@ function clearAllMarks() {
   <div class="marks">
     <header class="head">
       <h1><AppIcon name="star" /> 收藏 & 跳过</h1>
-      <p class="muted">把感觉重要的题目标星集中复习；把已经会的或不打算考的题目跳过，让列表更聚焦。</p>
+      <p class="muted">
+        把感觉重要的题目标星集中复习；把已经会的或不打算考的题目跳过，让列表更聚焦。
+      </p>
     </header>
 
     <div class="tabs">
@@ -63,6 +67,9 @@ function clearAllMarks() {
       </button>
       <button class="tab" :class="{ active: tab === 'skipped' }" @click="tab = 'skipped'">
         <AppIcon name="skip" /> 跳过（{{ marks.skippedCount }}）
+      </button>
+      <button class="tab" :class="{ active: tab === 'wrong' }" @click="tab = 'wrong'">
+        <AppIcon name="warning" /> 错题（{{ marks.wrongCount }}）
       </button>
     </div>
 
@@ -73,8 +80,14 @@ function clearAllMarks() {
         <option value="review">需复习 / 模糊</option>
         <option value="mastered">已掌握</option>
       </select>
+      <select v-if="tab === 'wrong'" v-model="filterReason">
+        <option value="all">全部错因</option>
+        <option v-for="reason in WRONG_REASON_OPTIONS" :key="reason" :value="reason">
+          {{ reason }}
+        </option>
+      </select>
       <input v-model="keyword" placeholder="按标题 / 标签搜索..." />
-      <button v-if="list.length" class="btn btn-ghost" @click="clearAllMarks">
+      <button v-if="list.length && tab !== 'wrong'" class="btn btn-ghost" @click="clearAllMarks">
         <AppIcon name="clear" />
         {{ tab === 'starred' ? '清空收藏' : '恢复全部跳过' }}
       </button>
@@ -82,7 +95,8 @@ function clearAllMarks() {
 
     <div v-if="!list.length" class="empty card">
       <p v-if="tab === 'starred'">还没有收藏的题目。在题卡右上方点击 ⭐ 加入收藏。</p>
-      <p v-else>还没有跳过的题目。题卡右上方有 🚫 按钮可标记跳过。</p>
+      <p v-else-if="tab === 'skipped'">还没有跳过的题目。题卡右上方有 🚫 按钮可标记跳过。</p>
+      <p v-else>还没有错因标签。可以在题卡或临考报告里标记错因。</p>
     </div>
 
     <ul v-else class="qlist">
@@ -157,5 +171,30 @@ function clearAllMarks() {
   list-style: none;
   padding: 0;
   margin: 0;
+}
+@media (max-width: 560px) {
+  .head h1 {
+    font-size: 20px;
+  }
+  .tabs {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+  .tab {
+    justify-content: center;
+    padding: 10px 8px;
+  }
+  .filters {
+    display: grid;
+    grid-template-columns: 1fr;
+  }
+  .filters select,
+  .filters input,
+  .filters .btn {
+    width: 100%;
+  }
+  .filters input {
+    min-width: 0;
+  }
 }
 </style>

@@ -28,6 +28,10 @@ jobs:
       - run: pnpm install --frozen-lockfile
       - run: pnpm validate:content
       - run: pnpm lint
+      - run: pnpm lint:style
       - run: pnpm typecheck
+      - run: pnpm typecheck:node
       - run: pnpm test
+      - run: pnpm generate:sitemap
+      - run: git diff --exit-code public/sitemap.xml
       - run: pnpm build:only

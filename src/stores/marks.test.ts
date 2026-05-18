@@ -47,11 +47,17 @@ describe('useMarksStore', () => {
   });
 
   it('从 localStorage 恢复 starred 状态', () => {
-    memoryLS.setItem(
-      'kap.v1.marks',
-      JSON.stringify({ starred: { q1: true }, skipped: {} }),
-    );
+    memoryLS.setItem('kap.v1.marks', JSON.stringify({ starred: { q1: true }, skipped: {} }));
     const m = useMarksStore();
     expect(m.isStarred('q1')).toBe(true);
+  });
+
+  it('支持错因标签切换和清空', () => {
+    const m = useMarksStore();
+    m.toggleWrongReason('q1', '概念不清');
+    expect(m.hasWrongReason('q1', '概念不清')).toBe(true);
+    expect(m.wrongCount).toBe(1);
+    m.clearWrongReasons('q1');
+    expect(m.wrongReasonsOf('q1')).toEqual([]);
   });
 });

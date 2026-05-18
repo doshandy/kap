@@ -155,10 +155,10 @@ function onDismissOffline() {
     left: 12px;
     right: 12px;
     max-width: none;
-    bottom: 12px;
+    bottom: calc(90px + env(safe-area-inset-bottom));
   }
   .toast + .toast {
-    bottom: 110px;
+    bottom: calc(188px + env(safe-area-inset-bottom));
   }
   .toast-actions {
     flex-direction: row;

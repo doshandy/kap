@@ -35,25 +35,67 @@ const isDark = computed(() => {
       </button>
     </div>
     <div class="right">
-      <button class="btn btn-ghost" title="搜索 (/)" @click="$emit('open-search')">
+      <button class="btn btn-ghost" title="搜索（/ 或 ⌘K）" @click="$emit('open-search')">
         <AppIcon name="search" />
         <span class="lbl">搜索</span>
-        <kbd class="kbd">⌘K</kbd>
       </button>
-      <button class="btn btn-ghost" title="顺序学习" @click="router.push('/learn')">
+      <button
+        class="btn btn-ghost mobile-nav-duplicate"
+        title="顺序学习"
+        @click="router.push('/learn')"
+      >
         <AppIcon name="read" /><span class="lbl">顺序学习</span>
       </button>
-      <button class="btn btn-ghost" title="模拟面试" @click="router.push('/quiz')">
+      <button class="btn btn-ghost compact-hide" title="学习计划" @click="router.push('/plan')">
+        <AppIcon name="calendar" /><span class="lbl">计划</span>
+      </button>
+      <button
+        class="btn btn-ghost mobile-nav-duplicate"
+        title="模拟面试"
+        @click="router.push('/quiz')"
+      >
         <AppIcon name="experiment" /><span class="lbl">抽题</span>
       </button>
-      <button class="btn btn-ghost" title="待复习" @click="router.push('/review')">
+      <button class="btn btn-ghost compact-hide" title="临考模式" @click="router.push('/exam')">
+        <AppIcon name="trophy" /><span class="lbl">临考</span>
+      </button>
+      <button
+        class="btn btn-ghost mobile-nav-duplicate"
+        title="待复习"
+        @click="router.push('/review')"
+      >
         <AppIcon name="reload" /><span class="lbl">复习</span>
       </button>
-      <button class="btn btn-ghost" title="收藏 / 跳过" @click="router.push('/marks')">
+      <button
+        class="btn btn-ghost mobile-nav-duplicate"
+        title="收藏 / 跳过"
+        @click="router.push('/marks')"
+      >
         <AppIcon name="star" /><span class="lbl">收藏</span>
       </button>
-      <button class="btn btn-ghost" title="路线图" aria-label="路线图" @click="router.push('/roadmap')">
+      <button
+        class="btn btn-ghost compact-hide"
+        title="路线图"
+        aria-label="路线图"
+        @click="router.push('/roadmap')"
+      >
         <AppIcon name="compass" />
+      </button>
+      <button
+        class="btn btn-ghost compact-hide"
+        title="面试技巧"
+        aria-label="面试技巧"
+        @click="router.push('/interview-guide')"
+      >
+        <AppIcon name="fileText" />
+      </button>
+      <button
+        class="btn btn-ghost compact-hide"
+        title="题目关系图谱"
+        aria-label="题目关系图谱"
+        @click="router.push('/graph')"
+      >
+        <AppIcon name="deployment" />
       </button>
       <button
         class="btn btn-ghost"
@@ -63,10 +105,20 @@ const isDark = computed(() => {
       >
         <AppIcon :name="isDark ? 'moon' : 'sun'" />
       </button>
-      <button class="btn btn-ghost" title="设置" aria-label="设置" @click="router.push('/settings')">
+      <button
+        class="btn btn-ghost"
+        title="设置"
+        aria-label="设置"
+        @click="router.push('/settings')"
+      >
         <AppIcon name="setting" />
       </button>
-      <button class="btn btn-ghost" title="快捷键 (?)" aria-label="快捷键" @click="$emit('open-help')">
+      <button
+        class="btn btn-ghost compact-hide"
+        title="快捷键 (?)"
+        aria-label="快捷键"
+        @click="$emit('open-help')"
+      >
         <AppIcon name="question" />
       </button>
     </div>
@@ -82,12 +134,23 @@ const isDark = computed(() => {
   border-bottom: 1px solid var(--c-border);
   background: var(--c-surface);
   z-index: 10;
+  min-width: 0;
 }
 .left,
 .right {
   display: flex;
   align-items: center;
   gap: 8px;
+  min-width: 0;
+}
+.left {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+.right {
+  flex: 0 1 auto;
+  justify-content: flex-end;
+  overflow: hidden;
 }
 .brand {
   display: flex;
@@ -95,6 +158,7 @@ const isDark = computed(() => {
   gap: 8px;
   background: transparent;
   padding: 0;
+  min-width: 0;
 }
 .logo {
   font-weight: 700;
@@ -111,31 +175,52 @@ const isDark = computed(() => {
   padding: 6px 10px;
   font-size: 18px;
 }
-.kbd {
-  display: inline-block;
-  font-family: monospace;
-  font-size: 11px;
-  border: 1px solid var(--c-border);
-  border-bottom-width: 2px;
-  border-radius: 4px;
-  padding: 0 5px;
-  margin-left: 4px;
-  color: var(--c-text-mute);
-}
 .right .btn {
   display: inline-flex;
   align-items: center;
   gap: 6px;
+  min-height: 36px;
 }
 @media (max-width: 768px) {
+  .hdr {
+    gap: 6px;
+    padding: 0 8px;
+  }
+  .left {
+    flex: 1 1 auto;
+    gap: 4px;
+  }
+  .right {
+    flex: 0 0 auto;
+    gap: 1px;
+  }
   .menu-btn {
     display: inline-flex;
   }
   .brand-sub {
     display: none;
   }
+  .mobile-nav-duplicate {
+    display: none !important;
+  }
   .right .btn .lbl {
     display: none;
+  }
+  .right .btn,
+  .menu-btn {
+    min-width: 34px;
+    min-height: 38px;
+    justify-content: center;
+    padding: 6px;
+  }
+}
+@media (max-width: 380px) {
+  .compact-hide,
+  .right .btn[title='搜索（/ 或 ⌘K）'] {
+    display: none !important;
+  }
+  .logo {
+    font-size: 16px;
   }
 }
 </style>

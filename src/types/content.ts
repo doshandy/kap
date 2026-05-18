@@ -25,6 +25,8 @@ export interface Question {
   parentId?: string;
   /** 原题关联的追问题 ID 列表 */
   followupQuestionIds?: string[];
+  /** 跨题相关题目 ID 列表，用于补充前置、进阶、对比和案例题 */
+  relatedQuestionIds?: string[];
   /** HTML 后的延伸内容（可选） */
   extra?: string;
   /** 原始 markdown 用于导出 */

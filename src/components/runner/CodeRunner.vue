@@ -8,6 +8,9 @@ const iframeRef = ref<HTMLIFrameElement | null>(null);
 const logs = ref<string[]>([]);
 const lang = ref<string>('javascript');
 const tip = ref<string>('');
+const MAX_LOG_LINES = 200;
+const MAX_LOG_LENGTH = 4096;
+const LOG_TRUNCATED_MESSAGE = '⚠ 日志过多，后续输出已截断。';
 
 interface ParsedBlock {
   language: string;
@@ -242,6 +245,20 @@ function bindMessageOnce() {
   messageBound = true;
 }
 
+function appendLog(message: string) {
+  const normalized =
+    message.length > MAX_LOG_LENGTH
+      ? `${message.slice(0, MAX_LOG_LENGTH)}\n…（单条日志已截断）`
+      : message;
+  if (logs.value.length >= MAX_LOG_LINES) {
+    if (logs.value[logs.value.length - 1] !== LOG_TRUNCATED_MESSAGE) {
+      logs.value.push(LOG_TRUNCATED_MESSAGE);
+    }
+    return;
+  }
+  logs.value.push(normalized);
+}
+
 function run() {
   if (!isRunnableLang(lang.value)) {
     logs.value = ['❌ ' + tip.value];
@@ -256,7 +273,7 @@ function run() {
     try {
       code = transformTS(code);
     } catch (e) {
-      logs.value.push('⚠ TS 转译失败：' + (e instanceof Error ? e.message : String(e)));
+      appendLog('⚠ TS 转译失败：' + (e instanceof Error ? e.message : String(e)));
     }
   }
 
@@ -281,7 +298,9 @@ function run() {
 
   const closeTag = '</' + 'script>';
   const html = [
-    '<!doctype html><html><head><meta charset="utf-8"></head><body><script>',
+    '<!doctype html><html><head><meta charset="utf-8">',
+    "<meta http-equiv=\"Content-Security-Policy\" content=\"default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline';\">",
+    '</head><body><script>',
     '(function(){',
     'var origin = ' + JSON.stringify(window.location.origin) + ';',
     'function send(level, args) {',
@@ -318,6 +337,10 @@ function clear() {
   logs.value = [];
 }
 
+function selectBlock(event: Event) {
+  currentIndex.value = Number((event.target as HTMLSelectElement).value);
+}
+
 interface KapLogPayload {
   __kapLog?: boolean;
   level?: string;
@@ -338,7 +361,7 @@ function onMessage(e: MessageEvent<KapLogPayload>) {
         log: '›',
       } as Record<string, string>
     )[data.level || 'log'] ?? '›';
-  logs.value.push((prefix ? prefix + ' ' : '') + (data.message ?? ''));
+  appendLog((prefix ? prefix + ' ' : '') + (data.message ?? ''));
 }
 
 onUnmounted(() => {
@@ -356,12 +379,7 @@ const hasMultiBlocks = computed(() => blocks.value.length > 1);
         <span v-if="lang" class="lang">{{ lang }}</span>
       </span>
       <div class="actions">
-        <select
-          v-if="hasMultiBlocks"
-          :value="currentIndex"
-          class="picker"
-          @change="(e) => (currentIndex = Number((e.target as HTMLSelectElement).value))"
-        >
+        <select v-if="hasMultiBlocks" :value="currentIndex" class="picker" @change="selectBlock">
           <option v-for="(b, i) in blocks" :key="i" :value="i">
             片段 {{ i + 1 }} · {{ b.language }}
           </option>
@@ -480,7 +498,7 @@ textarea {
   max-height: 280px;
   overflow: auto;
   white-space: pre-wrap;
-  word-break: break-word;
+  overflow-wrap: anywhere;
   font-size: 12px;
   color: var(--c-text);
 }

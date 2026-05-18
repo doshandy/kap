@@ -1,6 +1,13 @@
 import { readFileSync, readdirSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 
+const args = process.argv.slice(2);
+const write = args.includes('--write');
+const dryRun = !write || args.includes('--dry') || args.includes('--dry-run');
+const refreshGenerated = args.includes('--refresh-generated');
+const onlyArg = args.find((arg) => arg.startsWith('--only='));
+const onlyFile = onlyArg ? onlyArg.slice('--only='.length) : '';
+
 interface Block {
   slug: string;
   raw: string;
@@ -17,6 +24,7 @@ interface Block {
 const CONTENT_DIR = join(process.cwd(), 'content');
 const files = readdirSync(CONTENT_DIR)
   .filter((file) => /^\d.*\.md$/.test(file))
+  .filter((file) => (onlyFile ? file === onlyFile : true))
   .sort();
 
 const stat = {
@@ -25,6 +33,7 @@ const stat = {
   childQuestionsAdded: 0,
   childQuestionsSkipped: 0,
   childQuestionsRefreshed: 0,
+  childQuestionsPreserved: 0,
 };
 
 function escapeRegExp(value: string): string {
@@ -193,6 +202,7 @@ title: 追问：${cleanTitle(question)}
 difficulty: ${parent.difficulty}
 tags: ${formatInlineList(tags)}
 parent: ${parent.slug}
+generated: followup-script
 
 ### 题目
 如果面试官追问：${question}
@@ -273,6 +283,10 @@ for (const file of files) {
   const generated: string[] = [];
   const rewritten = blocks.map((block) => {
     if (block.isFollowup) {
+      if (!refreshGenerated && readMeta(block.metaText, 'generated') !== 'followup-script') {
+        stat.childQuestionsPreserved++;
+        return block.raw;
+      }
       const parentSlug = (block.parent || '').replace(/^.*\//, '');
       const parent = blockBySlug.get(parentSlug);
       if (!parent) return block.raw;
@@ -308,9 +322,14 @@ for (const file of files) {
   });
 
   const output = `${before}${rewritten.join('\n')}${generated.length ? `\n${generated.join('\n')}` : ''}`;
-  if (output !== raw) writeFileSync(filePath, output);
+  if (output !== raw && !dryRun) writeFileSync(filePath, output);
 }
 
 console.log(
-  `已处理父题 ${stat.parentsTouched} 道，新增追问段 ${stat.followupSectionsAdded} 个，新增追问题 ${stat.childQuestionsAdded} 道，刷新追问题 ${stat.childQuestionsRefreshed} 道，跳过已有追问题 ${stat.childQuestionsSkipped} 道。`,
+  `已处理父题 ${stat.parentsTouched} 道，新增追问段 ${stat.followupSectionsAdded} 个，新增追问题 ${stat.childQuestionsAdded} 道，刷新追问题 ${stat.childQuestionsRefreshed} 道，保留已有人工追问题 ${stat.childQuestionsPreserved} 道，跳过已有追问题 ${stat.childQuestionsSkipped} 道。`,
 );
+if (!refreshGenerated)
+  console.log(
+    '默认不刷新已有追问题；传入 --refresh-generated 只刷新带 generated: followup-script 的题块。',
+  );
+if (dryRun) console.log('dry-run 模式，未写入文件。传入 --write 才会落盘。');

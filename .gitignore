@@ -10,6 +10,7 @@ dist-ssr
 .cache
 .eslintcache
 *.log
+*.tsbuildinfo
 coverage
 .env
 .env.*

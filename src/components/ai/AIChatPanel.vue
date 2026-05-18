@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { nextTick, onBeforeUnmount, ref, watch } from 'vue';
+import { computed, nextTick, onBeforeUnmount, ref, watch } from 'vue';
 import { useAIStore } from '@/stores/ai';
 import { buildContextMessages, useAIChat } from '@/composables/useAIChat';
 import AppIcon from '@/components/icon/AppIcon.vue';
@@ -9,13 +9,23 @@ const props = defineProps<{ question: Question }>();
 
 const ai = useAIStore();
 const { text, error, loading, send, abort } = useAIChat();
+const readinessMessage = computed(() => ai.readinessMessage || '请到设置页补全 AI 配置。');
 
 const userQuery = ref('');
 const presetQueries = [
-  { label: '简单讲讲', value: '请用简单直白的中文讲一下这道题，重点解释为什么、容易踩的坑，并给一个最小代码示例。' },
-  { label: '面试官追问', value: '请扮演面试官，针对我的回答继续追问 2 个深入问题，并给出参考答案。' },
+  {
+    label: '简单讲讲',
+    value: '请用简单直白的中文讲一下这道题，重点解释为什么、容易踩的坑，并给一个最小代码示例。',
+  },
+  {
+    label: '面试官追问',
+    value: '请扮演面试官，针对我的回答继续追问 2 个深入问题，并给出参考答案。',
+  },
   { label: '极简要点', value: '请用 5 条以内的要点回答这道题，每条不超过 2 行。' },
-  { label: '反例 / 错误答案', value: '列出 3 个候选人在这题上常给的错误或不完整答案，并解释错在哪。' },
+  {
+    label: '反例 / 错误答案',
+    value: '列出 3 个候选人在这题上常给的错误或不完整答案，并解释错在哪。',
+  },
 ];
 
 function startPreset(q: string) {
@@ -47,12 +57,24 @@ onBeforeUnmount(() => abort());
   <div class="ai-panel card">
     <div class="hd">
       <h4><AppIcon name="robot" /> AI 讲解（站内对话）</h4>
-      <div class="role-tag">角色：{{ ai.state.systemRole === 'mentor' ? '导师' : ai.state.systemRole === 'interviewer' ? '面试官' : '极简' }}</div>
+      <div class="role-tag">
+        角色：{{
+          ai.state.systemRole === 'mentor'
+            ? '导师'
+            : ai.state.systemRole === 'interviewer'
+              ? '面试官'
+              : '极简'
+        }}
+      </div>
     </div>
 
     <div v-if="!ai.isReady" class="not-ready">
-      <p>AI 讲解尚未启用。请到 <RouterLink to="/settings">设置</RouterLink> 配置 API Key 后开启。</p>
-      <p class="muted small">所有请求均由你的浏览器直接发往目标 API 域名，KAP 不会经手任何 Key 或对话内容。</p>
+      <p>
+        {{ readinessMessage }} 请到 <RouterLink to="/settings">设置</RouterLink> 补全配置后开启。
+      </p>
+      <p class="muted small">
+        所有请求均由你的浏览器直接发往目标 API 域名，KAP 不会经手任何 Key 或对话内容。
+      </p>
     </div>
 
     <template v-else>
@@ -80,9 +102,7 @@ onBeforeUnmount(() => abort());
           <button v-if="!loading" class="btn btn-primary" @click="start">
             <AppIcon name="thunderbolt" /> 提问 (⌘↵)
           </button>
-          <button v-else class="btn" @click="stop">
-            <AppIcon name="close" /> 停止
-          </button>
+          <button v-else class="btn" @click="stop"><AppIcon name="close" /> 停止</button>
         </div>
       </div>
 
@@ -147,12 +167,15 @@ onBeforeUnmount(() => abort());
   color: var(--c-text);
   cursor: pointer;
 }
+.chip:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
 .chip:hover:not(:disabled) {
   background: var(--c-primary-soft);
   border-color: var(--c-primary);
   color: var(--c-primary);
 }
-.chip:disabled { opacity: 0.5; cursor: not-allowed; }
 
 .input-row {
   display: flex;
@@ -195,7 +218,7 @@ onBeforeUnmount(() => abort());
 .output pre {
   margin: 0;
   white-space: pre-wrap;
-  word-break: break-word;
+  overflow-wrap: anywhere;
   font-family: inherit;
   font-size: 13px;
   line-height: 1.6;

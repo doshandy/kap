@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { parseCategoryMarkdown } from './parseMarkdown';
+import { parseCategoryMarkdown, renderMarkdown } from './parseMarkdown';
 
 const sample = `---
 id: cat-1
@@ -14,6 +14,7 @@ title: 这是一道样题
 difficulty: 进阶
 tags: [测试, 高频]
 followups: [sample-q-followup-1, cat-2/cross-cat-followup]
+links: [sample-q-followup-1, cat-3/related-q]
 
 ### 一句话
 一句话理解：测试就是测试。
@@ -77,6 +78,7 @@ describe('parseCategoryMarkdown', () => {
       'cat-1/sample-q-followup-1',
       'cat-2/cross-cat-followup',
     ]);
+    expect(q.relatedQuestionIds).toEqual(['cat-1/sample-q-followup-1', 'cat-3/related-q']);
     expect(q.extra).toContain('延伸阅读');
 
     const followup = cat.questions[1];
@@ -98,5 +100,21 @@ describe('parseCategoryMarkdown', () => {
     const q = cat.questions[0];
     expect(q.raw).toContain('## sample-q');
     expect(q.raw).toContain('请回答这道题');
+  });
+
+  it('净化危险 HTML 与 javascript 链接', () => {
+    const html = renderMarkdown(
+      `<a href="javascript:alert(1)">危险链接</a>\n\n<img src="x" onerror="alert(1)">\n\n<script>alert(1)</script>`,
+    );
+    expect(html).not.toContain('javascript:');
+    expect(html).not.toContain('onerror');
+    expect(html).not.toContain('<script');
+    expect(html).toContain('危险链接');
+  });
+
+  it('外链自动加 target 与 rel', () => {
+    const html = renderMarkdown('[官网](https://example.com)');
+    expect(html).toContain('target="_blank"');
+    expect(html).toContain('rel="noopener noreferrer"');
   });
 });

@@ -1,8 +1,9 @@
 <script setup lang="ts">
-import { computed, onUnmounted, watch } from 'vue';
+import { computed, onMounted, onUnmounted, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useContent } from '@/composables/useContent';
 import { useProgressStore } from '@/stores/progress';
+import { useSettingsStore } from '@/stores/settings';
 import QuestionCard from '@/components/question/QuestionCard.vue';
 import AppIcon from '@/components/icon/AppIcon.vue';
 
@@ -10,6 +11,7 @@ const route = useRoute();
 const router = useRouter();
 const { allQuestions, categories } = useContent();
 const progress = useProgressStore();
+const settings = useSettingsStore();
 
 const total = computed(() => allQuestions.value.length);
 
@@ -62,25 +64,40 @@ function jumpToCategoryStart(catId: string) {
   if (startIdx >= 0) jumpTo(startIdx + 1);
 }
 
+function onCategorySelect(e: Event) {
+  const value = (e.target as HTMLSelectElement).value;
+  if (value) jumpToCategoryStart(value);
+}
+
 function resumeFromLastUnfinished() {
-  const idx = allQuestions.value.findIndex((q) => progress.get(q.id).status !== 'mastered');
-  jumpTo(idx >= 0 ? idx + 1 : 1);
+  const start = indexParam.value;
+  const nextIdx = allQuestions.value.findIndex(
+    (q, idx) => idx >= start && progress.get(q.id).status !== 'mastered',
+  );
+  if (nextIdx >= 0) {
+    jumpTo(nextIdx + 1);
+    return;
+  }
+  const fallbackIdx = allQuestions.value.findIndex((q) => progress.get(q.id).status !== 'mastered');
+  jumpTo(fallbackIdx >= 0 ? fallbackIdx + 1 : indexParam.value);
 }
 
 watch(
   () => route.query.i,
   () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
+    document.querySelector<HTMLElement>('.app-main')?.scrollTo({ top: 0, behavior: 'smooth' });
   },
 );
 
 function onKey(e: KeyboardEvent) {
+  if (!settings.state.shortcutsEnabled) return;
   if (e.target && (e.target as HTMLElement).matches('input, textarea, [contenteditable=true]'))
     return;
   if (e.key === 'ArrowLeft' || e.key === 'k') go(-1);
   else if (e.key === 'ArrowRight' || e.key === 'j') go(1);
 }
-window.addEventListener('keydown', onKey);
+onMounted(() => window.addEventListener('keydown', onKey));
 onUnmounted(() => window.removeEventListener('keydown', onKey));
 </script>
 
@@ -94,8 +111,9 @@ onUnmounted(() => window.removeEventListener('keydown', onKey));
       <div class="meta">
         <span class="chip">第 {{ indexParam }} / {{ total }} 题</span>
         <span v-if="currentCategory" class="chip">
-          {{ currentCategory.icon }} {{ currentCategory.title }}
-          ({{ positionInCategory.idx }}/{{ positionInCategory.total }})
+          {{ currentCategory.icon }} {{ currentCategory.title }} ({{ positionInCategory.idx }}/{{
+            positionInCategory.total
+          }})
         </span>
         <span class="chip done">已掌握 {{ stats.done }} / {{ stats.total }}</span>
       </div>
@@ -105,24 +123,28 @@ onUnmounted(() => window.removeEventListener('keydown', onKey));
     </header>
 
     <div class="actions">
-      <button class="btn" :disabled="indexParam <= 1" @click="go(-1)">
-        <AppIcon name="arrowLeft" /> 上一题 <kbd>k</kbd>
+      <button
+        class="btn"
+        title="上一题（快捷键 k / ←）"
+        :disabled="indexParam <= 1"
+        @click="go(-1)"
+      >
+        <AppIcon name="arrowLeft" /> 上一题
       </button>
-      <button class="btn primary" :disabled="indexParam >= total" @click="go(1)">
-        下一题 <kbd>j</kbd> <AppIcon name="arrowRight" />
+      <button
+        class="btn primary"
+        title="下一题（快捷键 j / →）"
+        :disabled="indexParam >= total"
+        @click="go(1)"
+      >
+        下一题 <AppIcon name="arrowRight" />
       </button>
       <button class="btn" @click="resumeFromLastUnfinished">
         <AppIcon name="thunderbolt" /> 跳到下一道未掌握
       </button>
       <label class="jump">
         跳转到第
-        <input
-          type="number"
-          min="1"
-          :max="total"
-          :value="indexParam"
-          @change="onJumpInput"
-        />
+        <input type="number" min="1" :max="total" :value="indexParam" @change="onJumpInput" />
         题
       </label>
     </div>
@@ -149,8 +171,22 @@ onUnmounted(() => window.removeEventListener('keydown', onKey));
     </footer>
 
     <section class="catnav">
-      <h3><AppIcon name="appstore" /> 分类快速跳转</h3>
-      <ul>
+      <div class="catnav-head">
+        <h3><AppIcon name="appstore" /> 分类快速跳转</h3>
+        <span v-if="currentCategory" class="muted">当前：{{ currentCategory.title }}</span>
+      </div>
+      <select
+        class="cat-select"
+        :value="current?.categoryId || ''"
+        aria-label="选择分类快速跳转"
+        @change="onCategorySelect"
+      >
+        <option disabled value="">选择分类...</option>
+        <option v-for="c in categories" :key="c.id" :value="c.id">
+          {{ c.icon }} {{ c.title }}（{{ c.questions.length }} 题）
+        </option>
+      </select>
+      <ul class="cat-list">
         <li v-for="c in categories" :key="c.id">
           <button
             class="cat-btn"
@@ -173,7 +209,9 @@ onUnmounted(() => window.removeEventListener('keydown', onKey));
 }
 .hd h1 {
   font-size: 22px;
-  display: inline-block;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
   margin-right: 12px;
 }
 .title-row {
@@ -215,31 +253,6 @@ onUnmounted(() => window.removeEventListener('keydown', onKey));
   background: linear-gradient(90deg, var(--c-primary), #6366f1);
   transition: width 0.3s;
 }
-.actions {
-  display: flex;
-  gap: 8px;
-  flex-wrap: wrap;
-  align-items: center;
-  margin-bottom: 14px;
-}
-.actions .btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-}
-.actions kbd {
-  display: inline-block;
-  padding: 0 4px;
-  background: rgba(0, 0, 0, 0.08);
-  border-radius: 3px;
-  font-size: 11px;
-  font-family: monospace;
-}
-.hd h1 {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-}
 .btn {
   padding: 8px 14px;
   border-radius: var(--radius);
@@ -263,6 +276,18 @@ onUnmounted(() => window.removeEventListener('keydown', onKey));
 }
 .btn.primary:hover {
   filter: brightness(1.05);
+}
+.actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  align-items: center;
+  margin-bottom: 14px;
+}
+.actions .btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
 }
 .jump {
   display: inline-flex;
@@ -296,11 +321,27 @@ onUnmounted(() => window.removeEventListener('keydown', onKey));
   padding-top: 16px;
   border-top: 1px solid var(--c-border-soft);
 }
-.catnav h3 {
-  font-size: 14px;
+.catnav-head {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  align-items: center;
   margin-bottom: 8px;
 }
-.catnav ul {
+.catnav h3 {
+  font-size: 14px;
+  margin: 0;
+}
+.cat-select {
+  display: none;
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid var(--c-border);
+  border-radius: var(--radius);
+  background: var(--c-surface);
+  color: var(--c-text);
+}
+.cat-list {
   list-style: none;
   padding: 0;
   display: grid;
@@ -327,5 +368,50 @@ onUnmounted(() => window.removeEventListener('keydown', onKey));
   background: var(--c-primary-soft);
   border-color: var(--c-primary);
   color: var(--c-primary);
+}
+@media (max-width: 560px) {
+  .hd h1 {
+    font-size: 20px;
+  }
+  .actions {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .actions .btn,
+  .jump {
+    width: 100%;
+    justify-content: center;
+  }
+  .jump {
+    grid-column: 1 / -1;
+  }
+  .ft {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .ft .btn {
+    justify-content: center;
+    text-align: center;
+  }
+  .ft a.btn {
+    grid-column: 1 / -1;
+    order: 3;
+  }
+  .catnav {
+    padding: 12px;
+    border: 1px solid var(--c-border);
+    border-radius: var(--radius);
+    background: var(--c-bg-soft);
+  }
+  .catnav-head {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+  .cat-select {
+    display: block;
+  }
+  .cat-list {
+    display: none;
+  }
 }
 </style>

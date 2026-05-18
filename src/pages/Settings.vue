@@ -24,7 +24,7 @@ async function onCheckUpdate() {
   updateMsg.value = '正在检查更新…';
   const has = await update.checkForUpdates();
   updateMsg.value = has
-    ? '✅ 已检测到新版本，请点击屏幕右下角的「立即更新」'
+    ? '✅ 已检测到新版本，请在更新提示中点击「立即更新」'
     : '✅ 当前已经是最新版本';
   setTimeout(() => (updateMsg.value = ''), 5000);
 }
@@ -163,13 +163,19 @@ function onExportAnki() {
         配置后可在题目页内嵌 AI 流式讲解 / 模拟面试官追问。所有请求由你的浏览器直接发往 OpenAI /
         Anthropic / 兼容 API；KAP 服务端永远不会经手 API Key 或对话内容。
       </p>
+      <p class="muted">
+        默认情况下 API Key 只保存在当前页面会话中；只有勾选“记住 API Key”才会写入本机 localStorage。
+      </p>
       <div class="row">
         <label>启用：</label>
         <input v-model="ai.state.enabled" type="checkbox" />
       </div>
       <div class="row">
         <label>提供方：</label>
-        <select v-model="ai.state.provider">
+        <select
+          :value="ai.state.provider"
+          @change="ai.setProvider(($event.target as HTMLSelectElement).value as any)"
+        >
           <option value="openai">OpenAI 兼容（GPT、DeepSeek、Kimi、SiliconFlow 等）</option>
           <option value="anthropic">Anthropic Claude</option>
           <option value="custom">自定义</option>
@@ -179,6 +185,7 @@ function onExportAnki() {
         <label>Base URL：</label>
         <input v-model="ai.state.baseUrl" placeholder="https://api.openai.com" />
       </div>
+      <p v-if="ai.baseUrlWarning" class="warn-msg">{{ ai.baseUrlWarning }}</p>
       <div class="row">
         <label>API Key：</label>
         <input
@@ -197,14 +204,18 @@ function onExportAnki() {
           type="button"
           class="link-btn"
           title="清除 API Key"
-          @click="ai.state.apiKey = ''"
+          @click="ai.forgetApiKey()"
         >
           清除
         </button>
       </div>
+      <div class="row">
+        <label>记住 API Key：</label>
+        <input v-model="ai.state.rememberApiKey" type="checkbox" />
+        <span class="hint">仅在自己的设备上使用；关闭后会清除本地保存的 Key。</span>
+      </div>
       <p class="muted" style="font-size: 12px; margin-top: -4px">
-        Key 仅存于浏览器
-        localStorage，不会上传到任何后端。**生产环境推荐自建代理后端**，避免在端上落 Key。
+        浏览器直连会把 Key 发送到上面的 Base URL。生产环境推荐自建代理后端，避免在端上落 Key。
       </p>
       <div class="row">
         <label>模型：</label>
@@ -372,14 +383,6 @@ h1 {
   flex: 0 0 auto;
   width: 90px;
 }
-.row input:focus,
-.row select:focus {
-  border-color: var(--c-primary);
-  box-shadow: 0 0 0 3px var(--c-primary-soft, rgba(59, 130, 246, 0.15));
-}
-.row input::placeholder {
-  color: var(--c-text-mute);
-}
 
 /* 自定义 select 下拉箭头 */
 .row select {
@@ -391,6 +394,14 @@ h1 {
   background-position: right 10px center;
   background-size: 10px 10px;
   cursor: pointer;
+}
+.row input:focus,
+.row select:focus {
+  border-color: var(--c-primary);
+  box-shadow: 0 0 0 3px var(--c-primary-soft, rgba(59, 130, 246, 0.15));
+}
+.row input::placeholder {
+  color: var(--c-text-mute);
 }
 
 /* checkbox：恢复成正常的小框，不被上面规则吃掉 */
@@ -426,5 +437,54 @@ h1 {
   margin-top: 8px;
   font-size: 12px;
   color: var(--c-warning, #d97706);
+}
+
+@media (max-width: 560px) {
+  .st {
+    max-width: none;
+  }
+  h1 {
+    font-size: 18px;
+  }
+  .grp {
+    padding: 14px;
+  }
+  .row {
+    align-items: stretch;
+    gap: 8px;
+    margin: 10px 0;
+    font-size: 14px;
+  }
+  .row label {
+    width: 100%;
+    font-size: 13px;
+  }
+  .row .btn,
+  .link-btn {
+    min-height: 44px;
+    justify-content: center;
+    font-size: 14px;
+  }
+  .row input[type='text'],
+  .row input[type='password'],
+  .row input[type='url'],
+  .row input[type='number'],
+  .row input:not([type]),
+  .row select {
+    flex: 1 1 100%;
+    width: 100%;
+    min-height: 44px;
+    font-size: 16px;
+  }
+  .row input[type='checkbox'] {
+    width: 22px;
+    height: 22px;
+  }
+  .hint,
+  .muted,
+  .msg,
+  .warn-msg {
+    font-size: 13px;
+  }
 }
 </style>

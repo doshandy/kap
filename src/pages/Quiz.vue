@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onUnmounted, ref, watch } from 'vue';
+import { computed, nextTick, onUnmounted, ref, watch } from 'vue';
 import { useContent } from '@/composables/useContent';
 import { useProgressStore } from '@/stores/progress';
 import { useMarksStore } from '@/stores/marks';
@@ -22,6 +22,7 @@ const elapsed = ref(0);
 const remaining = ref(0);
 const finished = ref(false);
 const wrongList = ref<Question[]>([]);
+const resultRef = ref<HTMLElement | null>(null);
 const initialStatusMap = new Map<string, string>();
 
 let totalTimer: number | null = null;
@@ -43,7 +44,7 @@ const accuracy = computed(() => {
   return Math.round((result.value.mastered / queue.value.length) * 100);
 });
 
-function pickRandom(): Question[] {
+const candidateQuestions = computed(() => {
   let pool = allQuestions.value.slice();
   pool = pool.filter((q) => !marks.isSkipped(q.id));
   if (selectedCats.value.length) {
@@ -62,6 +63,13 @@ function pickRandom(): Question[] {
       return s === 'review' || s === 'fuzzy';
     });
   }
+  return pool;
+});
+
+const candidateCount = computed(() => candidateQuestions.value.length);
+
+function pickRandom(): Question[] {
+  const pool = candidateQuestions.value.slice();
   for (let i = pool.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));
     [pool[i], pool[j]] = [pool[j], pool[i]];
@@ -70,6 +78,7 @@ function pickRandom(): Question[] {
 }
 
 function start() {
+  if (!candidateCount.value) return;
   queue.value = pickRandom();
   current.value = 0;
   elapsed.value = 0;
@@ -125,6 +134,7 @@ function end() {
     const s = progress.get(q.id).status;
     return s === 'review' || s === 'fuzzy';
   });
+  void nextTick(() => resultRef.value?.scrollIntoView({ block: 'start', behavior: 'smooth' }));
 }
 
 function restartWithWrong() {
@@ -154,8 +164,7 @@ onUnmounted(() => {
   if (countdown) clearInterval(countdown);
 });
 
-const fmt = (s: number) =>
-  `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`;
+const fmt = (s: number) => `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`;
 </script>
 
 <template>
@@ -219,14 +228,18 @@ const fmt = (s: number) =>
         </div>
       </div>
       <div class="row">
-        <button class="btn btn-primary" @click="start">
+        <button class="btn btn-primary" :disabled="!candidateCount" @click="start">
           <AppIcon name="play" /> 开始
         </button>
+        <span class="hint">当前条件可抽 {{ candidateCount }} 道题</span>
       </div>
+      <p v-if="!candidateCount" class="empty-tip">
+        当前筛选条件下没有可抽题目。可以切换题源、取消分类筛选，或先去收藏 / 标记复习题。
+      </p>
     </section>
 
     <section v-else>
-      <div class="hud">
+      <div v-if="!finished" class="hud">
         <span>第 {{ current + 1 }} / {{ queue.length }} 题</span>
         <span class="time"><AppIcon name="clock" /> 总用时 {{ fmt(elapsed) }}</span>
         <span v-if="timeLimitPerQ > 0" class="time" :class="{ urgent: remaining <= 10 }">
@@ -235,19 +248,19 @@ const fmt = (s: number) =>
         <button class="btn btn-ghost" title="提前结束模考" @click="end">结束</button>
       </div>
       <QuestionCard
-        v-if="queue[current]"
+        v-if="!finished && queue[current]"
         :question="queue[current]"
         :index="current + 1"
         :default-open="false"
       />
-      <div class="paging">
+      <div v-if="!finished" class="paging">
         <button class="btn" :disabled="current === 0" @click="prev">上一题</button>
         <button class="btn btn-primary" @click="next">
           {{ current === queue.length - 1 ? '完成' : '下一题' }}
         </button>
       </div>
 
-      <div v-if="finished" class="card result">
+      <div v-if="finished" ref="resultRef" class="card result">
         <h3><AppIcon name="pieChart" /> 答题结果</h3>
         <div class="result-grid">
           <div class="metric">
@@ -283,9 +296,7 @@ const fmt = (s: number) =>
           <button v-if="wrongList.length" class="btn btn-primary" @click="restartWithWrong">
             <AppIcon name="reload" /> 只练错题
           </button>
-          <button class="btn" @click="reset">
-            <AppIcon name="appstore" /> 重新组卷
-          </button>
+          <button class="btn" @click="reset"><AppIcon name="appstore" /> 重新组卷</button>
         </div>
       </div>
     </section>
@@ -337,6 +348,14 @@ const fmt = (s: number) =>
 .hint {
   font-size: 11px;
   color: var(--c-text-mute);
+}
+.empty-tip {
+  margin: 6px 0 0;
+  padding: 10px 12px;
+  color: var(--c-warning, #d97706);
+  background: rgba(245, 158, 11, 0.08);
+  border-radius: var(--radius);
+  font-size: 13px;
 }
 .chips {
   display: flex;
@@ -450,5 +469,40 @@ const fmt = (s: number) =>
   display: flex;
   gap: 8px;
   flex-wrap: wrap;
+}
+
+@media (max-width: 560px) {
+  .config {
+    padding: 14px;
+  }
+  .row {
+    align-items: stretch;
+  }
+  .row label {
+    min-width: 100%;
+  }
+  .row input,
+  .row select,
+  .row .btn {
+    width: 100%;
+    min-height: 44px;
+    font-size: 16px;
+  }
+  .chips {
+    flex-basis: 100%;
+  }
+  .chip {
+    min-height: 36px;
+    padding: 6px 10px;
+  }
+  .paging,
+  .result-actions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+  }
+  .paging .btn,
+  .result-actions .btn {
+    justify-content: center;
+  }
 }
 </style>

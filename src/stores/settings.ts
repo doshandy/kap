@@ -22,15 +22,22 @@ export const useSettingsStore = defineStore('settings', () => {
       showAnswerByDefault: false,
     }),
   );
-  watch(state, (v) => writeState(KEY, v), { deep: true });
+  watch(
+    state,
+    (v) => {
+      writeState(KEY, v);
+      if (typeof document !== 'undefined') applyTheme();
+    },
+    { deep: true },
+  );
 
   function applyTheme(): void {
     const root = document.documentElement;
     const useDark =
       state.theme === 'dark' ||
-      (state.theme === 'auto' &&
-        window.matchMedia('(prefers-color-scheme: dark)').matches);
+      (state.theme === 'auto' && window.matchMedia('(prefers-color-scheme: dark)').matches);
     root.classList.toggle('dark', useDark);
+    root.dataset.fontSize = state.fontSize;
   }
   function toggleTheme(): void {
     const next = state.theme === 'dark' ? 'light' : 'dark';

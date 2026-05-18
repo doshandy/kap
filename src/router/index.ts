@@ -32,10 +32,22 @@ const router = createRouter({
       meta: { title: '完整学习' },
     },
     {
+      path: '/plan',
+      name: 'plan',
+      component: () => import('@/pages/Plan.vue'),
+      meta: { title: '学习计划' },
+    },
+    {
       path: '/quiz',
       name: 'quiz',
       component: () => import('@/pages/Quiz.vue'),
       meta: { title: '模拟面试' },
+    },
+    {
+      path: '/exam',
+      name: 'exam',
+      component: () => import('@/pages/Exam.vue'),
+      meta: { title: '临考模式' },
     },
     {
       path: '/review',
@@ -54,6 +66,18 @@ const router = createRouter({
       name: 'roadmap',
       component: () => import('@/pages/Roadmap.vue'),
       meta: { title: '学习路线' },
+    },
+    {
+      path: '/interview-guide',
+      name: 'interview-guide',
+      component: () => import('@/pages/InterviewGuide.vue'),
+      meta: { title: '面试技巧' },
+    },
+    {
+      path: '/graph',
+      name: 'graph',
+      component: () => import('@/pages/Graph.vue'),
+      meta: { title: '题目关系图谱' },
     },
     {
       path: '/changelog',

@@ -5,9 +5,20 @@ import { readState, writeState } from './persist';
 interface MarksState {
   starred: Record<string, boolean>;
   skipped: Record<string, boolean>;
+  wrongReasons: Record<string, string[]>;
 }
 
 const KEY = 'marks';
+
+export const WRONG_REASON_OPTIONS = [
+  '概念不清',
+  '代码不会写',
+  '边界遗漏',
+  '表达不顺',
+  '性能/安全没答到',
+] as const;
+
+export type WrongReason = (typeof WRONG_REASON_OPTIONS)[number];
 
 /**
  * 收藏 / 跳过 这两个独立状态，跟 progress 解耦：
@@ -16,7 +27,7 @@ const KEY = 'marks';
  */
 export const useMarksStore = defineStore('marks', () => {
   const state = reactive<MarksState>(
-    readState<MarksState>(KEY, { starred: {}, skipped: {} }),
+    readState<MarksState>(KEY, { starred: {}, skipped: {}, wrongReasons: {} }),
   );
 
   watch(state, (v) => writeState(KEY, v), { deep: true });
@@ -35,9 +46,29 @@ export const useMarksStore = defineStore('marks', () => {
     if (state.skipped[id]) delete state.skipped[id];
     else state.skipped[id] = true;
   }
+  function wrongReasonsOf(id: string): WrongReason[] {
+    return (state.wrongReasons[id] || []).filter((item): item is WrongReason =>
+      WRONG_REASON_OPTIONS.includes(item as WrongReason),
+    );
+  }
+  function hasWrongReason(id: string, reason: WrongReason): boolean {
+    return wrongReasonsOf(id).includes(reason);
+  }
+  function toggleWrongReason(id: string, reason: WrongReason): void {
+    const next = new Set(wrongReasonsOf(id));
+    if (next.has(reason)) next.delete(reason);
+    else next.add(reason);
+    const values = [...next];
+    if (values.length) state.wrongReasons[id] = values;
+    else delete state.wrongReasons[id];
+  }
+  function clearWrongReasons(id: string): void {
+    delete state.wrongReasons[id];
+  }
 
   const starredCount = computed(() => Object.keys(state.starred).length);
   const skippedCount = computed(() => Object.keys(state.skipped).length);
+  const wrongCount = computed(() => Object.keys(state.wrongReasons).length);
 
   return {
     state,
@@ -45,7 +76,12 @@ export const useMarksStore = defineStore('marks', () => {
     isSkipped,
     toggleStar,
     toggleSkip,
+    wrongReasonsOf,
+    hasWrongReason,
+    toggleWrongReason,
+    clearWrongReasons,
     starredCount,
     skippedCount,
+    wrongCount,
   };
 });

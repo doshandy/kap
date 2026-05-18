@@ -42,11 +42,14 @@ export const useProgressStore = defineStore('progress', () => {
 
   function setStatus(id: string, status: QuestionStatus): void {
     const r = ensure(id);
+    const previous = r.status;
     r.status = status;
     r.viewedAt = Date.now();
-    r.reviewedTimes += 1;
-    const day = todayStr();
-    r.history[day] = (r.history[day] || 0) + 1;
+    if (status !== 'todo' && previous !== status) {
+      r.reviewedTimes += 1;
+      const day = todayStr();
+      r.history[day] = (r.history[day] || 0) + 1;
+    }
   }
 
   function reset(id: string): void {
@@ -56,6 +59,15 @@ export const useProgressStore = defineStore('progress', () => {
   const totalDone = computed(
     () => Object.values(state.records).filter((r) => r.status !== 'todo').length,
   );
+
+  function totalDoneFor(ids: Iterable<string>): number {
+    let total = 0;
+    for (const id of ids) {
+      const record = state.records[id];
+      if (record && record.status !== 'todo') total++;
+    }
+    return total;
+  }
 
   const heatmap = computed(() => {
     const map: Record<string, number> = {};
@@ -67,10 +79,21 @@ export const useProgressStore = defineStore('progress', () => {
     return map;
   });
 
-  function statsByCategory(allByCat: Record<string, string[]>): Record<
-    string,
-    { total: number; done: number; mastered: number; review: number }
-  > {
+  function heatmapFor(ids: Iterable<string>): Record<string, number> {
+    const map: Record<string, number> = {};
+    for (const id of ids) {
+      const record = state.records[id];
+      if (!record) continue;
+      for (const [d, n] of Object.entries(record.history)) {
+        map[d] = (map[d] || 0) + n;
+      }
+    }
+    return map;
+  }
+
+  function statsByCategory(
+    allByCat: Record<string, string[]>,
+  ): Record<string, { total: number; done: number; mastered: number; review: number }> {
     const out: Record<string, { total: number; done: number; mastered: number; review: number }> =
       {};
     for (const [cat, ids] of Object.entries(allByCat)) {
@@ -89,5 +112,15 @@ export const useProgressStore = defineStore('progress', () => {
     return out;
   }
 
-  return { state, get, setStatus, reset, totalDone, heatmap, statsByCategory };
+  return {
+    state,
+    get,
+    setStatus,
+    reset,
+    totalDone,
+    totalDoneFor,
+    heatmap,
+    heatmapFor,
+    statsByCategory,
+  };
 });

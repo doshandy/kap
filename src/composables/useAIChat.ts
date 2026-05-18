@@ -1,5 +1,5 @@
 import { ref } from 'vue';
-import { SYSTEM_PROMPTS, useAIStore } from '@/stores/ai';
+import { SYSTEM_PROMPTS, getBaseUrlWarning, useAIStore } from '@/stores/ai';
 import type { Question } from '@/types/content';
 
 export interface ChatMessage {
@@ -28,9 +28,13 @@ async function streamChat(
   const handle: ChatStreamHandle = { abort: () => controller.abort() };
 
   const isAnthropic = cfg.provider === 'anthropic';
-  const url = isAnthropic
-    ? joinUrl(cfg.baseUrl || 'https://api.anthropic.com', '/v1/messages')
-    : joinUrl(cfg.baseUrl || 'https://api.openai.com', '/v1/chat/completions');
+  let url: string;
+  try {
+    url = buildEndpoint(cfg.baseUrl, isAnthropic);
+  } catch (e) {
+    onError?.(e as Error);
+    return handle;
+  }
 
   const headers: Record<string, string> = {
     'Content-Type': 'application/json',
@@ -56,6 +60,7 @@ async function streamChat(
       signal: controller.signal,
     });
   } catch (e) {
+    if (isAbortError(e)) return handle;
     onError?.(e as Error);
     return handle;
   }
@@ -95,9 +100,16 @@ async function streamChat(
     }
     onDone?.();
   } catch (e) {
+    if (isAbortError(e) || controller.signal.aborted) return handle;
     onError?.(e as Error);
   }
   return handle;
+}
+
+function isAbortError(e: unknown): boolean {
+  return e instanceof DOMException
+    ? e.name === 'AbortError'
+    : e instanceof Error && e.name === 'AbortError';
 }
 
 function buildOpenAIBody(model: string, temperature: number, messages: ChatMessage[]) {
@@ -141,6 +153,16 @@ function joinUrl(base: string, path: string): string {
   return base.replace(/\/+$/, '') + path;
 }
 
+function buildEndpoint(baseUrl: string, isAnthropic: boolean): string {
+  const fallback = isAnthropic ? 'https://api.anthropic.com' : 'https://api.openai.com';
+  const base = (baseUrl || fallback).trim();
+  const warning = getBaseUrlWarning(base);
+  if (warning) {
+    throw new Error(warning);
+  }
+  return joinUrl(base, isAnthropic ? '/v1/messages' : '/v1/chat/completions');
+}
+
 /**
  * 把当前题目转化为带"系统角色"的 chat messages。
  */
@@ -182,21 +204,26 @@ export function useAIChat() {
   const error = ref<string | null>(null);
   const loading = ref(false);
   let handle: ChatStreamHandle | null = null;
+  let activeRequestId = 0;
 
   async function send(messages: ChatMessage[]): Promise<void> {
+    const requestId = ++activeRequestId;
+    handle?.abort();
     text.value = '';
     error.value = null;
     loading.value = true;
-    handle?.abort();
     handle = await streamChat(
       messages,
       (delta) => {
+        if (requestId !== activeRequestId) return;
         text.value += delta;
       },
       () => {
+        if (requestId !== activeRequestId) return;
         loading.value = false;
       },
       (e) => {
+        if (requestId !== activeRequestId || isAbortError(e)) return;
         error.value = e.message;
         loading.value = false;
       },
@@ -204,6 +231,7 @@ export function useAIChat() {
   }
 
   function abort(): void {
+    activeRequestId++;
     handle?.abort();
     loading.value = false;
   }

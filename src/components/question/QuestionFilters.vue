@@ -112,4 +112,29 @@ const allTags = computed(() => props.tags || []);
   max-height: 80px;
   overflow: auto;
 }
+@media (max-width: 560px) {
+  .filter-bar {
+    padding: 10px;
+  }
+  .row {
+    align-items: stretch;
+    gap: 8px;
+  }
+  .lbl {
+    width: 100%;
+    min-width: 0;
+  }
+  .kw {
+    flex-basis: 100%;
+    min-width: 0;
+  }
+  .chip {
+    min-height: 34px;
+    padding: 5px 12px;
+  }
+  .tags {
+    max-height: 132px;
+    -webkit-overflow-scrolling: touch;
+  }
+}
 </style>

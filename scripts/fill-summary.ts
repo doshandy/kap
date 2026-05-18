@@ -4,15 +4,16 @@
  * 控制在 90-120 字。脚本支持幂等：已有「一句话」段的题目跳过。
  *
  * 使用：
- *   pnpm tsx scripts/fill-summary.ts
- *   pnpm tsx scripts/fill-summary.ts --dry        # 只预览，不写入
+ *   pnpm tsx scripts/fill-summary.ts              # 只预览，不写入
+ *   pnpm tsx scripts/fill-summary.ts --write      # 写入文件
  *   pnpm tsx scripts/fill-summary.ts --only=03-vue.md   # 只处理某个文件
  */
 import { readFileSync, readdirSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 
 const args = process.argv.slice(2);
-const dry = args.includes('--dry');
+const write = args.includes('--write');
+const dry = !write || args.includes('--dry') || args.includes('--dry-run');
 const onlyArg = args.find((a) => a.startsWith('--only='));
 const onlyFile = onlyArg ? onlyArg.slice(7) : null;
 
