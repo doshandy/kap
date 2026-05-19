@@ -1,5 +1,14 @@
-import { describe, expect, it } from 'vitest';
-import { canonicalizeFollowupQuestionPattern } from '../../scripts/shared/followupCanonical';
+import { beforeAll, describe, expect, it } from 'vitest';
+
+let canonicalizeFollowupQuestionPattern: (pattern: string) => string;
+
+beforeAll(async () => {
+  const modulePath = '../../scripts/shared/' + 'followupCanonical.ts';
+  const mod = (await import(modulePath)) as {
+    canonicalizeFollowupQuestionPattern: typeof canonicalizeFollowupQuestionPattern;
+  };
+  canonicalizeFollowupQuestionPattern = mod.canonicalizeFollowupQuestionPattern;
+});
 
 describe('canonicalizeFollowupQuestionPattern', () => {
   it('normalizes performance variants to one canonical pattern', () => {

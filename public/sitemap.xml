@@ -126,6 +126,14 @@
   <url><loc>https://doshandy.github.io/kap/q/01-javascript/new-operator-followup-3</loc></url>
   <url><loc>https://doshandy.github.io/kap/q/01-javascript/promise-all-allsettled-race-any-followup-2</loc></url>
   <url><loc>https://doshandy.github.io/kap/q/01-javascript/promise-all-allsettled-race-any-followup-3</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/01-javascript/javascript-runtime-error-warroom</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/01-javascript/javascript-polyfill-baseline-governance</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/01-javascript/javascript-runtime-error-warroom-followup-1</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/01-javascript/javascript-runtime-error-warroom-followup-2</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/01-javascript/javascript-runtime-error-warroom-followup-3</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/01-javascript/javascript-polyfill-baseline-governance-followup-1</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/01-javascript/javascript-polyfill-baseline-governance-followup-2</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/01-javascript/javascript-polyfill-baseline-governance-followup-3</loc></url>
   <url><loc>https://doshandy.github.io/kap/q/02-typescript/any-vs-unknown</loc></url>
   <url><loc>https://doshandy.github.io/kap/q/02-typescript/generic-constraints</loc></url>
   <url><loc>https://doshandy.github.io/kap/q/02-typescript/type-vs-interface</loc></url>
@@ -190,6 +198,22 @@
   <url><loc>https://doshandy.github.io/kap/q/02-typescript/global-augmentation-followup-3</loc></url>
   <url><loc>https://doshandy.github.io/kap/q/02-typescript/type-level-gymnastics-followup-2</loc></url>
   <url><loc>https://doshandy.github.io/kap/q/02-typescript/type-level-gymnastics-followup-3</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/02-typescript/typescript-public-api-compat-gate</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/02-typescript/strict-migration-playbook</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/02-typescript/typescript-public-api-compat-gate-followup-1</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/02-typescript/typescript-public-api-compat-gate-followup-2</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/02-typescript/typescript-public-api-compat-gate-followup-3</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/02-typescript/strict-migration-playbook-followup-1</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/02-typescript/strict-migration-playbook-followup-2</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/02-typescript/strict-migration-playbook-followup-3</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/02-typescript/typescript-version-upgrade-incident-bridge</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/02-typescript/typescript-type-debt-budget-governance</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/02-typescript/typescript-version-upgrade-incident-bridge-followup-1</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/02-typescript/typescript-version-upgrade-incident-bridge-followup-2</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/02-typescript/typescript-version-upgrade-incident-bridge-followup-3</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/02-typescript/typescript-type-debt-budget-governance-followup-1</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/02-typescript/typescript-type-debt-budget-governance-followup-2</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/02-typescript/typescript-type-debt-budget-governance-followup-3</loc></url>
   <url><loc>https://doshandy.github.io/kap/q/03-vue/vue2-vs-vue3</loc></url>
   <url><loc>https://doshandy.github.io/kap/q/03-vue/reactivity-core</loc></url>
   <url><loc>https://doshandy.github.io/kap/q/03-vue/effect-track-trigger</loc></url>
@@ -270,6 +294,14 @@
   <url><loc>https://doshandy.github.io/kap/q/03-vue/render-jsx-directive-followup-3</loc></url>
   <url><loc>https://doshandy.github.io/kap/q/03-vue/lifecycle-debug-hooks-followup-2</loc></url>
   <url><loc>https://doshandy.github.io/kap/q/03-vue/lifecycle-debug-hooks-followup-3</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/03-vue/vue-upgrade-release-command-bridge</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/03-vue/vue-hydration-incident-playbook</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/03-vue/vue-upgrade-release-command-bridge-followup-1</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/03-vue/vue-upgrade-release-command-bridge-followup-2</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/03-vue/vue-upgrade-release-command-bridge-followup-3</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/03-vue/vue-hydration-incident-playbook-followup-1</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/03-vue/vue-hydration-incident-playbook-followup-2</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/03-vue/vue-hydration-incident-playbook-followup-3</loc></url>
   <url><loc>https://doshandy.github.io/kap/q/04-css/box-bfc</loc></url>
   <url><loc>https://doshandy.github.io/kap/q/04-css/stacking-context</loc></url>
   <url><loc>https://doshandy.github.io/kap/q/04-css/flex-grid</loc></url>
@@ -342,6 +374,14 @@
   <url><loc>https://doshandy.github.io/kap/q/04-css/css-layout-systems-followup-3</loc></url>
   <url><loc>https://doshandy.github.io/kap/q/04-css/css-typography-rhythm-followup-2</loc></url>
   <url><loc>https://doshandy.github.io/kap/q/04-css/css-typography-rhythm-followup-3</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/04-css/css-render-path-budget-gate</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/04-css/css-change-safety-guardrail</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/04-css/css-render-path-budget-gate-followup-1</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/04-css/css-render-path-budget-gate-followup-2</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/04-css/css-render-path-budget-gate-followup-3</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/04-css/css-change-safety-guardrail-followup-1</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/04-css/css-change-safety-guardrail-followup-2</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/04-css/css-change-safety-guardrail-followup-3</loc></url>
   <url><loc>https://doshandy.github.io/kap/q/05-browser/url-to-render</loc></url>
   <url><loc>https://doshandy.github.io/kap/q/05-browser/render-pipeline</loc></url>
   <url><loc>https://doshandy.github.io/kap/q/05-browser/storage-cookie</loc></url>
@@ -418,6 +458,22 @@
   <url><loc>https://doshandy.github.io/kap/q/05-browser/webgpu-overview-followup-3</loc></url>
   <url><loc>https://doshandy.github.io/kap/q/05-browser/webcodecs-streams-followup-2</loc></url>
   <url><loc>https://doshandy.github.io/kap/q/05-browser/webcodecs-streams-followup-3</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/05-browser/browser-progressive-enhancement-guardrail</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/05-browser/browser-performance-budget-guardrail</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/05-browser/browser-progressive-enhancement-guardrail-followup-1</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/05-browser/browser-progressive-enhancement-guardrail-followup-2</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/05-browser/browser-progressive-enhancement-guardrail-followup-3</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/05-browser/browser-performance-budget-guardrail-followup-1</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/05-browser/browser-performance-budget-guardrail-followup-2</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/05-browser/browser-performance-budget-guardrail-followup-3</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/05-browser/browser-compatibility-incident-bridge</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/05-browser/browser-kill-switch-orchestration</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/05-browser/browser-compatibility-incident-bridge-followup-1</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/05-browser/browser-compatibility-incident-bridge-followup-2</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/05-browser/browser-compatibility-incident-bridge-followup-3</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/05-browser/browser-kill-switch-orchestration-followup-1</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/05-browser/browser-kill-switch-orchestration-followup-2</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/05-browser/browser-kill-switch-orchestration-followup-3</loc></url>
   <url><loc>https://doshandy.github.io/kap/q/06-network/tcp-tls-http</loc></url>
   <url><loc>https://doshandy.github.io/kap/q/06-network/http1-http2-http3</loc></url>
   <url><loc>https://doshandy.github.io/kap/q/06-network/caching</loc></url>
@@ -486,6 +542,22 @@
   <url><loc>https://doshandy.github.io/kap/q/06-network/request-race-cancel-dedupe-followup-3</loc></url>
   <url><loc>https://doshandy.github.io/kap/q/06-network/webrtc-basic-followup-2</loc></url>
   <url><loc>https://doshandy.github.io/kap/q/06-network/webrtc-basic-followup-3</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/06-network/timeout-retry-budget</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/06-network/cdn-cache-invalidation</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/06-network/timeout-retry-budget-followup-1</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/06-network/timeout-retry-budget-followup-2</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/06-network/timeout-retry-budget-followup-3</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/06-network/cdn-cache-invalidation-followup-1</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/06-network/cdn-cache-invalidation-followup-2</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/06-network/cdn-cache-invalidation-followup-3</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/06-network/multi-cdn-failover-drill</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/06-network/network-adaptive-degradation-matrix</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/06-network/multi-cdn-failover-drill-followup-1</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/06-network/multi-cdn-failover-drill-followup-2</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/06-network/multi-cdn-failover-drill-followup-3</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/06-network/network-adaptive-degradation-matrix-followup-1</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/06-network/network-adaptive-degradation-matrix-followup-2</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/06-network/network-adaptive-degradation-matrix-followup-3</loc></url>
   <url><loc>https://doshandy.github.io/kap/q/07-engineering/vite-principle</loc></url>
   <url><loc>https://doshandy.github.io/kap/q/07-engineering/bundler-ecosystem</loc></url>
   <url><loc>https://doshandy.github.io/kap/q/07-engineering/package-manager</loc></url>
@@ -558,6 +630,30 @@
   <url><loc>https://doshandy.github.io/kap/q/07-engineering/monorepo-changesets-followup-3</loc></url>
   <url><loc>https://doshandy.github.io/kap/q/07-engineering/bundler-deep-followup-2</loc></url>
   <url><loc>https://doshandy.github.io/kap/q/07-engineering/bundler-deep-followup-3</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/07-engineering/git-bisect-reflog-worktree</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/07-engineering/linux-network-debug-playbook</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/07-engineering/git-bisect-reflog-worktree-followup-1</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/07-engineering/git-bisect-reflog-worktree-followup-2</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/07-engineering/git-bisect-reflog-worktree-followup-3</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/07-engineering/linux-network-debug-playbook-followup-1</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/07-engineering/linux-network-debug-playbook-followup-2</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/07-engineering/linux-network-debug-playbook-followup-3</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/07-engineering/release-train-cross-team-gate</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/07-engineering/layered-rollback-runbook</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/07-engineering/release-train-cross-team-gate-followup-1</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/07-engineering/release-train-cross-team-gate-followup-2</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/07-engineering/release-train-cross-team-gate-followup-3</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/07-engineering/layered-rollback-runbook-followup-1</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/07-engineering/layered-rollback-runbook-followup-2</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/07-engineering/layered-rollback-runbook-followup-3</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/07-engineering/frontend-build-regression-warroom</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/07-engineering/dependency-upgrade-shadow-release-governance</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/07-engineering/frontend-build-regression-warroom-followup-1</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/07-engineering/frontend-build-regression-warroom-followup-2</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/07-engineering/frontend-build-regression-warroom-followup-3</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/07-engineering/dependency-upgrade-shadow-release-governance-followup-1</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/07-engineering/dependency-upgrade-shadow-release-governance-followup-2</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/07-engineering/dependency-upgrade-shadow-release-governance-followup-3</loc></url>
   <url><loc>https://doshandy.github.io/kap/q/08-performance/methodology</loc></url>
   <url><loc>https://doshandy.github.io/kap/q/08-performance/core-web-vitals</loc></url>
   <url><loc>https://doshandy.github.io/kap/q/08-performance/rum-vs-lab</loc></url>
@@ -630,6 +726,14 @@
   <url><loc>https://doshandy.github.io/kap/q/08-performance/runtime-optimization-followup-3</loc></url>
   <url><loc>https://doshandy.github.io/kap/q/08-performance/inp-deep-followup-2</loc></url>
   <url><loc>https://doshandy.github.io/kap/q/08-performance/inp-deep-followup-3</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/08-performance/performance-warroom-decision-brief</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/08-performance/performance-budget-exception-governance</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/08-performance/performance-warroom-decision-brief-followup-1</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/08-performance/performance-warroom-decision-brief-followup-2</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/08-performance/performance-warroom-decision-brief-followup-3</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/08-performance/performance-budget-exception-governance-followup-1</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/08-performance/performance-budget-exception-governance-followup-2</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/08-performance/performance-budget-exception-governance-followup-3</loc></url>
   <url><loc>https://doshandy.github.io/kap/q/09-node/node-event-loop</loc></url>
   <url><loc>https://doshandy.github.io/kap/q/09-node/stream-backpressure</loc></url>
   <url><loc>https://doshandy.github.io/kap/q/09-node/buffer-worker-thread</loc></url>
@@ -678,6 +782,22 @@
   <url><loc>https://doshandy.github.io/kap/q/09-node/node-event-loop-phases-followup-3</loc></url>
   <url><loc>https://doshandy.github.io/kap/q/09-node/node-streaming-response-followup-2</loc></url>
   <url><loc>https://doshandy.github.io/kap/q/09-node/node-streaming-response-followup-3</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/09-node/node-reliability-patterns</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/09-node/node-bff-cache-strategy</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/09-node/node-reliability-patterns-followup-1</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/09-node/node-reliability-patterns-followup-2</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/09-node/node-reliability-patterns-followup-3</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/09-node/node-bff-cache-strategy-followup-1</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/09-node/node-bff-cache-strategy-followup-2</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/09-node/node-bff-cache-strategy-followup-3</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/09-node/node-memory-leak-budget-gate</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/09-node/node-queue-replay-idempotency</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/09-node/node-memory-leak-budget-gate-followup-1</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/09-node/node-memory-leak-budget-gate-followup-2</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/09-node/node-memory-leak-budget-gate-followup-3</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/09-node/node-queue-replay-idempotency-followup-1</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/09-node/node-queue-replay-idempotency-followup-2</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/09-node/node-queue-replay-idempotency-followup-3</loc></url>
   <url><loc>https://doshandy.github.io/kap/q/10-architecture/layering-boundary</loc></url>
   <url><loc>https://doshandy.github.io/kap/q/10-architecture/design-patterns</loc></url>
   <url><loc>https://doshandy.github.io/kap/q/10-architecture/dependency-injection</loc></url>
@@ -754,6 +874,30 @@
   <url><loc>https://doshandy.github.io/kap/q/10-architecture/clean-architecture-followup-3</loc></url>
   <url><loc>https://doshandy.github.io/kap/q/10-architecture/lowcode-platform-followup-2</loc></url>
   <url><loc>https://doshandy.github.io/kap/q/10-architecture/lowcode-platform-followup-3</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/10-architecture/architecture-adr</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/10-architecture/technical-debt-governance</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/10-architecture/architecture-adr-followup-1</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/10-architecture/architecture-adr-followup-2</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/10-architecture/architecture-adr-followup-3</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/10-architecture/technical-debt-governance-followup-1</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/10-architecture/technical-debt-governance-followup-2</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/10-architecture/technical-debt-governance-followup-3</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/10-architecture/architecture-fitness-function-gate</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/10-architecture/strangler-migration-playbook</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/10-architecture/architecture-fitness-function-gate-followup-1</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/10-architecture/architecture-fitness-function-gate-followup-2</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/10-architecture/architecture-fitness-function-gate-followup-3</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/10-architecture/strangler-migration-playbook-followup-1</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/10-architecture/strangler-migration-playbook-followup-2</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/10-architecture/strangler-migration-playbook-followup-3</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/10-architecture/architecture-contract-acceptance-gate</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/10-architecture/architecture-blast-radius-rollback-matrix</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/10-architecture/architecture-contract-acceptance-gate-followup-1</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/10-architecture/architecture-contract-acceptance-gate-followup-2</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/10-architecture/architecture-contract-acceptance-gate-followup-3</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/10-architecture/architecture-blast-radius-rollback-matrix-followup-1</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/10-architecture/architecture-blast-radius-rollback-matrix-followup-2</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/10-architecture/architecture-blast-radius-rollback-matrix-followup-3</loc></url>
   <url><loc>https://doshandy.github.io/kap/q/11-ai-frontend/streaming-ui</loc></url>
   <url><loc>https://doshandy.github.io/kap/q/11-ai-frontend/sse-fetch-stream</loc></url>
   <url><loc>https://doshandy.github.io/kap/q/11-ai-frontend/prompt-schema</loc></url>
@@ -958,6 +1102,22 @@
   <url><loc>https://doshandy.github.io/kap/q/11-ai-frontend/local-model-privacy-followup-3</loc></url>
   <url><loc>https://doshandy.github.io/kap/q/11-ai-frontend/chat-history-context-followup-2</loc></url>
   <url><loc>https://doshandy.github.io/kap/q/11-ai-frontend/chat-history-context-followup-3</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/11-ai-frontend/llm-kill-switch-safe-mode</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/11-ai-frontend/llm-human-handoff-policy</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/11-ai-frontend/llm-kill-switch-safe-mode-followup-1</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/11-ai-frontend/llm-kill-switch-safe-mode-followup-2</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/11-ai-frontend/llm-kill-switch-safe-mode-followup-3</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/11-ai-frontend/llm-human-handoff-policy-followup-1</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/11-ai-frontend/llm-human-handoff-policy-followup-2</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/11-ai-frontend/llm-human-handoff-policy-followup-3</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/11-ai-frontend/llm-launch-readiness-gate</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/11-ai-frontend/llm-online-drift-stoploss</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/11-ai-frontend/llm-launch-readiness-gate-followup-1</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/11-ai-frontend/llm-launch-readiness-gate-followup-2</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/11-ai-frontend/llm-launch-readiness-gate-followup-3</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/11-ai-frontend/llm-online-drift-stoploss-followup-1</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/11-ai-frontend/llm-online-drift-stoploss-followup-2</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/11-ai-frontend/llm-online-drift-stoploss-followup-3</loc></url>
   <url><loc>https://doshandy.github.io/kap/q/12-softskills/technical-decision</loc></url>
   <url><loc>https://doshandy.github.io/kap/q/12-softskills/upward-communication</loc></url>
   <url><loc>https://doshandy.github.io/kap/q/12-softskills/code-review</loc></url>
@@ -1010,6 +1170,30 @@
   <url><loc>https://doshandy.github.io/kap/q/12-softskills/cross-team-driving-followup-3</loc></url>
   <url><loc>https://doshandy.github.io/kap/q/12-softskills/okr-decomposition-followup-2</loc></url>
   <url><loc>https://doshandy.github.io/kap/q/12-softskills/okr-decomposition-followup-3</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/12-softskills/ttm-decision-tradeoff</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/12-softskills/business-roi-metrics</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/12-softskills/ttm-decision-tradeoff-followup-1</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/12-softskills/ttm-decision-tradeoff-followup-2</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/12-softskills/ttm-decision-tradeoff-followup-3</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/12-softskills/business-roi-metrics-followup-1</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/12-softskills/business-roi-metrics-followup-2</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/12-softskills/business-roi-metrics-followup-3</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/12-softskills/stakeholder-decision-memo</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/12-softskills/conflict-negotiation-playbook</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/12-softskills/stakeholder-decision-memo-followup-1</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/12-softskills/stakeholder-decision-memo-followup-2</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/12-softskills/stakeholder-decision-memo-followup-3</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/12-softskills/conflict-negotiation-playbook-followup-1</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/12-softskills/conflict-negotiation-playbook-followup-2</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/12-softskills/conflict-negotiation-playbook-followup-3</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/12-softskills/high-pressure-decision-communication-matrix</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/12-softskills/decision-deadlock-stoploss-playbook</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/12-softskills/high-pressure-decision-communication-matrix-followup-1</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/12-softskills/high-pressure-decision-communication-matrix-followup-2</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/12-softskills/high-pressure-decision-communication-matrix-followup-3</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/12-softskills/decision-deadlock-stoploss-playbook-followup-1</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/12-softskills/decision-deadlock-stoploss-playbook-followup-2</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/12-softskills/decision-deadlock-stoploss-playbook-followup-3</loc></url>
   <url><loc>https://doshandy.github.io/kap/q/13-security/xss</loc></url>
   <url><loc>https://doshandy.github.io/kap/q/13-security/csp-trusted-types</loc></url>
   <url><loc>https://doshandy.github.io/kap/q/13-security/csrf-clickjacking</loc></url>
@@ -1070,6 +1254,14 @@
   <url><loc>https://doshandy.github.io/kap/q/13-security/prototype-pollution-followup-3</loc></url>
   <url><loc>https://doshandy.github.io/kap/q/13-security/source-map-secrets-followup-2</loc></url>
   <url><loc>https://doshandy.github.io/kap/q/13-security/source-map-secrets-followup-3</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/13-security/security-sbom-signing-gate</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/13-security/security-incident-key-rotation</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/13-security/security-sbom-signing-gate-followup-1</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/13-security/security-sbom-signing-gate-followup-2</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/13-security/security-sbom-signing-gate-followup-3</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/13-security/security-incident-key-rotation-followup-1</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/13-security/security-incident-key-rotation-followup-2</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/13-security/security-incident-key-rotation-followup-3</loc></url>
   <url><loc>https://doshandy.github.io/kap/q/14-a11y-i18n/wcag-semantic</loc></url>
   <url><loc>https://doshandy.github.io/kap/q/14-a11y-i18n/focus-keyboard</loc></url>
   <url><loc>https://doshandy.github.io/kap/q/14-a11y-i18n/aria-live-errors</loc></url>
@@ -1122,6 +1314,22 @@
   <url><loc>https://doshandy.github.io/kap/q/14-a11y-i18n/i18n-locale-formatter-followup-3</loc></url>
   <url><loc>https://doshandy.github.io/kap/q/14-a11y-i18n/form-accessibility-followup-2</loc></url>
   <url><loc>https://doshandy.github.io/kap/q/14-a11y-i18n/form-accessibility-followup-3</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/14-a11y-i18n/a11y-release-gate-matrix</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/14-a11y-i18n/i18n-pseudolocale-fallback-guardrail</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/14-a11y-i18n/a11y-release-gate-matrix-followup-1</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/14-a11y-i18n/a11y-release-gate-matrix-followup-2</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/14-a11y-i18n/a11y-release-gate-matrix-followup-3</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/14-a11y-i18n/i18n-pseudolocale-fallback-guardrail-followup-1</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/14-a11y-i18n/i18n-pseudolocale-fallback-guardrail-followup-2</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/14-a11y-i18n/i18n-pseudolocale-fallback-guardrail-followup-3</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/14-a11y-i18n/a11y-compliance-waiver-governance</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/14-a11y-i18n/i18n-translation-incident-warroom</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/14-a11y-i18n/a11y-compliance-waiver-governance-followup-1</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/14-a11y-i18n/a11y-compliance-waiver-governance-followup-2</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/14-a11y-i18n/a11y-compliance-waiver-governance-followup-3</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/14-a11y-i18n/i18n-translation-incident-warroom-followup-1</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/14-a11y-i18n/i18n-translation-incident-warroom-followup-2</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/14-a11y-i18n/i18n-translation-incident-warroom-followup-3</loc></url>
   <url><loc>https://doshandy.github.io/kap/q/15-testing/test-pyramid</loc></url>
   <url><loc>https://doshandy.github.io/kap/q/15-testing/unit-mock-spy</loc></url>
   <url><loc>https://doshandy.github.io/kap/q/15-testing/component-testing</loc></url>
@@ -1174,6 +1382,14 @@
   <url><loc>https://doshandy.github.io/kap/q/15-testing/test-async-tricks-followup-3</loc></url>
   <url><loc>https://doshandy.github.io/kap/q/15-testing/visual-regression-followup-2</loc></url>
   <url><loc>https://doshandy.github.io/kap/q/15-testing/visual-regression-followup-3</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/15-testing/release-quality-gate-matrix</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/15-testing/test-failure-command-runbook</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/15-testing/release-quality-gate-matrix-followup-1</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/15-testing/release-quality-gate-matrix-followup-2</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/15-testing/release-quality-gate-matrix-followup-3</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/15-testing/test-failure-command-runbook-followup-1</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/15-testing/test-failure-command-runbook-followup-2</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/15-testing/test-failure-command-runbook-followup-3</loc></url>
   <url><loc>https://doshandy.github.io/kap/q/16-observability/error-capture</loc></url>
   <url><loc>https://doshandy.github.io/kap/q/16-observability/source-map-symbolicate</loc></url>
   <url><loc>https://doshandy.github.io/kap/q/16-observability/rum-web-vitals</loc></url>
@@ -1246,6 +1462,30 @@
   <url><loc>https://doshandy.github.io/kap/q/16-observability/session-replay-alert-followup-3</loc></url>
   <url><loc>https://doshandy.github.io/kap/q/16-observability/opentelemetry-frontend-followup-2</loc></url>
   <url><loc>https://doshandy.github.io/kap/q/16-observability/opentelemetry-frontend-followup-3</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/16-observability/frontend-slo-error-budget</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/16-observability/incident-command-runbook</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/16-observability/frontend-slo-error-budget-followup-1</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/16-observability/frontend-slo-error-budget-followup-2</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/16-observability/frontend-slo-error-budget-followup-3</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/16-observability/incident-command-runbook-followup-1</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/16-observability/incident-command-runbook-followup-2</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/16-observability/incident-command-runbook-followup-3</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/16-observability/observability-release-readiness-gate</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/16-observability/burn-rate-auto-mitigation-orchestration</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/16-observability/observability-release-readiness-gate-followup-1</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/16-observability/observability-release-readiness-gate-followup-2</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/16-observability/observability-release-readiness-gate-followup-3</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/16-observability/burn-rate-auto-mitigation-orchestration-followup-1</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/16-observability/burn-rate-auto-mitigation-orchestration-followup-2</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/16-observability/burn-rate-auto-mitigation-orchestration-followup-3</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/16-observability/alert-fatigue-budget-governance</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/16-observability/incident-evidence-closure-protocol</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/16-observability/alert-fatigue-budget-governance-followup-1</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/16-observability/alert-fatigue-budget-governance-followup-2</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/16-observability/alert-fatigue-budget-governance-followup-3</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/16-observability/incident-evidence-closure-protocol-followup-1</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/16-observability/incident-evidence-closure-protocol-followup-2</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/16-observability/incident-evidence-closure-protocol-followup-3</loc></url>
   <url><loc>https://doshandy.github.io/kap/q/17-build-publish/hashing-cache</loc></url>
   <url><loc>https://doshandy.github.io/kap/q/17-build-publish/chunk-failure</loc></url>
   <url><loc>https://doshandy.github.io/kap/q/17-build-publish/gray-release</loc></url>
@@ -1294,6 +1534,30 @@
   <url><loc>https://doshandy.github.io/kap/q/17-build-publish/tree-shaking-deep-followup-3</loc></url>
   <url><loc>https://doshandy.github.io/kap/q/17-build-publish/sw-update-strategies-followup-2</loc></url>
   <url><loc>https://doshandy.github.io/kap/q/17-build-publish/sw-update-strategies-followup-3</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/17-build-publish/release-risk-gate-policy</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/17-build-publish/rollback-drill-mechanism</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/17-build-publish/release-risk-gate-policy-followup-1</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/17-build-publish/release-risk-gate-policy-followup-2</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/17-build-publish/release-risk-gate-policy-followup-3</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/17-build-publish/rollback-drill-mechanism-followup-1</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/17-build-publish/rollback-drill-mechanism-followup-2</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/17-build-publish/rollback-drill-mechanism-followup-3</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/17-build-publish/build-provenance-attestation-gate</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/17-build-publish/progressive-release-checkpoint-orchestration</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/17-build-publish/build-provenance-attestation-gate-followup-1</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/17-build-publish/build-provenance-attestation-gate-followup-2</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/17-build-publish/build-provenance-attestation-gate-followup-3</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/17-build-publish/progressive-release-checkpoint-orchestration-followup-1</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/17-build-publish/progressive-release-checkpoint-orchestration-followup-2</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/17-build-publish/progressive-release-checkpoint-orchestration-followup-3</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/17-build-publish/release-orchestration-control-tower</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/17-build-publish/release-freeze-exception-governance</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/17-build-publish/release-orchestration-control-tower-followup-1</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/17-build-publish/release-orchestration-control-tower-followup-2</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/17-build-publish/release-orchestration-control-tower-followup-3</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/17-build-publish/release-freeze-exception-governance-followup-1</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/17-build-publish/release-freeze-exception-governance-followup-2</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/17-build-publish/release-freeze-exception-governance-followup-3</loc></url>
   <url><loc>https://doshandy.github.io/kap/q/18-crossplatform/hybrid-jsbridge</loc></url>
   <url><loc>https://doshandy.github.io/kap/q/18-crossplatform/electron-tauri</loc></url>
   <url><loc>https://doshandy.github.io/kap/q/18-crossplatform/electron-security-ipc</loc></url>
@@ -1338,6 +1602,22 @@
   <url><loc>https://doshandy.github.io/kap/q/18-crossplatform/taro-uniapp-choice-followup-3</loc></url>
   <url><loc>https://doshandy.github.io/kap/q/18-crossplatform/webview-jsbridge-followup-2</loc></url>
   <url><loc>https://doshandy.github.io/kap/q/18-crossplatform/webview-jsbridge-followup-3</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/18-crossplatform/crossplatform-capability-matrix-guardrail</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/18-crossplatform/crossplatform-version-contract-governance</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/18-crossplatform/crossplatform-capability-matrix-guardrail-followup-1</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/18-crossplatform/crossplatform-capability-matrix-guardrail-followup-2</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/18-crossplatform/crossplatform-capability-matrix-guardrail-followup-3</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/18-crossplatform/crossplatform-version-contract-governance-followup-1</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/18-crossplatform/crossplatform-version-contract-governance-followup-2</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/18-crossplatform/crossplatform-version-contract-governance-followup-3</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/18-crossplatform/crossplatform-release-consistency-gate</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/18-crossplatform/crossplatform-bridge-permission-risk-gate</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/18-crossplatform/crossplatform-release-consistency-gate-followup-1</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/18-crossplatform/crossplatform-release-consistency-gate-followup-2</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/18-crossplatform/crossplatform-release-consistency-gate-followup-3</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/18-crossplatform/crossplatform-bridge-permission-risk-gate-followup-1</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/18-crossplatform/crossplatform-bridge-permission-risk-gate-followup-2</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/18-crossplatform/crossplatform-bridge-permission-risk-gate-followup-3</loc></url>
   <url><loc>https://doshandy.github.io/kap/q/19-visualization/canvas-svg</loc></url>
   <url><loc>https://doshandy.github.io/kap/q/19-visualization/chart-performance</loc></url>
   <url><loc>https://doshandy.github.io/kap/q/19-visualization/d3-thinking</loc></url>
@@ -1386,6 +1666,14 @@
   <url><loc>https://doshandy.github.io/kap/q/19-visualization/canvas-svg-followup-3</loc></url>
   <url><loc>https://doshandy.github.io/kap/q/19-visualization/webgl-webgpu-followup-2</loc></url>
   <url><loc>https://doshandy.github.io/kap/q/19-visualization/webgl-webgpu-followup-3</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/19-visualization/misleading-chart-guardrail</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/19-visualization/dashboard-anomaly-explainer-bridge</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/19-visualization/misleading-chart-guardrail-followup-1</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/19-visualization/misleading-chart-guardrail-followup-2</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/19-visualization/misleading-chart-guardrail-followup-3</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/19-visualization/dashboard-anomaly-explainer-bridge-followup-1</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/19-visualization/dashboard-anomaly-explainer-bridge-followup-2</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/19-visualization/dashboard-anomaly-explainer-bridge-followup-3</loc></url>
   <url><loc>https://doshandy.github.io/kap/q/20-algorithm/complexity</loc></url>
   <url><loc>https://doshandy.github.io/kap/q/20-algorithm/two-pointer-sliding-window</loc></url>
   <url><loc>https://doshandy.github.io/kap/q/20-algorithm/prefix-sum</loc></url>
@@ -1478,6 +1766,14 @@
   <url><loc>https://doshandy.github.io/kap/q/20-algorithm/dp-classic-followup-3</loc></url>
   <url><loc>https://doshandy.github.io/kap/q/20-algorithm/promise-all-impl-followup-2</loc></url>
   <url><loc>https://doshandy.github.io/kap/q/20-algorithm/promise-all-impl-followup-3</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/20-algorithm/algorithm-production-proof-playbook</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/20-algorithm/time-space-tradeoff-budget</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/20-algorithm/algorithm-production-proof-playbook-followup-1</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/20-algorithm/algorithm-production-proof-playbook-followup-2</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/20-algorithm/algorithm-production-proof-playbook-followup-3</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/20-algorithm/time-space-tradeoff-budget-followup-1</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/20-algorithm/time-space-tradeoff-budget-followup-2</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/20-algorithm/time-space-tradeoff-budget-followup-3</loc></url>
   <url><loc>https://doshandy.github.io/kap/q/21-interview-special/handwrite-call-apply-bind</loc></url>
   <url><loc>https://doshandy.github.io/kap/q/21-interview-special/handwrite-new-instanceof</loc></url>
   <url><loc>https://doshandy.github.io/kap/q/21-interview-special/handwrite-curry-compose</loc></url>
@@ -1530,6 +1826,22 @@
   <url><loc>https://doshandy.github.io/kap/q/21-interview-special/handwrite-curry-compose-followup-3</loc></url>
   <url><loc>https://doshandy.github.io/kap/q/21-interview-special/difficult-bug-story-followup-2</loc></url>
   <url><loc>https://doshandy.github.io/kap/q/21-interview-special/difficult-bug-story-followup-3</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/21-interview-special/system-design-answer-timeline</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/21-interview-special/pressure-followup-recovery</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/21-interview-special/system-design-answer-timeline-followup-1</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/21-interview-special/system-design-answer-timeline-followup-2</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/21-interview-special/system-design-answer-timeline-followup-3</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/21-interview-special/pressure-followup-recovery-followup-1</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/21-interview-special/pressure-followup-recovery-followup-2</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/21-interview-special/pressure-followup-recovery-followup-3</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/21-interview-special/interview-timebox-answer-strategy</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/21-interview-special/interview-followup-failure-retro</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/21-interview-special/interview-timebox-answer-strategy-followup-1</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/21-interview-special/interview-timebox-answer-strategy-followup-2</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/21-interview-special/interview-timebox-answer-strategy-followup-3</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/21-interview-special/interview-followup-failure-retro-followup-1</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/21-interview-special/interview-followup-failure-retro-followup-2</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/21-interview-special/interview-followup-failure-retro-followup-3</loc></url>
   <url><loc>https://doshandy.github.io/kap/q/22-react/react-vs-vue-mental-model</loc></url>
   <url><loc>https://doshandy.github.io/kap/q/22-react/react-hooks-rules</loc></url>
   <url><loc>https://doshandy.github.io/kap/q/22-react/use-effect-pitfalls</loc></url>
@@ -1610,6 +1922,22 @@
   <url><loc>https://doshandy.github.io/kap/q/22-react/react-complex-form-architecture-followup-3</loc></url>
   <url><loc>https://doshandy.github.io/kap/q/22-react/react-suspense-data-followup-2</loc></url>
   <url><loc>https://doshandy.github.io/kap/q/22-react/react-suspense-data-followup-3</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/22-react/react-render-budget-gate</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/22-react/react-hydration-mismatch-playbook</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/22-react/react-render-budget-gate-followup-1</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/22-react/react-render-budget-gate-followup-2</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/22-react/react-render-budget-gate-followup-3</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/22-react/react-hydration-mismatch-playbook-followup-1</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/22-react/react-hydration-mismatch-playbook-followup-2</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/22-react/react-hydration-mismatch-playbook-followup-3</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/22-react/react-compiler-rollout-command-bridge</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/22-react/react-optimistic-ui-stoploss-playbook</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/22-react/react-compiler-rollout-command-bridge-followup-1</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/22-react/react-compiler-rollout-command-bridge-followup-2</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/22-react/react-compiler-rollout-command-bridge-followup-3</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/22-react/react-optimistic-ui-stoploss-playbook-followup-1</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/22-react/react-optimistic-ui-stoploss-playbook-followup-2</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/22-react/react-optimistic-ui-stoploss-playbook-followup-3</loc></url>
   <url><loc>https://doshandy.github.io/kap/q/23-framework-compare/reactivity-models</loc></url>
   <url><loc>https://doshandy.github.io/kap/q/23-framework-compare/rendering-strategy</loc></url>
   <url><loc>https://doshandy.github.io/kap/q/23-framework-compare/bundle-runtime-cost</loc></url>
@@ -1658,6 +1986,22 @@
   <url><loc>https://doshandy.github.io/kap/q/23-framework-compare/angular-distinct-followup-3</loc></url>
   <url><loc>https://doshandy.github.io/kap/q/23-framework-compare/qwik-resumability-followup-2</loc></url>
   <url><loc>https://doshandy.github.io/kap/q/23-framework-compare/qwik-resumability-followup-3</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/23-framework-compare/framework-decision-experiment-matrix</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/23-framework-compare/framework-lockin-boundary-governance</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/23-framework-compare/framework-decision-experiment-matrix-followup-1</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/23-framework-compare/framework-decision-experiment-matrix-followup-2</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/23-framework-compare/framework-decision-experiment-matrix-followup-3</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/23-framework-compare/framework-lockin-boundary-governance-followup-1</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/23-framework-compare/framework-lockin-boundary-governance-followup-2</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/23-framework-compare/framework-lockin-boundary-governance-followup-3</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/23-framework-compare/framework-migration-stakeholder-communication</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/23-framework-compare/framework-poc-stoploss-governance</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/23-framework-compare/framework-migration-stakeholder-communication-followup-1</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/23-framework-compare/framework-migration-stakeholder-communication-followup-2</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/23-framework-compare/framework-migration-stakeholder-communication-followup-3</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/23-framework-compare/framework-poc-stoploss-governance-followup-1</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/23-framework-compare/framework-poc-stoploss-governance-followup-2</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/23-framework-compare/framework-poc-stoploss-governance-followup-3</loc></url>
   <url><loc>https://doshandy.github.io/kap/q/24-fullstack-meta/next-app-router</loc></url>
   <url><loc>https://doshandy.github.io/kap/q/24-fullstack-meta/next-server-actions</loc></url>
   <url><loc>https://doshandy.github.io/kap/q/24-fullstack-meta/next-cache-layers</loc></url>
@@ -1722,6 +2066,22 @@
   <url><loc>https://doshandy.github.io/kap/q/24-fullstack-meta/ssr-csr-ssg-isr-followup-3</loc></url>
   <url><loc>https://doshandy.github.io/kap/q/24-fullstack-meta/ssr-data-fetching-consistency-followup-2</loc></url>
   <url><loc>https://doshandy.github.io/kap/q/24-fullstack-meta/ssr-data-fetching-consistency-followup-3</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/24-fullstack-meta/next-cache-invalidation-playbook</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/24-fullstack-meta/fullstack-rollout-guardrail</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/24-fullstack-meta/next-cache-invalidation-playbook-followup-1</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/24-fullstack-meta/next-cache-invalidation-playbook-followup-2</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/24-fullstack-meta/next-cache-invalidation-playbook-followup-3</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/24-fullstack-meta/fullstack-rollout-guardrail-followup-1</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/24-fullstack-meta/fullstack-rollout-guardrail-followup-2</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/24-fullstack-meta/fullstack-rollout-guardrail-followup-3</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/24-fullstack-meta/fullstack-contract-version-governance</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/24-fullstack-meta/fullstack-schema-expand-contract</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/24-fullstack-meta/fullstack-contract-version-governance-followup-1</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/24-fullstack-meta/fullstack-contract-version-governance-followup-2</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/24-fullstack-meta/fullstack-contract-version-governance-followup-3</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/24-fullstack-meta/fullstack-schema-expand-contract-followup-1</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/24-fullstack-meta/fullstack-schema-expand-contract-followup-2</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/24-fullstack-meta/fullstack-schema-expand-contract-followup-3</loc></url>
   <url><loc>https://doshandy.github.io/kap/q/25-rust-wasm/why-rust-tooling</loc></url>
   <url><loc>https://doshandy.github.io/kap/q/25-rust-wasm/wasm-fundamentals</loc></url>
   <url><loc>https://doshandy.github.io/kap/q/25-rust-wasm/rust-wasm-toolchain</loc></url>
@@ -1806,6 +2166,22 @@
   <url><loc>https://doshandy.github.io/kap/q/26-browser-extension/extension-message-passing-followup-3</loc></url>
   <url><loc>https://doshandy.github.io/kap/q/26-browser-extension/extension-storage-sync-followup-2</loc></url>
   <url><loc>https://doshandy.github.io/kap/q/26-browser-extension/extension-storage-sync-followup-3</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/26-browser-extension/extension-privacy-compliance-governance</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/26-browser-extension/extension-emergency-kill-switch</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/26-browser-extension/extension-privacy-compliance-governance-followup-1</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/26-browser-extension/extension-privacy-compliance-governance-followup-2</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/26-browser-extension/extension-privacy-compliance-governance-followup-3</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/26-browser-extension/extension-emergency-kill-switch-followup-1</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/26-browser-extension/extension-emergency-kill-switch-followup-2</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/26-browser-extension/extension-emergency-kill-switch-followup-3</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/26-browser-extension/extension-permission-drift-gate</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/26-browser-extension/extension-release-risk-gate-matrix</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/26-browser-extension/extension-permission-drift-gate-followup-1</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/26-browser-extension/extension-permission-drift-gate-followup-2</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/26-browser-extension/extension-permission-drift-gate-followup-3</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/26-browser-extension/extension-release-risk-gate-matrix-followup-1</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/26-browser-extension/extension-release-risk-gate-matrix-followup-2</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/26-browser-extension/extension-release-risk-gate-matrix-followup-3</loc></url>
   <url><loc>https://doshandy.github.io/kap/q/27-data-platform-cases/sql-workbench-architecture</loc></url>
   <url><loc>https://doshandy.github.io/kap/q/27-data-platform-cases/monaco-multi-pane-isolation</loc></url>
   <url><loc>https://doshandy.github.io/kap/q/27-data-platform-cases/sql-completion-with-worker</loc></url>
@@ -1870,6 +2246,22 @@
   <url><loc>https://doshandy.github.io/kap/q/27-data-platform-cases/indexeddb-pane-persistence-followup-3</loc></url>
   <url><loc>https://doshandy.github.io/kap/q/27-data-platform-cases/upload-large-file-followup-2</loc></url>
   <url><loc>https://doshandy.github.io/kap/q/27-data-platform-cases/upload-large-file-followup-3</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/27-data-platform-cases/sql-cost-guardrail-frontend</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/27-data-platform-cases/metric-definition-versioning</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/27-data-platform-cases/sql-cost-guardrail-frontend-followup-1</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/27-data-platform-cases/sql-cost-guardrail-frontend-followup-2</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/27-data-platform-cases/sql-cost-guardrail-frontend-followup-3</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/27-data-platform-cases/metric-definition-versioning-followup-1</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/27-data-platform-cases/metric-definition-versioning-followup-2</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/27-data-platform-cases/metric-definition-versioning-followup-3</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/27-data-platform-cases/experiment-readout-decision-guardrail</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/27-data-platform-cases/attribution-dispute-resolution-playbook</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/27-data-platform-cases/experiment-readout-decision-guardrail-followup-1</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/27-data-platform-cases/experiment-readout-decision-guardrail-followup-2</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/27-data-platform-cases/experiment-readout-decision-guardrail-followup-3</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/27-data-platform-cases/attribution-dispute-resolution-playbook-followup-1</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/27-data-platform-cases/attribution-dispute-resolution-playbook-followup-2</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/27-data-platform-cases/attribution-dispute-resolution-playbook-followup-3</loc></url>
   <url><loc>https://doshandy.github.io/kap/q/28-customer-service-im/im-protocol-design</loc></url>
   <url><loc>https://doshandy.github.io/kap/q/28-customer-service-im/websocket-heartbeat-reconnect</loc></url>
   <url><loc>https://doshandy.github.io/kap/q/28-customer-service-im/message-reliability</loc></url>
@@ -1926,6 +2318,14 @@
   <url><loc>https://doshandy.github.io/kap/q/28-customer-service-im/typing-presence-indicator-followup-3</loc></url>
   <url><loc>https://doshandy.github.io/kap/q/28-customer-service-im/intl-deployment-region-followup-2</loc></url>
   <url><loc>https://doshandy.github.io/kap/q/28-customer-service-im/intl-deployment-region-followup-3</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/28-customer-service-im/kefu-incident-command-bridge</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/28-customer-service-im/im-risk-review-false-positive-governance</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/28-customer-service-im/kefu-incident-command-bridge-followup-1</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/28-customer-service-im/kefu-incident-command-bridge-followup-2</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/28-customer-service-im/kefu-incident-command-bridge-followup-3</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/28-customer-service-im/im-risk-review-false-positive-governance-followup-1</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/28-customer-service-im/im-risk-review-false-positive-governance-followup-2</loc></url>
+  <url><loc>https://doshandy.github.io/kap/q/28-customer-service-im/im-risk-review-false-positive-governance-followup-3</loc></url>
   <url><loc>https://doshandy.github.io/kap/followup-chain/01-javascript/prototype-chain</loc></url>
   <url><loc>https://doshandy.github.io/kap/followup-chain/01-javascript/this-binding</loc></url>
   <url><loc>https://doshandy.github.io/kap/followup-chain/01-javascript/closure</loc></url>
@@ -1947,6 +2347,8 @@
   <url><loc>https://doshandy.github.io/kap/followup-chain/01-javascript/flatten-array</loc></url>
   <url><loc>https://doshandy.github.io/kap/followup-chain/01-javascript/event-emitter</loc></url>
   <url><loc>https://doshandy.github.io/kap/followup-chain/01-javascript/debounce-immediate</loc></url>
+  <url><loc>https://doshandy.github.io/kap/followup-chain/01-javascript/javascript-runtime-error-warroom</loc></url>
+  <url><loc>https://doshandy.github.io/kap/followup-chain/01-javascript/javascript-polyfill-baseline-governance</loc></url>
   <url><loc>https://doshandy.github.io/kap/followup-chain/02-typescript/any-vs-unknown</loc></url>
   <url><loc>https://doshandy.github.io/kap/followup-chain/02-typescript/generic-constraints</loc></url>
   <url><loc>https://doshandy.github.io/kap/followup-chain/02-typescript/type-vs-interface</loc></url>
@@ -1963,6 +2365,10 @@
   <url><loc>https://doshandy.github.io/kap/followup-chain/02-typescript/branded-vs-opaque</loc></url>
   <url><loc>https://doshandy.github.io/kap/followup-chain/02-typescript/type-level-gymnastics</loc></url>
   <url><loc>https://doshandy.github.io/kap/followup-chain/02-typescript/runtime-schema-validation</loc></url>
+  <url><loc>https://doshandy.github.io/kap/followup-chain/02-typescript/typescript-public-api-compat-gate</loc></url>
+  <url><loc>https://doshandy.github.io/kap/followup-chain/02-typescript/strict-migration-playbook</loc></url>
+  <url><loc>https://doshandy.github.io/kap/followup-chain/02-typescript/typescript-version-upgrade-incident-bridge</loc></url>
+  <url><loc>https://doshandy.github.io/kap/followup-chain/02-typescript/typescript-type-debt-budget-governance</loc></url>
   <url><loc>https://doshandy.github.io/kap/followup-chain/03-vue/vue2-vs-vue3</loc></url>
   <url><loc>https://doshandy.github.io/kap/followup-chain/03-vue/reactivity-core</loc></url>
   <url><loc>https://doshandy.github.io/kap/followup-chain/03-vue/effect-track-trigger</loc></url>
@@ -1983,6 +2389,8 @@
   <url><loc>https://doshandy.github.io/kap/followup-chain/03-vue/vue3-vs-vue2-reactivity</loc></url>
   <url><loc>https://doshandy.github.io/kap/followup-chain/03-vue/vue-component-communication</loc></url>
   <url><loc>https://doshandy.github.io/kap/followup-chain/03-vue/vue-async-component-suspense</loc></url>
+  <url><loc>https://doshandy.github.io/kap/followup-chain/03-vue/vue-upgrade-release-command-bridge</loc></url>
+  <url><loc>https://doshandy.github.io/kap/followup-chain/03-vue/vue-hydration-incident-playbook</loc></url>
   <url><loc>https://doshandy.github.io/kap/followup-chain/04-css/box-bfc</loc></url>
   <url><loc>https://doshandy.github.io/kap/followup-chain/04-css/stacking-context</loc></url>
   <url><loc>https://doshandy.github.io/kap/followup-chain/04-css/flex-grid</loc></url>
@@ -2001,6 +2409,8 @@
   <url><loc>https://doshandy.github.io/kap/followup-chain/04-css/native-popover-dialog-anchor</loc></url>
   <url><loc>https://doshandy.github.io/kap/followup-chain/04-css/scroll-driven-animations</loc></url>
   <url><loc>https://doshandy.github.io/kap/followup-chain/04-css/css-style-queries-and-scope</loc></url>
+  <url><loc>https://doshandy.github.io/kap/followup-chain/04-css/css-render-path-budget-gate</loc></url>
+  <url><loc>https://doshandy.github.io/kap/followup-chain/04-css/css-change-safety-guardrail</loc></url>
   <url><loc>https://doshandy.github.io/kap/followup-chain/05-browser/url-to-render</loc></url>
   <url><loc>https://doshandy.github.io/kap/followup-chain/05-browser/render-pipeline</loc></url>
   <url><loc>https://doshandy.github.io/kap/followup-chain/05-browser/storage-cookie</loc></url>
@@ -2020,6 +2430,10 @@
   <url><loc>https://doshandy.github.io/kap/followup-chain/05-browser/webcodecs-streams</loc></url>
   <url><loc>https://doshandy.github.io/kap/followup-chain/05-browser/opfs-file-system-access</loc></url>
   <url><loc>https://doshandy.github.io/kap/followup-chain/05-browser/navigation-api-app-history</loc></url>
+  <url><loc>https://doshandy.github.io/kap/followup-chain/05-browser/browser-progressive-enhancement-guardrail</loc></url>
+  <url><loc>https://doshandy.github.io/kap/followup-chain/05-browser/browser-performance-budget-guardrail</loc></url>
+  <url><loc>https://doshandy.github.io/kap/followup-chain/05-browser/browser-compatibility-incident-bridge</loc></url>
+  <url><loc>https://doshandy.github.io/kap/followup-chain/05-browser/browser-kill-switch-orchestration</loc></url>
   <url><loc>https://doshandy.github.io/kap/followup-chain/06-network/tcp-tls-http</loc></url>
   <url><loc>https://doshandy.github.io/kap/followup-chain/06-network/http1-http2-http3</loc></url>
   <url><loc>https://doshandy.github.io/kap/followup-chain/06-network/caching</loc></url>
@@ -2037,6 +2451,10 @@
   <url><loc>https://doshandy.github.io/kap/followup-chain/06-network/bfcache-frontend</loc></url>
   <url><loc>https://doshandy.github.io/kap/followup-chain/06-network/http1-vs-http2-multiplex</loc></url>
   <url><loc>https://doshandy.github.io/kap/followup-chain/06-network/request-race-cancel-dedupe</loc></url>
+  <url><loc>https://doshandy.github.io/kap/followup-chain/06-network/timeout-retry-budget</loc></url>
+  <url><loc>https://doshandy.github.io/kap/followup-chain/06-network/cdn-cache-invalidation</loc></url>
+  <url><loc>https://doshandy.github.io/kap/followup-chain/06-network/multi-cdn-failover-drill</loc></url>
+  <url><loc>https://doshandy.github.io/kap/followup-chain/06-network/network-adaptive-degradation-matrix</loc></url>
   <url><loc>https://doshandy.github.io/kap/followup-chain/07-engineering/vite-principle</loc></url>
   <url><loc>https://doshandy.github.io/kap/followup-chain/07-engineering/bundler-ecosystem</loc></url>
   <url><loc>https://doshandy.github.io/kap/followup-chain/07-engineering/package-manager</loc></url>
@@ -2055,6 +2473,12 @@
   <url><loc>https://doshandy.github.io/kap/followup-chain/07-engineering/vite-vs-webpack-deep</loc></url>
   <url><loc>https://doshandy.github.io/kap/followup-chain/07-engineering/vite-go-and-rolldown</loc></url>
   <url><loc>https://doshandy.github.io/kap/followup-chain/07-engineering/tsconfig-paths-to-bundler-alias</loc></url>
+  <url><loc>https://doshandy.github.io/kap/followup-chain/07-engineering/git-bisect-reflog-worktree</loc></url>
+  <url><loc>https://doshandy.github.io/kap/followup-chain/07-engineering/linux-network-debug-playbook</loc></url>
+  <url><loc>https://doshandy.github.io/kap/followup-chain/07-engineering/release-train-cross-team-gate</loc></url>
+  <url><loc>https://doshandy.github.io/kap/followup-chain/07-engineering/layered-rollback-runbook</loc></url>
+  <url><loc>https://doshandy.github.io/kap/followup-chain/07-engineering/frontend-build-regression-warroom</loc></url>
+  <url><loc>https://doshandy.github.io/kap/followup-chain/07-engineering/dependency-upgrade-shadow-release-governance</loc></url>
   <url><loc>https://doshandy.github.io/kap/followup-chain/08-performance/methodology</loc></url>
   <url><loc>https://doshandy.github.io/kap/followup-chain/08-performance/core-web-vitals</loc></url>
   <url><loc>https://doshandy.github.io/kap/followup-chain/08-performance/rum-vs-lab</loc></url>
@@ -2073,6 +2497,8 @@
   <url><loc>https://doshandy.github.io/kap/followup-chain/08-performance/loaf-rendering-attribution</loc></url>
   <url><loc>https://doshandy.github.io/kap/followup-chain/08-performance/third-party-script-governance</loc></url>
   <url><loc>https://doshandy.github.io/kap/followup-chain/08-performance/bfcache-page-lifecycle</loc></url>
+  <url><loc>https://doshandy.github.io/kap/followup-chain/08-performance/performance-warroom-decision-brief</loc></url>
+  <url><loc>https://doshandy.github.io/kap/followup-chain/08-performance/performance-budget-exception-governance</loc></url>
   <url><loc>https://doshandy.github.io/kap/followup-chain/09-node/node-event-loop</loc></url>
   <url><loc>https://doshandy.github.io/kap/followup-chain/09-node/stream-backpressure</loc></url>
   <url><loc>https://doshandy.github.io/kap/followup-chain/09-node/buffer-worker-thread</loc></url>
@@ -2085,6 +2511,10 @@
   <url><loc>https://doshandy.github.io/kap/followup-chain/09-node/node-event-loop-phases</loc></url>
   <url><loc>https://doshandy.github.io/kap/followup-chain/09-node/node-cluster-pm2</loc></url>
   <url><loc>https://doshandy.github.io/kap/followup-chain/09-node/node-streaming-response</loc></url>
+  <url><loc>https://doshandy.github.io/kap/followup-chain/09-node/node-reliability-patterns</loc></url>
+  <url><loc>https://doshandy.github.io/kap/followup-chain/09-node/node-bff-cache-strategy</loc></url>
+  <url><loc>https://doshandy.github.io/kap/followup-chain/09-node/node-memory-leak-budget-gate</loc></url>
+  <url><loc>https://doshandy.github.io/kap/followup-chain/09-node/node-queue-replay-idempotency</loc></url>
   <url><loc>https://doshandy.github.io/kap/followup-chain/10-architecture/layering-boundary</loc></url>
   <url><loc>https://doshandy.github.io/kap/followup-chain/10-architecture/design-patterns</loc></url>
   <url><loc>https://doshandy.github.io/kap/followup-chain/10-architecture/dependency-injection</loc></url>
@@ -2104,6 +2534,12 @@
   <url><loc>https://doshandy.github.io/kap/followup-chain/10-architecture/type-safe-api-contract</loc></url>
   <url><loc>https://doshandy.github.io/kap/followup-chain/10-architecture/url-state-sync</loc></url>
   <url><loc>https://doshandy.github.io/kap/followup-chain/10-architecture/web-components-design-system</loc></url>
+  <url><loc>https://doshandy.github.io/kap/followup-chain/10-architecture/architecture-adr</loc></url>
+  <url><loc>https://doshandy.github.io/kap/followup-chain/10-architecture/technical-debt-governance</loc></url>
+  <url><loc>https://doshandy.github.io/kap/followup-chain/10-architecture/architecture-fitness-function-gate</loc></url>
+  <url><loc>https://doshandy.github.io/kap/followup-chain/10-architecture/strangler-migration-playbook</loc></url>
+  <url><loc>https://doshandy.github.io/kap/followup-chain/10-architecture/architecture-contract-acceptance-gate</loc></url>
+  <url><loc>https://doshandy.github.io/kap/followup-chain/10-architecture/architecture-blast-radius-rollback-matrix</loc></url>
   <url><loc>https://doshandy.github.io/kap/followup-chain/11-ai-frontend/streaming-ui</loc></url>
   <url><loc>https://doshandy.github.io/kap/followup-chain/11-ai-frontend/sse-fetch-stream</loc></url>
   <url><loc>https://doshandy.github.io/kap/followup-chain/11-ai-frontend/prompt-schema</loc></url>
@@ -2155,6 +2591,10 @@
   <url><loc>https://doshandy.github.io/kap/followup-chain/11-ai-frontend/smart-search-with-embedding-intent</loc></url>
   <url><loc>https://doshandy.github.io/kap/followup-chain/11-ai-frontend/mcp-ai-tool-protocol</loc></url>
   <url><loc>https://doshandy.github.io/kap/followup-chain/11-ai-frontend/browser-side-ai-webnn-webgpu</loc></url>
+  <url><loc>https://doshandy.github.io/kap/followup-chain/11-ai-frontend/llm-kill-switch-safe-mode</loc></url>
+  <url><loc>https://doshandy.github.io/kap/followup-chain/11-ai-frontend/llm-human-handoff-policy</loc></url>
+  <url><loc>https://doshandy.github.io/kap/followup-chain/11-ai-frontend/llm-launch-readiness-gate</loc></url>
+  <url><loc>https://doshandy.github.io/kap/followup-chain/11-ai-frontend/llm-online-drift-stoploss</loc></url>
   <url><loc>https://doshandy.github.io/kap/followup-chain/12-softskills/technical-decision</loc></url>
   <url><loc>https://doshandy.github.io/kap/followup-chain/12-softskills/upward-communication</loc></url>
   <url><loc>https://doshandy.github.io/kap/followup-chain/12-softskills/code-review</loc></url>
@@ -2168,6 +2608,12 @@
   <url><loc>https://doshandy.github.io/kap/followup-chain/12-softskills/cross-team-driving</loc></url>
   <url><loc>https://doshandy.github.io/kap/followup-chain/12-softskills/okr-decomposition</loc></url>
   <url><loc>https://doshandy.github.io/kap/followup-chain/12-softskills/interview-self-introduction-basic</loc></url>
+  <url><loc>https://doshandy.github.io/kap/followup-chain/12-softskills/ttm-decision-tradeoff</loc></url>
+  <url><loc>https://doshandy.github.io/kap/followup-chain/12-softskills/business-roi-metrics</loc></url>
+  <url><loc>https://doshandy.github.io/kap/followup-chain/12-softskills/stakeholder-decision-memo</loc></url>
+  <url><loc>https://doshandy.github.io/kap/followup-chain/12-softskills/conflict-negotiation-playbook</loc></url>
+  <url><loc>https://doshandy.github.io/kap/followup-chain/12-softskills/high-pressure-decision-communication-matrix</loc></url>
+  <url><loc>https://doshandy.github.io/kap/followup-chain/12-softskills/decision-deadlock-stoploss-playbook</loc></url>
   <url><loc>https://doshandy.github.io/kap/followup-chain/13-security/xss</loc></url>
   <url><loc>https://doshandy.github.io/kap/followup-chain/13-security/csp-trusted-types</loc></url>
   <url><loc>https://doshandy.github.io/kap/followup-chain/13-security/csrf-clickjacking</loc></url>
@@ -2183,6 +2629,8 @@
   <url><loc>https://doshandy.github.io/kap/followup-chain/13-security/web-crypto-fundamentals</loc></url>
   <url><loc>https://doshandy.github.io/kap/followup-chain/13-security/sensitive-info-leak</loc></url>
   <url><loc>https://doshandy.github.io/kap/followup-chain/13-security/third-party-cookie-privacy-sandbox</loc></url>
+  <url><loc>https://doshandy.github.io/kap/followup-chain/13-security/security-sbom-signing-gate</loc></url>
+  <url><loc>https://doshandy.github.io/kap/followup-chain/13-security/security-incident-key-rotation</loc></url>
   <url><loc>https://doshandy.github.io/kap/followup-chain/14-a11y-i18n/wcag-semantic</loc></url>
   <url><loc>https://doshandy.github.io/kap/followup-chain/14-a11y-i18n/focus-keyboard</loc></url>
   <url><loc>https://doshandy.github.io/kap/followup-chain/14-a11y-i18n/aria-live-errors</loc></url>
@@ -2196,6 +2644,10 @@
   <url><loc>https://doshandy.github.io/kap/followup-chain/14-a11y-i18n/form-accessibility</loc></url>
   <url><loc>https://doshandy.github.io/kap/followup-chain/14-a11y-i18n/a11y-quick-wins-basic</loc></url>
   <url><loc>https://doshandy.github.io/kap/followup-chain/14-a11y-i18n/i18n-async-locale-routing</loc></url>
+  <url><loc>https://doshandy.github.io/kap/followup-chain/14-a11y-i18n/a11y-release-gate-matrix</loc></url>
+  <url><loc>https://doshandy.github.io/kap/followup-chain/14-a11y-i18n/i18n-pseudolocale-fallback-guardrail</loc></url>
+  <url><loc>https://doshandy.github.io/kap/followup-chain/14-a11y-i18n/a11y-compliance-waiver-governance</loc></url>
+  <url><loc>https://doshandy.github.io/kap/followup-chain/14-a11y-i18n/i18n-translation-incident-warroom</loc></url>
   <url><loc>https://doshandy.github.io/kap/followup-chain/15-testing/test-pyramid</loc></url>
   <url><loc>https://doshandy.github.io/kap/followup-chain/15-testing/unit-mock-spy</loc></url>
   <url><loc>https://doshandy.github.io/kap/followup-chain/15-testing/component-testing</loc></url>
@@ -2209,6 +2661,8 @@
   <url><loc>https://doshandy.github.io/kap/followup-chain/15-testing/test-async-tricks</loc></url>
   <url><loc>https://doshandy.github.io/kap/followup-chain/15-testing/visual-regression</loc></url>
   <url><loc>https://doshandy.github.io/kap/followup-chain/15-testing/what-to-test-basic</loc></url>
+  <url><loc>https://doshandy.github.io/kap/followup-chain/15-testing/release-quality-gate-matrix</loc></url>
+  <url><loc>https://doshandy.github.io/kap/followup-chain/15-testing/test-failure-command-runbook</loc></url>
   <url><loc>https://doshandy.github.io/kap/followup-chain/16-observability/error-capture</loc></url>
   <url><loc>https://doshandy.github.io/kap/followup-chain/16-observability/source-map-symbolicate</loc></url>
   <url><loc>https://doshandy.github.io/kap/followup-chain/16-observability/rum-web-vitals</loc></url>
@@ -2227,6 +2681,12 @@
   <url><loc>https://doshandy.github.io/kap/followup-chain/16-observability/source-map-stack-trace</loc></url>
   <url><loc>https://doshandy.github.io/kap/followup-chain/16-observability/white-screen-detection-deep</loc></url>
   <url><loc>https://doshandy.github.io/kap/followup-chain/16-observability/rrweb-on-demand-recording</loc></url>
+  <url><loc>https://doshandy.github.io/kap/followup-chain/16-observability/frontend-slo-error-budget</loc></url>
+  <url><loc>https://doshandy.github.io/kap/followup-chain/16-observability/incident-command-runbook</loc></url>
+  <url><loc>https://doshandy.github.io/kap/followup-chain/16-observability/observability-release-readiness-gate</loc></url>
+  <url><loc>https://doshandy.github.io/kap/followup-chain/16-observability/burn-rate-auto-mitigation-orchestration</loc></url>
+  <url><loc>https://doshandy.github.io/kap/followup-chain/16-observability/alert-fatigue-budget-governance</loc></url>
+  <url><loc>https://doshandy.github.io/kap/followup-chain/16-observability/incident-evidence-closure-protocol</loc></url>
   <url><loc>https://doshandy.github.io/kap/followup-chain/17-build-publish/hashing-cache</loc></url>
   <url><loc>https://doshandy.github.io/kap/followup-chain/17-build-publish/chunk-failure</loc></url>
   <url><loc>https://doshandy.github.io/kap/followup-chain/17-build-publish/gray-release</loc></url>
@@ -2239,6 +2699,12 @@
   <url><loc>https://doshandy.github.io/kap/followup-chain/17-build-publish/ci-cd-frontend-pipeline</loc></url>
   <url><loc>https://doshandy.github.io/kap/followup-chain/17-build-publish/bundle-optimization-tactics</loc></url>
   <url><loc>https://doshandy.github.io/kap/followup-chain/17-build-publish/web-platform-baseline-governance</loc></url>
+  <url><loc>https://doshandy.github.io/kap/followup-chain/17-build-publish/release-risk-gate-policy</loc></url>
+  <url><loc>https://doshandy.github.io/kap/followup-chain/17-build-publish/rollback-drill-mechanism</loc></url>
+  <url><loc>https://doshandy.github.io/kap/followup-chain/17-build-publish/build-provenance-attestation-gate</loc></url>
+  <url><loc>https://doshandy.github.io/kap/followup-chain/17-build-publish/progressive-release-checkpoint-orchestration</loc></url>
+  <url><loc>https://doshandy.github.io/kap/followup-chain/17-build-publish/release-orchestration-control-tower</loc></url>
+  <url><loc>https://doshandy.github.io/kap/followup-chain/17-build-publish/release-freeze-exception-governance</loc></url>
   <url><loc>https://doshandy.github.io/kap/followup-chain/18-crossplatform/hybrid-jsbridge</loc></url>
   <url><loc>https://doshandy.github.io/kap/followup-chain/18-crossplatform/electron-tauri</loc></url>
   <url><loc>https://doshandy.github.io/kap/followup-chain/18-crossplatform/electron-security-ipc</loc></url>
@@ -2250,6 +2716,10 @@
   <url><loc>https://doshandy.github.io/kap/followup-chain/18-crossplatform/miniapp-architecture</loc></url>
   <url><loc>https://doshandy.github.io/kap/followup-chain/18-crossplatform/taro-uniapp-choice</loc></url>
   <url><loc>https://doshandy.github.io/kap/followup-chain/18-crossplatform/webview-jsbridge</loc></url>
+  <url><loc>https://doshandy.github.io/kap/followup-chain/18-crossplatform/crossplatform-capability-matrix-guardrail</loc></url>
+  <url><loc>https://doshandy.github.io/kap/followup-chain/18-crossplatform/crossplatform-version-contract-governance</loc></url>
+  <url><loc>https://doshandy.github.io/kap/followup-chain/18-crossplatform/crossplatform-release-consistency-gate</loc></url>
+  <url><loc>https://doshandy.github.io/kap/followup-chain/18-crossplatform/crossplatform-bridge-permission-risk-gate</loc></url>
   <url><loc>https://doshandy.github.io/kap/followup-chain/19-visualization/canvas-svg</loc></url>
   <url><loc>https://doshandy.github.io/kap/followup-chain/19-visualization/chart-performance</loc></url>
   <url><loc>https://doshandy.github.io/kap/followup-chain/19-visualization/d3-thinking</loc></url>
@@ -2262,6 +2732,8 @@
   <url><loc>https://doshandy.github.io/kap/followup-chain/19-visualization/map-visualization</loc></url>
   <url><loc>https://doshandy.github.io/kap/followup-chain/19-visualization/chart-export-printing</loc></url>
   <url><loc>https://doshandy.github.io/kap/followup-chain/19-visualization/chart-library-choice-basic</loc></url>
+  <url><loc>https://doshandy.github.io/kap/followup-chain/19-visualization/misleading-chart-guardrail</loc></url>
+  <url><loc>https://doshandy.github.io/kap/followup-chain/19-visualization/dashboard-anomaly-explainer-bridge</loc></url>
   <url><loc>https://doshandy.github.io/kap/followup-chain/20-algorithm/complexity</loc></url>
   <url><loc>https://doshandy.github.io/kap/followup-chain/20-algorithm/two-pointer-sliding-window</loc></url>
   <url><loc>https://doshandy.github.io/kap/followup-chain/20-algorithm/prefix-sum</loc></url>
@@ -2285,6 +2757,8 @@
   <url><loc>https://doshandy.github.io/kap/followup-chain/20-algorithm/monotonic-stack-queue</loc></url>
   <url><loc>https://doshandy.github.io/kap/followup-chain/20-algorithm/prefix-sum-difference-2d</loc></url>
   <url><loc>https://doshandy.github.io/kap/followup-chain/20-algorithm/merge-intervals-deep</loc></url>
+  <url><loc>https://doshandy.github.io/kap/followup-chain/20-algorithm/algorithm-production-proof-playbook</loc></url>
+  <url><loc>https://doshandy.github.io/kap/followup-chain/20-algorithm/time-space-tradeoff-budget</loc></url>
   <url><loc>https://doshandy.github.io/kap/followup-chain/21-interview-special/handwrite-call-apply-bind</loc></url>
   <url><loc>https://doshandy.github.io/kap/followup-chain/21-interview-special/handwrite-new-instanceof</loc></url>
   <url><loc>https://doshandy.github.io/kap/followup-chain/21-interview-special/handwrite-curry-compose</loc></url>
@@ -2298,6 +2772,10 @@
   <url><loc>https://doshandy.github.io/kap/followup-chain/21-interview-special/design-rich-editor</loc></url>
   <url><loc>https://doshandy.github.io/kap/followup-chain/21-interview-special/design-realtime-collab</loc></url>
   <url><loc>https://doshandy.github.io/kap/followup-chain/21-interview-special/difficult-bug-story</loc></url>
+  <url><loc>https://doshandy.github.io/kap/followup-chain/21-interview-special/system-design-answer-timeline</loc></url>
+  <url><loc>https://doshandy.github.io/kap/followup-chain/21-interview-special/pressure-followup-recovery</loc></url>
+  <url><loc>https://doshandy.github.io/kap/followup-chain/21-interview-special/interview-timebox-answer-strategy</loc></url>
+  <url><loc>https://doshandy.github.io/kap/followup-chain/21-interview-special/interview-followup-failure-retro</loc></url>
   <url><loc>https://doshandy.github.io/kap/followup-chain/22-react/react-vs-vue-mental-model</loc></url>
   <url><loc>https://doshandy.github.io/kap/followup-chain/22-react/react-hooks-rules</loc></url>
   <url><loc>https://doshandy.github.io/kap/followup-chain/22-react/use-effect-pitfalls</loc></url>
@@ -2318,6 +2796,10 @@
   <url><loc>https://doshandy.github.io/kap/followup-chain/22-react/react-server-state-query-cache</loc></url>
   <url><loc>https://doshandy.github.io/kap/followup-chain/22-react/react-use-sync-external-store</loc></url>
   <url><loc>https://doshandy.github.io/kap/followup-chain/22-react/react-complex-form-architecture</loc></url>
+  <url><loc>https://doshandy.github.io/kap/followup-chain/22-react/react-render-budget-gate</loc></url>
+  <url><loc>https://doshandy.github.io/kap/followup-chain/22-react/react-hydration-mismatch-playbook</loc></url>
+  <url><loc>https://doshandy.github.io/kap/followup-chain/22-react/react-compiler-rollout-command-bridge</loc></url>
+  <url><loc>https://doshandy.github.io/kap/followup-chain/22-react/react-optimistic-ui-stoploss-playbook</loc></url>
   <url><loc>https://doshandy.github.io/kap/followup-chain/23-framework-compare/reactivity-models</loc></url>
   <url><loc>https://doshandy.github.io/kap/followup-chain/23-framework-compare/rendering-strategy</loc></url>
   <url><loc>https://doshandy.github.io/kap/followup-chain/23-framework-compare/bundle-runtime-cost</loc></url>
@@ -2330,6 +2812,10 @@
   <url><loc>https://doshandy.github.io/kap/followup-chain/23-framework-compare/hydration-vs-resumability</loc></url>
   <url><loc>https://doshandy.github.io/kap/followup-chain/23-framework-compare/meta-framework-choice</loc></url>
   <url><loc>https://doshandy.github.io/kap/followup-chain/23-framework-compare/react-vs-vue-positioning-basic</loc></url>
+  <url><loc>https://doshandy.github.io/kap/followup-chain/23-framework-compare/framework-decision-experiment-matrix</loc></url>
+  <url><loc>https://doshandy.github.io/kap/followup-chain/23-framework-compare/framework-lockin-boundary-governance</loc></url>
+  <url><loc>https://doshandy.github.io/kap/followup-chain/23-framework-compare/framework-migration-stakeholder-communication</loc></url>
+  <url><loc>https://doshandy.github.io/kap/followup-chain/23-framework-compare/framework-poc-stoploss-governance</loc></url>
   <url><loc>https://doshandy.github.io/kap/followup-chain/24-fullstack-meta/next-app-router</loc></url>
   <url><loc>https://doshandy.github.io/kap/followup-chain/24-fullstack-meta/next-server-actions</loc></url>
   <url><loc>https://doshandy.github.io/kap/followup-chain/24-fullstack-meta/next-cache-layers</loc></url>
@@ -2346,6 +2832,10 @@
   <url><loc>https://doshandy.github.io/kap/followup-chain/24-fullstack-meta/multi-region-deploy</loc></url>
   <url><loc>https://doshandy.github.io/kap/followup-chain/24-fullstack-meta/next-ppr-use-cache</loc></url>
   <url><loc>https://doshandy.github.io/kap/followup-chain/24-fullstack-meta/rsc-client-boundary-serialization</loc></url>
+  <url><loc>https://doshandy.github.io/kap/followup-chain/24-fullstack-meta/next-cache-invalidation-playbook</loc></url>
+  <url><loc>https://doshandy.github.io/kap/followup-chain/24-fullstack-meta/fullstack-rollout-guardrail</loc></url>
+  <url><loc>https://doshandy.github.io/kap/followup-chain/24-fullstack-meta/fullstack-contract-version-governance</loc></url>
+  <url><loc>https://doshandy.github.io/kap/followup-chain/24-fullstack-meta/fullstack-schema-expand-contract</loc></url>
   <url><loc>https://doshandy.github.io/kap/followup-chain/25-rust-wasm/why-rust-tooling</loc></url>
   <url><loc>https://doshandy.github.io/kap/followup-chain/25-rust-wasm/wasm-fundamentals</loc></url>
   <url><loc>https://doshandy.github.io/kap/followup-chain/25-rust-wasm/rust-wasm-toolchain</loc></url>
@@ -2367,6 +2857,10 @@
   <url><loc>https://doshandy.github.io/kap/followup-chain/26-browser-extension/extension-csp-remote-code</loc></url>
   <url><loc>https://doshandy.github.io/kap/followup-chain/26-browser-extension/extension-storage-sync</loc></url>
   <url><loc>https://doshandy.github.io/kap/followup-chain/26-browser-extension/extension-mv2-vs-mv3-basic</loc></url>
+  <url><loc>https://doshandy.github.io/kap/followup-chain/26-browser-extension/extension-privacy-compliance-governance</loc></url>
+  <url><loc>https://doshandy.github.io/kap/followup-chain/26-browser-extension/extension-emergency-kill-switch</loc></url>
+  <url><loc>https://doshandy.github.io/kap/followup-chain/26-browser-extension/extension-permission-drift-gate</loc></url>
+  <url><loc>https://doshandy.github.io/kap/followup-chain/26-browser-extension/extension-release-risk-gate-matrix</loc></url>
   <url><loc>https://doshandy.github.io/kap/followup-chain/27-data-platform-cases/sql-workbench-architecture</loc></url>
   <url><loc>https://doshandy.github.io/kap/followup-chain/27-data-platform-cases/monaco-multi-pane-isolation</loc></url>
   <url><loc>https://doshandy.github.io/kap/followup-chain/27-data-platform-cases/sql-completion-with-worker</loc></url>
@@ -2383,6 +2877,10 @@
   <url><loc>https://doshandy.github.io/kap/followup-chain/27-data-platform-cases/g2-charts-perf</loc></url>
   <url><loc>https://doshandy.github.io/kap/followup-chain/27-data-platform-cases/release-rollback-frontend</loc></url>
   <url><loc>https://doshandy.github.io/kap/followup-chain/27-data-platform-cases/interview-system-design-bigreport</loc></url>
+  <url><loc>https://doshandy.github.io/kap/followup-chain/27-data-platform-cases/sql-cost-guardrail-frontend</loc></url>
+  <url><loc>https://doshandy.github.io/kap/followup-chain/27-data-platform-cases/metric-definition-versioning</loc></url>
+  <url><loc>https://doshandy.github.io/kap/followup-chain/27-data-platform-cases/experiment-readout-decision-guardrail</loc></url>
+  <url><loc>https://doshandy.github.io/kap/followup-chain/27-data-platform-cases/attribution-dispute-resolution-playbook</loc></url>
   <url><loc>https://doshandy.github.io/kap/followup-chain/28-customer-service-im/im-protocol-design</loc></url>
   <url><loc>https://doshandy.github.io/kap/followup-chain/28-customer-service-im/websocket-heartbeat-reconnect</loc></url>
   <url><loc>https://doshandy.github.io/kap/followup-chain/28-customer-service-im/message-reliability</loc></url>
@@ -2397,4 +2895,6 @@
   <url><loc>https://doshandy.github.io/kap/followup-chain/28-customer-service-im/intl-time-locale</loc></url>
   <url><loc>https://doshandy.github.io/kap/followup-chain/28-customer-service-im/chat-perf-virtual-list</loc></url>
   <url><loc>https://doshandy.github.io/kap/followup-chain/28-customer-service-im/kefu-monitoring</loc></url>
+  <url><loc>https://doshandy.github.io/kap/followup-chain/28-customer-service-im/kefu-incident-command-bridge</loc></url>
+  <url><loc>https://doshandy.github.io/kap/followup-chain/28-customer-service-im/im-risk-review-false-positive-governance</loc></url>
 </urlset>
