@@ -1,12 +1,30 @@
 import { readFileSync, readdirSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
+import { parseCommonScriptArgs, resolveOnlyContentFiles } from './shared/args';
+import { categoryIdFromFrontmatter } from './shared/contentMeta';
+import { replaceOrInsertMetaLine } from './shared/metaLine';
+import { normalizeQuestionId, shortenQuestionId } from './shared/questionId';
+
+const parserModule = (await import(
+  new URL('../src/lib/contentBlockParser.ts', import.meta.url).href
+)) as {
+  formatInlineList(values: string[]): string;
+  parseInlineList(value: string): string[];
+  readMeta(metaText: string, key: string): string | undefined;
+  splitQuestionBlocks(content: string): {
+    before: string;
+    blocks: Array<{
+      slug: string;
+      raw: string;
+      metaText: string;
+    }>;
+  };
+};
+const { formatInlineList, parseInlineList, readMeta, splitQuestionBlocks } = parserModule;
 
 const args = process.argv.slice(2);
-const write = args.includes('--write');
-const dryRun = !write || args.includes('--dry') || args.includes('--dry-run');
+const { dryRun, onlyFile } = parseCommonScriptArgs(args);
 const prune = args.includes('--prune') || args.includes('--remove-orphans');
-const onlyArg = args.find((arg) => arg.startsWith('--only='));
-const onlyFile = onlyArg ? onlyArg.slice('--only='.length) : '';
 const CONTENT_DIR = join(process.cwd(), 'content');
 const MAX_FOLLOWUPS = 3;
 const MAX_LINKS = 3;
@@ -24,78 +42,35 @@ interface Block {
   links: string[];
 }
 
-function escapeRegExp(value: string): string {
-  return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-}
-
-function parseInlineList(value: string | undefined): string[] {
-  const match = value?.trim().match(/^\[([^\]]*)\]$/);
-  if (!match) return [];
-  return match[1]
-    .split(',')
-    .map((item) => item.trim().replace(/^['"]|['"]$/g, ''))
-    .filter(Boolean);
-}
-
-function formatInlineList(values: string[]): string {
-  return `[${values.join(', ')}]`;
-}
-
-function readMeta(metaText: string, key: string): string | undefined {
-  const match = metaText.match(new RegExp(`^${escapeRegExp(key)}\\s*:\\s*(.+)$`, 'm'));
-  return match?.[1]?.trim();
-}
-
-function normalizeId(categoryId: string, value: string): string {
-  const trimmed = value.trim();
-  return trimmed.includes('/') ? trimmed : `${categoryId}/${trimmed}`;
-}
-
-function shortenId(categoryId: string, value: string): string {
-  return value.startsWith(`${categoryId}/`) ? value.slice(categoryId.length + 1) : value;
-}
-
-function categoryIdFromFrontmatter(raw: string, file: string): string {
-  return raw.match(/^id\s*:\s*(.+)$/m)?.[1]?.trim() || file.replace(/\.md$/, '');
-}
-
 function splitBlocks(file: string, content: string): { before: string; blocks: Block[] } {
   const categoryId = categoryIdFromFrontmatter(content, file);
-  const headRe = /^##\s+([a-z][a-z0-9-]*)\s*$/gm;
-  const heads = [...content.matchAll(headRe)].map((match) => ({
-    slug: match[1],
-    index: match.index || 0,
-  }));
-  const blocks: Block[] = [];
-
-  for (let i = 0; i < heads.length; i++) {
-    const start = heads[i].index;
-    const end = i + 1 < heads.length ? heads[i + 1].index : content.length;
-    const raw = content.slice(start, end).replace(/\s+$/, '\n');
-    const firstSection = raw.search(/^###\s+/m);
-    const metaText = firstSection >= 0 ? raw.slice(0, firstSection) : raw;
-    const parent = readMeta(metaText, 'parent') || readMeta(metaText, 'parentId');
-    const followups = parseInlineList(
-      readMeta(metaText, 'followups') || readMeta(metaText, 'followupQuestionIds'),
-    ).map((id) => normalizeId(categoryId, id));
-    const links = parseInlineList(
-      readMeta(metaText, 'links') || readMeta(metaText, 'relatedQuestionIds'),
-    ).map((id) => normalizeId(categoryId, id));
-    blocks.push({
-      file,
-      categoryId,
-      slug: heads[i].slug,
-      id: `${categoryId}/${heads[i].slug}`,
-      raw,
-      metaText,
-      title: readMeta(metaText, 'title') || heads[i].slug,
-      parentId: parent ? normalizeId(categoryId, parent) : undefined,
-      followups,
-      links,
-    });
-  }
-
-  return { before: heads.length ? content.slice(0, heads[0].index) : content, blocks };
+  const parsed = splitQuestionBlocks(content);
+  return {
+    before: parsed.before,
+    blocks: parsed.blocks.map((block) => {
+      const parent = readMeta(block.metaText, 'parent') || readMeta(block.metaText, 'parentId');
+      return {
+        file,
+        categoryId,
+        slug: block.slug,
+        id: `${categoryId}/${block.slug}`,
+        raw: block.raw,
+        metaText: block.metaText,
+        title: readMeta(block.metaText, 'title') || block.slug,
+        parentId: parent ? normalizeQuestionId(categoryId, parent) : undefined,
+        followups: parseInlineList(
+          readMeta(block.metaText, 'followups') ||
+            readMeta(block.metaText, 'followupQuestionIds') ||
+            '[]',
+        ).map((id) => normalizeQuestionId(categoryId, id)),
+        links: parseInlineList(
+          readMeta(block.metaText, 'links') ||
+            readMeta(block.metaText, 'relatedQuestionIds') ||
+            '[]',
+        ).map((id) => normalizeQuestionId(categoryId, id)),
+      };
+    }),
+  };
 }
 
 function updateInlineList(
@@ -104,13 +79,12 @@ function updateInlineList(
   categoryId: string,
   values: string[],
 ): string {
-  const line = `${key}: ${formatInlineList(values.map((id) => shortenId(categoryId, id)))}`;
-  const re =
-    key === 'followups'
-      ? /^followups\s*:.*$|^followupQuestionIds\s*:.*$/m
-      : /^links\s*:.*$|^relatedQuestionIds\s*:.*$/m;
-  if (re.test(raw)) return raw.replace(re, line);
-  return raw;
+  return replaceOrInsertMetaLine(
+    raw,
+    key,
+    formatInlineList(values.map((id) => shortenQuestionId(categoryId, id))),
+    key === 'followups' ? ['followupQuestionIds'] : ['relatedQuestionIds'],
+  );
 }
 
 function removeSubheadingSection(raw: string, heading: string): string {
@@ -186,10 +160,12 @@ function pruneLinks(block: Block): string[] {
   return [...new Set(block.links.filter((id) => !weak(id)))].slice(0, MAX_LINKS);
 }
 
-const files = readdirSync(CONTENT_DIR)
-  .filter((file) => /^\d.*\.md$/.test(file))
-  .filter((file) => (onlyFile ? file === onlyFile : true))
-  .sort();
+const files = resolveOnlyContentFiles(
+  readdirSync(CONTENT_DIR)
+    .filter((file) => /^\d.*\.md$/.test(file))
+    .sort(),
+  onlyFile,
+);
 const parsed = files.map((file) => {
   const raw = readFileSync(join(CONTENT_DIR, file), 'utf8');
   return { file, raw, ...splitBlocks(file, raw) };

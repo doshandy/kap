@@ -10,17 +10,28 @@
  */
 import { readFileSync, readdirSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
+import { parseCommonScriptArgs, resolveOnlyContentFiles } from './shared/args';
+
+const parserModule = (await import(
+  new URL('../src/lib/contentBlockParser.ts', import.meta.url).href
+)) as {
+  splitQuestionBlocks(content: string): {
+    before: string;
+    blocks: Array<{
+      slug: string;
+      raw: string;
+      sections: Record<string, string>;
+    }>;
+  };
+};
+const { splitQuestionBlocks } = parserModule;
 
 interface Patch {
   pitfall?: string;
   followup?: string;
 }
 
-const args = process.argv.slice(2);
-const write = args.includes('--write');
-const dryRun = !write || args.includes('--dry') || args.includes('--dry-run');
-const onlyArg = args.find((arg) => arg.startsWith('--only='));
-const only = onlyArg ? onlyArg.slice('--only='.length) : '';
+const { dryRun, onlyFile } = parseCommonScriptArgs(process.argv.slice(2));
 
 const stdinData = readFileSync(0, 'utf8');
 if (!stdinData.trim()) {
@@ -39,9 +50,10 @@ try {
 }
 
 const CONTENT_DIR = join(process.cwd(), 'content');
-const files = readdirSync(CONTENT_DIR)
-  .filter((f) => /^\d.*\.md$/.test(f))
-  .filter((f) => (only ? f === only || f.replace(/\.md$/, '') === only : true));
+const files = resolveOnlyContentFiles(
+  readdirSync(CONTENT_DIR).filter((f) => /^\d.*\.md$/.test(f)),
+  onlyFile,
+);
 
 interface Stat {
   added: number;
@@ -54,44 +66,29 @@ const seen = new Set<string>();
 for (const file of files) {
   const filePath = join(CONTENT_DIR, file);
   const text = readFileSync(filePath, 'utf8');
-
-  const headRE = /^## ([a-z][\w-]*)\s*$/gm;
-  const heads: { slug: string; index: number }[] = [];
-  let m: RegExpExecArray | null;
-  while ((m = headRE.exec(text)) !== null) heads.push({ slug: m[1], index: m.index });
-  if (!heads.length) continue;
+  const parsed = splitQuestionBlocks(text);
+  if (!parsed.blocks.length) continue;
 
   const categoryId = file.replace(/\.md$/, '');
-  let out = '';
-  let cursor = 0;
-
-  for (let i = 0; i < heads.length; i++) {
-    const start = heads[i].index;
-    const end = i + 1 < heads.length ? heads[i + 1].index : text.length;
-    const block = text.slice(start, end);
-    const key = `${categoryId}/${heads[i].slug}`;
+  const rewritten = parsed.blocks.map((block) => {
+    const key = `${categoryId}/${block.slug}`;
     const patch = patches[key];
-
-    out += text.slice(cursor, start);
-    cursor = end;
-
     if (!patch) {
-      out += block;
-      continue;
+      return block.raw;
     }
     seen.add(key);
 
-    let work = block;
+    let work = block.raw;
     const segments: string[] = [];
 
-    if (patch.pitfall && !/^### 常见误区\s*$/m.test(block)) {
+    if (patch.pitfall && !block.sections['常见误区']) {
       segments.push(`### 常见误区\n${patch.pitfall.trim()}\n`);
       stat.added++;
     } else if (patch.pitfall) {
       stat.skipped++;
     }
 
-    if (patch.followup && !/^### 追问\s*$/m.test(block)) {
+    if (patch.followup && !block.sections['追问']) {
       segments.push(`### 追问\n${patch.followup.trim()}\n`);
       stat.added++;
     } else if (patch.followup) {
@@ -99,8 +96,7 @@ for (const file of files) {
     }
 
     if (!segments.length) {
-      out += block;
-      continue;
+      return block.raw;
     }
 
     const inject = '\n' + segments.join('\n') + '\n';
@@ -110,9 +106,9 @@ for (const file of files) {
     } else {
       work = work.replace(/\s*$/, '') + '\n' + inject;
     }
-    out += work;
-  }
-  out += text.slice(cursor);
+    return work;
+  });
+  const out = `${parsed.before}${rewritten.join('\n')}`;
   if (out !== text) {
     stat.touchedFiles++;
     if (!dryRun) writeFileSync(filePath, out);

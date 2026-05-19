@@ -46,6 +46,31 @@ describe('persist import/export', () => {
     expect(importAll({ version: 999, marks: { starred: {}, skipped: {} } })).toBe(false);
   });
 
+  it('导入时容错旧错因值，仅过滤非法错因', () => {
+    expect(
+      importAll({
+        version: 1,
+        marks: {
+          starred: { q1: true },
+          skipped: { q2: true },
+          wrongReasons: {
+            q1: ['概念不清', '旧版标签'],
+            q2: ['表达不顺'],
+          },
+        },
+      }),
+    ).toBe(true);
+
+    expect(exportAll().marks).toEqual({
+      starred: { q1: true },
+      skipped: { q2: true },
+      wrongReasons: {
+        q1: ['概念不清'],
+        q2: ['表达不顺'],
+      },
+    });
+  });
+
   it('导入和导出时会按 rememberApiKey 脱敏 AI Key', () => {
     expect(
       importAll({

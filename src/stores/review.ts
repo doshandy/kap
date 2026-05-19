@@ -66,6 +66,17 @@ export const useReviewStore = defineStore('review', () => {
     state.items[id] = update(cur, q);
   }
 
+  /**
+   * 手动标记“需复习/模糊”时，应该立即进入待处理队列，
+   * 以避免“状态已改但首页待复习仍为 0”的语义割裂。
+   */
+  function queueNow(id: string, q: Quality): void {
+    const cur = state.items[id] || defaultItem();
+    const next = update(cur, q);
+    next.due = Date.now();
+    state.items[id] = next;
+  }
+
   function remove(id: string): void {
     delete state.items[id];
   }
@@ -77,5 +88,13 @@ export const useReviewStore = defineStore('review', () => {
       .map(([k]) => k);
   });
 
-  return { state, rate, remove, dueIds };
+  function dueIdsFor(ids: Iterable<string>): string[] {
+    const allowed = new Set(ids);
+    return Object.entries(state.items)
+      .filter(([id, item]) => allowed.has(id) && item.due <= now.value)
+      .sort((a, b) => a[1].due - b[1].due)
+      .map(([id]) => id);
+  }
+
+  return { state, rate, queueNow, remove, dueIds, dueIdsFor };
 });

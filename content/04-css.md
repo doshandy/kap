@@ -9,7 +9,7 @@ description: 盒模型、布局、层叠、动画、响应式、现代 CSS 与�
 ## box-bfc
 
 title: 盒模型、BFC 与格式化上下文的真实作用
-followups: [box-bfc-followup-1]
+followups: [box-bfc-followup-1, box-bfc-followup-2, box-bfc-followup-3]
 difficulty: 基础
 tags: [盒模型, BFC, 布局]
 
@@ -56,7 +56,7 @@ tags: [盒模型, BFC, 布局]
 ## stacking-context
 
 title: 层叠上下文与 z-index 为什么经常“不生效”
-followups: [stacking-context-followup-1]
+followups: [stacking-context-followup-1, stacking-context-followup-2, stacking-context-followup-3]
 difficulty: 进阶
 tags: [z-index, 层叠]
 
@@ -133,7 +133,7 @@ z-index 只在同一层叠上下文中比较；常见创建条件：定位元素
 ## flex-grid
 
 title: Flex 与 Grid 的边界和常见坑
-followups: [flex-grid-followup-1]
+followups: [flex-grid-followup-1, flex-grid-followup-2, flex-grid-followup-3]
 difficulty: 基础
 tags: [Flex, Grid]
 
@@ -182,7 +182,7 @@ tags: [Flex, Grid]
 ## responsive-container-query
 
 title: 移动端适配、媒体查询与容器查询
-followups: [responsive-container-query-followup-1]
+followups: [responsive-container-query-followup-1, responsive-container-query-followup-2, responsive-container-query-followup-3]
 links: []
 difficulty: 进阶
 tags: [响应式, 容器查询]
@@ -200,6 +200,14 @@ tags: [响应式, 容器查询]
 - 媒体查询关注 viewport，适合整页断点；容器查询关注组件容器尺寸，适合组件自适应
 - 移动端常见策略：弹性布局、`rem`、流式栅格、视口单位、响应式图片
 - `@container` 能让卡片在侧栏/主栏复用同一组件时根据父容器宽度自动变形
+
+#### 补充说明
+
+- 面试中不要只停留在「移动端适配、媒体查询与容器查询」的定义，还要解释为什么需要它、它解决了哪类问题，以及在哪些约束下会失效。
+- 可以围绕 响应式、容器查询 展开：先给核心机制，再补工程场景，最后说明替代方案和取舍理由。
+- Vue 题要把响应式、组件更新、生命周期和工程组织串起来，不要只罗列 API。
+- 落地时建议给出验证路径：单测覆盖边界，集成测试覆盖主链路，线上通过日志、指标或灰度观察真实效果。
+- 如果答案涉及兼容性、性能或安全，要主动说明默认方案、例外场景和回滚策略。
 
 ### 代码示例
 
@@ -225,7 +233,7 @@ tags: [响应式, 容器查询]
 ### 常见误区
 
 - 回答「移动端适配、媒体查询与容器查询」时如果只罗列 API，不解释响应式或组件更新链路，深挖时会露出断层。
-- 只背 API 名称，不解释响应式依赖收集、组件更新边界和生命周期时序。
+- 只会背 API 名字，却讲不清响应式依赖怎么收集、组件边界怎么更新、生命周期怎么配合。
 - 把所有状态都塞进同一个 store 或 composable，忽略作用域、释放时机和可测试性。
 - 相关标签是 响应式、容器查询，回答时要补充可验证手段：如何复现问题、用什么指标判断有效、出现异常时如何降级或回滚。
 
@@ -237,7 +245,7 @@ tags: [响应式, 容器查询]
 ## variables-theme
 
 title: CSS Variables、深色模式与设计令牌
-followups: [variables-theme-followup-1]
+followups: [variables-theme-followup-1, variables-theme-followup-2, variables-theme-followup-3]
 difficulty: 进阶
 tags: [主题, 变量]
 
@@ -328,7 +336,7 @@ function setTheme(theme: 'light' | 'dark' | 'system') {
 ## selector-modern
 
 title: `:has()`、`:is()`、`:where()`、`:focus-visible` 怎么用
-followups: [selector-modern-followup-1]
+followups: [selector-modern-followup-1, selector-modern-followup-2, selector-modern-followup-3]
 links: [native-popover-dialog-anchor]
 difficulty: 进阶
 tags: [选择器, 现代 CSS]
@@ -346,6 +354,14 @@ tags: [选择器, 现代 CSS]
 - `:has()` 是“父选择器能力”，可根据后代状态反向选中父元素
 - `:is()` 降低选择器重复；`:where()` 与其类似，但权重为 0
 - `:focus-visible` 只在键盘导航等真正需要时显示 focus ring，兼顾可访问性与观感
+
+#### 补充说明
+
+- 面试中不要只停留在「`:has()`、`:is()`、`:where()`、`:focus-visible` 怎么用」的定义，还要解释为什么需要它、它解决了哪类问题，以及在哪些约束下会失效。
+- 可以围绕 选择器、现代 CSS 展开：先给核心机制，再补工程场景，最后说明替代方案和取舍理由。
+- 回答时要从定义、机制、边界、落地和验证五个层面展开。
+- 落地时建议给出验证路径：单测覆盖边界，集成测试覆盖主链路，线上通过日志、指标或灰度观察真实效果。
+- 如果答案涉及兼容性、性能或安全，要主动说明默认方案、例外场景和回滚策略。
 
 ### 代码示例
 
@@ -380,7 +396,7 @@ tags: [选择器, 现代 CSS]
 ## animation-compositor
 
 title: transition、animation、合成层与性能优化
-followups: [animation-compositor-followup-1]
+followups: [animation-compositor-followup-1, animation-compositor-followup-2, animation-compositor-followup-3]
 links: [19-visualization/animation-raf, 05-browser/reflow-vs-repaint]
 difficulty: 进阶
 tags: [动画, 性能]
@@ -478,7 +494,7 @@ tags: [动画, 性能]
 ## print-css
 
 title: 打印样式与网页内容导出友好性
-followups: [print-css-followup-1]
+followups: [print-css-followup-1, print-css-followup-2, print-css-followup-3]
 difficulty: 基础
 tags: [打印, 导出]
 
@@ -496,6 +512,14 @@ tags: [打印, 导出]
 - 把背景、阴影、固定定位元素转为适合纸面的排版
 - 避免代码块和长表格被截断，善用 `page-break-inside: avoid`
 - 链接、时间、章节标题等在纸面上应保留足够语义
+
+#### 补充说明
+
+- 面试中不要只停留在「打印样式与网页内容导出友好性」的定义，还要解释为什么需要它、它解决了哪类问题，以及在哪些约束下会失效。
+- 可以围绕 打印、导出 展开：先给核心机制，再补工程场景，最后说明替代方案和取舍理由。
+- 回答时要从定义、机制、边界、落地和验证五个层面展开。
+- 落地时建议给出验证路径：单测覆盖边界，集成测试覆盖主链路，线上通过日志、指标或灰度观察真实效果。
+- 如果答案涉及兼容性、性能或安全，要主动说明默认方案、例外场景和回滚策略。
 
 ### 代码示例
 
@@ -572,7 +596,7 @@ tags: [打印, 导出]
 ## modern-css-features
 
 title: 现代 CSS 必备特性：has / nesting / cascade-layers / color-mix
-followups: [modern-css-features-followup-1]
+followups: [modern-css-features-followup-1, modern-css-features-followup-2, modern-css-features-followup-3]
 difficulty: 进阶
 tags: [现代 CSS, has, layers]
 
@@ -651,7 +675,7 @@ tags: [现代 CSS, has, layers]
 ## css-architecture
 
 title: CSS 架构方案：BEM / CSS-in-JS / Tailwind / CSS Modules
-followups: [css-architecture-followup-1]
+followups: [css-architecture-followup-1, css-architecture-followup-2, css-architecture-followup-3]
 difficulty: 进阶
 tags: [架构, Tailwind, CSS-in-JS]
 
@@ -727,7 +751,7 @@ export const button = recipe({
 ## center-element
 
 title: 元素水平垂直居中的 N 种姿势
-followups: [center-element-followup-1]
+followups: [center-element-followup-1, center-element-followup-2, center-element-followup-3]
 difficulty: 基础
 tags: [布局, 居中, 高频]
 
@@ -807,7 +831,7 @@ tags: [布局, 居中, 高频]
 ## position-stacking
 
 title: position 五个值的差别和层叠上下文是怎么形成的
-followups: [position-stacking-followup-1]
+followups: [position-stacking-followup-1, position-stacking-followup-2, position-stacking-followup-3]
 difficulty: 进阶
 tags: [定位, 层叠]
 
@@ -874,7 +898,7 @@ position：`static`（默认）/ `relative`（相对自己原位偏移、保留�
 ## css-layout-systems
 
 title: 一道题讲清 Flex / Grid / 多列 / Float 各自适用场景
-followups: [css-layout-systems-followup-1]
+followups: [css-layout-systems-followup-1, css-layout-systems-followup-2, css-layout-systems-followup-3]
 difficulty: 进阶
 tags: [CSS, 布局, 高频]
 
@@ -978,7 +1002,7 @@ figure {
 ## css-typography-rhythm
 
 title: CSS 字体与排版怎么做才显专业
-followups: [css-typography-rhythm-followup-1]
+followups: [css-typography-rhythm-followup-1, css-typography-rhythm-followup-2, css-typography-rhythm-followup-3]
 difficulty: 进阶
 tags: [CSS, 字体, 排版]
 
@@ -1076,28 +1100,39 @@ article h1 {
 
 ## box-bfc-followup-1
 
-title: 追问：「盒模型、BFC 与格式化上下文的真实作用」在真实项目里最容易踩到哪些边界条件
+title: 追问：你会如何识别「盒模型、BFC 与格式化上下文的真实作用」在生产环境中最容易失效的 盒模型 边界因素
 difficulty: 基础
 tags: [盒模型, BFC, 布局, 追问]
 parent: box-bfc
 
+### 一句话
+
+先界定「盒模型、BFC 与格式化上下文的真实作用」的适用条件，再说明哪些输入、运行环境或团队约束会让默认方案失效。；围绕核心机制展开：正常路径要能讲清楚，异常路径要说明降级、替代方案和用户可见影响。。
+
 ### 题目
 
-如果面试官追问：「盒模型、BFC 与格式化上下文的真实作用」在真实项目里最容易踩到哪些边界条件？
+如果面试官追问：你会如何识别「盒模型、BFC 与格式化上下文的真实作用」在生产环境中最容易失效的 盒模型 边界因素？
 
 ### 答案要点
 
 #### 核心回答
 
 - 先界定「盒模型、BFC 与格式化上下文的真实作用」的适用条件，再说明哪些输入、运行环境或团队约束会让默认方案失效。
-- 围绕核心机制展开：正常路径要能讲清楚，异常路径要说明降级、替代方案和用户可见影响。
+- 围绕「盒模型、BFC 与格式化上下文的真实作用」的核心机制展开：正常路径要能讲清楚，异常路径要说明降级、替代方案和用户可见影响。
 - 原题中的关键点「标准盒模型下 width/height 只算 content；border-box 把 padding/border 算进尺寸，更适合组件化开发」要进一步补到边界条件里，而不是只复述结论。
+
+#### 学习抓手
+
+- 先解释「盒模型、BFC 与格式化上下文的真实作用」在你项目里的目标，再说明最容易踩坑的边界条件。
+- 把「盒模型、BFC 与格式化上下文的真实作用」验证拆成“离线检查 + 线上观测”两段，面试时更容易体现工程成熟度。
+- 收尾时对比「盒模型、BFC 与格式化上下文的真实作用」的候选方案，说明当前约束下为什么选这个路径，以及何时应切换方案。
 
 ## view-transitions-api
 
 title: View Transitions API 如何让 SPA / MPA 路由切换更顺滑
 difficulty: 进阶
 tags: [ViewTransition, 动效, UX]
+followups: [view-transitions-api-followup-1, view-transitions-api-followup-2, view-transitions-api-followup-3]
 
 ### 一句话
 
@@ -1134,6 +1169,7 @@ title: 原生 dialog / popover、top layer 与 anchor positioning 解决了什�
 difficulty: 进阶
 tags: [Popover, Dialog, TopLayer, AnchorPositioning, a11y]
 links: [14-a11y-i18n/focus-keyboard, selector-modern, 14-a11y-i18n/a11y-quick-wins-basic]
+followups: [native-popover-dialog-anchor-followup-1, native-popover-dialog-anchor-followup-2, native-popover-dialog-anchor-followup-3]
 
 ### 一句话
 
@@ -1166,250 +1202,380 @@ links: [14-a11y-i18n/focus-keyboard, selector-modern, 14-a11y-i18n/a11y-quick-wi
 
 ## stacking-context-followup-1
 
-title: 追问：「层叠上下文与 z-index 为什么经常“不生效”」在真实项目里最容易踩到哪些边界条件
+title: 追问：如果要让「层叠上下文与 z-index 为什么经常“不生效”」稳定上线，你会优先补齐哪些与 z-index 相关的检查项
 difficulty: 进阶
 tags: [z-index, 层叠, 追问]
 parent: stacking-context
 
+### 一句话
+
+先界定「层叠上下文与 z-index 为什么经常“不生效”」的适用条件，再说明哪些输入、运行环境或团队约束会让默认方案失效。；围绕核心机制展开：正常路径要能讲清楚，异常路径要说明降级、替代方案和用户可见影响。。
+
 ### 题目
 
-如果面试官追问：「层叠上下文与 z-index 为什么经常“不生效”」在真实项目里最容易踩到哪些边界条件？
+如果面试官追问：如果要让「层叠上下文与 z-index 为什么经常“不生效”」稳定上线，你会优先补齐哪些与 z-index 相关的检查项？
 
 ### 答案要点
 
 #### 核心回答
 
 - 先界定「层叠上下文与 z-index 为什么经常“不生效”」的适用条件，再说明哪些输入、运行环境或团队约束会让默认方案失效。
-- 围绕核心机制展开：正常路径要能讲清楚，异常路径要说明降级、替代方案和用户可见影响。
+- 围绕「层叠上下文与 z-index 为什么经常“不生效”」的核心机制展开：正常路径要能讲清楚，异常路径要说明降级、替代方案和用户可见影响。
 - 原题中的关键点「z-index 只在同一层叠上下文中比较」要进一步补到边界条件里，而不是只复述结论。
+
+#### 学习抓手
+
+- 先把「层叠上下文与 z-index 为什么经常“不生效”」压缩成 30 秒可讲清的结论，再补一个最容易被忽略的边界输入。
+- 回答「层叠上下文与 z-index 为什么经常“不生效”」时至少带一个可执行验证动作：能复现、能观测、能回滚，避免停在口头结论。
+- 回答「层叠上下文与 z-index 为什么经常“不生效”」结尾建议补“切换条件”：当规模、成本或风险变化到什么阈值时应换方案。
 
 ## flex-grid-followup-1
 
-title: 追问：「Flex 与 Grid 的边界和常见坑」在真实项目里最容易踩到哪些边界条件
+title: 追问：从工程落地角度看，当「Flex 与 Grid 的边界和常见坑」跨团队落地时，你会先确认哪些 Flex 前置假设，避免后续返工
 difficulty: 基础
 tags: [Flex, Grid, 追问]
 parent: flex-grid
 
+### 一句话
+
+先界定「Flex 与 Grid 的边界和常见坑」的适用条件，再说明哪些输入、运行环境或团队约束会让默认方案失效。；围绕核心机制展开：正常路径要能讲清楚，异常路径要说明降级、替代方案和用户可见影响。；原题中的关键点「Flex 更适合一维布局。
+
 ### 题目
 
-如果面试官追问：「Flex 与 Grid 的边界和常见坑」在真实项目里最容易踩到哪些边界条件？
+如果面试官追问：从工程落地角度看，当「Flex 与 Grid 的边界和常见坑」跨团队落地时，你会先确认哪些 Flex 前置假设，避免后续返工？
 
 ### 答案要点
 
 #### 核心回答
 
-- 先界定「Flex 与 Grid 的边界和常见坑」的适用条件，再说明哪些输入、运行环境或团队约束会让默认方案失效。
-- 围绕核心机制展开：正常路径要能讲清楚，异常路径要说明降级、替代方案和用户可见影响。
-- 原题中的关键点「Flex 更适合一维布局；Grid 更适合二维布局」要进一步补到边界条件里，而不是只复述结论。
+- 推动「Flex 与 Grid 的边界和常见坑」落地时先收敛改动面：选低风险页面或模块试点，保留旧路径作为对照。
+- 「Flex 与 Grid 的边界和常见坑」迁移计划要说明数据兼容、配置开关、监控指标和失败后的恢复路径。
+- 团队推进重点不是一次性重写，而是把「Flex 与 Grid 的边界和常见坑」拆成可验证的小步骤，逐步替换高风险部分。
+
+#### 学习抓手
+
+- 开口先讲「Flex 与 Grid 的边界和常见坑」的核心取舍，再补一个反例说明为什么不能照搬默认做法。
+- 围绕「Flex 与 Grid 的边界和常见坑」挑一个可执行验证动作：补边界用例、走一次调试链路、盯一组指标，或复盘线上排障流程。
+- 结束前补一句「Flex 与 Grid 的边界和常见坑」取舍结论：这个方案适合哪些约束，不适合哪些场景。
 
 ## responsive-container-query-followup-1
 
-title: 追问：在 Vue 项目里落地「移动端适配、媒体查询与容器查询」时，响应式边界和组件更新时机要注意什么
+title: 追问：结合真实业务约束，真在项目里落地「移动端适配、媒体查询与容器查询」时，你会如何划分 响应式 并控制更新时机
 difficulty: 进阶
 tags: [响应式, 容器查询, 追问]
 parent: responsive-container-query
 
+### 一句话
+
+落地时先收敛改动面：选低风险页面或模块试点，保留旧路径作为对照。；迁移计划要说明数据兼容、配置开关、监控指标和失败后的恢复路径。；团队推进重点不是一次性重写，而是把「移动端适配、媒体查询与容器查询」拆成可验证的小步骤，逐步替换高风险部分。
+
 ### 题目
 
-如果面试官追问：在 Vue 项目里落地「移动端适配、媒体查询与容器查询」时，响应式边界和组件更新时机要注意什么？
+如果面试官追问：结合真实业务约束，真在项目里落地「移动端适配、媒体查询与容器查询」时，你会如何划分 响应式 并控制更新时机？
 
 ### 答案要点
 
 #### 核心回答
 
-- 落地时先收敛改动面：选低风险页面或模块试点，保留旧路径作为对照。
-- 迁移计划要说明数据兼容、配置开关、监控指标和失败后的恢复路径。
+- 推动「移动端适配、媒体查询与容器查询」落地时先收敛改动面：选低风险页面或模块试点，保留旧路径作为对照。
+- 「移动端适配、媒体查询与容器查询」迁移计划要说明数据兼容、配置开关、监控指标和失败后的恢复路径。
 - 团队推进重点不是一次性重写，而是把「移动端适配、媒体查询与容器查询」拆成可验证的小步骤，逐步替换高风险部分。
+
+#### 学习抓手
+
+- 先解释「移动端适配、媒体查询与容器查询」在你项目里的目标，再说明最容易踩坑的边界条件。
+- 把「移动端适配、媒体查询与容器查询」验证拆成“离线检查 + 线上观测”两段，面试时更容易体现工程成熟度。
+- 收尾时对比「移动端适配、媒体查询与容器查询」的候选方案，说明当前约束下为什么选这个路径，以及何时应切换方案。
 
 ## variables-theme-followup-1
 
-title: 追问：推动「CSS Variables、深色模式与设计令牌」落地时，你会如何设计灰度、回滚和迁移路径
+title: 追问：以「CSS Variables、深色模式与设计令牌」为例，真要把「CSS Variables、深色模式与设计令牌」推到线上，你会如何围绕 主题 设计灰度节奏、回滚条件和迁移路径
 difficulty: 进阶
 tags: [主题, 变量, 追问]
 parent: variables-theme
 
+### 一句话
+
+落地时先收敛改动面：选低风险页面或模块试点，保留旧路径作为对照。；迁移计划要说明数据兼容、配置开关、监控指标和失败后的恢复路径。；团队推进重点不是一次性重写，而是把「CSS Variables、深色模式与设计令牌」拆成可验证的小步骤，逐步替换高风险部分。
+
 ### 题目
 
-如果面试官追问：推动「CSS Variables、深色模式与设计令牌」落地时，你会如何设计灰度、回滚和迁移路径？
+如果面试官追问：以「CSS Variables、深色模式与设计令牌」为例，真要把「CSS Variables、深色模式与设计令牌」推到线上，你会如何围绕 主题 设计灰度节奏、回滚条件和迁移路径？
 
 ### 答案要点
 
 #### 核心回答
 
-- 落地时先收敛改动面：选低风险页面或模块试点，保留旧路径作为对照。
-- 迁移计划要说明数据兼容、配置开关、监控指标和失败后的恢复路径。
+- 推动「CSS Variables、深色模式与设计令牌」落地时先收敛改动面：选低风险页面或模块试点，保留旧路径作为对照。
+- 「CSS Variables、深色模式与设计令牌」迁移计划要说明数据兼容、配置开关、监控指标和失败后的恢复路径。
 - 团队推进重点不是一次性重写，而是把「CSS Variables、深色模式与设计令牌」拆成可验证的小步骤，逐步替换高风险部分。
+
+#### 学习抓手
+
+- 先把「CSS Variables、深色模式与设计令牌」压缩成 30 秒可讲清的结论，再补一个最容易被忽略的边界输入。
+- 回答「CSS Variables、深色模式与设计令牌」时至少带一个可执行验证动作：能复现、能观测、能回滚，避免停在口头结论。
+- 回答「CSS Variables、深色模式与设计令牌」结尾建议补“切换条件”：当规模、成本或风险变化到什么阈值时应换方案。
 
 ## selector-modern-followup-1
 
-title: 追问：「`:has()`、`:is()`、`:where()`、`:focus-visible` 怎么用」在真实项目里最容易踩到哪些边界条件
+title: 追问：在「`:has()`、`:is()`、`:where()`、`:focus-visible` 怎么用」进入长周期维护后，你会重点巡检哪些高风险边界点
 difficulty: 进阶
 tags: [选择器, 现代 CSS, 追问]
 parent: selector-modern
 
+### 一句话
+
+先界定「:has()、:is()、:where()、:focus-visible 怎么用」的适用条件，再说明哪些输入、运行环境或团队约束会让默认方案失效。；围绕核心机制展开：正常路径要能讲清楚，异常路径要说明降级、替代方案和用户可见影响。。
+
 ### 题目
 
-如果面试官追问：「`:has()`、`:is()`、`:where()`、`:focus-visible` 怎么用」在真实项目里最容易踩到哪些边界条件？
+如果面试官追问：在「`:has()`、`:is()`、`:where()`、`:focus-visible` 怎么用」进入长周期维护后，你会重点巡检哪些高风险边界点？
 
 ### 答案要点
 
 #### 核心回答
 
 - 先界定「`:has()`、`:is()`、`:where()`、`:focus-visible` 怎么用」的适用条件，再说明哪些输入、运行环境或团队约束会让默认方案失效。
-- 围绕核心机制展开：正常路径要能讲清楚，异常路径要说明降级、替代方案和用户可见影响。
+- 围绕「`:has()`、`:is()`、`:where()`、`:focus-visible` 怎么用」的核心机制展开：正常路径要能讲清楚，异常路径要说明降级、替代方案和用户可见影响。
 - 原题中的关键点「:has() 是“父选择器能力”，可根据后代状态反向选中父元素」要进一步补到边界条件里，而不是只复述结论。
+
+#### 学习抓手
+
+- 先用一句话给出「`:has()`、`:is()`、`:where()`、`:focus-visible` 怎么用」的判断标准，再补一个会导致方案失效的真实约束。
+- 回答时最好给出你在「`:has()`、`:is()`、`:where()`、`:focus-visible` 怎么用」里做过的验证动作，证明结论不是“理论上可行”。
+- 收尾时把「`:has()`、`:is()`、`:where()`、`:focus-visible` 怎么用」的短期收益和长期维护成本并列说明，体现方案选择的完整视角。
 
 ## animation-compositor-followup-1
 
-title: 追问：你会先看哪些指标来判断「transition、animation、合成层与性能优化」是不是当前性能瓶颈
+title: 追问：从工程落地角度看，你会先看哪些与 动画 相关的指标来判断「transition、animation、合成层与性能优化」是不是当前性能瓶颈
 difficulty: 进阶
 tags: [动画, 性能, 追问]
 parent: animation-compositor
 
+### 一句话
+
+验证要从可复现样例开始：准备正向、边界和失败用例，确认「transition、animation、合成层与性能优化」不是只在理想输入下成立。；再补可观测指标：性能收益应该能通过日志、耗时、错误率、命中率、覆盖率或用户行为指标观察到变化。；如果指标没有改善。
+
 ### 题目
 
-如果面试官追问：你会先看哪些指标来判断「transition、animation、合成层与性能优化」是不是当前性能瓶颈？
+如果面试官追问：从工程落地角度看，你会先看哪些与 动画 相关的指标来判断「transition、animation、合成层与性能优化」是不是当前性能瓶颈？
 
 ### 答案要点
 
 #### 核心回答
 
 - 验证要从可复现样例开始：准备正向、边界和失败用例，确认「transition、animation、合成层与性能优化」不是只在理想输入下成立。
-- 再补可观测指标：性能收益应该能通过日志、耗时、错误率、命中率、覆盖率或用户行为指标观察到变化。
-- 如果指标没有改善，要能回到原题机制定位原因，而不是继续堆配置或换工具。
+- 再补可观测指标：围绕「transition、animation、合成层与性能优化」的性能收益应该能通过日志、耗时、错误率、命中率、覆盖率或用户行为指标观察到变化。
+- 如果「transition、animation、合成层与性能优化」相关指标没有改善，要能回到原题机制定位原因，而不是继续堆配置或换工具。
+
+#### 学习抓手
+
+- 先用一句话给出「transition、animation、合成层与性能优化」的判断标准，再补一个会导致方案失效的真实约束。
+- 回答时最好给出你在「transition、animation、合成层与性能优化」里做过的验证动作，证明结论不是“理论上可行”。
+- 收尾时把「transition、animation、合成层与性能优化」的短期收益和长期维护成本并列说明，体现方案选择的完整视角。
 
 ## print-css-followup-1
 
-title: 追问：「打印样式与网页内容导出友好性」在真实项目里最容易踩到哪些边界条件
+title: 追问：面对真实流量和复杂依赖时，「打印样式与网页内容导出友好性」最可能被哪些 打印 边界条件击穿
 difficulty: 基础
 tags: [打印, 导出, 追问]
 parent: print-css
 
+### 一句话
+
+先界定「打印样式与网页内容导出友好性」的适用条件，再说明哪些输入、运行环境或团队约束会让默认方案失效。；围绕核心机制展开：正常路径要能讲清楚，异常路径要说明降级、替代方案和用户可见影响。。
+
 ### 题目
 
-如果面试官追问：「打印样式与网页内容导出友好性」在真实项目里最容易踩到哪些边界条件？
+如果面试官追问：面对真实流量和复杂依赖时，「打印样式与网页内容导出友好性」最可能被哪些 打印 边界条件击穿？
 
 ### 答案要点
 
 #### 核心回答
 
 - 先界定「打印样式与网页内容导出友好性」的适用条件，再说明哪些输入、运行环境或团队约束会让默认方案失效。
-- 围绕核心机制展开：正常路径要能讲清楚，异常路径要说明降级、替代方案和用户可见影响。
+- 围绕「打印样式与网页内容导出友好性」的核心机制展开：正常路径要能讲清楚，异常路径要说明降级、替代方案和用户可见影响。
 - 原题中的关键点「隐藏导航、侧栏、浮层、按钮等非内容元素」要进一步补到边界条件里，而不是只复述结论。
+
+#### 学习抓手
+
+- 复盘时先确认「打印样式与网页内容导出友好性」的关键假设，再举一个违背假设后的失败案例。
+- 建议准备「打印样式与网页内容导出友好性」的“验证动作清单”：用例、日志、指标、回滚步骤各选一项。
+- 结尾把「打印样式与网页内容导出友好性」的“继续沿用”与“触发切换”条件说清楚，比只报结论更有说服力。
 
 ## modern-css-features-followup-1
 
-title: 追问：「现代 CSS 必备特性：has / nesting / cascade-layers / color-mix」在真实项目里最容易踩到哪些边界条件
+title: 追问：以「现代 CSS 必备特性：has / nesting / cascade-layers / color-mix」为例，面对真实流量和复杂依赖时，「现代 CSS 必备特性：has / nesting / cascade-layers / color-mix」最可能被哪些 现代 CSS 边界条件击穿
 difficulty: 进阶
 tags: [现代 CSS, has, layers, 追问]
 parent: modern-css-features
 
+### 一句话
+
+先界定「现代 CSS 必备特性：has / nesting / cascade-layers / color-mix」的适用条件，再说明哪些输入、运行环境或团队约束会让默认方案失效。；围绕核心机制展开：正常路径要能讲清楚。
+
 ### 题目
 
-如果面试官追问：「现代 CSS 必备特性：has / nesting / cascade-layers / color-mix」在真实项目里最容易踩到哪些边界条件？
+如果面试官追问：以「现代 CSS 必备特性：has / nesting / cascade-layers / color-mix」为例，面对真实流量和复杂依赖时，「现代 CSS 必备特性：has / nesting / cascade-layers / color-mix」最可能被哪些 现代 CSS 边界条件击穿？
 
 ### 答案要点
 
 #### 核心回答
 
 - 先界定「现代 CSS 必备特性：has / nesting / cascade-layers / color-mix」的适用条件，再说明哪些输入、运行环境或团队约束会让默认方案失效。
-- 围绕核心机制展开：正常路径要能讲清楚，异常路径要说明降级、替代方案和用户可见影响。
+- 围绕「现代 CSS 必备特性：has / nesting / cascade-layers / color-mix」的核心机制展开：正常路径要能讲清楚，异常路径要说明降级、替代方案和用户可见影响。
 - 原题中的关键点「:has()：终于有了"父选择器"，可基于子节点状态选父，替代过去的 JS hack」要进一步补到边界条件里，而不是只复述结论。
+
+#### 学习抓手
+
+- 先用一句话给出「现代 CSS 必备特性：has / nesting / cascade-layers / color-mix」的判断标准，再补一个会导致方案失效的真实约束。
+- 回答时最好给出你在「现代 CSS 必备特性：has / nesting / cascade-layers / color-mix」里做过的验证动作，证明结论不是“理论上可行”。
+- 收尾时把「现代 CSS 必备特性：has / nesting / cascade-layers / color-mix」的短期收益和长期维护成本并列说明，体现方案选择的完整视角。
 
 ## css-architecture-followup-1
 
-title: 追问：推动「CSS 架构方案：BEM / CSS-in-JS / Tailwind / CSS Modules」落地时，你会如何设计灰度、回滚和迁移路径
+title: 追问：从工程落地角度看，真要把「CSS 架构方案：BEM / CSS-in-JS / Tailwind / CSS Modules」推到线上，你会如何围绕 架构 设计灰度节奏、回滚条件和迁移路径
 difficulty: 进阶
 tags: [架构, Tailwind, CSS-in-JS, 追问]
 parent: css-architecture
 
+### 一句话
+
+落地时先收敛改动面：选低风险页面或模块试点，保留旧路径作为对照。；迁移计划要说明数据兼容、配置开关、监控指标和失败后的恢复路径。；团队推进重点不是一次性重写。
+
 ### 题目
 
-如果面试官追问：推动「CSS 架构方案：BEM / CSS-in-JS / Tailwind / CSS Modules」落地时，你会如何设计灰度、回滚和迁移路径？
+如果面试官追问：从工程落地角度看，真要把「CSS 架构方案：BEM / CSS-in-JS / Tailwind / CSS Modules」推到线上，你会如何围绕 架构 设计灰度节奏、回滚条件和迁移路径？
 
 ### 答案要点
 
 #### 核心回答
 
-- 落地时先收敛改动面：选低风险页面或模块试点，保留旧路径作为对照。
-- 迁移计划要说明数据兼容、配置开关、监控指标和失败后的恢复路径。
+- 推动「CSS 架构方案：BEM / CSS-in-JS / Tailwind / CSS Modules」落地时先收敛改动面：选低风险页面或模块试点，保留旧路径作为对照。
+- 「CSS 架构方案：BEM / CSS-in-JS / Tailwind / CSS Modules」迁移计划要说明数据兼容、配置开关、监控指标和失败后的恢复路径。
 - 团队推进重点不是一次性重写，而是把「CSS 架构方案：BEM / CSS-in-JS / Tailwind / CSS Modules」拆成可验证的小步骤，逐步替换高风险部分。
+
+#### 学习抓手
+
+- 准备这道追问时，先画出「CSS 架构方案：BEM / CSS-in-JS / Tailwind / CSS Modules」从输入到输出的关键路径，再补异常路径。
+- 准备一个「CSS 架构方案：BEM / CSS-in-JS / Tailwind / CSS Modules」的“可复核动作”：别人照着你的步骤也能复现、观测并验证结果。
+- 把「CSS 架构方案：BEM / CSS-in-JS / Tailwind / CSS Modules」方案切换门槛讲明白：达到哪些阈值就要调整策略，避免答案过于绝对。
 
 ## center-element-followup-1
 
-title: 追问：「元素水平垂直居中的 N 种姿势」在真实项目里最容易踩到哪些边界条件
+title: 追问：在「元素水平垂直居中的 N 种姿势」场景下，当「元素水平垂直居中的 N 种姿势」跨团队落地时，你会先确认哪些 布局 前置假设，避免后续返工
 difficulty: 基础
 tags: [布局, 居中, 高频, 追问]
 parent: center-element
 
+### 一句话
+
+先界定「元素水平垂直居中的 N 种姿势」的适用条件，再说明哪些输入、运行环境或团队约束会让默认方案失效。；围绕核心机制展开：正常路径要能讲清楚，异常路径要说明降级、替代方案和用户可见影响。。
+
 ### 题目
 
-如果面试官追问：「元素水平垂直居中的 N 种姿势」在真实项目里最容易踩到哪些边界条件？
+如果面试官追问：在「元素水平垂直居中的 N 种姿势」场景下，当「元素水平垂直居中的 N 种姿势」跨团队落地时，你会先确认哪些 布局 前置假设，避免后续返工？
 
 ### 答案要点
 
 #### 核心回答
 
-- 先界定「元素水平垂直居中的 N 种姿势」的适用条件，再说明哪些输入、运行环境或团队约束会让默认方案失效。
-- 围绕核心机制展开：正常路径要能讲清楚，异常路径要说明降级、替代方案和用户可见影响。
-- 原题中的关键点「Flex（首选）：display: flex; align-items: center; justify-content: center 或简写 place-items: center」要进一步补到边界条件里，而不是只复述结论。
+- 推动「元素水平垂直居中的 N 种姿势」落地时先收敛改动面：选低风险页面或模块试点，保留旧路径作为对照。
+- 「元素水平垂直居中的 N 种姿势」迁移计划要说明数据兼容、配置开关、监控指标和失败后的恢复路径。
+- 团队推进重点不是一次性重写，而是把「元素水平垂直居中的 N 种姿势」拆成可验证的小步骤，逐步替换高风险部分。
+
+#### 学习抓手
+
+- 复习这道追问时，先用一句话讲清「元素水平垂直居中的 N 种姿势」的核心机制，再补一个会失败的具体场景。
+- 准备一个与「元素水平垂直居中的 N 种姿势」直接相关的验证动作，例如补回归用例、观察关键告警、或演示一次问题复现与定位。
+- 最后给出「元素水平垂直居中的 N 种姿势」替代方案比较，解释为什么这次不选它们，体现工程判断而不是工具偏好。
 
 ## position-stacking-followup-1
 
-title: 追问：「position 五个值的差别和层叠上下文是怎么形成的」在真实项目里最容易踩到哪些边界条件
+title: 追问：把「position 五个值的差别和层叠上下文是怎么形成的」放到真实业务里，围绕 定位 最容易被低估的边界条件和前置约束是什么
 difficulty: 进阶
 tags: [定位, 层叠, 追问]
 parent: position-stacking
 
+### 一句话
+
+先界定「position 五个值的差别和层叠上下文是怎么形成的」的适用条件，再说明哪些输入、运行环境或团队约束会让默认方案失效。；围绕核心机制展开：正常路径要能讲清楚，异常路径要说明降级、替代方案和用户可见影响。；原题中的关键点「static：默认值。
+
 ### 题目
 
-如果面试官追问：「position 五个值的差别和层叠上下文是怎么形成的」在真实项目里最容易踩到哪些边界条件？
+如果面试官追问：把「position 五个值的差别和层叠上下文是怎么形成的」放到真实业务里，围绕 定位 最容易被低估的边界条件和前置约束是什么？
 
 ### 答案要点
 
 #### 核心回答
 
 - 先界定「position 五个值的差别和层叠上下文是怎么形成的」的适用条件，再说明哪些输入、运行环境或团队约束会让默认方案失效。
-- 围绕核心机制展开：正常路径要能讲清楚，异常路径要说明降级、替代方案和用户可见影响。
+- 围绕「position 五个值的差别和层叠上下文是怎么形成的」的核心机制展开：正常路径要能讲清楚，异常路径要说明降级、替代方案和用户可见影响。
 - 原题中的关键点「static：默认值，正常文档流，top/left 无效」要进一步补到边界条件里，而不是只复述结论。
+
+#### 学习抓手
+
+- 先把「position 五个值的差别和层叠上下文是怎么形成的」压缩成 30 秒可讲清的结论，再补一个最容易被忽略的边界输入。
+- 回答「position 五个值的差别和层叠上下文是怎么形成的」时至少带一个可执行验证动作：能复现、能观测、能回滚，避免停在口头结论。
+- 回答「position 五个值的差别和层叠上下文是怎么形成的」结尾建议补“切换条件”：当规模、成本或风险变化到什么阈值时应换方案。
 
 ## css-layout-systems-followup-1
 
-title: 追问：「一道题讲清 Flex / Grid / 多列 / Float 各自适用场景」在真实项目里最容易踩到哪些边界条件
+title: 追问：你会如何识别「一道题讲清 Flex / Grid / 多列 / Float 各自适用场景」在生产环境中最容易失效的边界因素
 difficulty: 进阶
 tags: [CSS, 布局, 高频, 追问]
 parent: css-layout-systems
 
+### 一句话
+
+先界定「一道题讲清 Flex / Grid / 多列 / Float 各自适用场景」的适用条件，再说明哪些输入、运行环境或团队约束会让默认方案失效。；围绕核心机制展开：正常路径要能讲清楚，异常路径要说明降级、替代方案和用户可见影响。。
+
 ### 题目
 
-如果面试官追问：「一道题讲清 Flex / Grid / 多列 / Float 各自适用场景」在真实项目里最容易踩到哪些边界条件？
+如果面试官追问：你会如何识别「一道题讲清 Flex / Grid / 多列 / Float 各自适用场景」在生产环境中最容易失效的边界因素？
 
 ### 答案要点
 
 #### 核心回答
 
 - 先界定「一道题讲清 Flex / Grid / 多列 / Float 各自适用场景」的适用条件，再说明哪些输入、运行环境或团队约束会让默认方案失效。
-- 围绕核心机制展开：正常路径要能讲清楚，异常路径要说明降级、替代方案和用户可见影响。
+- 围绕「一道题讲清 Flex / Grid / 多列 / Float 各自适用场景」的核心机制展开：正常路径要能讲清楚，异常路径要说明降级、替代方案和用户可见影响。
 - 原题中的关键点「main axis 控对齐（justify-content）+ cross axis 控对齐（align-items）」要进一步补到边界条件里，而不是只复述结论。
+
+#### 学习抓手
+
+- 先用一句话给出「一道题讲清 Flex / Grid / 多列 / Float 各自适用场景」的判断标准，再补一个会导致方案失效的真实约束。
+- 回答时最好给出你在「一道题讲清 Flex / Grid / 多列 / Float 各自适用场景」里做过的验证动作，证明结论不是“理论上可行”。
+- 收尾时把「一道题讲清 Flex / Grid / 多列 / Float 各自适用场景」的短期收益和长期维护成本并列说明，体现方案选择的完整视角。
 
 ## css-typography-rhythm-followup-1
 
-title: 追问：「CSS 字体与排版怎么做才显专业」在真实项目里最容易踩到哪些边界条件
+title: 追问：当「CSS 字体与排版怎么做才显专业」进入复杂场景后，你会先验证哪些 CSS 前置条件，避免方案踩坑
 difficulty: 进阶
 tags: [CSS, 字体, 排版, 追问]
 parent: css-typography-rhythm
 
+### 一句话
+
+先界定「CSS 字体与排版怎么做才显专业」的适用条件，再说明哪些输入、运行环境或团队约束会让默认方案失效。；围绕核心机制展开：正常路径要能讲清楚，异常路径要说明降级、替代方案和用户可见影响。。
+
 ### 题目
 
-如果面试官追问：「CSS 字体与排版怎么做才显专业」在真实项目里最容易踩到哪些边界条件？
+如果面试官追问：当「CSS 字体与排版怎么做才显专业」进入复杂场景后，你会先验证哪些 CSS 前置条件，避免方案踩坑？
 
 ### 答案要点
 
 #### 核心回答
 
-- 先界定「CSS 字体与排版怎么做才显专业」的适用条件，再说明哪些输入、运行环境或团队约束会让默认方案失效。
-- 围绕核心机制展开：正常路径要能讲清楚，异常路径要说明降级、替代方案和用户可见影响。
-- 原题中的关键点「系统字体优先：-apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif」要进一步补到边界条件里，而不是只复述结论。
+- 验证要从可复现样例开始：准备正向、边界和失败用例，确认「CSS 字体与排版怎么做才显专业」不是只在理想输入下成立。
+- 再补可观测指标：围绕「CSS 字体与排版怎么做才显专业」的核心机制应该能通过日志、耗时、错误率、命中率、覆盖率或用户行为指标观察到变化。
+- 如果「CSS 字体与排版怎么做才显专业」相关指标没有改善，要能回到原题机制定位原因，而不是继续堆配置或换工具。
+
+#### 学习抓手
+
+- 复盘时先确认「CSS 字体与排版怎么做才显专业」的关键假设，再举一个违背假设后的失败案例。
+- 建议准备「CSS 字体与排版怎么做才显专业」的“验证动作清单”：用例、日志、指标、回滚步骤各选一项。
+- 结尾把「CSS 字体与排版怎么做才显专业」的“继续沿用”与“触发切换”条件说清楚，比只报结论更有说服力。
 
 ## scroll-driven-animations
 
@@ -1417,6 +1583,7 @@ title: Scroll-driven Animations：scroll-timeline / view-timeline 解决什么
 difficulty: 进阶
 tags: [CSS, 动画, scroll-timeline, 性能]
 links: [animation-compositor, 08-performance/inp-deep, view-transitions-api]
+followups: [scroll-driven-animations-followup-1, scroll-driven-animations-followup-2, scroll-driven-animations-followup-3]
 
 ### 一句话
 
@@ -1490,6 +1657,7 @@ title: CSS Style Queries、@scope 与组件样式边界怎么用
 difficulty: 进阶
 tags: [CSS, ContainerQueries, @scope, 组件化]
 links: [responsive-container-query, selector-modern, 10-architecture/component-library]
+followups: [css-style-queries-and-scope-followup-1, css-style-queries-and-scope-followup-2, css-style-queries-and-scope-followup-3]
 
 ### 一句话
 
@@ -1544,3 +1712,1783 @@ links: [responsive-container-query, selector-modern, 10-architecture/component-l
 - 什么时候用容器查询，什么时候仍然应该用媒体查询？
 - Style Queries 和 CSS Variables 的关系是什么？
 - `@scope`、CSS Modules、Shadow DOM 在样式隔离上各有什么边界？
+
+## box-bfc-followup-2
+
+title: 追问：结合真实业务约束，inline-block 之间的「鬼影空白」如何消除
+difficulty: 基础
+tags: [盒模型, BFC, 布局, 追问]
+parent: box-bfc
+generated: followup-script
+
+### 题目
+
+如果面试官追问：结合真实业务约束，inline-block 之间的「鬼影空白」如何消除？
+
+### 答案要点
+
+#### 回答思路
+
+- 先说判断标准，再说执行路径：回答「盒模型、BFC 与格式化上下文的真实作用」时要能同时解释收益、代价和失败信号。
+- 回答顺序可用「现状问题 -> 盒模型 方案动作 -> 验证结果」，并用「盒模型、BFC 与格式化上下文的真实作用」举一条主链路说明。
+- 如果涉及「盒模型、BFC 与格式化上下文的真实作用」的技术细节，优先讲数据流和状态变化；做方案比较时要说明为何此刻不选替代路径。
+
+#### 结合原题展开
+
+- margin 折叠场景多到怀疑人生：父子之间、相邻兄弟、空块也会折叠
+- 结合一次「盒模型、BFC 与格式化上下文的真实作用」线上案例说明 盒模型 的变化轨迹，能让你的答案从“知道原理”升级到“能带队落地”。
+
+#### 工程落地
+
+- 建议先准备「盒模型、BFC 与格式化上下文的真实作用」的最小可复现样例，再扩展到主链路回归，这样能更快确认 盒模型 的改动是否真的生效。
+- 观测口径要前后一致：上线前后使用同一组指标观察「盒模型、BFC 与格式化上下文的真实作用」里的 盒模型，否则很难证明变化来自这次改动。
+- 围绕「盒模型、BFC 与格式化上下文的真实作用」发布时建议保留开关和回滚路径，先灰度到低风险流量，再逐步扩大覆盖范围。
+
+#### 易错点
+
+- 最容易失分的是只说「盒模型、BFC 与格式化上下文的真实作用」的推荐做法却不给边界条件，面试官通常会继续追问何时不该这样做。
+- 如果没说明「盒模型、BFC 与格式化上下文的真实作用」里 盒模型 的异常处理和兜底路径，方案一旦遇到突发流量或外部依赖抖动就会站不住脚。
+- 保持「盒模型、BFC 与格式化上下文的真实作用」结论可检验、可回退，比强调某个方案“最优”更能体现资深判断。
+
+## box-bfc-followup-3
+
+title: 追问：在「盒模型、BFC 与格式化上下文的真实作用」场景下，圣杯布局 / 双飞翼布局现在还有意义吗
+difficulty: 基础
+tags: [盒模型, BFC, 布局, 追问]
+parent: box-bfc
+generated: followup-script
+
+### 题目
+
+如果面试官追问：在「盒模型、BFC 与格式化上下文的真实作用」场景下，圣杯布局 / 双飞翼布局现在还有意义吗（vs Flex/Grid）？
+
+### 答案要点
+
+#### 回答思路
+
+- 先说判断标准，再说执行路径：回答「盒模型、BFC 与格式化上下文的真实作用」时要能同时解释收益、代价和失败信号。
+- 可以按「问题背景 -> 盒模型 机制 -> 取舍边界」回答，再用「盒模型、BFC 与格式化上下文的真实作用」补一个反例，避免停在口号层。
+- 如果涉及「盒模型、BFC 与格式化上下文的真实作用」的技术细节，优先讲数据流和状态变化；做方案比较时要说明为何此刻不选替代路径。
+
+#### 结合原题展开
+
+- 标准盒模型下 width/height 只算 content；border-box 把 padding/border 算进尺寸，更适合组件化开发
+- BFC 是独立布局上下文，常见触发：overflow 非 visible、display: flow-root、浮动、绝对定位等
+- BFC 能解决：清除内部浮动、阻止 margin 折叠、避免文字环绕浮动元素
+- 若能补一段「盒模型、BFC 与格式化上下文的真实作用」复盘片段，解释 盒模型 如何从告警到定位再到修复，可信度会明显上升。
+
+#### 工程落地
+
+- 围绕「盒模型、BFC 与格式化上下文的真实作用」设计验证时别停在“写点测试”：至少覆盖正常、边界和失败三类输入，并把 盒模型 的预期结果写成可复核标准。
+- 在「盒模型、BFC 与格式化上下文的真实作用」落地过程中不要只看单个监控面板，建议把日志、指标和告警串起来，形成 盒模型 的问题定位闭环。
+- 围绕「盒模型、BFC 与格式化上下文的真实作用」发布时建议保留开关和回滚路径，先灰度到低风险流量，再逐步扩大覆盖范围。
+
+#### 易错点
+
+- 最容易失分的是只说「盒模型、BFC 与格式化上下文的真实作用」的推荐做法却不给边界条件，面试官通常会继续追问何时不该这样做。
+- 若没说明「盒模型、BFC 与格式化上下文的真实作用」在 盒模型 失效时的回退策略，面试官通常会质疑方案是否可上线。
+- 保持「盒模型、BFC 与格式化上下文的真实作用」结论可检验、可回退，比强调某个方案“最优”更能体现资深判断。
+
+## flex-grid-followup-2
+
+title: 追问：在「Flex 与 Grid 的边界和常见坑」场景下，subgrid 解决了什么问题
+difficulty: 基础
+tags: [Flex, Grid, 追问]
+parent: flex-grid
+generated: followup-script
+
+### 题目
+
+如果面试官追问：在「Flex 与 Grid 的边界和常见坑」场景下，subgrid 解决了什么问题（Firefox 早就支持，Chrome 117+）？
+
+### 答案要点
+
+#### 回答思路
+
+- 先给可验证结论，再补证据链：面试官想确认你是否能把「Flex 与 Grid 的边界和常见坑」落到真实交付，而不是停在概念层。
+- 讲「Flex 与 Grid 的边界和常见坑」时先给 Flex 的判断口径，再补执行动作和回退条件，会更像真实评审发言。
+- 讲「Flex 与 Grid 的边界和常见坑」时实现侧重点应放在 Flex 与边界输入，决策侧重点应放在收益与维护成本平衡。
+
+#### 结合原题展开
+
+- Flex 更适合一维布局；Grid 更适合二维布局
+- flex: 1 实际是 1 1 0%，表示可增长、可收缩、基础尺寸为 0
+- Flex 子项默认 min-width: auto，会导致长文本撑破布局，所以常要显式写 min-width: 0
+- 给出与「Flex 与 Grid 的边界和常见坑」相关的业务上下文，说明 Flex 在高峰流量或弱网环境下如何保持稳定，能体现你有实战经验。
+
+#### 工程落地
+
+- 针对「Flex 与 Grid 的边界和常见坑」可以先做一次冒烟链路压测，再补边界回归，避免上线后才暴露 Flex 的缺口。
+- 围绕「Flex 与 Grid 的边界和常见坑」的观测层要绑定 Flex 相关日志与指标：错误率、耗时分位、资源占用和用户可感知延迟，至少选一组长期跟踪。
+- 涉及「Flex 与 Grid 的边界和常见坑」的高风险改动时，先准备回滚预案和应急手册，避免问题发生后临时决策。
+
+#### 易错点
+
+- 不要把「Flex 与 Grid 的边界和常见坑」的经验结论当成普适规则，先交代适用范围再给建议，可信度会更高。
+- 若没有针对「Flex 与 Grid 的边界和常见坑」里的 Flex 明确告警阈值和恢复动作，即便方案思路正确，也难体现生产掌控力。
+- 表达「Flex 与 Grid 的边界和常见坑」时尽量少用绝对词，增加可验证条件与例外场景，答案会更稳健。
+
+## flex-grid-followup-3
+
+title: 追问：在当前团队与业务约束下，gap 是 Flex 还是 Grid 的属性
+difficulty: 基础
+tags: [Flex, Grid, 追问]
+parent: flex-grid
+generated: followup-script
+
+### 题目
+
+如果面试官追问：在当前团队与业务约束下，gap 是 Flex 还是 Grid 的属性？
+
+### 答案要点
+
+#### 回答思路
+
+- 先把目标和约束说清楚，再展开实现：这能避免把「Flex 与 Grid 的边界和常见坑」讲成只在理想输入下可用。
+- 围绕「Flex 与 Grid 的边界和常见坑」组织答案时，建议按「约束来源 -> Flex 关键决策 -> 验证闭环」展开。
+- 在「Flex 与 Grid 的边界和常见坑」回答里，实现层面要解释 Flex 的时序和边界，决策层面要解释成本与风险，二者缺一都会让答案显得单薄。
+
+#### 结合原题展开
+
+- Flex 更适合一维布局；Grid 更适合二维布局
+- flex: 1 实际是 1 1 0%，表示可增长、可收缩、基础尺寸为 0
+- Flex 子项默认 min-width: auto，会导致长文本撑破布局，所以常要显式写 min-width: 0
+- 给出与「Flex 与 Grid 的边界和常见坑」相关的业务上下文，说明 Flex 在高峰流量或弱网环境下如何保持稳定，能体现你有实战经验。
+
+#### 工程落地
+
+- 针对「Flex 与 Grid 的边界和常见坑」可以先做一次冒烟链路压测，再补边界回归，避免上线后才暴露 Flex 的缺口。
+- 围绕「Flex 与 Grid 的边界和常见坑」的观测层要绑定 Flex 相关日志与指标：错误率、耗时分位、资源占用和用户可感知延迟，至少选一组长期跟踪。
+- 「Flex 与 Grid 的边界和常见坑」上线节奏建议分批推进：先小流量试运行，再根据告警和反馈决定是否扩容。
+
+#### 易错点
+
+- 很多回答会忽略「Flex 与 Grid 的边界和常见坑」的前置假设，导致方案看起来正确却无法直接执行，这是高频扣分点。
+- 若没有针对「Flex 与 Grid 的边界和常见坑」里的 Flex 明确告警阈值和恢复动作，即便方案思路正确，也难体现生产掌控力。
+- 避免把「Flex 与 Grid 的边界和常见坑」说成“总是”“一定”“完全替代”，改成“在这些条件下优先采用”更专业。
+
+## responsive-container-query-followup-2
+
+title: 追问：结合真实业务约束，当「移动端适配、媒体查询与容器查询」让联调成本持续升高时，你会先拆哪条关键链路来止损
+difficulty: 进阶
+tags: [响应式, 容器查询, 追问]
+parent: responsive-container-query
+generated: followup-script
+
+### 题目
+
+如果面试官追问：结合真实业务约束，当「移动端适配、媒体查询与容器查询」让联调成本持续升高时，你会先拆哪条关键链路来止损？
+
+### 答案要点
+
+#### 回答思路
+
+- 先给可验证结论，再补证据链：面试官想确认你是否能把「移动端适配、媒体查询与容器查询」落到真实交付，而不是停在概念层。
+- 回答顺序可用「现状问题 -> 响应式 方案动作 -> 验证结果」，并用「移动端适配、媒体查询与容器查询」举一条主链路说明。
+- 讲「移动端适配、媒体查询与容器查询」时实现侧重点应放在 响应式 与边界输入，决策侧重点应放在收益与维护成本平衡。
+
+#### 结合原题展开
+
+- 媒体查询关注 viewport，适合整页断点；容器查询关注组件容器尺寸，适合组件自适应
+- 移动端常见策略：弹性布局、rem、流式栅格、视口单位、响应式图片
+- 面试中不要只停留在「移动端适配、媒体查询与容器查询」的定义，还要解释为什么需要它、它解决了哪类问题，以及在哪些约束下会失效。
+- 把原题观点放进「移动端适配、媒体查询与容器查询」的一个具体版本迭代里，讲清 响应式 在发布前后如何验证，会显著提升可信度。
+
+#### 工程落地
+
+- 把验证拆成“离线用例 + 集成链路 + 回归检查”，确保「移动端适配、媒体查询与容器查询」在 响应式 上的优化不是只在 demo 数据下成立。
+- 围绕「移动端适配、媒体查询与容器查询」建监控时，建议把 响应式 指标和业务转化指标并排展示，避免只看技术侧信号。
+- 涉及「移动端适配、媒体查询与容器查询」的高风险改动时，先准备回滚预案和应急手册，避免问题发生后临时决策。
+
+#### 易错点
+
+- 不要把「移动端适配、媒体查询与容器查询」的经验结论当成普适规则，先交代适用范围再给建议，可信度会更高。
+- 只关注「移动端适配、媒体查询与容器查询」里 响应式 的主流程而忽略异常路径，会让答案在“可维护性”和“线上稳定性”两个维度同时失分。
+- 表达「移动端适配、媒体查询与容器查询」时尽量少用绝对词，增加可验证条件与例外场景，答案会更稳健。
+
+## responsive-container-query-followup-3
+
+title: 追问：从工程落地角度看，和常见替代方案相比，「移动端适配、媒体查询与容器查询」在 响应式 这个维度更适合什么团队规模与业务复杂度
+difficulty: 进阶
+tags: [响应式, 容器查询, 追问]
+parent: responsive-container-query
+generated: followup-script
+
+### 题目
+
+如果面试官追问：从工程落地角度看，和常见替代方案相比，「移动端适配、媒体查询与容器查询」在 响应式 这个维度更适合什么团队规模与业务复杂度？
+
+### 答案要点
+
+#### 核心回答
+
+- 规模变大后先重新评估「移动端适配、媒体查询与容器查询」瓶颈：数据量、并发、团队协作、浏览器兼容和维护成本哪个先触顶。
+- 如果「移动端适配、媒体查询与容器查询」对应的响应式与组件边界收益被复杂度抵消，就要考虑分层、缓存、懒加载、批处理或更简单的替代方案。
+- 「移动端适配、媒体查询与容器查询」答案里要给出取舍边界：小团队/低流量怎么做，复杂业务/多端协作时又需要补哪些治理。
+
+#### 学习抓手
+
+- 先用一句话给出「移动端适配、媒体查询与容器查询」的判断标准，再补一个会导致方案失效的真实约束。
+- 回答时最好给出你在「移动端适配、媒体查询与容器查询」里做过的验证动作，证明结论不是“理论上可行”。
+- 收尾时把「移动端适配、媒体查询与容器查询」的短期收益和长期维护成本并列说明，体现方案选择的完整视角。
+
+## variables-theme-followup-2
+
+title: 追问：从工程落地角度看，老系统包袱重、牵一发而动全身时，你会怎么围绕 主题 安排「CSS Variables、深色模式与设计令牌」的渐进改造路线
+difficulty: 进阶
+tags: [主题, 变量, 追问]
+parent: variables-theme
+generated: followup-script
+
+### 题目
+
+如果面试官追问：从工程落地角度看，老系统包袱重、牵一发而动全身时，你会怎么围绕 主题 安排「CSS Variables、深色模式与设计令牌」的渐进改造路线？
+
+### 答案要点
+
+#### 核心回答
+
+- 推动「CSS Variables、深色模式与设计令牌」落地时先收敛改动面：选低风险页面或模块试点，保留旧路径作为对照。
+- 「CSS Variables、深色模式与设计令牌」迁移计划要说明数据兼容、配置开关、监控指标和失败后的恢复路径。
+- 团队推进重点不是一次性重写，而是把「CSS Variables、深色模式与设计令牌」拆成可验证的小步骤，逐步替换高风险部分。
+
+#### 学习抓手
+
+- 先用一句话给出「CSS Variables、深色模式与设计令牌」的判断标准，再补一个会导致方案失效的真实约束。
+- 回答时最好给出你在「CSS Variables、深色模式与设计令牌」里做过的验证动作，证明结论不是“理论上可行”。
+- 收尾时把「CSS Variables、深色模式与设计令牌」的短期收益和长期维护成本并列说明，体现方案选择的完整视角。
+
+## variables-theme-followup-3
+
+title: 追问：在「CSS Variables、深色模式与设计令牌」场景下，你会怎样定义「CSS Variables、深色模式与设计令牌」的长期健康度，并通过指标持续校准
+difficulty: 进阶
+tags: [主题, 变量, 追问]
+parent: variables-theme
+generated: followup-script
+
+### 题目
+
+如果面试官追问：在「CSS Variables、深色模式与设计令牌」场景下，你会怎样定义「CSS Variables、深色模式与设计令牌」的长期健康度，并通过指标持续校准？
+
+### 答案要点
+
+#### 回答思路
+
+- 先明确这道追问要解决的业务目标，再说明「CSS Variables、深色模式与设计令牌」在当前约束下为什么成立。
+- 建议按「输入约束 -> 主题 执行链路 -> 结果验证」展开，并结合「CSS Variables、深色模式与设计令牌」给出一条可复核结果，能更快体现你对复杂场景的掌控力。
+- 不要只罗列工具名或 API，最好把「CSS Variables、深色模式与设计令牌」的机制、约束和落地步骤串成完整叙事线。
+
+#### 结合原题展开
+
+- Sass 变量在编译期展开，运行时无法动态切换；CSS Variables 可在运行时被覆盖
+- 深色模式可基于 :root.dark、data-theme 或 prefers-color-scheme
+- 回答「CSS Variables、深色模式与设计令牌」时如果只给目标架构，不讲迁移、灰度和回滚，方案很难真正落地。
+- 若能补一段「CSS Variables、深色模式与设计令牌」复盘片段，解释 主题 如何从告警到定位再到修复，可信度会明显上升。
+
+#### 工程落地
+
+- 围绕「CSS Variables、深色模式与设计令牌」设计验证时别停在“写点测试”：至少覆盖正常、边界和失败三类输入，并把 主题 的预期结果写成可复核标准。
+- 在「CSS Variables、深色模式与设计令牌」落地过程中不要只看单个监控面板，建议把日志、指标和告警串起来，形成 主题 的问题定位闭环。
+- 如果「CSS Variables、深色模式与设计令牌」会影响历史数据或兼容性，务必提前说明迁移方案与回退条件。
+
+#### 易错点
+
+- 常见误区是把「CSS Variables、深色模式与设计令牌」讲成通用银弹，忽略输入规模、团队资源和上线窗口这些关键约束。
+- 若没说明「CSS Variables、深色模式与设计令牌」在 主题 失效时的回退策略，面试官通常会质疑方案是否可上线。
+- 不要把「CSS Variables、深色模式与设计令牌」结论说死，给出条件范围和替代路径，能显著降低回答被反例击穿的概率。
+
+## animation-compositor-followup-2
+
+title: 追问：在「transition、animation、合成层与性能优化」场景下，当「transition、animation、合成层与性能优化」优化后，你会优先看哪些真实用户信号来确认收益
+difficulty: 进阶
+tags: [动画, 性能, 追问]
+parent: animation-compositor
+generated: followup-script
+
+### 题目
+
+如果面试官追问：在「transition、animation、合成层与性能优化」场景下，当「transition、animation、合成层与性能优化」优化后，你会优先看哪些真实用户信号来确认收益？
+
+### 答案要点
+
+#### 回答思路
+
+- 先给可验证结论，再补证据链：面试官想确认你是否能把「transition、animation、合成层与性能优化」落到真实交付，而不是停在概念层。
+- 可以按「问题背景 -> 动画 机制 -> 取舍边界」回答，再用「transition、animation、合成层与性能优化」补一个反例，避免停在口号层。
+- 讲「transition、animation、合成层与性能优化」时实现侧重点应放在 动画 与边界输入，决策侧重点应放在收益与维护成本平衡。
+
+#### 结合原题展开
+
+- will-change 是提前向浏览器申请优化资源，滥用会增加内存和合成层数量
+- transition 适合状态过渡；animation 适合自动播放、关键帧、多阶段动效
+- 回答「transition、animation、合成层与性能优化」时如果不先给指标和测量方式，很容易变成凭经验调参。
+- 补一个你真实处理过的「transition、animation、合成层与性能优化」相似场景：说明 动画 怎么监控、怎么告警、怎么回滚，会比抽象结论更有说服力。
+
+#### 工程落地
+
+- 落地「transition、animation、合成层与性能优化」时先约定验收口径：哪些指标代表成功、哪些异常算失败，再围绕 动画 设计测试与回归流程。
+- 围绕「transition、animation、合成层与性能优化」的线上监控建议同时覆盖成功率、慢请求、异常分布和重试次数，方便判断 动画 的真实收益是否稳定。
+- 涉及「transition、animation、合成层与性能优化」的高风险改动时，先准备回滚预案和应急手册，避免问题发生后临时决策。
+
+#### 易错点
+
+- 不要把「transition、animation、合成层与性能优化」的经验结论当成普适规则，先交代适用范围再给建议，可信度会更高。
+- 另一个问题是缺少失败预案：若「transition、animation、合成层与性能优化」里的 动画 异常时没有降级与回滚说明，答案会显得工程成熟度不足。
+- 表达「transition、animation、合成层与性能优化」时尽量少用绝对词，增加可验证条件与例外场景，答案会更稳健。
+
+## animation-compositor-followup-3
+
+title: 追问：从工程落地角度看，围绕「transition、animation、合成层与性能优化」在 动画 上的优化决策，你会如何量化收益、风险和长期维护成本
+difficulty: 进阶
+tags: [动画, 性能, 追问]
+parent: animation-compositor
+generated: followup-script
+
+### 题目
+
+如果面试官追问：从工程落地角度看，围绕「transition、animation、合成层与性能优化」在 动画 上的优化决策，你会如何量化收益、风险和长期维护成本？
+
+### 答案要点
+
+#### 回答思路
+
+- 先把目标和约束说清楚，再展开实现：这能避免把「transition、animation、合成层与性能优化」讲成只在理想输入下可用。
+- 建议按「输入约束 -> 动画 执行链路 -> 结果验证」展开，并结合「transition、animation、合成层与性能优化」给出一条可复核结果，能更快体现你对复杂场景的掌控力。
+- 在「transition、animation、合成层与性能优化」回答里，实现层面要解释 动画 的时序和边界，决策层面要解释成本与风险，二者缺一都会让答案显得单薄。
+
+#### 结合原题展开
+
+- will-change 是提前向浏览器申请优化资源，滥用会增加内存和合成层数量
+- transition 适合状态过渡；animation 适合自动播放、关键帧、多阶段动效
+- 回答「transition、animation、合成层与性能优化」时如果不先给指标和测量方式，很容易变成凭经验调参。
+- 补一个你真实处理过的「transition、animation、合成层与性能优化」相似场景：说明 动画 怎么监控、怎么告警、怎么回滚，会比抽象结论更有说服力。
+
+#### 工程落地
+
+- 落地「transition、animation、合成层与性能优化」时先约定验收口径：哪些指标代表成功、哪些异常算失败，再围绕 动画 设计测试与回归流程。
+- 围绕「transition、animation、合成层与性能优化」的线上监控建议同时覆盖成功率、慢请求、异常分布和重试次数，方便判断 动画 的真实收益是否稳定。
+- 「transition、animation、合成层与性能优化」上线节奏建议分批推进：先小流量试运行，再根据告警和反馈决定是否扩容。
+
+#### 易错点
+
+- 很多回答会忽略「transition、animation、合成层与性能优化」的前置假设，导致方案看起来正确却无法直接执行，这是高频扣分点。
+- 另一个问题是缺少失败预案：若「transition、animation、合成层与性能优化」里的 动画 异常时没有降级与回滚说明，答案会显得工程成熟度不足。
+- 避免把「transition、animation、合成层与性能优化」说成“总是”“一定”“完全替代”，改成“在这些条件下优先采用”更专业。
+
+## css-architecture-followup-2
+
+title: 追问：从工程落地角度看，面对跨团队协作成本，你会如何围绕 架构方案 规划「CSS 架构方案：BEM / CSS-in-JS / Tailwind / CSS Modules」的阶段目标与交付边界
+difficulty: 进阶
+tags: [架构, Tailwind, CSS-in-JS, 追问]
+parent: css-architecture
+generated: followup-script
+
+### 题目
+
+如果面试官追问：从工程落地角度看，面对跨团队协作成本，你会如何围绕 架构方案 规划「CSS 架构方案：BEM / CSS-in-JS / Tailwind / CSS Modules」的阶段目标与交付边界？
+
+### 答案要点
+
+#### 回答思路
+
+- 先说判断标准，再说执行路径：回答「CSS 架构方案：BEM / CSS-in-JS / Tailwind / CSS Modules」时要能同时解释收益、代价和失败信号。
+- 回答顺序可用「现状问题 -> 架构方案 方案动作 -> 验证结果」，并用「CSS 架构方案：BEM / CSS-in-JS / Tailwind / CSS Modules」举一条主链路说明。
+- 如果涉及「CSS 架构方案：BEM / CSS-in-JS / Tailwind / CSS Modules」的技术细节，优先讲数据流和状态变化；做方案比较时要说明为何此刻不选替代路径。
+
+#### 结合原题展开
+
+- BEM：传统命名约定，零运行时，跨技术栈通用，但样板多
+- CSS Modules：构建期局部作用域，类名 hash，配合 Vue/React 都好用
+- CSS-in-JS（styled-components / Emotion / vanilla-extract）：JS 表达力强、动态主题方便；运行时方案有性能开销，零运行时方案（vanilla-extract）需要构建集成
+- 结合一次「CSS 架构方案：BEM / CSS-in-JS / Tailwind / CSS Modules」线上案例说明 架构方案 的变化轨迹，能让你的答案从“知道原理”升级到“能带队落地”。
+
+#### 工程落地
+
+- 建议先准备「CSS 架构方案：BEM / CSS-in-JS / Tailwind / CSS Modules」的最小可复现样例，再扩展到主链路回归，这样能更快确认 架构方案 的改动是否真的生效。
+- 观测口径要前后一致：上线前后使用同一组指标观察「CSS 架构方案：BEM / CSS-in-JS / Tailwind / CSS Modules」里的 架构方案，否则很难证明变化来自这次改动。
+- 围绕「CSS 架构方案：BEM / CSS-in-JS / Tailwind / CSS Modules」发布时建议保留开关和回滚路径，先灰度到低风险流量，再逐步扩大覆盖范围。
+
+#### 易错点
+
+- 最容易失分的是只说「CSS 架构方案：BEM / CSS-in-JS / Tailwind / CSS Modules」的推荐做法却不给边界条件，面试官通常会继续追问何时不该这样做。
+- 如果没说明「CSS 架构方案：BEM / CSS-in-JS / Tailwind / CSS Modules」里 架构方案 的异常处理和兜底路径，方案一旦遇到突发流量或外部依赖抖动就会站不住脚。
+- 保持「CSS 架构方案：BEM / CSS-in-JS / Tailwind / CSS Modules」结论可检验、可回退，比强调某个方案“最优”更能体现资深判断。
+
+## css-architecture-followup-3
+
+title: 追问：从工程落地角度看，为了确认「CSS 架构方案：BEM / CSS-in-JS / Tailwind / CSS Modules」在 架构方案 上能持续跑稳，你会长期追哪些稳定性和效率信号
+difficulty: 进阶
+tags: [架构, Tailwind, CSS-in-JS, 追问]
+parent: css-architecture
+generated: followup-script
+
+### 题目
+
+如果面试官追问：从工程落地角度看，为了确认「CSS 架构方案：BEM / CSS-in-JS / Tailwind / CSS Modules」在 架构方案 上能持续跑稳，你会长期追哪些稳定性和效率信号？
+
+### 答案要点
+
+#### 回答思路
+
+- 先给可验证结论，再补证据链：面试官想确认你是否能把「CSS 架构方案：BEM / CSS-in-JS / Tailwind / CSS Modules」落到真实交付，而不是停在概念层。
+- 可以按「问题背景 -> 架构方案 机制 -> 取舍边界」回答，再用「CSS 架构方案：BEM / CSS-in-JS / Tailwind / CSS Modules」补一个反例，避免停在口号层。
+- 讲「CSS 架构方案：BEM / CSS-in-JS / Tailwind / CSS Modules」时实现侧重点应放在 架构方案 与边界输入，决策侧重点应放在收益与维护成本平衡。
+
+#### 结合原题展开
+
+- BEM：传统命名约定，零运行时，跨技术栈通用，但样板多
+- CSS Modules：构建期局部作用域，类名 hash，配合 Vue/React 都好用
+- CSS-in-JS（styled-components / Emotion / vanilla-extract）：JS 表达力强、动态主题方便；运行时方案有性能开销，零运行时方案（vanilla-extract）需要构建集成
+- 补一个你真实处理过的「CSS 架构方案：BEM / CSS-in-JS / Tailwind / CSS Modules」相似场景：说明 架构方案 怎么监控、怎么告警、怎么回滚，会比抽象结论更有说服力。
+
+#### 工程落地
+
+- 落地「CSS 架构方案：BEM / CSS-in-JS / Tailwind / CSS Modules」时先约定验收口径：哪些指标代表成功、哪些异常算失败，再围绕 架构方案 设计测试与回归流程。
+- 围绕「CSS 架构方案：BEM / CSS-in-JS / Tailwind / CSS Modules」的线上监控建议同时覆盖成功率、慢请求、异常分布和重试次数，方便判断 架构方案 的真实收益是否稳定。
+- 涉及「CSS 架构方案：BEM / CSS-in-JS / Tailwind / CSS Modules」的高风险改动时，先准备回滚预案和应急手册，避免问题发生后临时决策。
+
+#### 易错点
+
+- 不要把「CSS 架构方案：BEM / CSS-in-JS / Tailwind / CSS Modules」的经验结论当成普适规则，先交代适用范围再给建议，可信度会更高。
+- 另一个问题是缺少失败预案：若「CSS 架构方案：BEM / CSS-in-JS / Tailwind / CSS Modules」里的 架构方案 异常时没有降级与回滚说明，答案会显得工程成熟度不足。
+- 表达「CSS 架构方案：BEM / CSS-in-JS / Tailwind / CSS Modules」时尽量少用绝对词，增加可验证条件与例外场景，答案会更稳健。
+
+## view-transitions-api-followup-1
+
+title: 追问：View Transitions 和普通 CSS transition / animation 的区别是什么
+difficulty: 进阶
+tags: [ViewTransition, 动效, UX, 追问]
+parent: view-transitions-api
+generated: followup-script
+
+### 题目
+
+如果面试官追问：View Transitions 和普通 CSS transition / animation 的区别是什么？
+
+### 答案要点
+
+#### 回答思路
+
+- 先说判断标准，再说执行路径：回答「View Transitions API 如何让 SPA / MPA 路由切换更顺滑」时要能同时解释收益、代价和失败信号。
+- 可以按「问题背景 -> ViewTransition 机制 -> 取舍边界」回答，再用「View Transitions API 如何让 SPA / MPA 路由切换更顺滑」补一个反例，避免停在口号层。
+- 如果涉及「View Transitions API 如何让 SPA / MPA 路由切换更顺滑」的技术细节，优先讲数据流和状态变化；做方案比较时要说明为何此刻不选替代路径。
+
+#### 结合原题展开
+
+- SPA 中通常用 document.startViewTransition(() => updateRoute()) 包住状态或路由更新，浏览器捕获更新前后的视图快照，再通过 ::view-transition-\* 伪元素控制动画。
+- MPA 中依赖浏览器跨文档 View Transition 支持，页面需要同源、开启对应声明，并保证新旧页面的共享元素命名一致。
+- 给太多元素设置 view-transition-name，快照层过多导致动画卡顿和调试困难。
+- 把原题观点放进「View Transitions API 如何让 SPA / MPA 路由切换更顺滑」的一个具体版本迭代里，讲清 ViewTransition 在发布前后如何验证，会显著提升可信度。
+
+#### 工程落地
+
+- 把验证拆成“离线用例 + 集成链路 + 回归检查”，确保「View Transitions API 如何让 SPA / MPA 路由切换更顺滑」在 ViewTransition 上的优化不是只在 demo 数据下成立。
+- 围绕「View Transitions API 如何让 SPA / MPA 路由切换更顺滑」建监控时，建议把 ViewTransition 指标和业务转化指标并排展示，避免只看技术侧信号。
+- 围绕「View Transitions API 如何让 SPA / MPA 路由切换更顺滑」发布时建议保留开关和回滚路径，先灰度到低风险流量，再逐步扩大覆盖范围。
+
+#### 易错点
+
+- 最容易失分的是只说「View Transitions API 如何让 SPA / MPA 路由切换更顺滑」的推荐做法却不给边界条件，面试官通常会继续追问何时不该这样做。
+- 只关注「View Transitions API 如何让 SPA / MPA 路由切换更顺滑」里 ViewTransition 的主流程而忽略异常路径，会让答案在“可维护性”和“线上稳定性”两个维度同时失分。
+- 保持「View Transitions API 如何让 SPA / MPA 路由切换更顺滑」结论可检验、可回退，比强调某个方案“最优”更能体现资深判断。
+
+## view-transitions-api-followup-2
+
+title: 追问：列表到详情的共享元素动画如何避免闪烁和布局跳变
+difficulty: 进阶
+tags: [ViewTransition, 动效, UX, 追问]
+parent: view-transitions-api
+generated: followup-script
+
+### 题目
+
+如果面试官追问：列表到详情的共享元素动画如何避免闪烁和布局跳变？
+
+### 答案要点
+
+#### 回答思路
+
+- 先说判断标准，再说执行路径：回答「View Transitions API 如何让 SPA / MPA 路由切换更顺滑」时要能同时解释收益、代价和失败信号。
+- 讲「View Transitions API 如何让 SPA / MPA 路由切换更顺滑」时先给 ViewTransition 的判断口径，再补执行动作和回退条件，会更像真实评审发言。
+- 如果涉及「View Transitions API 如何让 SPA / MPA 路由切换更顺滑」的技术细节，优先讲数据流和状态变化；做方案比较时要说明为何此刻不选替代路径。
+
+#### 结合原题展开
+
+- SPA 中通常用 document.startViewTransition(() => updateRoute()) 包住状态或路由更新，浏览器捕获更新前后的视图快照，再通过 ::view-transition-\* 伪元素控制动画。
+- MPA 中依赖浏览器跨文档 View Transition 支持，页面需要同源、开启对应声明，并保证新旧页面的共享元素命名一致。
+- 适合视觉连续性强的跳转：卡片到详情、图片预览、tab 切换、列表排序；不适合数据大量变化、布局差异巨大或需要立即反馈的高频输入。
+- 给出与「View Transitions API 如何让 SPA / MPA 路由切换更顺滑」相关的业务上下文，说明 ViewTransition 在高峰流量或弱网环境下如何保持稳定，能体现你有实战经验。
+
+#### 工程落地
+
+- 针对「View Transitions API 如何让 SPA / MPA 路由切换更顺滑」可以先做一次冒烟链路压测，再补边界回归，避免上线后才暴露 ViewTransition 的缺口。
+- 围绕「View Transitions API 如何让 SPA / MPA 路由切换更顺滑」的观测层要绑定 ViewTransition 相关日志与指标：错误率、耗时分位、资源占用和用户可感知延迟，至少选一组长期跟踪。
+- 围绕「View Transitions API 如何让 SPA / MPA 路由切换更顺滑」发布时建议保留开关和回滚路径，先灰度到低风险流量，再逐步扩大覆盖范围。
+
+#### 易错点
+
+- 最容易失分的是只说「View Transitions API 如何让 SPA / MPA 路由切换更顺滑」的推荐做法却不给边界条件，面试官通常会继续追问何时不该这样做。
+- 若没有针对「View Transitions API 如何让 SPA / MPA 路由切换更顺滑」里的 ViewTransition 明确告警阈值和恢复动作，即便方案思路正确，也难体现生产掌控力。
+- 保持「View Transitions API 如何让 SPA / MPA 路由切换更顺滑」结论可检验、可回退，比强调某个方案“最优”更能体现资深判断。
+
+## view-transitions-api-followup-3
+
+title: 追问：结合真实业务约束，你会如何为不支持该 API 的浏览器做降级
+difficulty: 进阶
+tags: [ViewTransition, 动效, UX, 追问]
+parent: view-transitions-api
+generated: followup-script
+
+### 题目
+
+如果面试官追问：结合真实业务约束，你会如何为不支持该 API 的浏览器做降级？
+
+### 答案要点
+
+#### 回答思路
+
+- 先给可验证结论，再补证据链：面试官想确认你是否能把「View Transitions API 如何让 SPA / MPA 路由切换更顺滑」落到真实交付，而不是停在概念层。
+- 可以按「问题背景 -> ViewTransition 机制 -> 取舍边界」回答，再用「View Transitions API 如何让 SPA / MPA 路由切换更顺滑」补一个反例，避免停在口号层。
+- 讲「View Transitions API 如何让 SPA / MPA 路由切换更顺滑」时实现侧重点应放在 ViewTransition 与边界输入，决策侧重点应放在收益与维护成本平衡。
+
+#### 结合原题展开
+
+- SPA 中通常用 document.startViewTransition(() => updateRoute()) 包住状态或路由更新，浏览器捕获更新前后的视图快照，再通过 ::view-transition-\* 伪元素控制动画。
+- MPA 中依赖浏览器跨文档 View Transition 支持，页面需要同源、开启对应声明，并保证新旧页面的共享元素命名一致。
+- 工程上要处理 prefers-reduced-motion、浏览器兼容、滚动位置、焦点恢复和转场期间的交互禁用。
+- 补一个你真实处理过的「View Transitions API 如何让 SPA / MPA 路由切换更顺滑」相似场景：说明 ViewTransition 怎么监控、怎么告警、怎么回滚，会比抽象结论更有说服力。
+
+#### 工程落地
+
+- 落地「View Transitions API 如何让 SPA / MPA 路由切换更顺滑」时先约定验收口径：哪些指标代表成功、哪些异常算失败，再围绕 ViewTransition 设计测试与回归流程。
+- 围绕「View Transitions API 如何让 SPA / MPA 路由切换更顺滑」的线上监控建议同时覆盖成功率、慢请求、异常分布和重试次数，方便判断 ViewTransition 的真实收益是否稳定。
+- 涉及「View Transitions API 如何让 SPA / MPA 路由切换更顺滑」的高风险改动时，先准备回滚预案和应急手册，避免问题发生后临时决策。
+
+#### 易错点
+
+- 不要把「View Transitions API 如何让 SPA / MPA 路由切换更顺滑」的经验结论当成普适规则，先交代适用范围再给建议，可信度会更高。
+- 另一个问题是缺少失败预案：若「View Transitions API 如何让 SPA / MPA 路由切换更顺滑」里的 ViewTransition 异常时没有降级与回滚说明，答案会显得工程成熟度不足。
+- 表达「View Transitions API 如何让 SPA / MPA 路由切换更顺滑」时尽量少用绝对词，增加可验证条件与例外场景，答案会更稳健。
+
+## native-popover-dialog-anchor-followup-1
+
+title: 追问：在当前团队与业务约束下，top layer 为什么能绕开普通层叠上下文问题
+difficulty: 进阶
+tags: [Popover, Dialog, TopLayer, AnchorPositioning, 追问]
+parent: native-popover-dialog-anchor
+generated: followup-script
+
+### 题目
+
+如果面试官追问：在当前团队与业务约束下，top layer 为什么能绕开普通层叠上下文问题？
+
+### 答案要点
+
+#### 回答思路
+
+- 先给可验证结论，再补证据链：面试官想确认你是否能把「原生 dialog / popover、top layer 与 anchor positioning 解决了什么」落到真实交付，而不是停在概念层。
+- 讲「原生 dialog / popover、top layer 与 anchor positioning 解决了什么」时先给 Popover 的判断口径，再补执行动作和回退条件，会更像真实评审发言。
+- 讲「原生 dialog / popover、top layer 与 anchor positioning 解决了什么」时实现侧重点应放在 Popover 与边界输入，决策侧重点应放在收益与维护成本平衡。
+
+#### 结合原题展开
+
+- top layer 让弹层脱离普通 stacking context，避免 z-index: 9999 互相压制，适合 modal、popover、select list、tooltip 这类需要浮在页面最上层的 UI。
+- dialog.showModal() 提供模态语义、背景 inert、Esc 关闭和焦点约束；popover 更适合轻量非模态浮层，可通过触发器属性建立关联。
+- anchor positioning 用 CSS 表达“浮层相对哪个锚点定位”，减少 JS 测量、滚动监听和 resize 计算，适合菜单、气泡卡片、上下文操作。
+- 给出与「原生 dialog / popover、top layer 与 anchor positioning 解决了什么」相关的业务上下文，说明 Popover 在高峰流量或弱网环境下如何保持稳定，能体现你有实战经验。
+
+#### 工程落地
+
+- 针对「原生 dialog / popover、top layer 与 anchor positioning 解决了什么」可以先做一次冒烟链路压测，再补边界回归，避免上线后才暴露 Popover 的缺口。
+- 围绕「原生 dialog / popover、top layer 与 anchor positioning 解决了什么」的观测层要绑定 Popover 相关日志与指标：错误率、耗时分位、资源占用和用户可感知延迟，至少选一组长期跟踪。
+- 涉及「原生 dialog / popover、top layer 与 anchor positioning 解决了什么」的高风险改动时，先准备回滚预案和应急手册，避免问题发生后临时决策。
+
+#### 易错点
+
+- 不要把「原生 dialog / popover、top layer 与 anchor positioning 解决了什么」的经验结论当成普适规则，先交代适用范围再给建议，可信度会更高。
+- 若没有针对「原生 dialog / popover、top layer 与 anchor positioning 解决了什么」里的 Popover 明确告警阈值和恢复动作，即便方案思路正确，也难体现生产掌控力。
+- 表达「原生 dialog / popover、top layer 与 anchor positioning 解决了什么」时尽量少用绝对词，增加可验证条件与例外场景，答案会更稳健。
+
+## native-popover-dialog-anchor-followup-2
+
+title: 追问：结合真实业务约束，dialog 和 popover 在语义、焦点和关闭行为上有什么差别
+difficulty: 进阶
+tags: [Popover, Dialog, TopLayer, AnchorPositioning, 追问]
+parent: native-popover-dialog-anchor
+generated: followup-script
+
+### 题目
+
+如果面试官追问：结合真实业务约束，dialog 和 popover 在语义、焦点和关闭行为上有什么差别？
+
+### 答案要点
+
+#### 回答思路
+
+- 先把目标和约束说清楚，再展开实现：这能避免把「原生 dialog / popover、top layer 与 anchor positioning 解决了什么」讲成只在理想输入下可用。
+- 回答结构可按「触发条件 -> Popover 机制 -> 风险兜底」展开，并以「原生 dialog / popover、top layer 与 anchor positioning 解决了什么」补一条失败场景，能体现工程拆解能力。
+- 在「原生 dialog / popover、top layer 与 anchor positioning 解决了什么」回答里，实现层面要解释 Popover 的时序和边界，决策层面要解释成本与风险，二者缺一都会让答案显得单薄。
+
+#### 结合原题展开
+
+- top layer 让弹层脱离普通 stacking context，避免 z-index: 9999 互相压制，适合 modal、popover、select list、tooltip 这类需要浮在页面最上层的 UI。
+- dialog.showModal() 提供模态语义、背景 inert、Esc 关闭和焦点约束；popover 更适合轻量非模态浮层，可通过触发器属性建立关联。
+- 认为原生弹层就自动满足所有 a11y，结果没有设置标题、描述、初始焦点和关闭后的焦点恢复。
+- 把原题观点放进「原生 dialog / popover、top layer 与 anchor positioning 解决了什么」的一个具体版本迭代里，讲清 Popover 在发布前后如何验证，会显著提升可信度。
+
+#### 工程落地
+
+- 把验证拆成“离线用例 + 集成链路 + 回归检查”，确保「原生 dialog / popover、top layer 与 anchor positioning 解决了什么」在 Popover 上的优化不是只在 demo 数据下成立。
+- 围绕「原生 dialog / popover、top layer 与 anchor positioning 解决了什么」建监控时，建议把 Popover 指标和业务转化指标并排展示，避免只看技术侧信号。
+- 「原生 dialog / popover、top layer 与 anchor positioning 解决了什么」上线节奏建议分批推进：先小流量试运行，再根据告警和反馈决定是否扩容。
+
+#### 易错点
+
+- 很多回答会忽略「原生 dialog / popover、top layer 与 anchor positioning 解决了什么」的前置假设，导致方案看起来正确却无法直接执行，这是高频扣分点。
+- 只关注「原生 dialog / popover、top layer 与 anchor positioning 解决了什么」里 Popover 的主流程而忽略异常路径，会让答案在“可维护性”和“线上稳定性”两个维度同时失分。
+- 避免把「原生 dialog / popover、top layer 与 anchor positioning 解决了什么」说成“总是”“一定”“完全替代”，改成“在这些条件下优先采用”更专业。
+
+## native-popover-dialog-anchor-followup-3
+
+title: 追问：结合真实业务约束，anchor positioning 能替代 Popper.js / Floating UI 吗，边界在哪里
+difficulty: 进阶
+tags: [Popover, Dialog, TopLayer, AnchorPositioning, 追问]
+parent: native-popover-dialog-anchor
+generated: followup-script
+
+### 题目
+
+如果面试官追问：结合真实业务约束，anchor positioning 能替代 Popper.js / Floating UI 吗，边界在哪里？
+
+### 答案要点
+
+#### 回答思路
+
+- 先明确这道追问要解决的业务目标，再说明「原生 dialog / popover、top layer 与 anchor positioning 解决了什么」在当前约束下为什么成立。
+- 建议按「输入约束 -> Popover 执行链路 -> 结果验证」展开，并结合「原生 dialog / popover、top layer 与 anchor positioning 解决了什么」给出一条可复核结果，能更快体现你对复杂场景的掌控力。
+- 不要只罗列工具名或 API，最好把「原生 dialog / popover、top layer 与 anchor positioning 解决了什么」的机制、约束和落地步骤串成完整叙事线。
+
+#### 结合原题展开
+
+- top layer 让弹层脱离普通 stacking context，避免 z-index: 9999 互相压制，适合 modal、popover、select list、tooltip 这类需要浮在页面最上层的 UI。
+- dialog.showModal() 提供模态语义、背景 inert、Esc 关闭和焦点约束；popover 更适合轻量非模态浮层，可通过触发器属性建立关联。
+- anchor positioning 用 CSS 表达“浮层相对哪个锚点定位”，减少 JS 测量、滚动监听和 resize 计算，适合菜单、气泡卡片、上下文操作。
+- 把原题观点放进「原生 dialog / popover、top layer 与 anchor positioning 解决了什么」的一个具体版本迭代里，讲清 Popover 在发布前后如何验证，会显著提升可信度。
+
+#### 工程落地
+
+- 把验证拆成“离线用例 + 集成链路 + 回归检查”，确保「原生 dialog / popover、top layer 与 anchor positioning 解决了什么」在 Popover 上的优化不是只在 demo 数据下成立。
+- 围绕「原生 dialog / popover、top layer 与 anchor positioning 解决了什么」建监控时，建议把 Popover 指标和业务转化指标并排展示，避免只看技术侧信号。
+- 如果「原生 dialog / popover、top layer 与 anchor positioning 解决了什么」会影响历史数据或兼容性，务必提前说明迁移方案与回退条件。
+
+#### 易错点
+
+- 常见误区是把「原生 dialog / popover、top layer 与 anchor positioning 解决了什么」讲成通用银弹，忽略输入规模、团队资源和上线窗口这些关键约束。
+- 只关注「原生 dialog / popover、top layer 与 anchor positioning 解决了什么」里 Popover 的主流程而忽略异常路径，会让答案在“可维护性”和“线上稳定性”两个维度同时失分。
+- 不要把「原生 dialog / popover、top layer 与 anchor positioning 解决了什么」结论说死，给出条件范围和替代路径，能显著降低回答被反例击穿的概率。
+
+## scroll-driven-animations-followup-1
+
+title: 追问：结合真实业务约束，scroll-timeline 和 view-timeline 的触发对象有什么不同
+difficulty: 进阶
+tags: [CSS, 动画, scroll-timeline, 性能, 追问]
+parent: scroll-driven-animations
+generated: followup-script
+
+### 题目
+
+如果面试官追问：结合真实业务约束，`scroll-timeline` 和 `view-timeline` 的触发对象有什么不同？
+
+### 答案要点
+
+#### 回答思路
+
+- 先说判断标准，再说执行路径：回答「Scroll-driven Animations：scroll-timeline / view-timeline 解决什么」时要能同时解释收益、代价和失败信号。
+- 回答顺序可用「现状问题 -> CSS 方案动作 -> 验证结果」，并用「Scroll-driven Animations：scroll-timeline / view-timeline 解决什么」举一条主链路说明。
+- 如果涉及「Scroll-driven Animations：scroll-timeline / view-timeline 解决什么」的技术细节，优先讲数据流和状态变化；做方案比较时要说明为何此刻不选替代路径。
+
+#### 结合原题展开
+
+- scroll-timeline 把动画进度绑定到滚动容器，适合阅读进度条、横向滚动进度、视差背景。
+- view-timeline 把动画进度绑定到某个元素进入/离开视口的过程，适合卡片 reveal、章节标题吸附、列表项渐入。
+- 把复杂业务状态也塞进 CSS timeline，结果调试和可测试性都变差。
+- 若能补一段「Scroll-driven Animations：scroll-timeline / view-timeline 解决什么」复盘片段，解释 CSS 如何从告警到定位再到修复，可信度会明显上升。
+
+#### 工程落地
+
+- 围绕「Scroll-driven Animations：scroll-timeline / view-timeline 解决什么」设计验证时别停在“写点测试”：至少覆盖正常、边界和失败三类输入，并把 CSS 的预期结果写成可复核标准。
+- 在「Scroll-driven Animations：scroll-timeline / view-timeline 解决什么」落地过程中不要只看单个监控面板，建议把日志、指标和告警串起来，形成 CSS 的问题定位闭环。
+- 围绕「Scroll-driven Animations：scroll-timeline / view-timeline 解决什么」发布时建议保留开关和回滚路径，先灰度到低风险流量，再逐步扩大覆盖范围。
+
+#### 易错点
+
+- 最容易失分的是只说「Scroll-driven Animations：scroll-timeline / view-timeline 解决什么」的推荐做法却不给边界条件，面试官通常会继续追问何时不该这样做。
+- 若没说明「Scroll-driven Animations：scroll-timeline / view-timeline 解决什么」在 CSS 失效时的回退策略，面试官通常会质疑方案是否可上线。
+- 保持「Scroll-driven Animations：scroll-timeline / view-timeline 解决什么」结论可检验、可回退，比强调某个方案“最优”更能体现资深判断。
+
+## scroll-driven-animations-followup-2
+
+title: 追问：结合真实业务约束，哪些动画属性适合滚动驱动，哪些属性应该避免
+difficulty: 进阶
+tags: [CSS, 动画, scroll-timeline, 性能, 追问]
+parent: scroll-driven-animations
+generated: followup-script
+
+### 题目
+
+如果面试官追问：结合真实业务约束，哪些动画属性适合滚动驱动，哪些属性应该避免？
+
+### 答案要点
+
+#### 回答思路
+
+- 先给可验证结论，再补证据链：面试官想确认你是否能把「Scroll-driven Animations：scroll-timeline / view-timeline 解决什么」落到真实交付，而不是停在概念层。
+- 回答顺序可用「现状问题 -> CSS 方案动作 -> 验证结果」，并用「Scroll-driven Animations：scroll-timeline / view-timeline 解决什么」举一条主链路说明。
+- 讲「Scroll-driven Animations：scroll-timeline / view-timeline 解决什么」时实现侧重点应放在 CSS 与边界输入，决策侧重点应放在收益与维护成本平衡。
+
+#### 结合原题展开
+
+- scroll-timeline 把动画进度绑定到滚动容器，适合阅读进度条、横向滚动进度、视差背景。
+- view-timeline 把动画进度绑定到某个元素进入/离开视口的过程，适合卡片 reveal、章节标题吸附、列表项渐入。
+- 性能收益来自声明式动画和浏览器调度，但不代表所有属性都能上合成线程；优先动画 transform、opacity，避免让布局属性每帧变化。
+- 补一个你真实处理过的「Scroll-driven Animations：scroll-timeline / view-timeline 解决什么」相似场景：说明 CSS 怎么监控、怎么告警、怎么回滚，会比抽象结论更有说服力。
+
+#### 工程落地
+
+- 落地「Scroll-driven Animations：scroll-timeline / view-timeline 解决什么」时先约定验收口径：哪些指标代表成功、哪些异常算失败，再围绕 CSS 设计测试与回归流程。
+- 围绕「Scroll-driven Animations：scroll-timeline / view-timeline 解决什么」的线上监控建议同时覆盖成功率、慢请求、异常分布和重试次数，方便判断 CSS 的真实收益是否稳定。
+- 涉及「Scroll-driven Animations：scroll-timeline / view-timeline 解决什么」的高风险改动时，先准备回滚预案和应急手册，避免问题发生后临时决策。
+
+#### 易错点
+
+- 不要把「Scroll-driven Animations：scroll-timeline / view-timeline 解决什么」的经验结论当成普适规则，先交代适用范围再给建议，可信度会更高。
+- 另一个问题是缺少失败预案：若「Scroll-driven Animations：scroll-timeline / view-timeline 解决什么」里的 CSS 异常时没有降级与回滚说明，答案会显得工程成熟度不足。
+- 表达「Scroll-driven Animations：scroll-timeline / view-timeline 解决什么」时尽量少用绝对词，增加可验证条件与例外场景，答案会更稳健。
+
+## scroll-driven-animations-followup-3
+
+title: 追问：在「Scroll-driven Animations：scroll-timeline / view-timeline 解决什么」场景下，不支持新 API 的浏览器上你会怎么降级
+difficulty: 进阶
+tags: [CSS, 动画, scroll-timeline, 性能, 追问]
+parent: scroll-driven-animations
+generated: followup-script
+
+### 题目
+
+如果面试官追问：在「Scroll-driven Animations：scroll-timeline / view-timeline 解决什么」场景下，不支持新 API 的浏览器上你会怎么降级？
+
+### 答案要点
+
+#### 回答思路
+
+- 先给可验证结论，再补证据链：面试官想确认你是否能把「Scroll-driven Animations：scroll-timeline / view-timeline 解决什么」落到真实交付，而不是停在概念层。
+- 可以按「问题背景 -> CSS 机制 -> 取舍边界」回答，再用「Scroll-driven Animations：scroll-timeline / view-timeline 解决什么」补一个反例，避免停在口号层。
+- 讲「Scroll-driven Animations：scroll-timeline / view-timeline 解决什么」时实现侧重点应放在 CSS 与边界输入，决策侧重点应放在收益与维护成本平衡。
+
+#### 结合原题展开
+
+- scroll-timeline 把动画进度绑定到滚动容器，适合阅读进度条、横向滚动进度、视差背景。
+- view-timeline 把动画进度绑定到某个元素进入/离开视口的过程，适合卡片 reveal、章节标题吸附、列表项渐入。
+- 性能收益来自声明式动画和浏览器调度，但不代表所有属性都能上合成线程；优先动画 transform、opacity，避免让布局属性每帧变化。
+- 补一个你真实处理过的「Scroll-driven Animations：scroll-timeline / view-timeline 解决什么」相似场景：说明 CSS 怎么监控、怎么告警、怎么回滚，会比抽象结论更有说服力。
+
+#### 工程落地
+
+- 落地「Scroll-driven Animations：scroll-timeline / view-timeline 解决什么」时先约定验收口径：哪些指标代表成功、哪些异常算失败，再围绕 CSS 设计测试与回归流程。
+- 围绕「Scroll-driven Animations：scroll-timeline / view-timeline 解决什么」的线上监控建议同时覆盖成功率、慢请求、异常分布和重试次数，方便判断 CSS 的真实收益是否稳定。
+- 涉及「Scroll-driven Animations：scroll-timeline / view-timeline 解决什么」的高风险改动时，先准备回滚预案和应急手册，避免问题发生后临时决策。
+
+#### 易错点
+
+- 不要把「Scroll-driven Animations：scroll-timeline / view-timeline 解决什么」的经验结论当成普适规则，先交代适用范围再给建议，可信度会更高。
+- 另一个问题是缺少失败预案：若「Scroll-driven Animations：scroll-timeline / view-timeline 解决什么」里的 CSS 异常时没有降级与回滚说明，答案会显得工程成熟度不足。
+- 表达「Scroll-driven Animations：scroll-timeline / view-timeline 解决什么」时尽量少用绝对词，增加可验证条件与例外场景，答案会更稳健。
+
+## css-style-queries-and-scope-followup-1
+
+title: 追问：以「CSS Style Queries、@scope 与组件样式边界怎么用」为例，什么时候用容器查询，什么时候仍然应该用媒体查询
+difficulty: 进阶
+tags: [CSS, ContainerQueries, @scope, 组件化, 追问]
+parent: css-style-queries-and-scope
+generated: followup-script
+
+### 题目
+
+如果面试官追问：以「CSS Style Queries、@scope 与组件样式边界怎么用」为例，什么时候用容器查询，什么时候仍然应该用媒体查询？
+
+### 答案要点
+
+#### 回答思路
+
+- 先明确这道追问要解决的业务目标，再说明「CSS Style Queries、@scope 与组件样式边界怎么用」在当前约束下为什么成立。
+- 回答结构可按「触发条件 -> CSS 机制 -> 风险兜底」展开，并以「CSS Style Queries、@scope 与组件样式边界怎么用」补一条失败场景，能体现工程拆解能力。
+- 不要只罗列工具名或 API，最好把「CSS Style Queries、@scope 与组件样式边界怎么用」的机制、约束和落地步骤串成完整叙事线。
+
+#### 结合原题展开
+
+- 尺寸容器查询关注容器尺寸，例如卡片在窄容器里单列、宽容器里双列，不再只依赖 viewport 断点。
+- Style Queries 关注容器样式状态，常见做法是用 CSS 自定义属性表达密度、主题、危险态，再让内部子组件按状态切换样式。
+- @scope 限制选择器的匹配范围，适合文档内容、主题片段、低侵入迁移老样式，避免 .title 这类通用类名污染全局。
+- 给出与「CSS Style Queries、@scope 与组件样式边界怎么用」相关的业务上下文，说明 CSS 在高峰流量或弱网环境下如何保持稳定，能体现你有实战经验。
+
+#### 工程落地
+
+- 针对「CSS Style Queries、@scope 与组件样式边界怎么用」可以先做一次冒烟链路压测，再补边界回归，避免上线后才暴露 CSS 的缺口。
+- 围绕「CSS Style Queries、@scope 与组件样式边界怎么用」的观测层要绑定 CSS 相关日志与指标：错误率、耗时分位、资源占用和用户可感知延迟，至少选一组长期跟踪。
+- 如果「CSS Style Queries、@scope 与组件样式边界怎么用」会影响历史数据或兼容性，务必提前说明迁移方案与回退条件。
+
+#### 易错点
+
+- 常见误区是把「CSS Style Queries、@scope 与组件样式边界怎么用」讲成通用银弹，忽略输入规模、团队资源和上线窗口这些关键约束。
+- 若没有针对「CSS Style Queries、@scope 与组件样式边界怎么用」里的 CSS 明确告警阈值和恢复动作，即便方案思路正确，也难体现生产掌控力。
+- 不要把「CSS Style Queries、@scope 与组件样式边界怎么用」结论说死，给出条件范围和替代路径，能显著降低回答被反例击穿的概率。
+
+## css-style-queries-and-scope-followup-2
+
+title: 追问：Style Queries 和 CSS Variables 的关系是什么
+difficulty: 进阶
+tags: [CSS, ContainerQueries, @scope, 组件化, 追问]
+parent: css-style-queries-and-scope
+generated: followup-script
+
+### 题目
+
+如果面试官追问：Style Queries 和 CSS Variables 的关系是什么？
+
+### 答案要点
+
+#### 回答思路
+
+- 先给可验证结论，再补证据链：面试官想确认你是否能把「CSS Style Queries、@scope 与组件样式边界怎么用」落到真实交付，而不是停在概念层。
+- 回答顺序可用「现状问题 -> CSS 方案动作 -> 验证结果」，并用「CSS Style Queries、@scope 与组件样式边界怎么用」举一条主链路说明。
+- 讲「CSS Style Queries、@scope 与组件样式边界怎么用」时实现侧重点应放在 CSS 与边界输入，决策侧重点应放在收益与维护成本平衡。
+
+#### 结合原题展开
+
+- Style Queries 关注容器样式状态，常见做法是用 CSS 自定义属性表达密度、主题、危险态，再让内部子组件按状态切换样式。
+- 组件库落地时可以把尺寸适配交给 @container，把语义状态交给变量，把作用域交给 CSS Modules / Shadow DOM / @scope 的组合。
+- 边界是兼容性、调试成本和设计约束：状态太复杂时应回到组件 props 或状态机，不要把业务逻辑塞进 CSS。
+- 补一个你真实处理过的「CSS Style Queries、@scope 与组件样式边界怎么用」相似场景：说明 CSS 怎么监控、怎么告警、怎么回滚，会比抽象结论更有说服力。
+
+#### 工程落地
+
+- 落地「CSS Style Queries、@scope 与组件样式边界怎么用」时先约定验收口径：哪些指标代表成功、哪些异常算失败，再围绕 CSS 设计测试与回归流程。
+- 围绕「CSS Style Queries、@scope 与组件样式边界怎么用」的线上监控建议同时覆盖成功率、慢请求、异常分布和重试次数，方便判断 CSS 的真实收益是否稳定。
+- 涉及「CSS Style Queries、@scope 与组件样式边界怎么用」的高风险改动时，先准备回滚预案和应急手册，避免问题发生后临时决策。
+
+#### 易错点
+
+- 不要把「CSS Style Queries、@scope 与组件样式边界怎么用」的经验结论当成普适规则，先交代适用范围再给建议，可信度会更高。
+- 另一个问题是缺少失败预案：若「CSS Style Queries、@scope 与组件样式边界怎么用」里的 CSS 异常时没有降级与回滚说明，答案会显得工程成熟度不足。
+- 表达「CSS Style Queries、@scope 与组件样式边界怎么用」时尽量少用绝对词，增加可验证条件与例外场景，答案会更稳健。
+
+## css-style-queries-and-scope-followup-3
+
+title: 追问：从工程落地角度看，@scope、CSS Modules、Shadow DOM 在样式隔离上各有什么边界
+difficulty: 进阶
+tags: [CSS, ContainerQueries, @scope, 组件化, 追问]
+parent: css-style-queries-and-scope
+generated: followup-script
+
+### 题目
+
+如果面试官追问：从工程落地角度看，`@scope`、CSS Modules、Shadow DOM 在样式隔离上各有什么边界？
+
+### 答案要点
+
+#### 回答思路
+
+- 先明确这道追问要解决的业务目标，再说明「CSS Style Queries、@scope 与组件样式边界怎么用」在当前约束下为什么成立。
+- 建议按「输入约束 -> CSS 执行链路 -> 结果验证」展开，并结合「CSS Style Queries、@scope 与组件样式边界怎么用」给出一条可复核结果，能更快体现你对复杂场景的掌控力。
+- 不要只罗列工具名或 API，最好把「CSS Style Queries、@scope 与组件样式边界怎么用」的机制、约束和落地步骤串成完整叙事线。
+
+#### 结合原题展开
+
+- Style Queries 关注容器样式状态，常见做法是用 CSS 自定义属性表达密度、主题、危险态，再让内部子组件按状态切换样式。
+- @scope 限制选择器的匹配范围，适合文档内容、主题片段、低侵入迁移老样式，避免 .title 这类通用类名污染全局。
+- 组件库落地时可以把尺寸适配交给 @container，把语义状态交给变量，把作用域交给 CSS Modules / Shadow DOM / @scope 的组合。
+- 若能补一段「CSS Style Queries、@scope 与组件样式边界怎么用」复盘片段，解释 CSS 如何从告警到定位再到修复，可信度会明显上升。
+
+#### 工程落地
+
+- 围绕「CSS Style Queries、@scope 与组件样式边界怎么用」设计验证时别停在“写点测试”：至少覆盖正常、边界和失败三类输入，并把 CSS 的预期结果写成可复核标准。
+- 在「CSS Style Queries、@scope 与组件样式边界怎么用」落地过程中不要只看单个监控面板，建议把日志、指标和告警串起来，形成 CSS 的问题定位闭环。
+- 如果「CSS Style Queries、@scope 与组件样式边界怎么用」会影响历史数据或兼容性，务必提前说明迁移方案与回退条件。
+
+#### 易错点
+
+- 常见误区是把「CSS Style Queries、@scope 与组件样式边界怎么用」讲成通用银弹，忽略输入规模、团队资源和上线窗口这些关键约束。
+- 若没说明「CSS Style Queries、@scope 与组件样式边界怎么用」在 CSS 失效时的回退策略，面试官通常会质疑方案是否可上线。
+- 不要把「CSS Style Queries、@scope 与组件样式边界怎么用」结论说死，给出条件范围和替代路径，能显著降低回答被反例击穿的概率。
+
+## stacking-context-followup-2
+
+title: 追问：从工程落地角度看，为了证明这个方案在 z-index 维度有效，你会怎么设计测试闭环和线上观测指标
+difficulty: 进阶
+tags: [z-index, 层叠, 追问]
+parent: stacking-context
+generated: followup-script
+
+### 题目
+
+如果面试官追问：从工程落地角度看，为了证明这个方案在 z-index 维度有效，你会怎么设计测试闭环和线上观测指标？
+
+### 答案要点
+
+#### 回答思路
+
+- 先说判断标准，再说执行路径：回答「层叠上下文与 z-index 为什么经常“不生效”」时要能同时解释收益、代价和失败信号。
+- 讲「层叠上下文与 z-index 为什么经常“不生效”」时先给 z-index 的判断口径，再补执行动作和回退条件，会更像真实评审发言。
+- 如果涉及「层叠上下文与 z-index 为什么经常“不生效”」的技术细节，优先讲数据流和状态变化；做方案比较时要说明为何此刻不选替代路径。
+
+#### 结合原题展开
+
+- z-index 只在同一层叠上下文中比较
+- 常见创建条件：定位元素且有 z-index、opacity < 1、transform、filter、will-change、isolation: isolate
+- 一旦父元素形成新层叠上下文，子元素再高的 z-index 也无法越过父级上下文的整体层级
+- 补一个你真实处理过的「层叠上下文与 z-index 为什么经常“不生效”」相似场景：说明 z-index 怎么监控、怎么告警、怎么回滚，会比抽象结论更有说服力。
+
+#### 工程落地
+
+- 落地「层叠上下文与 z-index 为什么经常“不生效”」时先约定验收口径：哪些指标代表成功、哪些异常算失败，再围绕 z-index 设计测试与回归流程。
+- 围绕「层叠上下文与 z-index 为什么经常“不生效”」的线上监控建议同时覆盖成功率、慢请求、异常分布和重试次数，方便判断 z-index 的真实收益是否稳定。
+- 围绕「层叠上下文与 z-index 为什么经常“不生效”」发布时建议保留开关和回滚路径，先灰度到低风险流量，再逐步扩大覆盖范围。
+
+#### 易错点
+
+- 最容易失分的是只说「层叠上下文与 z-index 为什么经常“不生效”」的推荐做法却不给边界条件，面试官通常会继续追问何时不该这样做。
+- 另一个问题是缺少失败预案：若「层叠上下文与 z-index 为什么经常“不生效”」里的 z-index 异常时没有降级与回滚说明，答案会显得工程成熟度不足。
+- 保持「层叠上下文与 z-index 为什么经常“不生效”」结论可检验、可回退，比强调某个方案“最优”更能体现资深判断。
+
+## stacking-context-followup-3
+
+title: 追问：以「层叠上下文与 z-index 为什么经常“不生效”」为例，面对规模与资源变化并存时，你会如何围绕 z-index 调整「层叠上下文与 z-index 为什么经常“不生效”」的推进顺序
+difficulty: 进阶
+tags: [z-index, 层叠, 追问]
+parent: stacking-context
+generated: followup-script
+
+### 题目
+
+如果面试官追问：以「层叠上下文与 z-index 为什么经常“不生效”」为例，面对规模与资源变化并存时，你会如何围绕 z-index 调整「层叠上下文与 z-index 为什么经常“不生效”」的推进顺序？
+
+### 答案要点
+
+#### 核心回答
+
+- 规模变大后先重新评估「层叠上下文与 z-index 为什么经常“不生效”」瓶颈：数据量、并发、团队协作、浏览器兼容和维护成本哪个先触顶。
+- 如果「层叠上下文与 z-index 为什么经常“不生效”」对应的核心机制收益被复杂度抵消，就要考虑分层、缓存、懒加载、批处理或更简单的替代方案。
+- 「层叠上下文与 z-index 为什么经常“不生效”」答案里要给出取舍边界：小团队/低流量怎么做，复杂业务/多端协作时又需要补哪些治理。
+
+#### 学习抓手
+
+- 开口先讲「层叠上下文与 z-index 为什么经常“不生效”」的核心取舍，再补一个反例说明为什么不能照搬默认做法。
+- 围绕「层叠上下文与 z-index 为什么经常“不生效”」挑一个可执行验证动作：补边界用例、走一次调试链路、盯一组指标，或复盘线上排障流程。
+- 结束前补一句「层叠上下文与 z-index 为什么经常“不生效”」取舍结论：这个方案适合哪些约束，不适合哪些场景。
+
+## selector-modern-followup-2
+
+title: 追问：以「:has、:is、:where、:focus-visible 怎么用」为例，你会如何围绕 选择器 定义“方案生效”的判据，并通过测试与观测数据持续验证
+difficulty: 进阶
+tags: [选择器, 现代 CSS, 追问]
+parent: selector-modern
+generated: followup-script
+
+### 题目
+
+如果面试官追问：以「:has、:is、:where、:focus-visible 怎么用」为例，你会如何围绕 选择器 定义“方案生效”的判据，并通过测试与观测数据持续验证？
+
+### 答案要点
+
+#### 回答思路
+
+- 先给可验证结论，再补证据链：面试官想确认你是否能把「:has、:is、:where、:focus-visible 怎么用」落到真实交付，而不是停在概念层。
+- 回答顺序可用「现状问题 -> 选择器 方案动作 -> 验证结果」，并用「:has、:is、:where、:focus-visible 怎么用」举一条主链路说明。
+- 讲「:has、:is、:where、:focus-visible 怎么用」时实现侧重点应放在 选择器 与边界输入，决策侧重点应放在收益与维护成本平衡。
+
+#### 结合原题展开
+
+- :has() 是“父选择器能力”，可根据后代状态反向选中父元素
+- :is() 降低选择器重复；:where() 与其类似，但权重为 0
+- :focus-visible 只在键盘导航等真正需要时显示 focus ring，兼顾可访问性与观感
+- 结合一次「:has、:is、:where、:focus-visible 怎么用」线上案例说明 选择器 的变化轨迹，能让你的答案从“知道原理”升级到“能带队落地”。
+
+#### 工程落地
+
+- 建议先准备「:has、:is、:where、:focus-visible 怎么用」的最小可复现样例，再扩展到主链路回归，这样能更快确认 选择器 的改动是否真的生效。
+- 观测口径要前后一致：上线前后使用同一组指标观察「:has、:is、:where、:focus-visible 怎么用」里的 选择器，否则很难证明变化来自这次改动。
+- 涉及「:has、:is、:where、:focus-visible 怎么用」的高风险改动时，先准备回滚预案和应急手册，避免问题发生后临时决策。
+
+#### 易错点
+
+- 不要把「:has、:is、:where、:focus-visible 怎么用」的经验结论当成普适规则，先交代适用范围再给建议，可信度会更高。
+- 如果没说明「:has、:is、:where、:focus-visible 怎么用」里 选择器 的异常处理和兜底路径，方案一旦遇到突发流量或外部依赖抖动就会站不住脚。
+- 表达「:has、:is、:where、:focus-visible 怎么用」时尽量少用绝对词，增加可验证条件与例外场景，答案会更稳健。
+
+## selector-modern-followup-3
+
+title: 追问：在「`:has()`、`:is()`、`:where()`、`:focus-visible` 怎么用」场景下，如果兼容性压力突然升高，你会如何围绕 选择器 重新划分「`:has()`、`:is()`、`:where()`、`:focus-visible` 怎么用」的实施阶段
+difficulty: 进阶
+tags: [选择器, 现代 CSS, 追问]
+parent: selector-modern
+generated: followup-script
+
+### 题目
+
+如果面试官追问：在「`:has()`、`:is()`、`:where()`、`:focus-visible` 怎么用」场景下，如果兼容性压力突然升高，你会如何围绕 选择器 重新划分「`:has()`、`:is()`、`:where()`、`:focus-visible` 怎么用」的实施阶段？
+
+### 答案要点
+
+#### 核心回答
+
+- 规模变大后先重新评估「`:has()`、`:is()`、`:where()`、`:focus-visible` 怎么用」瓶颈：数据量、并发、团队协作、浏览器兼容和维护成本哪个先触顶。
+- 如果「`:has()`、`:is()`、`:where()`、`:focus-visible` 怎么用」对应的核心机制收益被复杂度抵消，就要考虑分层、缓存、懒加载、批处理或更简单的替代方案。
+- 「`:has()`、`:is()`、`:where()`、`:focus-visible` 怎么用」答案里要给出取舍边界：小团队/低流量怎么做，复杂业务/多端协作时又需要补哪些治理。
+
+#### 学习抓手
+
+- 开口先讲「`:has()`、`:is()`、`:where()`、`:focus-visible` 怎么用」的核心取舍，再补一个反例说明为什么不能照搬默认做法。
+- 围绕「`:has()`、`:is()`、`:where()`、`:focus-visible` 怎么用」挑一个可执行验证动作：补边界用例、走一次调试链路、盯一组指标，或复盘线上排障流程。
+- 结束前补一句「`:has()`、`:is()`、`:where()`、`:focus-visible` 怎么用」取舍结论：这个方案适合哪些约束，不适合哪些场景。
+
+## print-css-followup-2
+
+title: 追问：为了避免主观判断，你会怎样用测试证据和线上指标共同证明 打印 方案有效
+difficulty: 基础
+tags: [打印, 导出, 追问]
+parent: print-css
+generated: followup-script
+
+### 题目
+
+如果面试官追问：为了避免主观判断，你会怎样用测试证据和线上指标共同证明 打印 方案有效？
+
+### 答案要点
+
+#### 回答思路
+
+- 先给可验证结论，再补证据链：面试官想确认你是否能把「打印样式与网页内容导出友好性」落到真实交付，而不是停在概念层。
+- 回答顺序可用「现状问题 -> 打印 方案动作 -> 验证结果」，并用「打印样式与网页内容导出友好性」举一条主链路说明。
+- 讲「打印样式与网页内容导出友好性」时实现侧重点应放在 打印 与边界输入，决策侧重点应放在收益与维护成本平衡。
+
+#### 结合原题展开
+
+- 避免代码块和长表格被截断，善用 page-break-inside: avoid
+- 面试中不要只停留在「打印样式与网页内容导出友好性」的定义，还要解释为什么需要它、它解决了哪类问题，以及在哪些约束下会失效。
+- 可以围绕 打印、导出 展开：先给核心机制，再补工程场景，最后说明替代方案和取舍理由。
+- 结合一次「打印样式与网页内容导出友好性」线上案例说明 打印 的变化轨迹，能让你的答案从“知道原理”升级到“能带队落地”。
+
+#### 工程落地
+
+- 建议先准备「打印样式与网页内容导出友好性」的最小可复现样例，再扩展到主链路回归，这样能更快确认 打印 的改动是否真的生效。
+- 观测口径要前后一致：上线前后使用同一组指标观察「打印样式与网页内容导出友好性」里的 打印，否则很难证明变化来自这次改动。
+- 涉及「打印样式与网页内容导出友好性」的高风险改动时，先准备回滚预案和应急手册，避免问题发生后临时决策。
+
+#### 易错点
+
+- 不要把「打印样式与网页内容导出友好性」的经验结论当成普适规则，先交代适用范围再给建议，可信度会更高。
+- 如果没说明「打印样式与网页内容导出友好性」里 打印 的异常处理和兜底路径，方案一旦遇到突发流量或外部依赖抖动就会站不住脚。
+- 表达「打印样式与网页内容导出友好性」时尽量少用绝对词，增加可验证条件与例外场景，答案会更稳健。
+
+## print-css-followup-3
+
+title: 追问：从工程落地角度看，如果兼容性压力突然升高，你会如何围绕 打印 重新划分「打印样式与网页内容导出友好性」的实施阶段
+difficulty: 基础
+tags: [打印, 导出, 追问]
+parent: print-css
+generated: followup-script
+
+### 题目
+
+如果面试官追问：从工程落地角度看，如果兼容性压力突然升高，你会如何围绕 打印 重新划分「打印样式与网页内容导出友好性」的实施阶段？
+
+### 答案要点
+
+#### 核心回答
+
+- 规模变大后先重新评估「打印样式与网页内容导出友好性」瓶颈：数据量、并发、团队协作、浏览器兼容和维护成本哪个先触顶。
+- 如果「打印样式与网页内容导出友好性」对应的核心机制收益被复杂度抵消，就要考虑分层、缓存、懒加载、批处理或更简单的替代方案。
+- 「打印样式与网页内容导出友好性」答案里要给出取舍边界：小团队/低流量怎么做，复杂业务/多端协作时又需要补哪些治理。
+
+#### 学习抓手
+
+- 回答前先列出「打印样式与网页内容导出友好性」的主链路与兜底链路，确保追问时能快速切换视角。
+- 验证「打印样式与网页内容导出友好性」时动作尽量具体：选一条链路做复现、选一组指标做对比、再给一条回滚路径。
+- 最后补一个「打印样式与网页内容导出友好性」反向判断：在什么情况下你会放弃当前路径，改走替代方案。
+
+## modern-css-features-followup-2
+
+title: 追问：如果要让结论在 现代 CSS 上可复核，你会怎样安排测试、日志和指标的组合验证
+difficulty: 进阶
+tags: [现代 CSS, has, layers, 追问]
+parent: modern-css-features
+generated: followup-script
+
+### 题目
+
+如果面试官追问：如果要让结论在 现代 CSS 上可复核，你会怎样安排测试、日志和指标的组合验证？
+
+### 答案要点
+
+#### 回答思路
+
+- 先明确这道追问要解决的业务目标，再说明「现代 CSS 必备特性：has / nesting / cascade-layers / color-mix」在当前约束下为什么成立。
+- 围绕「现代 CSS 必备特性：has / nesting / cascade-layers / color-mix」组织答案时，建议按「约束来源 -> 现代 CSS 关键决策 -> 验证闭环」展开。
+- 不要只罗列工具名或 API，最好把「现代 CSS 必备特性：has / nesting / cascade-layers / color-mix」的机制、约束和落地步骤串成完整叙事线。
+
+#### 结合原题展开
+
+- CSS Nesting：原生嵌套，去掉 Sass / Less 依赖
+- @layer：层叠层，让设计系统、组件库、业务 CSS 优先级可控、可覆盖
+- 回答「现代 CSS 必备特性：has / nesting / cascade-layers / color-mix」时不要停在定义层，要补充适用条件、失效边界和验证方式。
+- 给出与「现代 CSS 必备特性：has / nesting / cascade-layers / color-mix」相关的业务上下文，说明 现代 CSS 在高峰流量或弱网环境下如何保持稳定，能体现你有实战经验。
+
+#### 工程落地
+
+- 针对「现代 CSS 必备特性：has / nesting / cascade-layers / color-mix」可以先做一次冒烟链路压测，再补边界回归，避免上线后才暴露 现代 CSS 的缺口。
+- 围绕「现代 CSS 必备特性：has / nesting / cascade-layers / color-mix」的观测层要绑定 现代 CSS 相关日志与指标：错误率、耗时分位、资源占用和用户可感知延迟，至少选一组长期跟踪。
+- 如果「现代 CSS 必备特性：has / nesting / cascade-layers / color-mix」会影响历史数据或兼容性，务必提前说明迁移方案与回退条件。
+
+#### 易错点
+
+- 常见误区是把「现代 CSS 必备特性：has / nesting / cascade-layers / color-mix」讲成通用银弹，忽略输入规模、团队资源和上线窗口这些关键约束。
+- 若没有针对「现代 CSS 必备特性：has / nesting / cascade-layers / color-mix」里的 现代 CSS 明确告警阈值和恢复动作，即便方案思路正确，也难体现生产掌控力。
+- 不要把「现代 CSS 必备特性：has / nesting / cascade-layers / color-mix」结论说死，给出条件范围和替代路径，能显著降低回答被反例击穿的概率。
+
+## modern-css-features-followup-3
+
+title: 追问：在「现代 CSS 必备特性：has / nesting / cascade-layers / color-mix」场景下，遇到约束变化时，你会如何围绕 现代 CSS 拆分方案演进路径，而不是一次性推翻重来
+difficulty: 进阶
+tags: [现代 CSS, has, layers, 追问]
+parent: modern-css-features
+generated: followup-script
+
+### 题目
+
+如果面试官追问：在「现代 CSS 必备特性：has / nesting / cascade-layers / color-mix」场景下，遇到约束变化时，你会如何围绕 现代 CSS 拆分方案演进路径，而不是一次性推翻重来？
+
+### 答案要点
+
+#### 回答思路
+
+- 先把目标和约束说清楚，再展开实现：这能避免把「现代 CSS 必备特性：has / nesting / cascade-layers / color-mix」讲成只在理想输入下可用。
+- 围绕「现代 CSS 必备特性：has / nesting / cascade-layers / color-mix」组织答案时，建议按「约束来源 -> 现代 CSS 关键决策 -> 验证闭环」展开。
+- 在「现代 CSS 必备特性：has / nesting / cascade-layers / color-mix」回答里，实现层面要解释 现代 CSS 的时序和边界，决策层面要解释成本与风险，二者缺一都会让答案显得单薄。
+
+#### 结合原题展开
+
+- :has()：终于有了"父选择器"，可基于子节点状态选父，替代过去的 JS hack
+- CSS Nesting：原生嵌套，去掉 Sass / Less 依赖
+- @layer：层叠层，让设计系统、组件库、业务 CSS 优先级可控、可覆盖
+- 结合一次「现代 CSS 必备特性：has / nesting / cascade-layers / color-mix」线上案例说明 现代 CSS 的变化轨迹，能让你的答案从“知道原理”升级到“能带队落地”。
+
+#### 工程落地
+
+- 建议先准备「现代 CSS 必备特性：has / nesting / cascade-layers / color-mix」的最小可复现样例，再扩展到主链路回归，这样能更快确认 现代 CSS 的改动是否真的生效。
+- 观测口径要前后一致：上线前后使用同一组指标观察「现代 CSS 必备特性：has / nesting / cascade-layers / color-mix」里的 现代 CSS，否则很难证明变化来自这次改动。
+- 「现代 CSS 必备特性：has / nesting / cascade-layers / color-mix」上线节奏建议分批推进：先小流量试运行，再根据告警和反馈决定是否扩容。
+
+#### 易错点
+
+- 很多回答会忽略「现代 CSS 必备特性：has / nesting / cascade-layers / color-mix」的前置假设，导致方案看起来正确却无法直接执行，这是高频扣分点。
+- 如果没说明「现代 CSS 必备特性：has / nesting / cascade-layers / color-mix」里 现代 CSS 的异常处理和兜底路径，方案一旦遇到突发流量或外部依赖抖动就会站不住脚。
+- 避免把「现代 CSS 必备特性：has / nesting / cascade-layers / color-mix」说成“总是”“一定”“完全替代”，改成“在这些条件下优先采用”更专业。
+
+## center-element-followup-2
+
+title: 追问：在「元素水平垂直居中的 N 种姿势」场景下，如果要向团队复盘 布局 相关优化，你会展示哪些关键日志和指标来支撑结论
+difficulty: 基础
+tags: [布局, 居中, 高频, 追问]
+parent: center-element
+generated: followup-script
+
+### 题目
+
+如果面试官追问：在「元素水平垂直居中的 N 种姿势」场景下，如果要向团队复盘 布局 相关优化，你会展示哪些关键日志和指标来支撑结论？
+
+### 答案要点
+
+#### 回答思路
+
+- 先把目标和约束说清楚，再展开实现：这能避免把「元素水平垂直居中的 N 种姿势」讲成只在理想输入下可用。
+- 建议按「输入约束 -> 布局 执行链路 -> 结果验证」展开，并结合「元素水平垂直居中的 N 种姿势」给出一条可复核结果，能更快体现你对复杂场景的掌控力。
+- 在「元素水平垂直居中的 N 种姿势」回答里，实现层面要解释 布局 的时序和边界，决策层面要解释成本与风险，二者缺一都会让答案显得单薄。
+
+#### 结合原题展开
+
+- 绝对定位 + transform：position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%)，不知道子元素尺寸时通用
+- 绝对定位 + margin auto：父级 position: relative，子级 position: absolute; inset: 0; margin: auto，子元素必须有宽高
+- 行内元素：text-align: center + line-height = height（仅单行文本）
+- 把原题观点放进「元素水平垂直居中的 N 种姿势」的一个具体版本迭代里，讲清 布局 在发布前后如何验证，会显著提升可信度。
+
+#### 工程落地
+
+- 把验证拆成“离线用例 + 集成链路 + 回归检查”，确保「元素水平垂直居中的 N 种姿势」在 布局 上的优化不是只在 demo 数据下成立。
+- 围绕「元素水平垂直居中的 N 种姿势」建监控时，建议把 布局 指标和业务转化指标并排展示，避免只看技术侧信号。
+- 「元素水平垂直居中的 N 种姿势」上线节奏建议分批推进：先小流量试运行，再根据告警和反馈决定是否扩容。
+
+#### 易错点
+
+- 很多回答会忽略「元素水平垂直居中的 N 种姿势」的前置假设，导致方案看起来正确却无法直接执行，这是高频扣分点。
+- 只关注「元素水平垂直居中的 N 种姿势」里 布局 的主流程而忽略异常路径，会让答案在“可维护性”和“线上稳定性”两个维度同时失分。
+- 避免把「元素水平垂直居中的 N 种姿势」说成“总是”“一定”“完全替代”，改成“在这些条件下优先采用”更专业。
+
+## center-element-followup-3
+
+title: 追问：当约束变化导致成本上升时，你会先优化「元素水平垂直居中的 N 种姿势」里和 布局 相关的哪些环节
+difficulty: 基础
+tags: [布局, 居中, 高频, 追问]
+parent: center-element
+generated: followup-script
+
+### 题目
+
+如果面试官追问：当约束变化导致成本上升时，你会先优化「元素水平垂直居中的 N 种姿势」里和 布局 相关的哪些环节？
+
+### 答案要点
+
+#### 核心回答
+
+- 规模变大后先重新评估「元素水平垂直居中的 N 种姿势」瓶颈：数据量、并发、团队协作、浏览器兼容和维护成本哪个先触顶。
+- 如果「元素水平垂直居中的 N 种姿势」对应的核心机制收益被复杂度抵消，就要考虑分层、缓存、懒加载、批处理或更简单的替代方案。
+- 「元素水平垂直居中的 N 种姿势」答案里要给出取舍边界：小团队/低流量怎么做，复杂业务/多端协作时又需要补哪些治理。
+
+#### 学习抓手
+
+- 先解释「元素水平垂直居中的 N 种姿势」在你项目里的目标，再说明最容易踩坑的边界条件。
+- 把「元素水平垂直居中的 N 种姿势」验证拆成“离线检查 + 线上观测”两段，面试时更容易体现工程成熟度。
+- 收尾时对比「元素水平垂直居中的 N 种姿势」的候选方案，说明当前约束下为什么选这个路径，以及何时应切换方案。
+
+## position-stacking-followup-2
+
+title: 追问：在「position 五个值的差别和层叠上下文是怎么形成的」场景下，上线后你会盯哪些与 定位 相关的日志与指标，来确认这套方案确实带来改进
+difficulty: 进阶
+tags: [定位, 层叠, 追问]
+parent: position-stacking
+generated: followup-script
+
+### 题目
+
+如果面试官追问：在「position 五个值的差别和层叠上下文是怎么形成的」场景下，上线后你会盯哪些与 定位 相关的日志与指标，来确认这套方案确实带来改进？
+
+### 答案要点
+
+#### 回答思路
+
+- 先说判断标准，再说执行路径：回答「position 五个值的差别和层叠上下文是怎么形成的」时要能同时解释收益、代价和失败信号。
+- 回答顺序可用「现状问题 -> 定位 方案动作 -> 验证结果」，并用「position 五个值的差别和层叠上下文是怎么形成的」举一条主链路说明。
+- 如果涉及「position 五个值的差别和层叠上下文是怎么形成的」的技术细节，优先讲数据流和状态变化；做方案比较时要说明为何此刻不选替代路径。
+
+#### 结合原题展开
+
+- absolute：脱离文档流，相对最近的非 static 祖先定位
+- 层叠上下文（Stacking Context）触发条件：根元素、position 非 static + z-index 非 auto、opacity < 1、transform/filter/perspective、isolation: isolate、will-change 含上述属性
+- z-index 的"局部世界"：父级形成层叠上下文后，子元素的 z-index 再大也只在父级内部比较
+- 把原题观点放进「position 五个值的差别和层叠上下文是怎么形成的」的一个具体版本迭代里，讲清 定位 在发布前后如何验证，会显著提升可信度。
+
+#### 工程落地
+
+- 把验证拆成“离线用例 + 集成链路 + 回归检查”，确保「position 五个值的差别和层叠上下文是怎么形成的」在 定位 上的优化不是只在 demo 数据下成立。
+- 围绕「position 五个值的差别和层叠上下文是怎么形成的」建监控时，建议把 定位 指标和业务转化指标并排展示，避免只看技术侧信号。
+- 围绕「position 五个值的差别和层叠上下文是怎么形成的」发布时建议保留开关和回滚路径，先灰度到低风险流量，再逐步扩大覆盖范围。
+
+#### 易错点
+
+- 最容易失分的是只说「position 五个值的差别和层叠上下文是怎么形成的」的推荐做法却不给边界条件，面试官通常会继续追问何时不该这样做。
+- 只关注「position 五个值的差别和层叠上下文是怎么形成的」里 定位 的主流程而忽略异常路径，会让答案在“可维护性”和“线上稳定性”两个维度同时失分。
+- 保持「position 五个值的差别和层叠上下文是怎么形成的」结论可检验、可回退，比强调某个方案“最优”更能体现资深判断。
+
+## position-stacking-followup-3
+
+title: 追问：结合真实业务约束，当兼容性要求提升或预算收紧时，你会如何围绕 定位 调整方案边界与实施节奏
+difficulty: 进阶
+tags: [定位, 层叠, 追问]
+parent: position-stacking
+generated: followup-script
+
+### 题目
+
+如果面试官追问：结合真实业务约束，当兼容性要求提升或预算收紧时，你会如何围绕 定位 调整方案边界与实施节奏？
+
+### 答案要点
+
+#### 回答思路
+
+- 先把目标和约束说清楚，再展开实现：这能避免把「position 五个值的差别和层叠上下文是怎么形成的」讲成只在理想输入下可用。
+- 建议按「输入约束 -> 定位 执行链路 -> 结果验证」展开，并结合「position 五个值的差别和层叠上下文是怎么形成的」给出一条可复核结果，能更快体现你对复杂场景的掌控力。
+- 在「position 五个值的差别和层叠上下文是怎么形成的」回答里，实现层面要解释 定位 的时序和边界，决策层面要解释成本与风险，二者缺一都会让答案显得单薄。
+
+#### 结合原题展开
+
+- absolute：脱离文档流，相对最近的非 static 祖先定位
+- 回答「position 五个值的差别和层叠上下文是怎么形成的」时不要停在定义层，要补充适用条件、失效边界和验证方式。
+- 相关标签是 定位、层叠，回答时要补充可验证手段：如何复现问题、用什么指标判断有效、出现异常时如何降级或回滚。
+- 给出与「position 五个值的差别和层叠上下文是怎么形成的」相关的业务上下文，说明 定位 在高峰流量或弱网环境下如何保持稳定，能体现你有实战经验。
+
+#### 工程落地
+
+- 针对「position 五个值的差别和层叠上下文是怎么形成的」可以先做一次冒烟链路压测，再补边界回归，避免上线后才暴露 定位 的缺口。
+- 围绕「position 五个值的差别和层叠上下文是怎么形成的」的观测层要绑定 定位 相关日志与指标：错误率、耗时分位、资源占用和用户可感知延迟，至少选一组长期跟踪。
+- 「position 五个值的差别和层叠上下文是怎么形成的」上线节奏建议分批推进：先小流量试运行，再根据告警和反馈决定是否扩容。
+
+#### 易错点
+
+- 很多回答会忽略「position 五个值的差别和层叠上下文是怎么形成的」的前置假设，导致方案看起来正确却无法直接执行，这是高频扣分点。
+- 若没有针对「position 五个值的差别和层叠上下文是怎么形成的」里的 定位 明确告警阈值和恢复动作，即便方案思路正确，也难体现生产掌控力。
+- 避免把「position 五个值的差别和层叠上下文是怎么形成的」说成“总是”“一定”“完全替代”，改成“在这些条件下优先采用”更专业。
+
+## css-layout-systems-followup-2
+
+title: 追问：以「一道题讲清 Flex / Grid / 多列 / Float 各自适用场景」为例，上线后你会盯哪些和 CSS 相关的指标，来判断「一道题讲清 Flex / Grid / 多列 / Float 各自适用场景」的收益是否持续成立
+difficulty: 进阶
+tags: [CSS, 布局, 高频, 追问]
+parent: css-layout-systems
+generated: followup-script
+
+### 题目
+
+如果面试官追问：以「一道题讲清 Flex / Grid / 多列 / Float 各自适用场景」为例，上线后你会盯哪些和 CSS 相关的指标，来判断「一道题讲清 Flex / Grid / 多列 / Float 各自适用场景」的收益是否持续成立？
+
+### 答案要点
+
+#### 核心回答
+
+- 验证要从可复现样例开始：准备正向、边界和失败用例，确认「一道题讲清 Flex / Grid / 多列 / Float 各自适用场景」不是只在理想输入下成立。
+- 再补可观测指标：围绕「一道题讲清 Flex / Grid / 多列 / Float 各自适用场景」的核心机制应该能通过日志、耗时、错误率、命中率、覆盖率或用户行为指标观察到变化。
+- 如果「一道题讲清 Flex / Grid / 多列 / Float 各自适用场景」相关指标没有改善，要能回到原题机制定位原因，而不是继续堆配置或换工具。
+
+#### 学习抓手
+
+- 先解释「一道题讲清 Flex / Grid / 多列 / Float 各自适用场景」在你项目里的目标，再说明最容易踩坑的边界条件。
+- 把「一道题讲清 Flex / Grid / 多列 / Float 各自适用场景」验证拆成“离线检查 + 线上观测”两段，面试时更容易体现工程成熟度。
+- 收尾时对比「一道题讲清 Flex / Grid / 多列 / Float 各自适用场景」的候选方案，说明当前约束下为什么选这个路径，以及何时应切换方案。
+
+## css-layout-systems-followup-3
+
+title: 追问：从工程落地角度看，当需求规模、团队资源或兼容性要求变化时，你会如何围绕 CSS 重排「一道题讲清 Flex / Grid / 多列 / Float 各自适用场景」方案优先级
+difficulty: 进阶
+tags: [CSS, 布局, 高频, 追问]
+parent: css-layout-systems
+generated: followup-script
+
+### 题目
+
+如果面试官追问：从工程落地角度看，当需求规模、团队资源或兼容性要求变化时，你会如何围绕 CSS 重排「一道题讲清 Flex / Grid / 多列 / Float 各自适用场景」方案优先级？
+
+### 答案要点
+
+#### 核心回答
+
+- 规模变大后先重新评估「一道题讲清 Flex / Grid / 多列 / Float 各自适用场景」瓶颈：数据量、并发、团队协作、浏览器兼容和维护成本哪个先触顶。
+- 如果「一道题讲清 Flex / Grid / 多列 / Float 各自适用场景」对应的核心机制收益被复杂度抵消，就要考虑分层、缓存、懒加载、批处理或更简单的替代方案。
+- 「一道题讲清 Flex / Grid / 多列 / Float 各自适用场景」答案里要给出取舍边界：小团队/低流量怎么做，复杂业务/多端协作时又需要补哪些治理。
+
+#### 学习抓手
+
+- 先解释「一道题讲清 Flex / Grid / 多列 / Float 各自适用场景」在你项目里的目标，再说明最容易踩坑的边界条件。
+- 把「一道题讲清 Flex / Grid / 多列 / Float 各自适用场景」验证拆成“离线检查 + 线上观测”两段，面试时更容易体现工程成熟度。
+- 收尾时对比「一道题讲清 Flex / Grid / 多列 / Float 各自适用场景」的候选方案，说明当前约束下为什么选这个路径，以及何时应切换方案。
+
+## css-typography-rhythm-followup-2
+
+title: 追问：在当前团队与业务约束下，上线后你会盯哪些与 CSS 相关的日志与指标，来确认这套方案确实带来改进
+difficulty: 进阶
+tags: [CSS, 字体, 排版, 追问]
+parent: css-typography-rhythm
+generated: followup-script
+
+### 题目
+
+如果面试官追问：在当前团队与业务约束下，上线后你会盯哪些与 CSS 相关的日志与指标，来确认这套方案确实带来改进？
+
+### 答案要点
+
+#### 回答思路
+
+- 先说判断标准，再说执行路径：回答「CSS 字体与排版怎么做才显专业」时要能同时解释收益、代价和失败信号。
+- 可以按「问题背景 -> CSS 机制 -> 取舍边界」回答，再用「CSS 字体与排版怎么做才显专业」补一个反例，避免停在口号层。
+- 如果涉及「CSS 字体与排版怎么做才显专业」的技术细节，优先讲数据流和状态变化；做方案比较时要说明为何此刻不选替代路径。
+
+#### 结合原题展开
+
+- 回答「CSS 字体与排版怎么做才显专业」时不要停在定义层，要补充适用条件、失效边界和验证方式。
+- 相关标签是 CSS、字体、排版，回答时要补充可验证手段：如何复现问题、用什么指标判断有效、出现异常时如何降级或回滚。
+- 给出与「CSS 字体与排版怎么做才显专业」相关的业务上下文，说明 CSS 在高峰流量或弱网环境下如何保持稳定，能体现你有实战经验。
+
+#### 工程落地
+
+- 针对「CSS 字体与排版怎么做才显专业」可以先做一次冒烟链路压测，再补边界回归，避免上线后才暴露 CSS 的缺口。
+- 围绕「CSS 字体与排版怎么做才显专业」的观测层要绑定 CSS 相关日志与指标：错误率、耗时分位、资源占用和用户可感知延迟，至少选一组长期跟踪。
+- 围绕「CSS 字体与排版怎么做才显专业」发布时建议保留开关和回滚路径，先灰度到低风险流量，再逐步扩大覆盖范围。
+
+#### 易错点
+
+- 最容易失分的是只说「CSS 字体与排版怎么做才显专业」的推荐做法却不给边界条件，面试官通常会继续追问何时不该这样做。
+- 若没有针对「CSS 字体与排版怎么做才显专业」里的 CSS 明确告警阈值和恢复动作，即便方案思路正确，也难体现生产掌控力。
+- 保持「CSS 字体与排版怎么做才显专业」结论可检验、可回退，比强调某个方案“最优”更能体现资深判断。
+
+## css-typography-rhythm-followup-3
+
+title: 追问：结合真实业务约束，当兼容性要求提升或预算收紧时，你会如何围绕 CSS 调整方案边界与实施节奏
+difficulty: 进阶
+tags: [CSS, 字体, 排版, 追问]
+parent: css-typography-rhythm
+generated: followup-script
+
+### 题目
+
+如果面试官追问：结合真实业务约束，当兼容性要求提升或预算收紧时，你会如何围绕 CSS 调整方案边界与实施节奏？
+
+### 答案要点
+
+#### 回答思路
+
+- 先把目标和约束说清楚，再展开实现：这能避免把「CSS 字体与排版怎么做才显专业」讲成只在理想输入下可用。
+- 回答结构可按「触发条件 -> CSS 机制 -> 风险兜底」展开，并以「CSS 字体与排版怎么做才显专业」补一条失败场景，能体现工程拆解能力。
+- 在「CSS 字体与排版怎么做才显专业」回答里，实现层面要解释 CSS 的时序和边界，决策层面要解释成本与风险，二者缺一都会让答案显得单薄。
+
+#### 结合原题展开
+
+- 回答「CSS 字体与排版怎么做才显专业」时不要停在定义层，要补充适用条件、失效边界和验证方式。
+- 相关标签是 CSS、字体、排版，回答时要补充可验证手段：如何复现问题、用什么指标判断有效、出现异常时如何降级或回滚。
+- 若能补一段「CSS 字体与排版怎么做才显专业」复盘片段，解释 CSS 如何从告警到定位再到修复，可信度会明显上升。
+
+#### 工程落地
+
+- 围绕「CSS 字体与排版怎么做才显专业」设计验证时别停在“写点测试”：至少覆盖正常、边界和失败三类输入，并把 CSS 的预期结果写成可复核标准。
+- 在「CSS 字体与排版怎么做才显专业」落地过程中不要只看单个监控面板，建议把日志、指标和告警串起来，形成 CSS 的问题定位闭环。
+- 「CSS 字体与排版怎么做才显专业」上线节奏建议分批推进：先小流量试运行，再根据告警和反馈决定是否扩容。
+
+#### 易错点
+
+- 很多回答会忽略「CSS 字体与排版怎么做才显专业」的前置假设，导致方案看起来正确却无法直接执行，这是高频扣分点。
+- 若没说明「CSS 字体与排版怎么做才显专业」在 CSS 失效时的回退策略，面试官通常会质疑方案是否可上线。
+- 避免把「CSS 字体与排版怎么做才显专业」说成“总是”“一定”“完全替代”，改成“在这些条件下优先采用”更专业。
+
+## css-render-path-budget-gate
+
+title: CSS 渲染路径预算：关键样式体积、阻塞链路与发布闸门
+difficulty: 资深
+tags: [CSS, 性能预算, 渲染路径]
+followups: [css-render-path-budget-gate-followup-1, css-render-path-budget-gate-followup-2, css-render-path-budget-gate-followup-3]
+
+### 一句话
+
+样式性能优化不能停在“感觉更快”：把关键 CSS 体积、阻塞资源和渲染时延设成可执行预算，才能在持续发布中避免样式链路悄悄劣化。
+
+### 题目
+
+你会如何给 CSS 渲染路径建立性能预算，并把预算接入发布流程，确保样式迭代不拖慢首屏和交互？
+
+### 答案要点
+
+- 先定义预算维度：关键 CSS 体积、阻塞请求数、首屏样式计算耗时、渲染稳定性指标。
+- 预算要分场景：营销页、后台页、组件库文档页的阈值应分开配置。
+- 构建阶段自动守门：超过预算直接阻断或至少触发强提醒与审批。
+- 结合真实用户指标复核：只看 Lighthouse 不够，要看线上分位数据与设备分层。
+- 出现回退时可快速止损：保留旧样式包路径与开关，支持分钟级回滚。
+- 周期复盘预算有效性：避免阈值过松失去约束，或过紧拖慢业务交付。
+
+### 代码示例
+
+```json
+{
+  "cssBudget": {
+    "criticalCssKb": 45,
+    "totalCssKb": 180,
+    "renderBlockingCssRequests": 2
+  }
+}
+```
+
+```ts
+function checkCssBudget(report: { criticalCssKb: number; blocking: number }) {
+  if (report.criticalCssKb > 45) throw new Error('critical CSS 超预算');
+  if (report.blocking > 2) throw new Error('阻塞样式请求过多');
+}
+```
+
+### 追问
+
+- 「CSS 渲染路径预算：关键样式体积、阻塞链路与发布闸门」在真实项目里最容易踩到哪些边界条件？
+- 你会用哪些测试、日志或指标证明这个方案有效？
+- 如果需求规模、团队成本或兼容性要求变化，你会如何调整方案？
+
+### 常见误区
+
+- 只做一次性优化，不把预算纳入日常发布守门。
+- 只关注体积，不关注阻塞顺序和关键路径影响。
+- 阈值长期不校准，导致预算形同虚设。
+
+### 延伸
+
+- 预算可按页面类型建立多套策略，减少一刀切误判。
+- 可把超预算原因映射到修复建议，提升团队执行效率。
+
+## css-change-safety-guardrail
+
+title: 样式改动安全护栏：回归范围评估、灰度放量与回滚预案
+difficulty: 资深
+tags: [CSS, 发布安全, 回归治理]
+followups: [css-change-safety-guardrail-followup-1, css-change-safety-guardrail-followup-2, css-change-safety-guardrail-followup-3]
+
+### 一句话
+
+CSS 改动看似局部，常常全局连锁：通过影响面评估、重点页面回归与分阶段放量，才能避免“改一处样式，炸一片页面”。
+
+### 题目
+
+当你要上线一次影响基础样式系统的改动（如 tokens、reset、组件基类），如何设计安全护栏让风险可控？
+
+### 答案要点
+
+- 先做影响面分层：基础组件、核心页面、低频页面分组验证，优先保护关键业务流。
+- 变更前建立对照基线：关键页面截图、交互录屏与核心样式快照确保可回溯。
+- 发布策略采用灰度：按用户群或页面路由逐步放量，观察异常再扩容。
+- 异常判据要量化：布局破版率、关键交互失败率、样式报错与用户投诉趋势。
+- 回滚路径要提前验证：样式包版本切回、feature flag 关闭、缓存刷新策略同步准备。
+- 变更后做闭环复盘：记录误伤范围、定位效率和修复耗时，持续优化样式治理流程。
+
+### 代码示例
+
+```ts
+type CssRolloutConfig = {
+  enabledRoutes: string[];
+  tokenVersion: string;
+  safeMode: boolean;
+};
+
+function isRouteEnabled(route: string, cfg: CssRolloutConfig) {
+  return cfg.enabledRoutes.includes(route) && !cfg.safeMode;
+}
+```
+
+```ts
+function shouldRollback(signal: { layoutBreakRate: number; criticalFlowDrop: number }) {
+  return signal.layoutBreakRate > 0.01 || signal.criticalFlowDrop > 0.02;
+}
+```
+
+### 追问
+
+- 「样式改动安全护栏：回归范围评估、灰度放量与回滚预案」在真实项目里最容易踩到哪些边界条件？
+- 你会用哪些测试、日志或指标证明这个方案有效？
+- 如果需求规模、团队成本或兼容性要求变化，你会如何调整方案？
+
+### 常见误区
+
+- 只做局部页面验证，忽略全局样式连锁效应。
+- 灰度放量无明确停止条件，异常时反应滞后。
+- 回滚只切代码不管缓存，导致“回滚后仍显示旧问题”。
+
+### 延伸
+
+- 关键样式改动可要求双人审阅与专项回归。
+- 建议沉淀“高风险 CSS 改动清单”作为发布前检查项。
+
+## css-render-path-budget-gate-followup-1
+
+title: 追问：你会如何识别「CSS 渲染路径预算：关键样式体积、阻塞链路与发布闸门」在真实流量下最容易失效的输入与环境约束
+difficulty: 资深
+tags: [CSS, 性能预算, 渲染路径, 追问]
+parent: css-render-path-budget-gate
+generated: followup-script
+
+### 题目
+
+如果面试官追问：你会如何识别「CSS 渲染路径预算：关键样式体积、阻塞链路与发布闸门」在真实流量下最容易失效的输入与环境约束？
+
+### 答案要点
+
+#### 回答思路
+
+- 先说判断标准，再说执行路径：回答「CSS 渲染路径预算：关键样式体积、阻塞链路与发布闸门」时要能同时解释收益、代价和失败信号。
+- 可以按「问题背景 -> CSS 机制 -> 取舍边界」回答，再用「CSS 渲染路径预算：关键样式体积、阻塞链路与发布闸门」补一个反例，避免停在口号层。
+- 如果涉及「CSS 渲染路径预算：关键样式体积、阻塞链路与发布闸门」的技术细节，优先讲数据流和状态变化；做方案比较时要说明为何此刻不选替代路径。
+
+#### 结合原题展开
+
+- 先定义预算维度：关键 CSS 体积、阻塞请求数、首屏样式计算耗时、渲染稳定性指标。
+- 预算要分场景：营销页、后台页、组件库文档页的阈值应分开配置。
+- 构建阶段自动守门：超过预算直接阻断或至少触发强提醒与审批。
+- 补一个你真实处理过的「CSS 渲染路径预算：关键样式体积、阻塞链路与发布闸门」相似场景：说明 CSS 怎么监控、怎么告警、怎么回滚，会比抽象结论更有说服力。
+
+#### 工程落地
+
+- 落地「CSS 渲染路径预算：关键样式体积、阻塞链路与发布闸门」时先约定验收口径：哪些指标代表成功、哪些异常算失败，再围绕 CSS 设计测试与回归流程。
+- 围绕「CSS 渲染路径预算：关键样式体积、阻塞链路与发布闸门」的线上监控建议同时覆盖成功率、慢请求、异常分布和重试次数，方便判断 CSS 的真实收益是否稳定。
+- 围绕「CSS 渲染路径预算：关键样式体积、阻塞链路与发布闸门」发布时建议保留开关和回滚路径，先灰度到低风险流量，再逐步扩大覆盖范围。
+
+#### 易错点
+
+- 最容易失分的是只说「CSS 渲染路径预算：关键样式体积、阻塞链路与发布闸门」的推荐做法却不给边界条件，面试官通常会继续追问何时不该这样做。
+- 另一个问题是缺少失败预案：若「CSS 渲染路径预算：关键样式体积、阻塞链路与发布闸门」里的 CSS 异常时没有降级与回滚说明，答案会显得工程成熟度不足。
+- 保持「CSS 渲染路径预算：关键样式体积、阻塞链路与发布闸门」结论可检验、可回退，比强调某个方案“最优”更能体现资深判断。
+
+## css-render-path-budget-gate-followup-2
+
+title: 追问：从工程落地角度看，为了证明这个方案在 CSS 维度有效，你会怎么设计测试闭环和线上观测指标
+difficulty: 资深
+tags: [CSS, 性能预算, 渲染路径, 追问]
+parent: css-render-path-budget-gate
+generated: followup-script
+
+### 题目
+
+如果面试官追问：从工程落地角度看，为了证明这个方案在 CSS 维度有效，你会怎么设计测试闭环和线上观测指标？
+
+### 答案要点
+
+#### 回答思路
+
+- 先把目标和约束说清楚，再展开实现：这能避免把「CSS 渲染路径预算：关键样式体积、阻塞链路与发布闸门」讲成只在理想输入下可用。
+- 围绕「CSS 渲染路径预算：关键样式体积、阻塞链路与发布闸门」组织答案时，建议按「约束来源 -> CSS 关键决策 -> 验证闭环」展开。
+- 在「CSS 渲染路径预算：关键样式体积、阻塞链路与发布闸门」回答里，实现层面要解释 CSS 的时序和边界，决策层面要解释成本与风险，二者缺一都会让答案显得单薄。
+
+#### 结合原题展开
+
+- 先定义预算维度：关键 CSS 体积、阻塞请求数、首屏样式计算耗时、渲染稳定性指标。
+- 周期复盘预算有效性：避免阈值过松失去约束，或过紧拖慢业务交付。
+- 若能补一段「CSS 渲染路径预算：关键样式体积、阻塞链路与发布闸门」复盘片段，解释 CSS 如何从告警到定位再到修复，可信度会明显上升。
+
+#### 工程落地
+
+- 围绕「CSS 渲染路径预算：关键样式体积、阻塞链路与发布闸门」设计验证时别停在“写点测试”：至少覆盖正常、边界和失败三类输入，并把 CSS 的预期结果写成可复核标准。
+- 在「CSS 渲染路径预算：关键样式体积、阻塞链路与发布闸门」落地过程中不要只看单个监控面板，建议把日志、指标和告警串起来，形成 CSS 的问题定位闭环。
+- 「CSS 渲染路径预算：关键样式体积、阻塞链路与发布闸门」上线节奏建议分批推进：先小流量试运行，再根据告警和反馈决定是否扩容。
+
+#### 易错点
+
+- 很多回答会忽略「CSS 渲染路径预算：关键样式体积、阻塞链路与发布闸门」的前置假设，导致方案看起来正确却无法直接执行，这是高频扣分点。
+- 若没说明「CSS 渲染路径预算：关键样式体积、阻塞链路与发布闸门」在 CSS 失效时的回退策略，面试官通常会质疑方案是否可上线。
+- 避免把「CSS 渲染路径预算：关键样式体积、阻塞链路与发布闸门」说成“总是”“一定”“完全替代”，改成“在这些条件下优先采用”更专业。
+
+## css-render-path-budget-gate-followup-3
+
+title: 追问：以「CSS 渲染路径预算：关键样式体积、阻塞链路与发布闸门」为例，遇到约束变化时，你会如何围绕 CSS 拆分方案演进路径，而不是一次性推翻重来
+difficulty: 资深
+tags: [CSS, 性能预算, 渲染路径, 追问]
+parent: css-render-path-budget-gate
+generated: followup-script
+
+### 题目
+
+如果面试官追问：以「CSS 渲染路径预算：关键样式体积、阻塞链路与发布闸门」为例，遇到约束变化时，你会如何围绕 CSS 拆分方案演进路径，而不是一次性推翻重来？
+
+### 答案要点
+
+#### 回答思路
+
+- 先把目标和约束说清楚，再展开实现：这能避免把「CSS 渲染路径预算：关键样式体积、阻塞链路与发布闸门」讲成只在理想输入下可用。
+- 围绕「CSS 渲染路径预算：关键样式体积、阻塞链路与发布闸门」组织答案时，建议按「约束来源 -> CSS 关键决策 -> 验证闭环」展开。
+- 在「CSS 渲染路径预算：关键样式体积、阻塞链路与发布闸门」回答里，实现层面要解释 CSS 的时序和边界，决策层面要解释成本与风险，二者缺一都会让答案显得单薄。
+
+#### 结合原题展开
+
+- 先定义预算维度：关键 CSS 体积、阻塞请求数、首屏样式计算耗时、渲染稳定性指标。
+- 预算要分场景：营销页、后台页、组件库文档页的阈值应分开配置。
+- 构建阶段自动守门：超过预算直接阻断或至少触发强提醒与审批。
+- 把原题观点放进「CSS 渲染路径预算：关键样式体积、阻塞链路与发布闸门」的一个具体版本迭代里，讲清 CSS 在发布前后如何验证，会显著提升可信度。
+
+#### 工程落地
+
+- 把验证拆成“离线用例 + 集成链路 + 回归检查”，确保「CSS 渲染路径预算：关键样式体积、阻塞链路与发布闸门」在 CSS 上的优化不是只在 demo 数据下成立。
+- 围绕「CSS 渲染路径预算：关键样式体积、阻塞链路与发布闸门」建监控时，建议把 CSS 指标和业务转化指标并排展示，避免只看技术侧信号。
+- 「CSS 渲染路径预算：关键样式体积、阻塞链路与发布闸门」上线节奏建议分批推进：先小流量试运行，再根据告警和反馈决定是否扩容。
+
+#### 易错点
+
+- 很多回答会忽略「CSS 渲染路径预算：关键样式体积、阻塞链路与发布闸门」的前置假设，导致方案看起来正确却无法直接执行，这是高频扣分点。
+- 只关注「CSS 渲染路径预算：关键样式体积、阻塞链路与发布闸门」里 CSS 的主流程而忽略异常路径，会让答案在“可维护性”和“线上稳定性”两个维度同时失分。
+- 避免把「CSS 渲染路径预算：关键样式体积、阻塞链路与发布闸门」说成“总是”“一定”“完全替代”，改成“在这些条件下优先采用”更专业。
+
+## css-change-safety-guardrail-followup-1
+
+title: 追问：在「样式改动安全护栏：回归范围评估、灰度放量与回滚预案」场景里，哪些能力必须由服务端兜底，哪些可交给前端处理
+difficulty: 资深
+tags: [CSS, 发布安全, 回归治理, 追问]
+parent: css-change-safety-guardrail
+generated: followup-script
+
+### 题目
+
+如果面试官追问：在「样式改动安全护栏：回归范围评估、灰度放量与回滚预案」场景里，哪些能力必须由服务端兜底，哪些可交给前端处理？
+
+### 答案要点
+
+#### 核心回答
+
+- 验证要从可复现样例开始：准备正向、边界和失败用例，确认「样式改动安全护栏：回归范围评估、灰度放量与回滚预案」不是只在理想输入下成立。
+- 再补可观测指标：围绕「样式改动安全护栏：回归范围评估、灰度放量与回滚预案」的安全边界应该能通过日志、耗时、错误率、命中率、覆盖率或用户行为指标观察到变化。
+- 如果「样式改动安全护栏：回归范围评估、灰度放量与回滚预案」相关指标没有改善，要能回到原题机制定位原因，而不是继续堆配置或换工具。
+
+#### 学习抓手
+
+- 准备这道追问时，先画出「样式改动安全护栏：回归范围评估、灰度放量与回滚预案」从输入到输出的关键路径，再补异常路径。
+- 准备一个「样式改动安全护栏：回归范围评估、灰度放量与回滚预案」的“可复核动作”：别人照着你的步骤也能复现、观测并验证结果。
+- 把「样式改动安全护栏：回归范围评估、灰度放量与回滚预案」方案切换门槛讲明白：达到哪些阈值就要调整策略，避免答案过于绝对。
+
+## css-change-safety-guardrail-followup-2
+
+title: 追问：以「样式改动安全护栏：回归范围评估、灰度放量与回滚预案」为例，你会如何围绕 CSS 定义“方案生效”的判据，并通过测试与观测数据持续验证
+difficulty: 资深
+tags: [CSS, 发布安全, 回归治理, 追问]
+parent: css-change-safety-guardrail
+generated: followup-script
+
+### 题目
+
+如果面试官追问：以「样式改动安全护栏：回归范围评估、灰度放量与回滚预案」为例，你会如何围绕 CSS 定义“方案生效”的判据，并通过测试与观测数据持续验证？
+
+### 答案要点
+
+#### 回答思路
+
+- 先明确这道追问要解决的业务目标，再说明「样式改动安全护栏：回归范围评估、灰度放量与回滚预案」在当前约束下为什么成立。
+- 建议按「输入约束 -> CSS 执行链路 -> 结果验证」展开，并结合「样式改动安全护栏：回归范围评估、灰度放量与回滚预案」给出一条可复核结果，能更快体现你对复杂场景的掌控力。
+- 不要只罗列工具名或 API，最好把「样式改动安全护栏：回归范围评估、灰度放量与回滚预案」的机制、约束和落地步骤串成完整叙事线。
+
+#### 结合原题展开
+
+- 先做影响面分层：基础组件、核心页面、低频页面分组验证，优先保护关键业务流。
+- 变更前建立对照基线：关键页面截图、交互录屏与核心样式快照确保可回溯。
+- 发布策略采用灰度：按用户群或页面路由逐步放量，观察异常再扩容。
+- 若能补一段「样式改动安全护栏：回归范围评估、灰度放量与回滚预案」复盘片段，解释 CSS 如何从告警到定位再到修复，可信度会明显上升。
+
+#### 工程落地
+
+- 围绕「样式改动安全护栏：回归范围评估、灰度放量与回滚预案」设计验证时别停在“写点测试”：至少覆盖正常、边界和失败三类输入，并把 CSS 的预期结果写成可复核标准。
+- 在「样式改动安全护栏：回归范围评估、灰度放量与回滚预案」落地过程中不要只看单个监控面板，建议把日志、指标和告警串起来，形成 CSS 的问题定位闭环。
+- 如果「样式改动安全护栏：回归范围评估、灰度放量与回滚预案」会影响历史数据或兼容性，务必提前说明迁移方案与回退条件。
+
+#### 易错点
+
+- 常见误区是把「样式改动安全护栏：回归范围评估、灰度放量与回滚预案」讲成通用银弹，忽略输入规模、团队资源和上线窗口这些关键约束。
+- 若没说明「样式改动安全护栏：回归范围评估、灰度放量与回滚预案」在 CSS 失效时的回退策略，面试官通常会质疑方案是否可上线。
+- 不要把「样式改动安全护栏：回归范围评估、灰度放量与回滚预案」结论说死，给出条件范围和替代路径，能显著降低回答被反例击穿的概率。
+
+## css-change-safety-guardrail-followup-3
+
+title: 追问：面对安全与体验拉扯时，你会怎样为「样式改动安全护栏：回归范围评估、灰度放量与回滚预案」设定可接受的成本边界
+difficulty: 资深
+tags: [CSS, 发布安全, 回归治理, 追问]
+parent: css-change-safety-guardrail
+generated: followup-script
+
+### 题目
+
+如果面试官追问：面对安全与体验拉扯时，你会怎样为「样式改动安全护栏：回归范围评估、灰度放量与回滚预案」设定可接受的成本边界？
+
+### 答案要点
+
+#### 核心回答
+
+- 验证要从可复现样例开始：准备正向、边界和失败用例，确认「样式改动安全护栏：回归范围评估、灰度放量与回滚预案」不是只在理想输入下成立。
+- 再补可观测指标：围绕「样式改动安全护栏：回归范围评估、灰度放量与回滚预案」的安全边界应该能通过日志、耗时、错误率、命中率、覆盖率或用户行为指标观察到变化。
+- 如果「样式改动安全护栏：回归范围评估、灰度放量与回滚预案」相关指标没有改善，要能回到原题机制定位原因，而不是继续堆配置或换工具。
+
+#### 学习抓手
+
+- 准备这道追问时，先画出「样式改动安全护栏：回归范围评估、灰度放量与回滚预案」从输入到输出的关键路径，再补异常路径。
+- 准备一个「样式改动安全护栏：回归范围评估、灰度放量与回滚预案」的“可复核动作”：别人照着你的步骤也能复现、观测并验证结果。
+- 把「样式改动安全护栏：回归范围评估、灰度放量与回滚预案」方案切换门槛讲明白：达到哪些阈值就要调整策略，避免答案过于绝对。

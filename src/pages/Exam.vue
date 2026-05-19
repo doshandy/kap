@@ -21,6 +21,7 @@ const answers = ref<Record<string, string>>({});
 const current = ref(0);
 const remaining = ref(0);
 const finished = ref(false);
+const resultRecorded = ref(false);
 
 let timer: number | null = null;
 
@@ -70,6 +71,7 @@ function start(): void {
   answers.value = {};
   current.value = 0;
   finished.value = false;
+  resultRecorded.value = false;
   remaining.value = minutes.value * 60;
   if (timer) clearInterval(timer);
   timer = window.setInterval(() => {
@@ -92,10 +94,22 @@ function shuffle<T>(items: T[], seed: number): T[] {
 }
 
 function finish(): void {
+  if (finished.value) return;
   finished.value = true;
   if (timer) {
     clearInterval(timer);
     timer = null;
+  }
+  if (!resultRecorded.value) {
+    for (const item of finalScores.value) {
+      if (!item.answer.trim()) continue;
+      progress.addEvent(item.question.id, {
+        type: 'note',
+        label: '完成临考作答',
+        detail: `${item.score.total} 分 · ${item.score.level}`,
+      });
+    }
+    resultRecorded.value = true;
   }
 }
 
@@ -103,13 +117,20 @@ function reset(): void {
   queue.value = [];
   answers.value = {};
   finished.value = false;
+  resultRecorded.value = false;
   if (timer) clearInterval(timer);
   timer = null;
 }
 
 function setReason(id: string, reason: WrongReason): void {
+  const had = marks.hasWrongReason(id, reason);
   marks.toggleWrongReason(id, reason);
   if (!marks.isStarred(id)) marks.toggleStar(id);
+  progress.addEvent(id, {
+    type: 'wrong-reason',
+    label: had ? `移除临考错因：${reason}` : `新增临考错因：${reason}`,
+    detail: '临考报告中调整错因标签',
+  });
 }
 
 const fmt = (seconds: number) =>
@@ -158,9 +179,9 @@ onUnmounted(() => {
     <section v-else-if="!finished && currentQuestion" class="exam-body">
       <div class="hud card">
         <span>第 {{ current + 1 }} / {{ queue.length }} 题</span>
-        <span :class="{ urgent: remaining <= 180 }"
-          ><AppIcon name="clock" /> {{ fmt(remaining) }}</span
-        >
+        <span :class="{ urgent: remaining <= 180 }">
+          <AppIcon name="clock" /> {{ fmt(remaining) }}
+        </span>
         <button class="btn btn-ghost" @click="finish">交卷</button>
       </div>
       <article class="card question-box">

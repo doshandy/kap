@@ -8,39 +8,30 @@
     <meta name="theme-color" content="#0ea5e9" />
     <meta name="referrer" content="strict-origin-when-cross-origin" />
     <meta http-equiv="X-Content-Type-Options" content="nosniff" />
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'self'; base-uri 'self'; object-src 'none'; frame-ancestors 'none'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' data:; connect-src 'self' https://api.openai.com https://api.anthropic.com; worker-src 'self' blob:"
+    />
     <meta http-equiv="Permissions-Policy" content="camera=(), microphone=(), geolocation=(), interest-cohort=()" />
     <meta
       name="description"
-      content="KAP - Vue 前端工程师知识图谱与自查面试库，覆盖 28 大分类、447+ 高频题，含可交互答题、间隔复习、模拟面试、代码沙盒、AI 讲解。"
+      content="KAP - Vue 前端工程师知识图谱与自查面试库，覆盖 28 大分类、1000+ 题（含追问链），含可交互答题、间隔复习、模拟面试、代码沙盒、AI 讲解。"
     />
-    <link rel="canonical" href="https://doshandy.github.io/kap/" />
+    <link rel="canonical" href="%VITE_SITE_URL%%VITE_APP_BASE%" />
     <meta property="og:title" content="KAP - 前端知识自查" />
     <meta
       property="og:description"
-      content="Vue 前端工程师知识图谱与自查面试库，28 大分类 / 447+ 高频题"
+      content="Vue 前端工程师知识图谱与自查面试库，28 大分类 / 1000+ 题（含追问链）"
     />
-    <meta property="og:url" content="https://doshandy.github.io/kap/" />
-    <meta property="og:image" content="https://doshandy.github.io/kap/og.png" />
+    <meta property="og:url" content="%VITE_SITE_URL%%VITE_APP_BASE%" />
+    <meta property="og:image" content="%VITE_SITE_URL%%VITE_APP_BASE%og.png" />
     <meta property="og:type" content="website" />
     <meta name="twitter:card" content="summary_large_image" />
+    <link rel="preload" href="./content-cache.json" as="fetch" crossorigin="anonymous" />
     <title>KAP - 前端知识自查</title>
 
     <!-- 404.html 重定向回填：必须早于 main.ts 执行 -->
-    <script>
-      (function () {
-        var l = window.location;
-        if (l.search.indexOf('?p=/') === 0 || l.search.indexOf('&p=/') !== -1) {
-          var u = new URL(l.href);
-          var p = u.searchParams.get('p');
-          var q = u.searchParams.get('q');
-          u.searchParams.delete('p');
-          u.searchParams.delete('q');
-          var hash = u.hash || '';
-          var newUrl = l.pathname.replace(/\/$/, '') + p + (q ? '?' + q : '') + hash;
-          window.history.replaceState(null, '', newUrl);
-        }
-      })();
-    </script>
+    <script type="module" src="/src/spa-restore.ts"></script>
 
   </head>
   <body>

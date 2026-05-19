@@ -26,12 +26,21 @@ jobs:
           node-version: 20
           cache: pnpm
       - run: pnpm install --frozen-lockfile
-      - run: pnpm validate:content
+      - run: STRICT_VALIDATE=1 pnpm validate:content
+      - run: pnpm validate:security
       - run: pnpm lint
       - run: pnpm lint:style
       - run: pnpm typecheck
       - run: pnpm typecheck:node
       - run: pnpm test
       - run: pnpm generate:sitemap
+      - run: pnpm generate:content-cache
+      - run: test -s public/content-cache.json
+      - run: pnpm generate:search-index
+      - run: test -s public/search-index.json
       - run: git diff --exit-code public/sitemap.xml
+      - run: |
+          if git ls-files --error-unmatch public/search-index.json >/dev/null 2>&1; then
+            git diff --exit-code public/search-index.json
+          fi
       - run: pnpm build:only

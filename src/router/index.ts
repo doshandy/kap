@@ -56,6 +56,31 @@ const router = createRouter({
       meta: { title: '间隔复习' },
     },
     {
+      path: '/wrong-review',
+      name: 'wrong-review',
+      component: () => import('@/pages/WrongReview.vue'),
+      meta: { title: '错因复盘' },
+    },
+    {
+      path: '/weak-training',
+      name: 'weak-training',
+      component: () => import('@/pages/WeakTraining.vue'),
+      meta: { title: '弱点专项训练' },
+    },
+    {
+      path: '/followup-chain/:categoryId/:slug',
+      name: 'followup-chain',
+      component: () => import('@/pages/FollowupChain.vue'),
+      props: true,
+      meta: { title: '面试官追问链' },
+    },
+    {
+      path: '/cheatsheet',
+      name: 'cheatsheet',
+      component: () => import('@/pages/Cheatsheet.vue'),
+      meta: { title: '面试前小抄' },
+    },
+    {
       path: '/marks',
       name: 'marks',
       component: () => import('@/pages/Marks.vue'),

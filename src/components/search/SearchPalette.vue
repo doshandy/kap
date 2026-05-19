@@ -4,9 +4,11 @@ import { useRouter } from 'vue-router';
 import {
   clearSearchHistory,
   getSearchHistory,
+  prewarmSearch,
   pushSearchHistory,
   useSearch,
 } from '@/composables/useSearch';
+import { SCENARIO_SEARCHES } from '@/lib/learningExperience';
 import AppIcon from '@/components/icon/AppIcon.vue';
 
 const props = defineProps<{ open: boolean }>();
@@ -17,15 +19,50 @@ const { keyword, hits, error } = useSearch();
 const inputRef = ref<HTMLInputElement | null>(null);
 const active = ref(0);
 const history = ref<string[]>(getSearchHistory());
+let prewarmIdleId: number | null = null;
+let prewarmTimerId: number | null = null;
 
 watch(
   () => props.open,
   (v) => {
     if (v) {
+      const win = window as Window & {
+        requestIdleCallback?: (
+          callback: (deadline: { didTimeout: boolean; timeRemaining: () => number }) => void,
+          options?: { timeout: number },
+        ) => number;
+        cancelIdleCallback?: (id: number) => void;
+      };
+      if (typeof win.requestIdleCallback === 'function') {
+        prewarmIdleId = win.requestIdleCallback(
+          () => {
+            void prewarmSearch();
+            prewarmIdleId = null;
+          },
+          { timeout: 500 },
+        );
+      } else {
+        prewarmTimerId = window.setTimeout(() => {
+          void prewarmSearch();
+          prewarmTimerId = null;
+        }, 0);
+      }
       keyword.value = '';
       active.value = 0;
       history.value = getSearchHistory();
       nextTick(() => inputRef.value?.focus());
+      return;
+    }
+    const win = window as Window & {
+      cancelIdleCallback?: (id: number) => void;
+    };
+    if (prewarmIdleId != null && typeof win.cancelIdleCallback === 'function') {
+      win.cancelIdleCallback(prewarmIdleId);
+      prewarmIdleId = null;
+    }
+    if (prewarmTimerId != null) {
+      window.clearTimeout(prewarmTimerId);
+      prewarmTimerId = null;
     }
   },
 );
@@ -48,6 +85,13 @@ function go(i: number) {
 function pickHistory(k: string) {
   keyword.value = k;
   active.value = 0;
+  nextTick(() => inputRef.value?.focus());
+}
+
+function pickScenario(k: string) {
+  keyword.value = k;
+  active.value = 0;
+  pushSearchHistory(k);
   nextTick(() => inputRef.value?.focus());
 }
 
@@ -91,7 +135,18 @@ const onGlobalKey = (e: KeyboardEvent) => {
   }
 };
 onMounted(() => window.addEventListener('keydown', onGlobalKey));
-onBeforeUnmount(() => window.removeEventListener('keydown', onGlobalKey));
+onBeforeUnmount(() => {
+  window.removeEventListener('keydown', onGlobalKey);
+  const win = window as Window & { cancelIdleCallback?: (id: number) => void };
+  if (prewarmIdleId != null && typeof win.cancelIdleCallback === 'function') {
+    win.cancelIdleCallback(prewarmIdleId);
+    prewarmIdleId = null;
+  }
+  if (prewarmTimerId != null) {
+    window.clearTimeout(prewarmTimerId);
+    prewarmTimerId = null;
+  }
+});
 </script>
 
 <template>
@@ -120,6 +175,22 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onGlobalKey));
           <button class="close-btn" title="关闭搜索" aria-label="关闭搜索" @click="close">
             关闭
           </button>
+        </div>
+
+        <div v-if="!keyword" class="scenario-search">
+          <div class="section-label">
+            <span>按场景搜索</span>
+          </div>
+          <div class="chips">
+            <button
+              v-for="item in SCENARIO_SEARCHES"
+              :key="item.label"
+              class="chip scenario-chip"
+              @click="pickScenario(item.keyword)"
+            >
+              {{ item.label }}
+            </button>
+          </div>
         </div>
 
         <div v-if="!keyword && history.length" class="history">
@@ -233,7 +304,8 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onGlobalKey));
   background: var(--c-primary-soft);
 }
 
-.history {
+.history,
+.scenario-search {
   padding: 10px 14px;
   border-bottom: 1px solid var(--c-border);
 }
@@ -273,6 +345,9 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onGlobalKey));
   background: var(--c-primary-soft);
   border-color: var(--c-primary);
   color: var(--c-primary);
+}
+.scenario-chip {
+  background: color-mix(in srgb, var(--c-primary) 8%, var(--c-bg-mute));
 }
 
 .result-list {

@@ -18,16 +18,41 @@ const marks = useMarksStore();
 useFilterSync();
 
 const cat = computed(() => getCategory(route.params.categoryId as string));
+const questions = computed(() => cat.value?.questions ?? []);
+const normalizedKeyword = computed(() => filter.state.keyword.trim().toLowerCase());
+const searchableById = computed(
+  () =>
+    new Map(
+      questions.value.map((question) => [
+        question.id,
+        `${question.title} ${question.tags.join(' ')} ${question.raw}`.toLowerCase(),
+      ]),
+    ),
+);
 
 watchEffect(() => {
   if (cat.value) document.title = `${cat.value.title} · KAP`;
 });
 
 const tags = computed(() => {
-  if (!cat.value) return [];
   const set = new Set<string>();
-  cat.value.questions.forEach((q) => q.tags.forEach((t) => set.add(t)));
+  questions.value.forEach((q) => q.tags.forEach((t) => set.add(t)));
   return Array.from(set).sort();
+});
+
+const hasActiveFilters = computed(() => {
+  const state = filter.state;
+  return Boolean(
+    state.keyword.trim() || state.difficulties.length || state.tags.length || state.statuses.length,
+  );
+});
+
+const activeTotal = computed(() => {
+  return questions.value.filter((q) => !marks.isSkipped(q.id)).length;
+});
+
+const skippedTotal = computed(() => {
+  return questions.value.length - activeTotal.value;
 });
 
 watch(
@@ -42,9 +67,8 @@ watch(
 );
 
 const filtered = computed(() => {
-  if (!cat.value) return [];
-  const k = filter.state.keyword.trim().toLowerCase();
-  return cat.value.questions.filter((q) => {
+  const k = normalizedKeyword.value;
+  return questions.value.filter((q) => {
     if (marks.isSkipped(q.id)) return false;
     if (filter.state.difficulties.length && !filter.state.difficulties.includes(q.difficulty))
       return false;
@@ -55,7 +79,7 @@ const filtered = computed(() => {
       if (!filter.state.statuses.includes(s)) return false;
     }
     if (k) {
-      const hay = (q.title + ' ' + q.tags.join(' ') + ' ' + q.raw).toLowerCase();
+      const hay = searchableById.value.get(q.id) || '';
       if (!hay.includes(k)) return false;
     }
     return true;
@@ -69,12 +93,22 @@ const filtered = computed(() => {
       <h1>
         <span class="icon">{{ cat.icon }}</span>
         {{ cat.title }}
-        <span class="count">{{ filtered.length }}/{{ cat.questions.length }}</span>
+        <span class="count">{{ filtered.length }}/{{ activeTotal }}</span>
       </h1>
       <p v-if="cat.description" class="desc">{{ cat.description }}</p>
+      <p v-if="skippedTotal" class="muted">已隐藏 {{ skippedTotal }} 道被标记为“跳过”的题目。</p>
     </header>
     <QuestionFilters :tags="tags" />
-    <div v-if="filtered.length === 0" class="empty">没有匹配的题目，调整筛选条件试试</div>
+    <div v-if="filtered.length === 0" class="empty" aria-live="polite">
+      <p v-if="activeTotal === 0">当前分类所有题目都被标记为“跳过”，请先恢复题目。</p>
+      <p v-else>没有匹配的题目，调整筛选条件试试。</p>
+      <div class="empty-actions">
+        <button v-if="hasActiveFilters" class="btn btn-primary" @click="filter.reset">
+          重置筛选
+        </button>
+        <RouterLink v-if="activeTotal === 0" class="btn" to="/marks">去管理跳过题</RouterLink>
+      </div>
+    </div>
     <QuestionCard v-for="(q, i) in filtered" :key="q.id" :question="q" :index="i + 1" />
   </div>
   <div v-else class="empty">分类不存在</div>
@@ -104,10 +138,25 @@ const filtered = computed(() => {
   color: var(--c-text-soft);
   font-size: 13px;
 }
+.muted {
+  margin: 0;
+  color: var(--c-text-mute);
+  font-size: 12px;
+}
 .empty {
   padding: 40px;
   text-align: center;
   color: var(--c-text-mute);
+}
+.empty p {
+  margin: 0;
+}
+.empty-actions {
+  margin-top: 10px;
+  display: inline-flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  justify-content: center;
 }
 @media (max-width: 560px) {
   .hd h1 {

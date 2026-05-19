@@ -3,6 +3,8 @@ import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import matter from 'gray-matter';
 import { JSDOM } from 'jsdom';
+import { normalizeQuestionId } from './shared/questionId';
+import { parseCommonScriptArgs, resolveOnlyContentFiles } from './shared/args';
 
 const ROOT = fileURLToPath(new URL('../content/', import.meta.url));
 const dom = new JSDOM('<!doctype html><html><body></body></html>');
@@ -19,27 +21,52 @@ const parserModule = (await import(
   parseCategoryMarkdown(raw: string): unknown;
 };
 const { parseCategoryMarkdown } = parserModule;
+const contentParserModule = (await import(
+  new URL('../src/lib/contentBlockParser.ts', import.meta.url).href
+)) as {
+  DEFAULT_SECTION_NAMES: readonly string[];
+  parseInlineList(value: string): string[];
+  readMeta(metaText: string, key: string): string | undefined;
+  splitQuestionBlocks(
+    content: string,
+    sectionNames?: readonly string[],
+  ): {
+    before: string;
+    blocks: ContentQuestionBlockLike[];
+  };
+};
+const { DEFAULT_SECTION_NAMES, parseInlineList, readMeta, splitQuestionBlocks } =
+  contentParserModule;
 
 const errs: string[] = [];
 const warns: string[] = [];
+const { onlyFile } = parseCommonScriptArgs(process.argv.slice(2));
 
 const files = readdirSync(ROOT)
   .filter((f) => f.endsWith('.md'))
   .sort();
+let selectedFiles: string[] = files;
+try {
+  selectedFiles = resolveOnlyContentFiles(files, onlyFile);
+} catch (error) {
+  const reason = error instanceof Error ? error.message : String(error);
+  console.error(`❌ 内容校验失败：${reason}`);
+  process.exit(1);
+}
+const selectedSet = onlyFile ? new Set(selectedFiles) : null;
 if (!files.length) {
   errs.push(`content/ 目录为空，没有任何 *.md`);
 }
 
+function shouldReportMessage(message: string): boolean {
+  if (!selectedSet) return true;
+  const fileMatch = message.match(/^([^:]+\.md):/);
+  if (!fileMatch) return true;
+  return selectedSet.has(fileMatch[1]);
+}
+
 const VALID_DIFFICULTY = new Set(['基础', '进阶', '资深']);
-const VALID_SECTIONS = new Set([
-  '一句话',
-  '题目',
-  '答案要点',
-  '代码示例',
-  '常见误区',
-  '追问',
-  '延伸',
-]);
+const VALID_SECTIONS = new Set<string>(DEFAULT_SECTION_NAMES);
 const VALID_LANGS = new Set([
   'js',
   'javascript',
@@ -138,6 +165,7 @@ interface QuestionScan {
   followupIds: string[];
   linkIds: string[];
   answerWordCount: number;
+  answerBulletLines: string[];
   hasSummary: boolean;
   codeBlocks: { lang: string; line: number }[];
   unknownSubsections: string[];
@@ -147,19 +175,137 @@ interface QuestionScan {
   unclosedFenceLine?: number;
 }
 
-function parseInlineList(value: string): string[] {
-  const trimmed = value.trim();
-  if (!trimmed) return [];
-  const match = trimmed.match(/^\[([^\]]*)\]$/);
-  if (!match) return [trimmed.replace(/^['"]|['"]$/g, '')].filter(Boolean);
-  return match[1]
-    .split(',')
-    .map((s) => s.trim().replace(/^['"]|['"]$/g, ''))
-    .filter(Boolean);
+interface ContentQuestionBlockLike {
+  slug: string;
+  raw: string;
+  metaText: string;
+  sections: Record<string, string>;
 }
 
-function normalizeQuestionId(categoryId: string, value: string): string {
-  return value.includes('/') ? value : `${categoryId}/${value}`;
+interface BlockSectionHeading {
+  name: string;
+  line: number;
+  lineIndex: number;
+}
+
+function normalizeMetaValue(value: string | undefined): string | undefined {
+  if (!value) return undefined;
+  return value.trim().replace(/^['"]|['"]$/g, '');
+}
+
+function isInlineArrayLiteral(value: string | undefined): boolean {
+  return typeof value === 'string' && /^\[[^\]]*\]$/.test(value.trim());
+}
+
+function blockStartLine(
+  content: string,
+  blockRaw: string,
+  cursor: number,
+): { line: number; cursor: number } {
+  const start = content.indexOf(blockRaw, cursor);
+  const safeStart = start >= 0 ? start : cursor;
+  const line = content.slice(0, safeStart).split(/\r?\n/).length;
+  return { line, cursor: safeStart + blockRaw.length };
+}
+
+function extractAnswerBulletLines(answer: string): string[] {
+  if (!answer.trim()) return [];
+  const lines = answer.split(/\r?\n/);
+  const out: string[] = [];
+  let inFence = false;
+  let fenceMarker = '';
+  for (const line of lines) {
+    const fence = line.match(/^(`{3,}|~{3,})/);
+    if (fence) {
+      if (!inFence) {
+        inFence = true;
+        fenceMarker = fence[1];
+      } else if (fence[1].length >= fenceMarker.length) {
+        inFence = false;
+        fenceMarker = '';
+      }
+      continue;
+    }
+    if (inFence) continue;
+    const bullet = line.match(/^\s*[-*]\s+(.+?)\s*$/);
+    if (!bullet) continue;
+    const text = bullet[1].replace(/\s+/g, ' ').trim();
+    if (text) out.push(text);
+  }
+  return out;
+}
+
+function scanBlockStructure(
+  blockRaw: string,
+  baseLine: number,
+): {
+  headings: BlockSectionHeading[];
+  codeBlocks: { lang: string; line: number }[];
+  emptySections: string[];
+  misplacedMeta: { key: string; line: number }[];
+  unclosedFenceLine?: number;
+} {
+  const lines = blockRaw.split(/\r?\n/);
+  const headings: BlockSectionHeading[] = [];
+  const codeBlocks: { lang: string; line: number }[] = [];
+  const misplacedMeta: { key: string; line: number }[] = [];
+
+  let inFence = false;
+  let fenceMarker = '';
+  let fenceStartLine = -1;
+  let seenSubsection = false;
+
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i];
+    const fence = line.match(/^(`{3,}|~{3,})\s*(\S*)\s*$/);
+    if (fence) {
+      if (!inFence) {
+        inFence = true;
+        fenceMarker = fence[1];
+        fenceStartLine = baseLine + i;
+        codeBlocks.push({ lang: fence[2] || '', line: baseLine + i });
+      } else if (fence[1].length >= fenceMarker.length && !fence[2]) {
+        inFence = false;
+        fenceMarker = '';
+        fenceStartLine = -1;
+      }
+      continue;
+    }
+    if (inFence) continue;
+
+    const sub = line.match(/^###\s+(\S+)/);
+    if (sub) {
+      seenSubsection = true;
+      headings.push({ name: sub[1], line: baseLine + i, lineIndex: i });
+      continue;
+    }
+
+    if (
+      seenSubsection &&
+      /^(title|difficulty|tags|parent|parentId|followups|followupQuestionIds|links|relatedQuestionIds)\s*:/.test(
+        line,
+      )
+    ) {
+      const key = line.split(':')[0].trim();
+      misplacedMeta.push({ key, line: baseLine + i });
+    }
+  }
+
+  const emptySections: string[] = [];
+  for (let i = 0; i < headings.length; i++) {
+    const start = headings[i].lineIndex + 1;
+    const end = i + 1 < headings.length ? headings[i + 1].lineIndex : lines.length;
+    const content = lines.slice(start, end).join('\n').trim();
+    if (!content) emptySections.push(headings[i].name);
+  }
+
+  return {
+    headings,
+    codeBlocks,
+    emptySections,
+    misplacedMeta,
+    unclosedFenceLine: inFence && fenceStartLine > 0 ? fenceStartLine : undefined,
+  };
 }
 
 function scanTextQuality(file: string, content: string) {
@@ -170,7 +316,7 @@ function scanTextQuality(file: string, content: string) {
 
   for (let i = 0; i < lines.length; i++) {
     const line = lines[i];
-    const fence = line.match(/^(`{3,})/);
+    const fence = line.match(/^(`{3,}|~{3,})/);
     if (fence) {
       if (!inFence) {
         inFence = true;
@@ -209,152 +355,112 @@ function scanTextQuality(file: string, content: string) {
   }
 }
 
-function scanQuestions(file: string, categoryId: string, content: string): QuestionScan[] {
+function scanInvalidQuestionHeadings(file: string, content: string): void {
   const lines = content.split(/\r?\n/);
-  const out: QuestionScan[] = [];
-  let cur: QuestionScan | null = null;
-  let curSection: string | null = null;
   let inFence = false;
-  let inFenceMarker = '';
-  let fenceStartLine = 0;
-  let seenSubsection = false;
-  let sectionContent = '';
-  let seenSections = new Set<string>();
-
-  const flush = () => {
-    if (cur && curSection && !sectionContent.trim()) cur.emptySections.push(curSection);
-    if (cur && inFence) cur.unclosedFenceLine = fenceStartLine;
-    if (cur) out.push(cur);
-    inFence = false;
-    inFenceMarker = '';
-    fenceStartLine = 0;
-    seenSubsection = false;
-    sectionContent = '';
-    seenSections = new Set<string>();
-  };
+  let fenceMarker = '';
 
   for (let i = 0; i < lines.length; i++) {
-    const ln = lines[i];
-    const fence = ln.match(/^(`{3,})\s*(\S*)\s*$/);
-    if (fence && cur) {
+    const line = lines[i];
+    const fence = line.match(/^(`{3,}|~{3,})/);
+    if (fence) {
       if (!inFence) {
         inFence = true;
-        inFenceMarker = fence[1];
-        fenceStartLine = i + 1;
-        cur.codeBlocks.push({ lang: fence[2] || '', line: i + 1 });
-      } else if (fence[1].length >= inFenceMarker.length && !fence[2]) {
+        fenceMarker = fence[1];
+      } else if (fence[1].length >= fenceMarker.length) {
         inFence = false;
-        inFenceMarker = '';
-        fenceStartLine = 0;
+        fenceMarker = '';
       }
-      if (curSection) sectionContent += ln + '\n';
       continue;
     }
-    if (!inFence) {
-      const head = ln.match(/^##\s+([a-z][a-z0-9-]*)\s*$/);
-      if (head) {
-        flush();
-        cur = {
-          id: `${categoryId}/${head[1]}`,
-          file,
-          slug: head[1],
-          title: '',
-          hasTitle: false,
-          hasQuestion: false,
-          hasAnswer: false,
-          tags: [],
-          followupIds: [],
-          linkIds: [],
-          answerWordCount: 0,
-          hasSummary: false,
-          codeBlocks: [],
-          unknownSubsections: [],
-          duplicateSubsections: [],
-          misplacedMeta: [],
-          emptySections: [],
-        };
-        curSection = null;
-        continue;
-      }
-    }
-    if (!cur) continue;
-    if (curSection) sectionContent += ln + '\n';
+    if (inFence) continue;
 
-    if (!inFence && /^title\s*:/.test(ln)) {
-      if (seenSubsection) cur.misplacedMeta.push({ key: 'title', line: i + 1 });
-      else {
-        cur.hasTitle = true;
-        cur.title = ln.replace(/^title\s*:\s*/, '').trim();
-      }
-    }
-    if (!inFence && /^difficulty\s*:/.test(ln)) {
-      if (seenSubsection) cur.misplacedMeta.push({ key: 'difficulty', line: i + 1 });
-      const v = ln.split(':')[1]?.trim();
-      cur.difficulty = v;
-    }
-    if (!inFence && /^tags\s*:/.test(ln)) {
-      if (seenSubsection) cur.misplacedMeta.push({ key: 'tags', line: i + 1 });
-      const v = ln.replace(/^tags\s*:\s*/, '').trim();
-      const m = v.match(/^\[([^\]]*)\]$/);
-      if (m) {
-        cur.tags = m[1]
-          .split(',')
-          .map((s) => s.trim().replace(/^['"]|['"]$/g, ''))
-          .filter(Boolean);
-      } else if (!seenSubsection) {
-        errs.push(`${file}: ${cur.slug} tags 必须使用内联数组格式，例如 tags: [Vue, 响应式]`);
-      }
-    }
-    if (!inFence && /^(parent|parentId)\s*:/.test(ln)) {
-      if (seenSubsection) cur.misplacedMeta.push({ key: 'parent', line: i + 1 });
-      const v = ln
-        .replace(/^(parent|parentId)\s*:\s*/, '')
-        .trim()
-        .replace(/^['"]|['"]$/g, '');
-      if (v) cur.parentId = normalizeQuestionId(categoryId, v);
-    }
-    if (!inFence && /^(followups|followupQuestionIds)\s*:/.test(ln)) {
-      if (seenSubsection) cur.misplacedMeta.push({ key: 'followups', line: i + 1 });
-      const v = ln.replace(/^(followups|followupQuestionIds)\s*:\s*/, '').trim();
-      if (!/^\[[^\]]*\]$/.test(v) && !seenSubsection) {
-        errs.push(`${file}: ${cur.slug} followups 必须使用内联数组格式，例如 followups: [foo]`);
-      }
-      cur.followupIds = parseInlineList(v).map((id) => normalizeQuestionId(categoryId, id));
-    }
-    if (!inFence && /^(links|relatedQuestionIds)\s*:/.test(ln)) {
-      if (seenSubsection) cur.misplacedMeta.push({ key: 'links', line: i + 1 });
-      const v = ln.replace(/^(links|relatedQuestionIds)\s*:\s*/, '').trim();
-      if (!/^\[[^\]]*\]$/.test(v) && !seenSubsection) {
-        errs.push(`${file}: ${cur.slug} links 必须使用内联数组格式，例如 links: [foo, 03-vue/bar]`);
-      }
-      cur.linkIds = parseInlineList(v).map((id) => normalizeQuestionId(categoryId, id));
-    }
-    const sub = ln.match(/^###\s+(\S+)/);
-    if (!inFence && sub) {
-      if (curSection && !sectionContent.trim()) cur.emptySections.push(curSection);
-      const name = sub[1];
-      curSection = name;
-      sectionContent = '';
-      seenSubsection = true;
-      if (seenSections.has(name)) cur.duplicateSubsections.push(name);
-      seenSections.add(name);
-      if (!VALID_SECTIONS.has(name)) cur.unknownSubsections.push(name);
-      if (name === '一句话') cur.hasSummary = true;
-      if (name === '题目') cur.hasQuestion = true;
-      if (name === '答案要点') cur.hasAnswer = true;
-      continue;
-    }
-    if (curSection === '答案要点' && !inFence) {
-      cur.answerWordCount += ln.replace(/\s+/g, '').length;
-    }
+    const candidate = line.match(/^##(?!#)\s+(.+?)\s*$/);
+    if (!candidate) continue;
+    const valid = /^##\s+([a-z][a-z0-9-]*)\s*$/.test(line);
+    if (valid) continue;
+    errs.push(
+      `${file}: 第 ${i + 1} 行题目标题 slug 非法 → "## ${candidate[1]}"（仅允许小写字母/数字/连字符）`,
+    );
   }
-  flush();
+}
+
+function scanQuestions(file: string, categoryId: string, content: string): QuestionScan[] {
+  const { blocks } = splitQuestionBlocks(content, DEFAULT_SECTION_NAMES);
+  const out: QuestionScan[] = [];
+  let cursor = 0;
+
+  for (const block of blocks) {
+    const { line: startLine, cursor: nextCursor } = blockStartLine(content, block.raw, cursor);
+    cursor = nextCursor;
+    const structure = scanBlockStructure(block.raw, startLine);
+
+    const title = normalizeMetaValue(readMeta(block.metaText, 'title')) || '';
+    const difficulty = normalizeMetaValue(readMeta(block.metaText, 'difficulty'));
+    const tagsRaw = readMeta(block.metaText, 'tags');
+    const parentRaw = normalizeMetaValue(
+      readMeta(block.metaText, 'parentId') ?? readMeta(block.metaText, 'parent'),
+    );
+    const followupsRaw =
+      readMeta(block.metaText, 'followupQuestionIds') ?? readMeta(block.metaText, 'followups');
+    const linksRaw =
+      readMeta(block.metaText, 'relatedQuestionIds') ?? readMeta(block.metaText, 'links');
+
+    if (tagsRaw && !isInlineArrayLiteral(tagsRaw)) {
+      errs.push(`${file}: ${block.slug} tags 必须使用内联数组格式，例如 tags: [Vue, 响应式]`);
+    }
+    if (followupsRaw && !isInlineArrayLiteral(followupsRaw)) {
+      errs.push(`${file}: ${block.slug} followups 必须使用内联数组格式，例如 followups: [foo]`);
+    }
+    if (linksRaw && !isInlineArrayLiteral(linksRaw)) {
+      errs.push(`${file}: ${block.slug} links 必须使用内联数组格式，例如 links: [foo, 03-vue/bar]`);
+    }
+
+    const sections = block.sections;
+    const headings = structure.headings.map((item) => item.name);
+    const seenSubsections = new Set<string>();
+    const duplicateSubsections: string[] = [];
+    for (const name of headings) {
+      if (seenSubsections.has(name)) duplicateSubsections.push(name);
+      seenSubsections.add(name);
+    }
+
+    out.push({
+      id: `${categoryId}/${block.slug}`,
+      file,
+      slug: block.slug,
+      title,
+      hasTitle: Boolean(title),
+      hasQuestion: headings.includes('题目'),
+      hasAnswer: headings.includes('答案要点'),
+      difficulty,
+      tags: tagsRaw ? parseInlineList(tagsRaw) : [],
+      parentId: parentRaw ? normalizeQuestionId(categoryId, parentRaw) : undefined,
+      followupIds: followupsRaw
+        ? parseInlineList(followupsRaw).map((id) => normalizeQuestionId(categoryId, id))
+        : [],
+      linkIds: linksRaw
+        ? parseInlineList(linksRaw).map((id) => normalizeQuestionId(categoryId, id))
+        : [],
+      answerWordCount: (sections['答案要点'] || '').replace(/\s+/g, '').length,
+      answerBulletLines: extractAnswerBulletLines(sections['答案要点'] || ''),
+      hasSummary: headings.includes('一句话'),
+      codeBlocks: structure.codeBlocks,
+      unknownSubsections: headings.filter((name) => !VALID_SECTIONS.has(name)),
+      duplicateSubsections,
+      misplacedMeta: structure.misplacedMeta,
+      emptySections: structure.emptySections,
+      unclosedFenceLine: structure.unclosedFenceLine,
+    });
+  }
+
   return out;
 }
 
 for (const f of files) {
   const raw = readFileSync(join(ROOT, f), 'utf-8');
   scanTextQuality(f, raw);
+  scanInvalidQuestionHeadings(f, raw);
   try {
     parseCategoryMarkdown(raw);
   } catch (e) {
@@ -471,7 +577,7 @@ for (const { parentId, childId } of declaredRelations) {
   const parent = questionsById.get(parentId);
   const child = questionsById.get(childId);
   if (!parent) {
-    errs.push(`${childId}: parent/followups 指向不存在的原题 → ${parentId}`);
+    errs.push(`${child?.file || childId}: parent/followups 指向不存在的原题 → ${parentId}`);
     continue;
   }
   if (!child) {
@@ -513,19 +619,54 @@ for (const q of questionsById.values()) {
   }
 }
 
-if (errs.length) {
+const followupAnswerLineStats = new Map<
+  string,
+  { count: number; sampleFile: string; sampleSlug: string; text: string }
+>();
+for (const q of questionsById.values()) {
+  if (!q.parentId) continue;
+  for (const line of q.answerBulletLines) {
+    if (line.length < 14) continue;
+    const key = line.replace(/\s+/g, ' ').trim();
+    const prev = followupAnswerLineStats.get(key);
+    if (prev) {
+      prev.count += 1;
+    } else {
+      followupAnswerLineStats.set(key, {
+        count: 1,
+        sampleFile: q.file,
+        sampleSlug: q.slug,
+        text: key,
+      });
+    }
+  }
+}
+const FOLLOWUP_REPEAT_WARN_THRESHOLD = 90;
+for (const stat of followupAnswerLineStats.values()) {
+  if (stat.count < FOLLOWUP_REPEAT_WARN_THRESHOLD) continue;
+  const preview = stat.text.length > 80 ? `${stat.text.slice(0, 80)}...` : stat.text;
+  warns.push(
+    `${stat.sampleFile}: ${stat.sampleSlug} 追问答案出现高频重复句（${stat.count} 次）→ ${preview}`,
+  );
+}
+
+const scopedErrs = errs.filter(shouldReportMessage);
+const scopedWarns = warns.filter(shouldReportMessage);
+
+if (scopedErrs.length) {
   console.error('❌ 内容校验失败：');
-  for (const e of errs) console.error('  - ' + e);
+  for (const e of scopedErrs) console.error('  - ' + e);
   process.exit(1);
 }
-if (warns.length && process.env.STRICT_VALIDATE) {
+if (scopedWarns.length && process.env.STRICT_VALIDATE) {
   console.error('⚠ 严格模式下警告即失败：');
-  for (const w of warns) console.error('  - ' + w);
+  for (const w of scopedWarns) console.error('  - ' + w);
   process.exit(1);
 }
-if (warns.length) {
-  console.warn(`⚠ 校验通过但有 ${warns.length} 条提示（设 STRICT_VALIDATE=1 严格模式）：`);
-  warns.slice(0, 30).forEach((w) => console.warn('  - ' + w));
-  if (warns.length > 30) console.warn(`  ... 另有 ${warns.length - 30} 条省略`);
+if (scopedWarns.length) {
+  console.warn(`⚠ 校验通过但有 ${scopedWarns.length} 条提示（设 STRICT_VALIDATE=1 严格模式）：`);
+  scopedWarns.slice(0, 30).forEach((w) => console.warn('  - ' + w));
+  if (scopedWarns.length > 30) console.warn(`  ... 另有 ${scopedWarns.length - 30} 条省略`);
 }
-console.log(`✅ 内容校验通过：${files.length} 个分类文件`);
+const checkedCount = selectedSet ? selectedFiles.length : files.length;
+console.log(`✅ 内容校验通过：${checkedCount} 个分类文件${selectedSet ? '（--only）' : ''}`);

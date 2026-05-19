@@ -5,6 +5,12 @@ import { useProgressStore } from '@/stores/progress';
 import { useReviewStore } from '@/stores/review';
 import { useMarksStore } from '@/stores/marks';
 import { buildContentFingerprint, useContentUpdatesStore } from '@/stores/contentUpdates';
+import {
+  pickContinueQuestion,
+  preInterviewQuestions,
+  questionUrl,
+  weakTrainingQuestions,
+} from '@/lib/learningExperience';
 import AppIcon from '@/components/icon/AppIcon.vue';
 import type { EChartsLite } from '@/lib/echartsLite';
 
@@ -27,17 +33,43 @@ const review = useReviewStore();
 const marks = useMarksStore();
 const updates = useContentUpdatesStore();
 
-const totalQuestions = computed(() => allQuestions.value.length);
-const questionIds = computed(() => allQuestions.value.map((q) => q.id));
+const allTotalQuestions = computed(() => allQuestions.value.length);
+const activeQuestions = computed(() => allQuestions.value.filter((q) => !marks.isSkipped(q.id)));
+const totalQuestions = computed(() => activeQuestions.value.length);
+const questionIds = computed(() => activeQuestions.value.map((q) => q.id));
 const questionIdSet = computed(() => new Set(questionIds.value));
-const totalDone = computed(() => progress.totalDoneFor(questionIds.value));
-const dueCount = computed(() => review.dueIds.length);
+const totalLearned = computed(() => progress.totalLearnedFor(questionIds.value));
+const dueIds = computed(() => {
+  const due = review.dueIdsFor(questionIds.value);
+  const weakPending = questionIds.value.filter((id) => {
+    const status = progress.get(id).status;
+    return status === 'review' || status === 'fuzzy';
+  });
+  return [...new Set([...due, ...weakPending])];
+});
+const dueCount = computed(() => dueIds.value.length);
+const scopedRecords = computed(() =>
+  Object.entries(progress.state.records).filter(([id]) => questionIdSet.value.has(id)),
+);
+const masteredCount = computed(
+  () => scopedRecords.value.filter(([, record]) => record.status === 'mastered').length,
+);
 
 const stats = computed(() => {
   const map: Record<string, string[]> = {};
-  for (const c of categories.value) map[c.id] = c.questions.map((q) => q.id);
+  for (const c of categories.value) {
+    map[c.id] = c.questions.filter((q) => !marks.isSkipped(q.id)).map((q) => q.id);
+  }
   return progress.statsByCategory(map);
 });
+const statsFingerprint = computed(() =>
+  categories.value
+    .map((c) => {
+      const s = stats.value[c.id];
+      return `${c.id}:${s?.learned ?? s?.done ?? 0}/${s?.total ?? 0}`;
+    })
+    .join('|'),
+);
 
 /**
  * 薄弱分类排行：mastered/total 越低越靠前；至少做过 3 题再算分
@@ -45,19 +77,19 @@ const stats = computed(() => {
 const weakRanking = computed(() => {
   return categories.value
     .map((c) => {
-      const s = stats.value[c.id] ?? { total: c.questions.length, done: 0, mastered: 0, review: 0 };
+      const s = stats.value[c.id] ?? { total: 0, learned: 0, done: 0, mastered: 0, review: 0 };
       const masteredRate = s.total ? s.mastered / s.total : 0;
       const reviewRate = s.total ? s.review / s.total : 0;
       const score = masteredRate - reviewRate;
       return { id: c.id, title: c.title, icon: c.icon, ...s, masteredRate, score };
     })
-    .filter((x) => x.done >= 3 || x.review > 0)
+    .filter((x) => x.learned >= 3 || x.review > 0)
     .sort((a, b) => a.score - b.score)
     .slice(0, 5);
 });
 
 /**
- * 最近 14 天每日完成数（节奏曲线）
+ * 最近 14 天每日学习次数（节奏曲线）
  */
 const rhythm14 = computed(() => {
   const map = progress.heatmapFor(questionIds.value);
@@ -82,18 +114,14 @@ const rhythmActiveDays = computed(() => rhythm14.value.filter((r) => r.count > 0
 const readiness = computed(() => {
   const total = totalQuestions.value;
   if (!total) return { score: 0, level: '空仓' };
-  const done = totalDone.value;
-  const currentRecords = Object.entries(progress.state.records).filter(([id]) =>
-    questionIdSet.value.has(id),
-  );
-  const masteredCount = currentRecords.filter(([, r]) => r.status === 'mastered').length;
-  const reviewSet = currentRecords.filter(
+  const learned = totalLearned.value;
+  const reviewSet = scopedRecords.value.filter(
     ([, r]) => r.status === 'review' || r.status === 'fuzzy',
   ).length;
 
-  const coverScore = (done / total) * 60;
-  const masterScore = (masteredCount / total) * 30;
-  const reviewPenalty = Math.min(reviewSet / Math.max(1, done), 0.3) * 10;
+  const coverScore = (learned / total) * 60;
+  const masterScore = (masteredCount.value / total) * 30;
+  const reviewPenalty = Math.min(reviewSet / Math.max(1, learned), 0.3) * 10;
   const score = Math.max(0, Math.min(100, Math.round(coverScore + masterScore - reviewPenalty)));
 
   let level = '准备不足';
@@ -104,23 +132,37 @@ const readiness = computed(() => {
   return { score, level };
 });
 
-const starredCount = computed(() => marks.starredCount);
+const starredCount = computed(() => marks.starredCountFor(questionIds.value));
+const wrongCount = computed(() => marks.wrongCountFor(questionIds.value));
 const contentFingerprint = computed(() => buildContentFingerprint(allQuestions.value));
 const hasContentUpdates = computed(() => updates.hasUpdates(contentFingerprint.value));
+const learningSignals = {
+  getStatus: (id: string) => progress.get(id).status,
+  getRecord: (id: string) => progress.get(id),
+  isStarred: (id: string) => marks.isStarred(id),
+  isSkipped: (id: string) => marks.isSkipped(id),
+  wrongReasonsOf: (id: string) => marks.wrongReasonsOf(id),
+};
+const continueTarget = computed(() =>
+  pickContinueQuestion(categories.value, allQuestions.value, learningSignals, dueIds.value),
+);
+const weakTrainingPreview = computed(() =>
+  weakTrainingQuestions(categories.value, learningSignals, 12),
+);
+const preInterviewPreview = computed(() =>
+  preInterviewQuestions(allQuestions.value, learningSignals, 30),
+);
 const weeklyReport = computed(() => {
   const sevenDays = rhythm14.value.slice(-7);
   const weeklyDone = sevenDays.reduce((sum, item) => sum + item.count, 0);
   const weak = weakRanking.value[0];
-  const currentRecords = Object.entries(progress.state.records).filter(([id]) =>
-    questionIdSet.value.has(id),
-  );
-  const highFrequencyTotal = allQuestions.value.filter((q) =>
+  const highFrequencyTotal = activeQuestions.value.filter((q) =>
     q.tags.some((tag) => /高频|核心|面试/.test(tag)),
   ).length;
-  const highFrequencyDone = allQuestions.value.filter(
+  const highFrequencyDone = activeQuestions.value.filter(
     (q) => q.tags.some((tag) => /高频|核心|面试/.test(tag)) && progress.get(q.id).status !== 'todo',
   ).length;
-  const reviewCount = currentRecords.filter(
+  const reviewCount = scopedRecords.value.filter(
     ([, record]) => record.status === 'review' || record.status === 'fuzzy',
   ).length;
   return {
@@ -169,8 +211,8 @@ const palette = {
 };
 
 function getOption() {
-  const done = totalDone.value;
-  const todo = totalQuestions.value - done;
+  const learned = totalLearned.value;
+  const todo = totalQuestions.value - learned;
   return {
     tooltip: { trigger: 'item' },
     legend: { bottom: 0 },
@@ -183,15 +225,15 @@ function getOption() {
         label: {
           show: true,
           position: 'center',
-          formatter: () => `{a|${done}}\n{b|/${totalQuestions.value}}`,
+          formatter: () => `{a|${learned}}\n{b|/${totalQuestions.value}}`,
           rich: {
             a: { fontSize: 32, fontWeight: 'bold', color: palette.textStrong },
             b: { fontSize: 14, color: palette.textMute },
           },
         },
         data: [
-          { value: done, name: '已完成', itemStyle: { color: '#10b981' } },
-          { value: todo, name: '未完成', itemStyle: { color: palette.bgMute } },
+          { value: learned, name: '已学习', itemStyle: { color: '#10b981' } },
+          { value: todo, name: '未学习', itemStyle: { color: palette.bgMute } },
         ],
       },
     ],
@@ -201,8 +243,8 @@ function getOption() {
 function getBarOption() {
   const data = categories.value.map((c) => ({
     name: c.title,
-    total: c.questions.length,
-    done: stats.value[c.id]?.done ?? 0,
+    total: stats.value[c.id]?.total ?? 0,
+    learned: stats.value[c.id]?.learned ?? stats.value[c.id]?.done ?? 0,
   }));
   return {
     tooltip: { trigger: 'axis' },
@@ -230,8 +272,8 @@ function getBarOption() {
       },
       {
         type: 'bar',
-        name: '已完成',
-        data: data.map((d) => d.done),
+        name: '已学习',
+        data: data.map((d) => d.learned),
         itemStyle: { color: '#0ea5e9' },
       },
     ],
@@ -376,7 +418,7 @@ onBeforeUnmount(() => {
 });
 
 watch(
-  () => [totalDone.value, dueCount.value],
+  () => [totalLearned.value, dueCount.value, totalQuestions.value, statsFingerprint.value],
   () => {
     void renderAll();
   },
@@ -414,8 +456,8 @@ watch(
           <div class="kpi-lbl">题目</div>
         </div>
         <div>
-          <div class="kpi-num">{{ totalDone }}</div>
-          <div class="kpi-lbl">已完成</div>
+          <div class="kpi-num">{{ totalLearned }}</div>
+          <div class="kpi-lbl">已学习</div>
         </div>
         <div>
           <div class="kpi-num">{{ dueCount }}</div>
@@ -424,11 +466,40 @@ watch(
       </div>
     </section>
 
+    <section class="card continue-card">
+      <div>
+        <p class="eyebrow">今日下一步</p>
+        <h2>{{ continueTarget.question?.title || '开始学习' }}</h2>
+        <p class="muted">{{ continueTarget.reason }}</p>
+      </div>
+      <div class="continue-actions">
+        <RouterLink
+          v-if="continueTarget.question"
+          class="btn btn-primary"
+          :to="questionUrl(continueTarget.question)"
+        >
+          <AppIcon name="play" /> 继续学习
+        </RouterLink>
+        <RouterLink class="btn" to="/weak-training">
+          <AppIcon name="warning" /> 弱点专项
+          <b v-if="weakTrainingPreview.length">{{ weakTrainingPreview.length }}</b>
+        </RouterLink>
+        <RouterLink class="btn" to="/wrong-review">
+          <AppIcon name="reload" /> 错因复盘
+          <b v-if="wrongCount">{{ wrongCount }}</b>
+        </RouterLink>
+        <RouterLink class="btn" to="/cheatsheet">
+          <AppIcon name="fileText" /> 面试前小抄
+          <b>{{ preInterviewPreview.length }}</b>
+        </RouterLink>
+      </div>
+    </section>
+
     <section v-if="hasContentUpdates" class="card update-card">
       <div>
         <h2><AppIcon name="thunderbolt" /> 题库有新内容</h2>
         <p class="muted">
-          当前题库共 {{ totalQuestions }} 道题。已为你保留新增 /
+          当前题库共 {{ allTotalQuestions }} 道题。已为你保留新增 /
           更新提示入口，复习前建议先看学习计划和关系图谱。
         </p>
       </div>
@@ -445,7 +516,7 @@ watch(
       <div class="report-grid">
         <div>
           <b>{{ weeklyReport.weeklyDone }}</b>
-          <span>本周完成</span>
+          <span>本周学习</span>
         </div>
         <div>
           <b>{{ weeklyReport.activeDays }}</b>
@@ -503,7 +574,7 @@ watch(
           </div>
           <ul class="readiness-tips">
             <li>
-              已掌握 / 总题：<b>{{ totalDone }}</b> / {{ totalQuestions }}
+              已掌握 / 总题：<b>{{ masteredCount }}</b> / {{ totalQuestions }}
             </li>
             <li>
               收藏：<b>{{ starredCount }}</b> · 待复习：<b>{{ dueCount }}</b>
@@ -516,13 +587,13 @@ watch(
         <h3><AppIcon name="thunderbolt" /> 学习节奏（近 14 天）</h3>
         <div class="rhythm-summary">
           <span
-            >总完成 <b>{{ rhythmTotal }}</b> 次</span
+            >总学习 <b>{{ rhythmTotal }}</b> 次</span
           >
           <span
             >活跃天数 <b>{{ rhythmActiveDays }}</b> / 14</span
           >
         </div>
-        <div class="rhythm-bars" role="img" :aria-label="`近14天每日完成数`">
+        <div class="rhythm-bars" role="img" :aria-label="`近14天每日学习次数`">
           <div
             v-for="d in rhythm14"
             :key="d.date"
@@ -612,6 +683,35 @@ watch(
   font-size: 12px;
   color: var(--c-text-mute);
 }
+.continue-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  padding: 16px 18px;
+  border-color: color-mix(in srgb, var(--c-primary) 35%, var(--c-border));
+}
+.continue-card h2 {
+  margin: 2px 0 6px;
+  font-size: 18px;
+}
+.eyebrow {
+  margin: 0;
+  color: var(--c-primary);
+  font-size: 12px;
+  font-weight: 700;
+}
+.continue-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 8px;
+}
+.continue-actions .btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
 .update-card,
 .weekly-report {
   padding: 16px 18px;
@@ -698,9 +798,18 @@ watch(
     text-align: center;
   }
   .update-card,
+  .continue-card,
   .section-head {
     align-items: stretch;
     flex-direction: column;
+  }
+  .continue-actions {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    justify-content: stretch;
+  }
+  .continue-actions .btn {
+    justify-content: center;
   }
   .report-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -849,9 +958,6 @@ watch(
   white-space: nowrap;
 }
 
-.weak {
-  /* 让"无数据"提示时整卡纵向居中，避免出现大片空白 */
-}
 .muted.small {
   font-size: 12px;
   color: var(--c-text-mute);

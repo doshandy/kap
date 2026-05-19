@@ -1,25 +1,58 @@
 <script setup lang="ts">
 import { computed } from 'vue';
 import { useReviewStore } from '@/stores/review';
+import { useMarksStore } from '@/stores/marks';
+import { useProgressStore } from '@/stores/progress';
 import { useContent } from '@/composables/useContent';
 import QuestionCard from '@/components/question/QuestionCard.vue';
 import AppIcon from '@/components/icon/AppIcon.vue';
+import type { Question } from '@/types/content';
 
 const review = useReviewStore();
+const marks = useMarksStore();
+const progress = useProgressStore();
 const { questionMap } = useContent();
 
-const dueQuestions = computed(() =>
-  review.dueIds.map((id) => questionMap.get(id)).filter((q): q is NonNullable<typeof q> => !!q),
-);
+for (const id of Object.keys(review.state.items)) {
+  if (!questionMap.get(id)) review.remove(id);
+}
+
+const dueQuestions = computed(() => {
+  const due = review.dueIds.filter((id) => {
+    const question = questionMap.get(id);
+    return Boolean(question) && !marks.isSkipped(id);
+  });
+  const dueSet = new Set(due);
+  const weakPending = Object.keys(progress.state.records)
+    .filter((id) => {
+      if (dueSet.has(id) || marks.isSkipped(id)) return false;
+      if (!questionMap.get(id)) return false;
+      const status = progress.get(id).status;
+      return status === 'review' || status === 'fuzzy';
+    })
+    .sort((a, b) => progress.get(b).viewedAt - progress.get(a).viewedAt);
+  return [...due, ...weakPending]
+    .map((id) => questionMap.get(id))
+    .filter((q): q is Question => Boolean(q));
+});
+
+type UpcomingItem = { q: Question; due: number };
 
 const upcoming = computed(() => {
   const now = Date.now();
   return Object.entries(review.state.items)
-    .filter(([, v]) => v.due > now)
-    .sort((a, b) => a[1].due - b[1].due)
+    .map(([id, v]) => {
+      const q = questionMap.get(id);
+      if (!q) return null;
+      return { id, q, due: v.due };
+    })
+    .filter(
+      (item): item is UpcomingItem & { id: string } =>
+        !!item && item.due > now && !marks.isSkipped(item.id),
+    )
+    .sort((a, b) => a.due - b.due)
     .slice(0, 20)
-    .map(([id, v]) => ({ q: questionMap.get(id), due: v.due }))
-    .filter((x) => !!x.q);
+    .map(({ q, due }) => ({ q, due }));
 });
 
 const fmtDate = (ts: number) => {
@@ -33,7 +66,7 @@ const fmtDate = (ts: number) => {
     <header>
       <h1><AppIcon name="reload" /> 间隔复习</h1>
       <p class="muted">
-        基于 SM-2 算法计算下次复习时间。在题目卡里点 "记得 / 模糊 / 需复习" 给出反馈即可。
+        基于 SM-2 计算下次复习时间；同时会把你手动标记的「需复习 / 模糊」题纳入今日队列。
       </p>
     </header>
 
@@ -48,12 +81,12 @@ const fmtDate = (ts: number) => {
     <section v-if="upcoming.length">
       <h3>未来排期</h3>
       <ul class="upcoming">
-        <li v-for="u in upcoming" :key="u.q!.id">
+        <li v-for="u in upcoming" :key="u.q.id">
           <span class="date">{{ fmtDate(u.due) }}</span>
-          <RouterLink :to="`/q/${u.q!.categoryId}/${u.q!.slug}`" class="link">
-            {{ u.q!.title }}
+          <RouterLink :to="`/q/${u.q.categoryId}/${u.q.slug}`" class="link">
+            {{ u.q.title }}
           </RouterLink>
-          <span class="cat">{{ u.q!.categoryId }}</span>
+          <span class="cat">{{ u.q.categoryId }}</span>
         </li>
       </ul>
     </section>

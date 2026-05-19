@@ -17,10 +17,10 @@ const groups = [
   {
     title: '答题',
     items: [
-      ['Space', '展开/收起答案'],
-      ['m', '标记为已掌握'],
-      ['r', '标记为需复习'],
-      ['n', '编辑笔记'],
+      ['Space', '题目详情页：展开/收起答案'],
+      ['m', '题目详情页：标记为已掌握'],
+      ['r', '题目详情页：标记为需复习'],
+      ['n', '题目详情页：编辑笔记'],
     ],
   },
 ];
@@ -43,7 +43,7 @@ function close() {
         <div v-for="g in groups" :key="g.title" class="group">
           <h4>{{ g.title }}</h4>
           <ul>
-            <li v-for="[k, d] in g.items" :key="k as string">
+            <li v-for="[k, d] in g.items" :key="String(k)">
               <kbd>{{ k }}</kbd>
               <span>{{ d }}</span>
             </li>

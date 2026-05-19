@@ -6,7 +6,8 @@ import AppSidebar from '@/components/layout/AppSidebar.vue';
 import AppIcon from '@/components/icon/AppIcon.vue';
 import { useSettingsStore } from '@/stores/settings';
 import { useShortcuts } from '@/composables/useShortcuts';
-import { initContent } from '@/lib/loadContent';
+import { getContentSignature, hydrateContentFromStorage, initContent } from '@/lib/loadContent';
+import { prewarmSearch } from '@/composables/useSearch';
 
 // 搜索面板和快捷键弹窗仅在用户触发时才需要加载，配合动态 fuse.js
 // 可以让首屏 vendor 主链路里完全不带搜索相关代码。
@@ -26,6 +27,43 @@ const appMain = ref<HTMLElement | null>(null);
 
 let mq: MediaQueryList | null = null;
 const onColorSchemeChange = () => settings.applyTheme();
+let prewarmIdleId: number | null = null;
+let prewarmTimerId: number | null = null;
+
+function scheduleSearchPrewarm(): void {
+  const win = window as Window & {
+    requestIdleCallback?: (
+      callback: (deadline: { didTimeout: boolean; timeRemaining: () => number }) => void,
+      options?: { timeout: number },
+    ) => number;
+  };
+  if (typeof win.requestIdleCallback === 'function') {
+    prewarmIdleId = win.requestIdleCallback(
+      () => {
+        void prewarmSearch();
+        prewarmIdleId = null;
+      },
+      { timeout: 1500 },
+    );
+    return;
+  }
+  prewarmTimerId = window.setTimeout(() => {
+    void prewarmSearch();
+    prewarmTimerId = null;
+  }, 300);
+}
+
+function cancelSearchPrewarm(): void {
+  const win = window as Window & { cancelIdleCallback?: (id: number) => void };
+  if (prewarmIdleId != null && typeof win.cancelIdleCallback === 'function') {
+    win.cancelIdleCallback(prewarmIdleId);
+    prewarmIdleId = null;
+  }
+  if (prewarmTimerId != null) {
+    window.clearTimeout(prewarmTimerId);
+    prewarmTimerId = null;
+  }
+}
 
 function reloadPage() {
   location.reload();
@@ -35,19 +73,30 @@ onMounted(() => {
   settings.applyTheme();
   mq = window.matchMedia('(prefers-color-scheme: dark)');
   mq.addEventListener('change', onColorSchemeChange);
+  const bootstrapped = hydrateContentFromStorage();
+  const bootSignature = getContentSignature();
+  if (bootstrapped) contentReady.value = true;
   void initContent()
     .then(() => {
       contentReady.value = true;
+      scheduleSearchPrewarm();
+      if (bootstrapped && bootSignature && getContentSignature() !== bootSignature) {
+        // 已先用本地缓存渲染过页面，若后台拉到新题库签名则刷新一次确保路由与侧栏同步最新数据。
+        reloadPage();
+      }
     })
     .catch((e) => {
       console.error('[KAP] initContent failed:', e);
-      contentError.value = e instanceof Error ? e.message : String(e || '未知错误');
+      if (!bootstrapped) {
+        contentError.value = e instanceof Error ? e.message : String(e || '未知错误');
+      }
     });
 });
 
 onBeforeUnmount(() => {
   mq?.removeEventListener('change', onColorSchemeChange);
   mq = null;
+  cancelSearchPrewarm();
 });
 
 watch(

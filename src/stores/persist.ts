@@ -11,6 +11,14 @@ const ALLOWED_KEYS = [
   'content-updates',
 ] as const;
 const ALLOWED_KEY_SET = new Set<string>(ALLOWED_KEYS);
+const WRITE_CACHE = new Map<string, string>();
+const VALID_WRONG_REASONS = new Set([
+  '概念不清',
+  '代码不会写',
+  '边界遗漏',
+  '表达不顺',
+  '性能/安全没答到',
+]);
 
 export function readState<T>(key: string, fallback: T): T {
   try {
@@ -18,6 +26,7 @@ export function readState<T>(key: string, fallback: T): T {
     const raw = localStorage.getItem(PREFIX + key);
     if (!raw) return fallback;
     const parsed: unknown = JSON.parse(raw);
+    WRITE_CACHE.set(key, raw);
     return isValidState(key, parsed) ? (normalizeState(key, parsed) as T) : fallback;
   } catch {
     return fallback;
@@ -27,7 +36,10 @@ export function readState<T>(key: string, fallback: T): T {
 export function writeState(key: string, value: unknown): boolean {
   try {
     if (!ALLOWED_KEY_SET.has(key)) return false;
-    localStorage.setItem(PREFIX + key, JSON.stringify(value));
+    const serialized = JSON.stringify(value);
+    if (WRITE_CACHE.get(key) === serialized) return true;
+    localStorage.setItem(PREFIX + key, serialized);
+    WRITE_CACHE.set(key, serialized);
     return true;
   } catch {
     return false;
@@ -37,6 +49,7 @@ export function writeState(key: string, value: unknown): boolean {
 export function removeState(key: string): void {
   try {
     localStorage.removeItem(PREFIX + key);
+    WRITE_CACHE.delete(key);
   } catch {
     // ignore
   }
@@ -48,7 +61,10 @@ export function clearAll(): void {
     const k = localStorage.key(i);
     if (k && k.startsWith(PREFIX)) keys.push(k);
   }
-  keys.forEach((k) => localStorage.removeItem(k));
+  keys.forEach((k) => {
+    localStorage.removeItem(k);
+    WRITE_CACHE.delete(k.slice(PREFIX.length));
+  });
 }
 
 export function exportAll(): Record<string, unknown> {
@@ -84,12 +100,44 @@ export function importAll(data: Record<string, unknown>): boolean {
       return false;
     }
   }
-  for (const key of ALLOWED_KEYS) removeState(key);
+  const previous = new Map<string, string | null>();
+  const previousCache = new Map(WRITE_CACHE);
+  for (const key of ALLOWED_KEYS) {
+    try {
+      previous.set(key, localStorage.getItem(PREFIX + key));
+    } catch {
+      previous.set(key, null);
+    }
+  }
+  const incoming = new Map<string, string>(serialized);
   try {
-    for (const [k, raw] of serialized) {
-      localStorage.setItem(PREFIX + k, raw);
+    for (const key of ALLOWED_KEYS) {
+      const nextRaw = incoming.get(key);
+      if (nextRaw == null) {
+        localStorage.removeItem(PREFIX + key);
+        WRITE_CACHE.delete(key);
+      } else {
+        localStorage.setItem(PREFIX + key, nextRaw);
+        WRITE_CACHE.set(key, nextRaw);
+      }
     }
   } catch {
+    try {
+      for (const key of ALLOWED_KEYS) {
+        const oldRaw = previous.get(key);
+        if (oldRaw == null) {
+          localStorage.removeItem(PREFIX + key);
+          WRITE_CACHE.delete(key);
+        } else {
+          localStorage.setItem(PREFIX + key, oldRaw);
+          WRITE_CACHE.set(key, oldRaw);
+        }
+      }
+    } catch {
+      // Rollback failure is rare and should not throw.
+    }
+    WRITE_CACHE.clear();
+    for (const [key, value] of previousCache) WRITE_CACHE.set(key, value);
     return false;
   }
   return true;
@@ -111,13 +159,35 @@ function isStringArrayMap(v: unknown): boolean {
   return (
     isRecord(v) &&
     Object.values(v).every(
-      (item) => Array.isArray(item) && item.every((v) => typeof v === 'string'),
+      (item) => Array.isArray(item) && item.every((value) => typeof value === 'string'),
     )
+  );
+}
+
+function isPlanSchedule(v: unknown): boolean {
+  return (
+    Array.isArray(v) &&
+    v.every((day) => Array.isArray(day) && day.every((id) => typeof id === 'string'))
   );
 }
 
 function isNumber(v: unknown): v is number {
   return typeof v === 'number' && Number.isFinite(v);
+}
+
+function isProgressEvents(v: unknown): boolean {
+  return (
+    v == null ||
+    (Array.isArray(v) &&
+      v.every(
+        (event) =>
+          isRecord(event) &&
+          ['status', 'wrong-reason', 'note', 'view'].includes(String(event.type)) &&
+          isNumber(event.at) &&
+          typeof event.label === 'string' &&
+          (event.detail == null || typeof event.detail === 'string'),
+      ))
+  );
 }
 
 function isValidState(key: string, v: unknown): boolean {
@@ -148,7 +218,8 @@ function isValidState(key: string, v: unknown): boolean {
             isNumber(item.viewedAt) &&
             isNumber(item.reviewedTimes) &&
             isRecord(item.history) &&
-            Object.values(item.history).every(isNumber),
+            Object.values(item.history).every(isNumber) &&
+            isProgressEvents(item.events),
         )
       );
     case 'review':
@@ -179,7 +250,8 @@ function isValidState(key: string, v: unknown): boolean {
       return (
         [0, 7, 14, 30].includes(Number(v.days)) &&
         isNumber(v.startedAt) &&
-        (v.pausedAt == null || isNumber(v.pausedAt))
+        (v.pausedAt == null || isNumber(v.pausedAt)) &&
+        (v.schedule == null || isPlanSchedule(v.schedule))
       );
     case 'content-updates':
       return typeof v.seenFingerprint === 'string' && isNumber(v.seenAt);
@@ -200,10 +272,43 @@ function normalizeState(
     };
   }
   if (key === 'marks' && isRecord(v)) {
+    const rawReasons = isRecord(v.wrongReasons) ? v.wrongReasons : {};
+    const wrongReasons = Object.fromEntries(
+      Object.entries(rawReasons)
+        .map(([id, reasons]) => [
+          id,
+          Array.isArray(reasons)
+            ? reasons.filter(
+                (reason): reason is string =>
+                  typeof reason === 'string' && VALID_WRONG_REASONS.has(reason),
+              )
+            : [],
+        ])
+        .filter(([, reasons]) => reasons.length > 0),
+    );
     return {
       starred: isRecord(v.starred) ? v.starred : {},
       skipped: isRecord(v.skipped) ? v.skipped : {},
-      wrongReasons: isRecord(v.wrongReasons) ? v.wrongReasons : {},
+      wrongReasons,
+    };
+  }
+  if (key === 'learning-plan' && isRecord(v)) {
+    const days = Number(v.days);
+    const safeDays = [0, 7, 14, 30].includes(days) ? (days as 0 | 7 | 14 | 30) : 0;
+    const scheduleRaw = Array.isArray(v.schedule) ? v.schedule : null;
+    const schedule =
+      safeDays && scheduleRaw
+        ? Array.from({ length: safeDays }, (_, index) => {
+            const day = scheduleRaw[index];
+            return Array.isArray(day)
+              ? day.filter((id): id is string => typeof id === 'string')
+              : [];
+          })
+        : [];
+    return {
+      ...v,
+      days: safeDays,
+      schedule,
     };
   }
   return v;

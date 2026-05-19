@@ -1,8 +1,9 @@
 <script setup lang="ts">
-import { computed } from 'vue';
+import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue';
 import { useRoute } from 'vue-router';
 import { useContent } from '@/composables/useContent';
 import { useProgressStore } from '@/stores/progress';
+import { useMarksStore } from '@/stores/marks';
 import AppIcon from '@/components/icon/AppIcon.vue';
 
 const props = defineProps<{ open: boolean }>();
@@ -11,52 +12,144 @@ const emit = defineEmits<{ (e: 'close'): void }>();
 const route = useRoute();
 const { categories } = useContent();
 const progress = useProgressStore();
+const marks = useMarksStore();
+const sidebarRef = ref<HTMLElement | null>(null);
+const SIDEBAR_TITLE_ID = 'app-sidebar-title';
+const MOBILE_BREAKPOINT = 768;
+const isMobile = ref(false);
+let lastFocused: HTMLElement | null = null;
 
 const stats = computed(() => {
   const map: Record<string, string[]> = {};
-  for (const c of categories.value) map[c.id] = c.questions.map((q) => q.id);
+  for (const c of categories.value) {
+    map[c.id] = c.questions.filter((q) => !marks.isSkipped(q.id)).map((q) => q.id);
+  }
   return progress.statsByCategory(map);
 });
 
-const totalQuestions = computed(() => categories.value.reduce((s, c) => s + c.questions.length, 0));
+const totalQuestions = computed(() =>
+  categories.value.reduce((sum, category) => sum + (stats.value[category.id]?.total ?? 0), 0),
+);
 
-const totalDone = computed(() =>
-  progress.totalDoneFor(
-    categories.value.flatMap((category) => category.questions.map((question) => question.id)),
+const totalLearned = computed(() =>
+  progress.totalLearnedFor(
+    categories.value.flatMap((category) =>
+      category.questions
+        .filter((question) => !marks.isSkipped(question.id))
+        .map((question) => question.id),
+    ),
   ),
 );
 
 function onNavClick() {
   if (window.innerWidth <= 768) emit('close');
 }
+
+function syncIsMobile() {
+  isMobile.value = window.innerWidth <= MOBILE_BREAKPOINT;
+}
+
+function setMainInert(inert: boolean): void {
+  const main = document.querySelector('.app-main');
+  if (!(main instanceof HTMLElement)) return;
+  if (inert) {
+    main.setAttribute('inert', '');
+    main.setAttribute('aria-hidden', 'true');
+  } else {
+    main.removeAttribute('inert');
+    main.removeAttribute('aria-hidden');
+  }
+}
+
+function onEscape(event: KeyboardEvent): void {
+  if (event.key !== 'Escape') return;
+  if (!isMobile.value || !props.open) return;
+  event.preventDefault();
+  emit('close');
+}
+
+watch(
+  () => props.open,
+  async (open) => {
+    if (!isMobile.value) return;
+    if (open) {
+      lastFocused = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+      setMainInert(true);
+      await nextTick();
+      sidebarRef.value?.focus();
+      return;
+    }
+    setMainInert(false);
+    lastFocused?.focus();
+    lastFocused = null;
+  },
+);
+
+watch(isMobile, (mobile) => {
+  if (!mobile) {
+    setMainInert(false);
+    return;
+  }
+  if (props.open) setMainInert(true);
+});
+
+onMounted(() => {
+  syncIsMobile();
+  window.addEventListener('resize', syncIsMobile);
+  window.addEventListener('keydown', onEscape);
+});
+
+onBeforeUnmount(() => {
+  window.removeEventListener('resize', syncIsMobile);
+  window.removeEventListener('keydown', onEscape);
+  setMainInert(false);
+});
 </script>
 
 <template>
   <div class="sb-shell">
-    <aside class="sb" :class="{ open: props.open }">
+    <aside
+      ref="sidebarRef"
+      class="sb"
+      :class="{ open: props.open }"
+      :role="isMobile && props.open ? 'dialog' : undefined"
+      :aria-modal="isMobile && props.open ? 'true' : undefined"
+      :aria-labelledby="isMobile && props.open ? SIDEBAR_TITLE_ID : undefined"
+      tabindex="-1"
+    >
       <div class="sb-head">
-        <RouterLink to="/" class="home-link" @click="onNavClick">
+        <RouterLink :id="SIDEBAR_TITLE_ID" to="/" class="home-link" @click="onNavClick">
           <AppIcon name="dashboard" /> 总览
         </RouterLink>
+        <button
+          class="mobile-close btn-ghost"
+          type="button"
+          aria-label="关闭侧边栏"
+          @click="emit('close')"
+        >
+          <AppIcon name="close" />
+        </button>
         <div class="quick-links">
           <RouterLink to="/plan" @click="onNavClick"><AppIcon name="calendar" /> 计划</RouterLink>
           <RouterLink to="/exam" @click="onNavClick"><AppIcon name="trophy" /> 临考</RouterLink>
-          <RouterLink to="/graph" @click="onNavClick"
-            ><AppIcon name="deployment" /> 图谱</RouterLink
-          >
-          <RouterLink to="/interview-guide" @click="onNavClick"
-            ><AppIcon name="fileText" /> 技巧</RouterLink
-          >
+          <RouterLink to="/graph" @click="onNavClick">
+            <AppIcon name="deployment" /> 图谱
+          </RouterLink>
+          <RouterLink to="/interview-guide" @click="onNavClick">
+            <AppIcon name="fileText" /> 技巧
+          </RouterLink>
         </div>
         <div class="overall">
           <div class="bar">
             <div
               class="bar-fill"
-              :style="{ width: totalQuestions ? `${(totalDone / totalQuestions) * 100}%` : '0%' }"
+              :style="{
+                width: totalQuestions ? `${(totalLearned / totalQuestions) * 100}%` : '0%',
+              }"
             />
           </div>
           <div class="overall-text">
-            已完成 <b>{{ totalDone }}</b> / {{ totalQuestions }}
+            已学习 <b>{{ totalLearned }}</b> / {{ totalQuestions }}
           </div>
         </div>
       </div>
@@ -71,14 +164,17 @@ function onNavClick() {
         >
           <span class="icon">{{ c.icon }}</span>
           <span class="title">{{ c.title }}</span>
-          <span class="counter"> {{ stats[c.id]?.done ?? 0 }}/{{ c.questions.length }} </span>
+          <span class="counter">
+            {{ stats[c.id]?.learned ?? stats[c.id]?.done ?? 0 }}/{{ stats[c.id]?.total ?? 0 }}
+          </span>
           <div class="cat-progress">
             <div
               class="cat-progress-fill"
               :style="{
-                width: c.questions.length
-                  ? `${((stats[c.id]?.done ?? 0) / c.questions.length) * 100}%`
-                  : '0%',
+                width:
+                  (stats[c.id]?.total ?? 0)
+                    ? `${((stats[c.id]?.learned ?? stats[c.id]?.done ?? 0) / (stats[c.id]?.total ?? 0)) * 100}%`
+                    : '0%',
               }"
             />
           </div>
@@ -93,7 +189,7 @@ function onNavClick() {
         </a>
       </div>
     </aside>
-    <div v-if="props.open" class="mask" @click="emit('close')" />
+    <div v-if="props.open" class="mask" aria-hidden="true" @click="emit('close')" />
   </div>
 </template>
 
@@ -113,6 +209,7 @@ function onNavClick() {
 .sb-head {
   padding: 16px 16px 12px;
   border-bottom: 1px solid var(--c-border-soft);
+  position: relative;
 }
 .home-link {
   display: block;
@@ -125,6 +222,16 @@ function onNavClick() {
 .home-link:hover {
   background: var(--c-bg-mute);
   text-decoration: none;
+}
+.mobile-close {
+  display: none;
+  position: absolute;
+  top: 14px;
+  right: 10px;
+  width: 32px;
+  height: 32px;
+  align-items: center;
+  justify-content: center;
 }
 .quick-links {
   display: grid;
@@ -253,6 +360,9 @@ function onNavClick() {
   .sb.open {
     transform: translateX(0);
     box-shadow: var(--c-shadow-lg);
+  }
+  .mobile-close {
+    display: inline-flex;
   }
   .mask {
     display: block;

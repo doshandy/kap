@@ -24,6 +24,7 @@ const finished = ref(false);
 const wrongList = ref<Question[]>([]);
 const resultRef = ref<HTMLElement | null>(null);
 const initialStatusMap = new Map<string, string>();
+const sessionStartedAt = ref(0);
 
 let totalTimer: number | null = null;
 let countdown: number | null = null;
@@ -31,17 +32,26 @@ let countdown: number | null = null;
 const result = computed(() => {
   let mastered = 0;
   let review = 0;
+  let answered = 0;
+  let unchanged = 0;
   for (const q of queue.value) {
+    const initial = initialStatusMap.get(q.id) || 'todo';
     const s = progress.get(q.id).status;
+    const changed = hasSessionStatusChange(q.id) || s !== initial;
+    if (!changed) {
+      unchanged++;
+      continue;
+    }
+    answered++;
     if (s === 'mastered') mastered++;
     else if (s === 'review' || s === 'fuzzy') review++;
   }
-  return { mastered, review, total: queue.value.length };
+  return { mastered, review, answered, unchanged, total: queue.value.length };
 });
 
 const accuracy = computed(() => {
-  if (!queue.value.length) return 0;
-  return Math.round((result.value.mastered / queue.value.length) * 100);
+  if (!result.value.answered) return 0;
+  return Math.round((result.value.mastered / result.value.answered) * 100);
 });
 
 const candidateQuestions = computed(() => {
@@ -79,6 +89,7 @@ function pickRandom(): Question[] {
 
 function start() {
   if (!candidateCount.value) return;
+  sessionStartedAt.value = Date.now();
   queue.value = pickRandom();
   current.value = 0;
   elapsed.value = 0;
@@ -131,15 +142,22 @@ function end() {
     countdown = null;
   }
   wrongList.value = queue.value.filter((q) => {
+    const initial = initialStatusMap.get(q.id) || 'todo';
     const s = progress.get(q.id).status;
-    return s === 'review' || s === 'fuzzy';
+    const changed = hasSessionStatusChange(q.id) || s !== initial;
+    return changed && (s === 'review' || s === 'fuzzy');
   });
   void nextTick(() => resultRef.value?.scrollIntoView({ block: 'start', behavior: 'smooth' }));
 }
 
 function restartWithWrong() {
   if (!wrongList.value.length) return;
+  sessionStartedAt.value = Date.now();
   queue.value = wrongList.value.slice();
+  initialStatusMap.clear();
+  for (const q of queue.value) {
+    initialStatusMap.set(q.id, progress.get(q.id).status);
+  }
   current.value = 0;
   elapsed.value = 0;
   finished.value = false;
@@ -151,6 +169,7 @@ function restartWithWrong() {
 
 function reset() {
   queue.value = [];
+  sessionStartedAt.value = 0;
   finished.value = false;
   wrongList.value = [];
   if (totalTimer) clearInterval(totalTimer);
@@ -158,6 +177,12 @@ function reset() {
 }
 
 watch(current, resetCountdown);
+
+function hasSessionStatusChange(id: string): boolean {
+  if (!sessionStartedAt.value) return false;
+  const events = progress.get(id).events || [];
+  return events.some((event) => event.type === 'status' && event.at >= sessionStartedAt.value);
+}
 
 onUnmounted(() => {
   if (totalTimer) clearInterval(totalTimer);
@@ -265,19 +290,27 @@ const fmt = (s: number) => `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '
         <div class="result-grid">
           <div class="metric">
             <div class="value">{{ accuracy }}%</div>
-            <div class="label">准确率</div>
+            <div class="label">本次准确率</div>
           </div>
           <div class="metric">
-            <div class="value">{{ result.mastered }} / {{ result.total }}</div>
-            <div class="label">掌握</div>
+            <div class="value">{{ result.answered }} / {{ result.total }}</div>
+            <div class="label">本次作答</div>
+          </div>
+          <div class="metric">
+            <div class="value">{{ result.mastered }}</div>
+            <div class="label">本次掌握</div>
           </div>
           <div class="metric">
             <div class="value">{{ wrongList.length }}</div>
-            <div class="label">错题</div>
+            <div class="label">本次错题</div>
           </div>
           <div class="metric">
             <div class="value">{{ fmt(elapsed) }}</div>
             <div class="label">总用时</div>
+          </div>
+          <div class="metric">
+            <div class="value">{{ result.unchanged }}</div>
+            <div class="label">未作答/未变更</div>
           </div>
         </div>
 

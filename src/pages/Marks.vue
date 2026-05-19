@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue';
+import { computed, ref, watch } from 'vue';
 import { useContent } from '@/composables/useContent';
 import { useMarksStore, WRONG_REASON_OPTIONS, type WrongReason } from '@/stores/marks';
 import { useProgressStore } from '@/stores/progress';
@@ -9,6 +9,18 @@ import AppIcon from '@/components/icon/AppIcon.vue';
 const { allQuestions } = useContent();
 const marks = useMarksStore();
 const progress = useProgressStore();
+const questionIds = computed(() => allQuestions.value.map((q) => q.id));
+const starredCount = computed(() => marks.starredCountFor(questionIds.value));
+const skippedCount = computed(() => marks.skippedCountFor(questionIds.value));
+const wrongCount = computed(() => marks.wrongCountFor(questionIds.value));
+
+watch(
+  questionIds,
+  (ids) => {
+    marks.pruneTo(ids);
+  },
+  { immediate: true },
+);
 
 type Tab = 'starred' | 'skipped' | 'wrong';
 const tab = ref<Tab>('starred');
@@ -43,10 +55,10 @@ const list = computed(() => {
 
 function clearAllMarks() {
   if (tab.value === 'starred') {
-    if (!confirm(`确认取消全部 ${marks.starredCount} 道收藏？`)) return;
+    if (!confirm(`确认取消全部 ${starredCount.value} 道收藏？`)) return;
     Object.keys(marks.state.starred).forEach((id) => marks.toggleStar(id));
   } else {
-    if (!confirm(`确认恢复全部 ${marks.skippedCount} 道跳过的题？`)) return;
+    if (!confirm(`确认恢复全部 ${skippedCount.value} 道跳过的题？`)) return;
     Object.keys(marks.state.skipped).forEach((id) => marks.toggleSkip(id));
   }
 }
@@ -63,13 +75,13 @@ function clearAllMarks() {
 
     <div class="tabs">
       <button class="tab" :class="{ active: tab === 'starred' }" @click="tab = 'starred'">
-        <AppIcon name="star" /> 收藏（{{ marks.starredCount }}）
+        <AppIcon name="star" /> 收藏（{{ starredCount }}）
       </button>
       <button class="tab" :class="{ active: tab === 'skipped' }" @click="tab = 'skipped'">
-        <AppIcon name="skip" /> 跳过（{{ marks.skippedCount }}）
+        <AppIcon name="skip" /> 跳过（{{ skippedCount }}）
       </button>
       <button class="tab" :class="{ active: tab === 'wrong' }" @click="tab = 'wrong'">
-        <AppIcon name="warning" /> 错题（{{ marks.wrongCount }}）
+        <AppIcon name="warning" /> 错题（{{ wrongCount }}）
       </button>
     </div>
 

@@ -49,4 +49,11 @@ describe('useReviewStore', () => {
 
     expect(review.dueIds).toEqual(['q1']);
   });
+
+  it('手动标记需复习会立即进入待复习队列', () => {
+    const review = useReviewStore();
+    review.queueNow('q2', 0);
+    expect(review.dueIds).toContain('q2');
+    expect(review.state.items.q2.due).toBeLessThanOrEqual(Date.now());
+  });
 });

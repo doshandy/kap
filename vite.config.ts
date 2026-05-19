@@ -5,13 +5,26 @@ import { VitePWA } from 'vite-plugin-pwa';
 import { visualizer } from 'rollup-plugin-visualizer';
 import { fileURLToPath, URL } from 'node:url';
 
+function normalizeBase(raw: string | undefined): string {
+  const value = (raw || '/kap/').trim() || '/';
+  const withLeading = value.startsWith('/') ? value : `/${value}`;
+  return withLeading.endsWith('/') ? withLeading : `${withLeading}/`;
+}
+
+function escapeRegExp(value: string): string {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
+const APP_BASE = normalizeBase(process.env.VITE_APP_BASE);
+const BASE_RE = escapeRegExp(APP_BASE);
+
 export default defineConfig({
   test: {
     environment: 'jsdom',
     globals: true,
     include: ['src/**/*.{test,spec}.ts'],
   },
-  base: '/kap/',
+  base: APP_BASE,
   plugins: [
     vue(),
     process.env.ANALYZE
@@ -31,24 +44,29 @@ export default defineConfig({
         theme_color: '#0ea5e9',
         background_color: '#0f172a',
         display: 'standalone',
-        scope: '/kap/',
-        start_url: '/kap/',
+        scope: APP_BASE,
+        start_url: APP_BASE,
         icons: [
           { src: 'favicon.svg', sizes: 'any', type: 'image/svg+xml', purpose: 'any maskable' },
         ],
       },
       workbox: {
         cacheId: 'kap',
-        // precache 排除大体积按需 vendor，由 runtimeCaching 池真正用到时再下载
+        // precache 排除大体积按需 vendor 和内容大 chunk，由 runtimeCaching 按需拉取
         globPatterns: ['**/*.{js,css,html,svg,png,ico,woff2}'],
-        globIgnores: ['**/vendor-echarts-*.js', '**/vendor-markdown-*.js', '**/vendor-icons-*.js'],
-        navigateFallback: '/kap/index.html',
+        globIgnores: [
+          '**/vendor-echarts-*.js',
+          '**/vendor-markdown-*.js',
+          '**/vendor-icons-*.js',
+          '**/[0-9][0-9]-*.js',
+        ],
+        navigateFallback: `${APP_BASE}index.html`,
         cleanupOutdatedCaches: true,
         clientsClaim: true,
         skipWaiting: true,
         runtimeCaching: [
           {
-            urlPattern: /\/kap\/assets\/vendor-(echarts|markdown|icons)-.*\.js$/,
+            urlPattern: new RegExp(`${BASE_RE}assets/vendor-(echarts|markdown|icons)-.*\\.js$`),
             handler: 'CacheFirst',
             options: {
               cacheName: 'kap-vendor',
@@ -57,11 +75,31 @@ export default defineConfig({
             },
           },
           {
-            urlPattern: /\/kap\/assets\/\d{2}-.*\.js$/,
+            urlPattern: new RegExp(`${BASE_RE}assets/\\d{2}-.*\\.js$`),
             handler: 'StaleWhileRevalidate',
             options: {
               cacheName: 'kap-content',
               expiration: { maxEntries: 64, maxAgeSeconds: 30 * 24 * 60 * 60 },
+              cacheableResponse: { statuses: [0, 200] },
+            },
+          },
+          {
+            urlPattern: new RegExp(`${BASE_RE}content-cache\\.json$`),
+            handler: 'NetworkFirst',
+            options: {
+              cacheName: 'kap-content-cache',
+              networkTimeoutSeconds: 2,
+              expiration: { maxEntries: 2, maxAgeSeconds: 30 * 24 * 60 * 60 },
+              cacheableResponse: { statuses: [0, 200] },
+            },
+          },
+          {
+            urlPattern: new RegExp(`${BASE_RE}search-index\\.json$`),
+            handler: 'NetworkFirst',
+            options: {
+              cacheName: 'kap-search-index',
+              networkTimeoutSeconds: 2,
+              expiration: { maxEntries: 2, maxAgeSeconds: 30 * 24 * 60 * 60 },
               cacheableResponse: { statuses: [0, 200] },
             },
           },

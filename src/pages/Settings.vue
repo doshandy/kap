@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue';
+import { computed, onBeforeUnmount, ref } from 'vue';
 import { useSettingsStore } from '@/stores/settings';
 import {
   backupJSON,
@@ -19,14 +19,32 @@ const settings = useSettingsStore();
 const update = useAppUpdate();
 const updateMsg = ref('');
 const forcing = ref(false);
+let updateMsgTimer: number | null = null;
+
+function setTransientMessage(message: string, ms = 5000): void {
+  updateMsg.value = message;
+  if (updateMsgTimer != null) window.clearTimeout(updateMsgTimer);
+  if (ms <= 0) {
+    updateMsgTimer = null;
+    return;
+  }
+  updateMsgTimer = window.setTimeout(() => {
+    updateMsg.value = '';
+    updateMsgTimer = null;
+  }, ms);
+}
 
 async function onCheckUpdate() {
-  updateMsg.value = '正在检查更新…';
-  const has = await update.checkForUpdates();
-  updateMsg.value = has
-    ? '✅ 已检测到新版本，请在更新提示中点击「立即更新」'
-    : '✅ 当前已经是最新版本';
-  setTimeout(() => (updateMsg.value = ''), 5000);
+  setTransientMessage('正在检查更新…', 0);
+  try {
+    const has = await update.checkForUpdates();
+    setTransientMessage(
+      has ? '✅ 已检测到新版本，请在更新提示中点击「立即更新」' : '✅ 当前已经是最新版本',
+    );
+  } catch (error) {
+    const reason = error instanceof Error ? error.message : String(error);
+    setTransientMessage(`❌ 检查更新失败：${reason}`);
+  }
 }
 
 async function onForceReload() {
@@ -38,11 +56,36 @@ async function onForceReload() {
     return;
   }
   forcing.value = true;
-  await update.forceReload();
+  try {
+    await update.forceReload();
+  } catch (error) {
+    const reason = error instanceof Error ? error.message : String(error);
+    setTransientMessage(`❌ 强制更新失败：${reason}`);
+  } finally {
+    forcing.value = false;
+  }
 }
 const ai = useAIStore();
 const fileRef = ref<HTMLInputElement | null>(null);
 const message = ref('');
+const fieldIds = {
+  theme: 'settings-theme',
+  fontSize: 'settings-font-size',
+  showAnswer: 'settings-show-answer',
+  shortcuts: 'settings-shortcuts',
+  backupFile: 'settings-backup-file',
+  aiEnabled: 'settings-ai-enabled',
+  aiProvider: 'settings-ai-provider',
+  aiBaseUrl: 'settings-ai-base-url',
+  aiApiKey: 'settings-ai-api-key',
+  aiRemember: 'settings-ai-remember',
+  aiModel: 'settings-ai-model',
+  aiRole: 'settings-ai-role',
+  aiTemperature: 'settings-ai-temperature',
+  exportSource: 'settings-export-source',
+} as const;
+const messageId = 'settings-message';
+const updateMessageId = 'settings-update-message';
 
 const { allQuestions } = useContent();
 const marks = useMarksStore();
@@ -50,6 +93,23 @@ const progress = useProgressStore();
 
 type ExportSource = 'all' | 'starred' | 'review' | 'mastered';
 const exportSource = ref<ExportSource>('starred');
+const exportCountBySource = computed(() => {
+  let starred = 0;
+  let review = 0;
+  let mastered = 0;
+  for (const question of allQuestions.value) {
+    if (marks.isStarred(question.id)) starred++;
+    const status = progress.get(question.id).status;
+    if (status === 'review' || status === 'fuzzy') review++;
+    if (status === 'mastered') mastered++;
+  }
+  return {
+    starred,
+    review,
+    mastered,
+    all: allQuestions.value.length,
+  };
+});
 
 const exportTarget = computed(() => {
   switch (exportSource.value) {
@@ -72,6 +132,7 @@ async function onFile(e: Event) {
   if (!f) return;
   const ok = await restoreJSON(f);
   message.value = ok ? '✅ 导入成功，刷新生效' : '❌ 文件格式错误';
+  if (fileRef.value) fileRef.value.value = '';
   if (ok) setTimeout(() => location.reload(), 1000);
 }
 
@@ -101,6 +162,11 @@ function onExportAnki() {
   exportQuestionsToAnkiTSV(list, `kap-anki-${exportSource.value}.tsv`);
   message.value = `✅ 已导出 ${list.length} 张 Anki 卡片（TSV，可直接导入 Anki）`;
 }
+
+onBeforeUnmount(() => {
+  if (updateMsgTimer != null) window.clearTimeout(updateMsgTimer);
+  updateMsgTimer = null;
+});
 </script>
 
 <template>
@@ -110,8 +176,9 @@ function onExportAnki() {
     <section class="card grp">
       <h3>外观</h3>
       <div class="row">
-        <label>主题：</label>
+        <label :for="fieldIds.theme">主题：</label>
         <select
+          :id="fieldIds.theme"
           :value="settings.state.theme"
           @change="settings.setTheme(($event.target as HTMLSelectElement).value as any)"
         >
@@ -121,8 +188,8 @@ function onExportAnki() {
         </select>
       </div>
       <div class="row">
-        <label>字号：</label>
-        <select v-model="settings.state.fontSize">
+        <label :for="fieldIds.fontSize">字号：</label>
+        <select :id="fieldIds.fontSize" v-model="settings.state.fontSize">
           <option value="sm">小</option>
           <option value="md">中</option>
           <option value="lg">大</option>
@@ -133,12 +200,16 @@ function onExportAnki() {
     <section class="card grp">
       <h3>答题</h3>
       <div class="row">
-        <label>默认展开答案：</label>
-        <input v-model="settings.state.showAnswerByDefault" type="checkbox" />
+        <label :for="fieldIds.showAnswer">默认展开答案：</label>
+        <input
+          :id="fieldIds.showAnswer"
+          v-model="settings.state.showAnswerByDefault"
+          type="checkbox"
+        />
       </div>
       <div class="row">
-        <label>启用快捷键：</label>
-        <input v-model="settings.state.shortcutsEnabled" type="checkbox" />
+        <label :for="fieldIds.shortcuts">启用快捷键：</label>
+        <input :id="fieldIds.shortcuts" v-model="settings.state.shortcutsEnabled" type="checkbox" />
       </div>
     </section>
 
@@ -148,13 +219,29 @@ function onExportAnki() {
         所有进度、笔记、复习状态都保存在本地。建议定期备份，或在切换浏览器时迁移。
       </p>
       <div class="row">
-        <button class="btn btn-primary" @click="backupJSON">
+        <button type="button" class="btn btn-primary" @click="backupJSON">
           <AppIcon name="download" /> 导出 JSON 备份
         </button>
-        <button class="btn" @click="fileRef?.click()"><AppIcon name="upload" /> 导入备份</button>
-        <input ref="fileRef" type="file" accept="application/json" hidden @change="onFile" />
+        <button
+          type="button"
+          class="btn"
+          :aria-controls="fieldIds.backupFile"
+          @click="fileRef?.click()"
+        >
+          <AppIcon name="upload" /> 导入备份
+        </button>
+        <input
+          :id="fieldIds.backupFile"
+          ref="fileRef"
+          type="file"
+          accept="application/json"
+          hidden
+          @change="onFile"
+        />
       </div>
-      <div v-if="message" class="msg">{{ message }}</div>
+      <div v-if="message" :id="messageId" class="msg" role="status" aria-live="polite">
+        {{ message }}
+      </div>
     </section>
 
     <section class="card grp">
@@ -167,12 +254,13 @@ function onExportAnki() {
         默认情况下 API Key 只保存在当前页面会话中；只有勾选“记住 API Key”才会写入本机 localStorage。
       </p>
       <div class="row">
-        <label>启用：</label>
-        <input v-model="ai.state.enabled" type="checkbox" />
+        <label :for="fieldIds.aiEnabled">启用：</label>
+        <input :id="fieldIds.aiEnabled" v-model="ai.state.enabled" type="checkbox" />
       </div>
       <div class="row">
-        <label>提供方：</label>
+        <label :for="fieldIds.aiProvider">提供方：</label>
         <select
+          :id="fieldIds.aiProvider"
           :value="ai.state.provider"
           @change="ai.setProvider(($event.target as HTMLSelectElement).value as any)"
         >
@@ -182,13 +270,27 @@ function onExportAnki() {
         </select>
       </div>
       <div class="row">
-        <label>Base URL：</label>
-        <input v-model="ai.state.baseUrl" placeholder="https://api.openai.com" />
-      </div>
-      <p v-if="ai.baseUrlWarning" class="warn-msg">{{ ai.baseUrlWarning }}</p>
-      <div class="row">
-        <label>API Key：</label>
+        <label :for="fieldIds.aiBaseUrl">Base URL：</label>
         <input
+          :id="fieldIds.aiBaseUrl"
+          v-model="ai.state.baseUrl"
+          placeholder="https://api.openai.com"
+          :aria-describedby="ai.baseUrlWarning ? 'ai-base-url-warning' : undefined"
+        />
+      </div>
+      <p
+        v-if="ai.baseUrlWarning"
+        id="ai-base-url-warning"
+        class="warn-msg"
+        role="status"
+        aria-live="polite"
+      >
+        {{ ai.baseUrlWarning }}
+      </p>
+      <div class="row">
+        <label :for="fieldIds.aiApiKey">API Key：</label>
+        <input
+          :id="fieldIds.aiApiKey"
           v-model="ai.state.apiKey"
           type="password"
           placeholder="sk-..."
@@ -210,38 +312,51 @@ function onExportAnki() {
         </button>
       </div>
       <div class="row">
-        <label>记住 API Key：</label>
-        <input v-model="ai.state.rememberApiKey" type="checkbox" />
-        <span class="hint">仅在自己的设备上使用；关闭后会清除本地保存的 Key。</span>
+        <label :for="fieldIds.aiRemember">记住 API Key：</label>
+        <input :id="fieldIds.aiRemember" v-model="ai.state.rememberApiKey" type="checkbox" />
+        <span id="ai-remember-hint" class="hint"
+          >仅在自己的设备上使用；关闭后会清除本地保存的 Key。</span
+        >
       </div>
       <p class="muted" style="font-size: 12px; margin-top: -4px">
         浏览器直连会把 Key 发送到上面的 Base URL。生产环境推荐自建代理后端，避免在端上落 Key。
       </p>
       <div class="row">
-        <label>模型：</label>
-        <input v-model="ai.state.model" placeholder="gpt-4o-mini / claude-3-5-sonnet-..." />
+        <label :for="fieldIds.aiModel">模型：</label>
+        <input
+          :id="fieldIds.aiModel"
+          v-model="ai.state.model"
+          placeholder="gpt-4o-mini / claude-3-5-sonnet-..."
+        />
       </div>
       <div class="row">
-        <label>角色：</label>
-        <select v-model="ai.state.systemRole">
+        <label :for="fieldIds.aiRole">角色：</label>
+        <select :id="fieldIds.aiRole" v-model="ai.state.systemRole">
           <option value="mentor">资深导师（讲解为主）</option>
           <option value="interviewer">严格面试官（追问为主）</option>
           <option value="concise">极简助手（要点为主）</option>
         </select>
       </div>
       <div class="row">
-        <label>Temperature：</label>
+        <label :for="fieldIds.aiTemperature">Temperature：</label>
         <input
+          :id="fieldIds.aiTemperature"
           v-model.number="ai.state.temperature"
           type="number"
           min="0"
           max="1"
           step="0.1"
           style="width: 80px"
+          aria-describedby="ai-temperature-hint"
         />
-        <span class="hint">0 严谨 → 1 发散</span>
+        <span id="ai-temperature-hint" class="hint">0 严谨 → 1 发散</span>
       </div>
-      <p v-if="!ai.state.apiKey && ai.state.enabled" class="warn-msg">
+      <p
+        v-if="!ai.state.apiKey && ai.state.enabled"
+        class="warn-msg"
+        role="status"
+        aria-live="polite"
+      >
         ⚠ 启用了 AI 但还没填 API Key，题目页将仍提示"未启用"。
       </p>
     </section>
@@ -250,21 +365,24 @@ function onExportAnki() {
       <h3>导出题库 / 面试小抄</h3>
       <p class="muted">把题目导出为 Markdown 小抄方便打印 / 阅读，或导出 Anki 卡片做间隔重复。</p>
       <div class="row">
-        <label>导出范围：</label>
-        <select v-model="exportSource">
-          <option value="starred">
-            仅收藏（{{ allQuestions.filter((q) => marks.isStarred(q.id)).length }}）
-          </option>
-          <option value="review">仅复习 / 模糊</option>
-          <option value="mastered">仅已掌握</option>
-          <option value="all">全部题目（{{ allQuestions.length }}）</option>
+        <label :for="fieldIds.exportSource">导出范围：</label>
+        <select :id="fieldIds.exportSource" v-model="exportSource">
+          <option value="starred">仅收藏（{{ exportCountBySource.starred }}）</option>
+          <option value="review">仅复习 / 模糊（{{ exportCountBySource.review }}）</option>
+          <option value="mastered">仅已掌握（{{ exportCountBySource.mastered }}）</option>
+          <option value="all">全部题目（{{ exportCountBySource.all }}）</option>
         </select>
       </div>
       <div class="row">
-        <button class="btn btn-primary" :disabled="!exportTarget.length" @click="onExportMarkdown">
+        <button
+          type="button"
+          class="btn btn-primary"
+          :disabled="!exportTarget.length"
+          @click="onExportMarkdown"
+        >
           <AppIcon name="fileText" /> 导出 Markdown（{{ exportTarget.length }}）
         </button>
-        <button class="btn" :disabled="!exportTarget.length" @click="onExportAnki">
+        <button type="button" class="btn" :disabled="!exportTarget.length" @click="onExportAnki">
           <AppIcon name="copy" /> 导出 Anki TSV
         </button>
       </div>
@@ -277,11 +395,11 @@ function onExportAnki() {
         与最新版本不一致（例如部署后看到的还是旧版），可以在这里手动检查或强制刷新。
       </p>
       <div class="row">
-        <button class="btn" :disabled="update.checking.value" @click="onCheckUpdate">
+        <button type="button" class="btn" :disabled="update.checking.value" @click="onCheckUpdate">
           <AppIcon name="reload" />
           {{ update.checking.value ? '检查中…' : '检查更新' }}
         </button>
-        <button class="btn" :disabled="forcing" @click="onForceReload">
+        <button type="button" class="btn" :disabled="forcing" @click="onForceReload">
           <AppIcon name="warning" />
           {{ forcing ? '正在重置…' : '强制更新（清缓存）' }}
         </button>
@@ -290,12 +408,16 @@ function onExportAnki() {
         当前有新版本可用，可直接点屏幕右下角的「立即更新」。
       </p>
       <p v-if="update.offlineReady.value" class="hint">✅ 已支持离线访问。</p>
-      <div v-if="updateMsg" class="msg">{{ updateMsg }}</div>
+      <div v-if="updateMsg" :id="updateMessageId" class="msg" role="status" aria-live="polite">
+        {{ updateMsg }}
+      </div>
     </section>
 
     <section class="card grp danger">
       <h3>危险操作</h3>
-      <button class="btn" @click="onClear"><AppIcon name="delete" /> 清除所有本地数据</button>
+      <button type="button" class="btn" @click="onClear">
+        <AppIcon name="delete" /> 清除所有本地数据
+      </button>
     </section>
   </div>
 </template>

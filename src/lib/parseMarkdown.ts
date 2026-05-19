@@ -14,6 +14,8 @@ import 'prismjs/components/prism-diff';
 import 'prismjs/components/prism-markup';
 import 'prismjs/components/prism-markup-templating';
 import type { Category, Difficulty, Question } from '@/types/content';
+import { parseInlineList, splitQuestionBlocks } from './contentBlockParser';
+import { normalizeQuestionId } from './questionId';
 
 const md: MarkdownIt = new MarkdownIt({
   html: true,
@@ -122,19 +124,11 @@ interface RawQuestionFront {
   relatedQuestionIds?: string[];
 }
 
-const QUESTION_HEADING_RE = /^##\s+([a-z][a-z0-9-]*)\s*$/;
-const SUBSECTION_RE = /^###\s+(一句话|题目|答案要点|代码示例|常见误区|追问|延伸)\s*$/;
-
 interface ParsedQuestionBlock {
   slug: string;
   meta: RawQuestionFront;
   sections: Record<string, string>;
   raw: string;
-}
-
-function normalizeQuestionId(categoryId: string, value: string): string {
-  const trimmed = value.trim();
-  return trimmed.includes('/') ? trimmed : `${categoryId}/${trimmed}`;
 }
 
 function normalizeQuestionIds(
@@ -146,93 +140,29 @@ function normalizeQuestionIds(
   return ids.length ? ids : undefined;
 }
 
+function parseQuestionMeta(metaText: string): RawQuestionFront {
+  const meta: Record<string, unknown> = {};
+  for (const line of metaText.split(/\r?\n/)) {
+    const match = line.match(/^([\w-]+)\s*:\s*(.+)$/);
+    if (!match) continue;
+    const key = match[1];
+    const rawValue = match[2].trim();
+    meta[key] =
+      rawValue.startsWith('[') && rawValue.endsWith(']')
+        ? parseInlineList(rawValue)
+        : rawValue.replace(/^['"]|['"]$/g, '');
+  }
+  return { title: '', ...(meta as Partial<RawQuestionFront>) };
+}
+
 function splitQuestions(body: string): ParsedQuestionBlock[] {
-  const lines = body.split(/\r?\n/);
-  const blocks: ParsedQuestionBlock[] = [];
-  let current: ParsedQuestionBlock | null = null;
-  let currentSection: string | null = null;
-  let metaBuffer: string[] = [];
-  let collectingMeta = false;
-  let inFence = false;
-  let fenceMarker = '';
-
-  const flushMeta = () => {
-    if (!current) return;
-    const obj: Record<string, unknown> = {};
-    for (const ln of metaBuffer) {
-      const m = ln.match(/^([\w-]+)\s*:\s*(.+)$/);
-      if (!m) continue;
-      const key = m[1];
-      let val: unknown = m[2].trim();
-      if (typeof val === 'string' && val.startsWith('[') && val.endsWith(']')) {
-        val = val
-          .slice(1, -1)
-          .split(',')
-          .map((s) => s.trim().replace(/^['"]|['"]$/g, ''))
-          .filter(Boolean);
-      }
-      obj[key] = val;
-    }
-    current.meta = { ...current.meta, ...(obj as unknown as RawQuestionFront) };
-    metaBuffer = [];
-    collectingMeta = false;
-  };
-
-  for (const line of lines) {
-    const fence = line.match(/^(`{3,})/);
-    if (fence) {
-      if (!inFence) {
-        inFence = true;
-        fenceMarker = fence[1];
-      } else if (fence[1].length >= fenceMarker.length) {
-        inFence = false;
-        fenceMarker = '';
-      }
-    }
-    const headMatch = line.match(QUESTION_HEADING_RE);
-    if (!inFence && headMatch) {
-      if (current) {
-        flushMeta();
-        blocks.push(current);
-      }
-      current = {
-        slug: headMatch[1],
-        meta: { title: '' },
-        sections: {},
-        raw: line + '\n',
-      };
-      currentSection = null;
-      collectingMeta = true;
-      metaBuffer = [];
-      continue;
-    }
-    if (!current) continue;
-    current.raw += line + '\n';
-
-    const subMatch = line.match(SUBSECTION_RE);
-    if (!inFence && subMatch) {
-      flushMeta();
-      currentSection = subMatch[1];
-      current.sections[currentSection] = '';
-      continue;
-    }
-    if (collectingMeta) {
-      if (line.trim() === '') {
-        if (metaBuffer.length > 0) flushMeta();
-        continue;
-      }
-      metaBuffer.push(line);
-      continue;
-    }
-    if (currentSection) {
-      current.sections[currentSection] += line + '\n';
-    }
-  }
-  if (current) {
-    flushMeta();
-    blocks.push(current);
-  }
-  return blocks;
+  const { blocks } = splitQuestionBlocks(body);
+  return blocks.map((block) => ({
+    slug: block.slug,
+    meta: parseQuestionMeta(block.metaText),
+    sections: block.sections,
+    raw: block.raw,
+  }));
 }
 
 export function parseCategoryMarkdown(raw: string): Category {

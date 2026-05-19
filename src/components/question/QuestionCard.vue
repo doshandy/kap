@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, defineAsyncComponent, ref } from 'vue';
+import { computed, defineAsyncComponent, ref, watch } from 'vue';
 import { useRouter } from 'vue-router';
 import type { Question } from '@/types/content';
 import { useProgressStore } from '@/stores/progress';
@@ -12,6 +12,7 @@ import { exportQuestionMarkdown } from '@/composables/useExport';
 import { useContent } from '@/composables/useContent';
 import { buildPrompt, chatGptUrl, domesticAiUrl } from '@/lib/ai';
 import { scoreAnswer } from '@/lib/answerScoring';
+import { buildReciteCards } from '@/lib/learningExperience';
 import AppIcon from '@/components/icon/AppIcon.vue';
 import { useAIStore } from '@/stores/ai';
 
@@ -42,6 +43,7 @@ const showAIPanel = ref(false);
 const showMoreActions = ref(false);
 const draftAnswer = ref('');
 const aiStore = useAIStore();
+const reciteIndex = ref(0);
 const AI_TIP_KEYS = {
   gpt: 'kap-ai-explain-gpt-tip-seen',
   kimi: 'kap-ai-explain-kimi-tip-seen',
@@ -64,6 +66,11 @@ const relatedQuestions = computed(() =>
 const localScore = computed(() =>
   draftAnswer.value.trim() ? scoreAnswer(draftAnswer.value, props.question) : undefined,
 );
+const timelineEvents = computed(() => progress.get(props.question.id).events || []);
+const reciteCards = computed(() => buildReciteCards(props.question));
+const currentReciteCard = computed(
+  () => reciteCards.value[reciteIndex.value] || reciteCards.value[0],
+);
 
 const { isSpeaking, toggle: toggleSpeak } = useSpeechController(() =>
   stripHtml(props.question.question + ' ' + props.question.answer),
@@ -77,8 +84,21 @@ function toggle() {
 function setStatus(s: 'mastered' | 'review' | 'fuzzy' | 'todo') {
   if (status.value === s) return;
   progress.setStatus(props.question.id, s);
-  if (s === 'review' || s === 'fuzzy') review.rate(props.question.id, s === 'fuzzy' ? 1 : 0);
+  if (s === 'review' || s === 'fuzzy') review.queueNow(props.question.id, s === 'fuzzy' ? 1 : 0);
   if (s === 'mastered') review.rate(props.question.id, 2);
+  if (s === 'todo') review.remove(props.question.id);
+}
+
+function markMastered(): void {
+  setStatus('mastered');
+}
+
+function markReview(): void {
+  setStatus('review');
+}
+
+function toggleNotePanel(): void {
+  showNote.value = !showNote.value;
 }
 
 function setReveal(level: number): void {
@@ -86,7 +106,13 @@ function setReveal(level: number): void {
 }
 
 function toggleWrongReason(reason: WrongReason): void {
+  const hadReason = marks.hasWrongReason(props.question.id, reason);
   marks.toggleWrongReason(props.question.id, reason);
+  progress.addEvent(props.question.id, {
+    type: 'wrong-reason',
+    label: hadReason ? `移除错因：${reason}` : `新增错因：${reason}`,
+    detail: '错因标签调整',
+  });
   if (!marks.isStarred(props.question.id)) marks.toggleStar(props.question.id);
 }
 
@@ -140,6 +166,24 @@ function copyPromptToClipboard() {
   navigator.clipboard?.writeText(prompt);
 }
 
+function clearWrongReasons(): void {
+  marks.clearWrongReasons(props.question.id);
+  progress.addEvent(props.question.id, {
+    type: 'wrong-reason',
+    label: '清空错因标签',
+  });
+}
+
+function formatTime(ts: number): string {
+  if (!ts) return '暂无记录';
+  return new Date(ts).toLocaleString(undefined, {
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+  });
+}
+
 function gotoDetail() {
   router.push({
     name: 'question',
@@ -154,7 +198,22 @@ function gotoQuestion(q: Question) {
   });
 }
 
-defineExpose({ toggle });
+function startFollowupChain(): void {
+  router.push({
+    name: 'followup-chain',
+    params: { categoryId: props.question.categoryId, slug: props.question.slug },
+  });
+}
+
+watch(
+  open,
+  (isOpen) => {
+    if (isOpen) progress.markViewed(props.question.id, '题卡展开');
+  },
+  { immediate: true },
+);
+
+defineExpose({ toggle, markMastered, markReview, toggleNotePanel });
 </script>
 
 <template>
@@ -217,6 +276,7 @@ defineExpose({ toggle });
           class="chip"
           :class="{ active: revealLevel >= 1 }"
           :aria-pressed="revealLevel >= 1"
+          aria-label="显示或隐藏题目"
           title="显示 / 隐藏题目"
           @click="setReveal(1)"
         >
@@ -226,6 +286,7 @@ defineExpose({ toggle });
           class="chip"
           :class="{ active: revealLevel >= 2 }"
           :aria-pressed="revealLevel >= 2"
+          aria-label="显示或隐藏核心答案"
           title="显示 / 隐藏核心答案"
           @click="setReveal(2)"
         >
@@ -235,6 +296,7 @@ defineExpose({ toggle });
           class="chip"
           :class="{ active: revealLevel >= 3 }"
           :aria-pressed="revealLevel >= 3"
+          aria-label="显示或隐藏误区与追问"
           title="显示 / 隐藏误区和追问"
           @click="setReveal(3)"
         >
@@ -244,6 +306,7 @@ defineExpose({ toggle });
           class="chip"
           :class="{ active: revealLevel >= 4 }"
           :aria-pressed="revealLevel >= 4"
+          aria-label="显示或隐藏完整内容"
           title="显示 / 隐藏完整内容"
           @click="setReveal(4)"
         >
@@ -280,6 +343,13 @@ defineExpose({ toggle });
           </div>
           <div v-if="revealLevel >= 3 && question.followup" class="markdown-body block-followup">
             <h4><AppIcon name="question" /> 面试官追问</h4>
+            <button
+              v-if="followupQuestions.length"
+              class="btn btn-ghost chain-entry"
+              @click="startFollowupChain"
+            >
+              <AppIcon name="experiment" /> 开始追问链
+            </button>
             <ul v-if="followupQuestions.length" class="followup-link-list">
               <li v-for="item in followupQuestions" :key="item.id">
                 <button
@@ -326,6 +396,33 @@ defineExpose({ toggle });
             <div v-html="question.extra" />
           </div>
 
+          <div v-if="revealLevel >= 2 && currentReciteCard" class="recite-cards card-soft">
+            <div class="recite-head">
+              <h4><AppIcon name="read" /> 答案背诵卡片</h4>
+              <span>{{ reciteIndex + 1 }} / {{ reciteCards.length }}</span>
+            </div>
+            <article class="recite-card">
+              <b>{{ currentReciteCard.title }}</b>
+              <p>{{ currentReciteCard.body }}</p>
+            </article>
+            <div class="recite-nav">
+              <button
+                class="btn btn-ghost"
+                :disabled="reciteIndex === 0"
+                @click="reciteIndex = Math.max(0, reciteIndex - 1)"
+              >
+                上一张
+              </button>
+              <button
+                class="btn btn-ghost"
+                :disabled="reciteIndex >= reciteCards.length - 1"
+                @click="reciteIndex = Math.min(reciteCards.length - 1, reciteIndex + 1)"
+              >
+                下一张
+              </button>
+            </div>
+          </div>
+
           <div v-if="revealLevel >= 2" class="answer-score card-soft">
             <h4><AppIcon name="trophy" /> 面试回答评分</h4>
             <textarea
@@ -360,6 +457,7 @@ defineExpose({ toggle });
               :key="reason"
               class="chip"
               :class="{ active: marks.hasWrongReason(question.id, reason) }"
+              :aria-pressed="marks.hasWrongReason(question.id, reason)"
               @click="toggleWrongReason(reason)"
             >
               {{ reason }}
@@ -367,41 +465,62 @@ defineExpose({ toggle });
             <button
               v-if="marks.wrongReasonsOf(question.id).length"
               class="chip"
-              @click="marks.clearWrongReasons(question.id)"
+              aria-label="清空当前题目的错因标签"
+              @click="clearWrongReasons"
             >
               清空错因
             </button>
           </div>
 
-          <div class="actions question-actions" :class="{ 'show-secondary': showMoreActions }">
-            <div class="action-scroll">
+          <div v-if="timelineEvents.length" class="timeline card-soft">
+            <h4><AppIcon name="clock" /> 掌握度时间线</h4>
+            <ol>
+              <li v-for="event in timelineEvents.slice(0, 6)" :key="`${event.at}-${event.label}`">
+                <time>{{ formatTime(event.at) }}</time>
+                <span>{{ event.label }}</span>
+                <em v-if="event.detail">{{ event.detail }}</em>
+              </li>
+            </ol>
+          </div>
+
+          <div
+            class="actions question-actions"
+            :class="{ 'show-secondary': showMoreActions }"
+            role="group"
+            aria-label="题目学习操作"
+          >
+            <div :id="`q-actions-${question.id}`" class="action-scroll">
               <button
-                class="btn"
+                class="btn primary-action"
                 :class="{ 'btn-primary': status === 'mastered' }"
                 :title="`标记为已掌握（快捷键 m）`"
+                :aria-pressed="status === 'mastered'"
                 @click="setStatus('mastered')"
               >
                 <AppIcon name="checkCircle" /> 记得
               </button>
               <button
-                class="btn"
+                class="btn primary-action"
                 :class="{ 'btn-primary': status === 'fuzzy' }"
                 title="标记为模糊（仍记得概念但不熟）"
+                :aria-pressed="status === 'fuzzy'"
                 @click="setStatus('fuzzy')"
               >
                 <AppIcon name="question" /> 模糊
               </button>
               <button
-                class="btn"
+                class="btn primary-action"
                 :class="{ 'btn-primary': status === 'review' }"
                 title="标记为需要复习（快捷键 r）"
+                :aria-pressed="status === 'review'"
                 @click="setStatus('review')"
               >
                 <AppIcon name="reload" /> 需复习
               </button>
               <button
-                class="btn btn-ghost"
+                class="btn btn-ghost primary-action"
                 title="编辑这道题的笔记（快捷键 n）"
+                :aria-pressed="showNote"
                 @click="showNote = !showNote"
               >
                 <AppIcon name="edit" /> 笔记
@@ -473,6 +592,7 @@ defineExpose({ toggle });
               class="btn btn-ghost more-toggle"
               :class="{ active: showMoreActions }"
               :aria-expanded="showMoreActions"
+              :aria-controls="`q-actions-${question.id}`"
               @click="showMoreActions = !showMoreActions"
             >
               <AppIcon name="appstore" /> {{ showMoreActions ? '收起更多' : '更多' }}
@@ -613,6 +733,52 @@ defineExpose({ toggle });
 .card-soft h4 {
   margin: 0 0 8px;
 }
+.recite-head {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  align-items: center;
+}
+.recite-head span {
+  color: var(--c-text-mute);
+  font-size: 12px;
+}
+.recite-card {
+  padding: 12px;
+  border: 1px solid var(--c-border);
+  border-radius: var(--radius);
+  background: var(--c-surface);
+}
+.recite-card b {
+  color: var(--c-primary);
+}
+.recite-card p {
+  margin: 8px 0 0;
+  line-height: 1.7;
+}
+.recite-nav {
+  display: flex;
+  gap: 8px;
+  margin-top: 10px;
+}
+.timeline ol {
+  display: grid;
+  gap: 8px;
+  padding-left: 20px;
+  margin: 0;
+}
+.timeline time {
+  margin-right: 8px;
+  color: var(--c-text-mute);
+  font-size: 12px;
+}
+.timeline em {
+  display: block;
+  margin-top: 2px;
+  color: var(--c-text-mute);
+  font-style: normal;
+  font-size: 12px;
+}
 .card-soft textarea {
   width: 100%;
   padding: 10px;
@@ -712,6 +878,9 @@ defineExpose({ toggle });
 }
 .followup-link:hover {
   color: var(--c-primary);
+}
+.chain-entry {
+  margin: 4px 0 6px;
 }
 .related-questions {
   display: flex;
@@ -868,19 +1037,24 @@ defineExpose({ toggle });
     padding: 10px 12px;
   }
   .actions {
-    flex-wrap: nowrap;
-    overflow-x: visible;
+    align-items: stretch;
+    flex-wrap: wrap;
   }
   .action-scroll {
-    flex-wrap: nowrap;
-    overflow-x: auto;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    overflow: visible;
   }
   .actions .btn {
-    flex: 0 0 auto;
+    width: 100%;
     justify-content: center;
   }
+  .action-scroll .primary-action {
+    min-height: 40px;
+  }
   .more-toggle {
-    min-width: 72px;
+    width: 100%;
+    min-height: 40px;
   }
   .actions kbd {
     display: none;

@@ -15,6 +15,29 @@ const checking = ref(false);
 
 let updateSWFn: ((reloadPage?: boolean) => Promise<void>) | null = null;
 let registered = false;
+const APP_BASE = normalizeBase(import.meta.env.BASE_URL);
+
+export function normalizeBase(raw: string | undefined): string {
+  const value = (raw || '/').trim() || '/';
+  const withLeading = value.startsWith('/') ? value : `/${value}`;
+  return withLeading.endsWith('/') ? withLeading : `${withLeading}/`;
+}
+
+export function normalizePathname(pathname: string): string {
+  const normalized = normalizeBase(pathname);
+  return normalized === '//' ? '/' : normalized;
+}
+
+export function scopeMatchesAppBase(scope: string, appBase = APP_BASE): boolean {
+  const normalizedBase = normalizeBase(appBase);
+  try {
+    const pathname = normalizePathname(new URL(scope).pathname);
+    if (normalizedBase === '/') return pathname === '/';
+    return pathname === normalizedBase || pathname.startsWith(normalizedBase);
+  } catch {
+    return scope.includes(normalizedBase);
+  }
+}
 
 async function ensureRegistered() {
   if (registered) return;
@@ -81,7 +104,9 @@ export async function forceReload(): Promise<void> {
   try {
     if ('serviceWorker' in navigator) {
       const regs = await navigator.serviceWorker.getRegistrations();
-      await Promise.all(regs.filter((r) => r.scope.includes('/kap/')).map((r) => r.unregister()));
+      await Promise.all(
+        regs.filter((r) => scopeMatchesAppBase(r.scope)).map((r) => r.unregister()),
+      );
     }
     if (typeof caches !== 'undefined' && caches?.keys) {
       const keys = await caches.keys();

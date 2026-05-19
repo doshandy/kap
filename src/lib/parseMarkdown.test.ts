@@ -95,6 +95,34 @@ describe('parseCategoryMarkdown', () => {
     expect(q.extra).toBeUndefined();
   });
 
+  it('非法 H2 slug 会直接抛错，避免静默漏题', () => {
+    const invalid = `---
+id: c
+title: t
+order: 1
+---
+
+## valid-slug
+title: 合法题
+
+### 题目
+Q
+
+### 答案要点
+A
+
+## Invalid Slug
+title: 非法题
+
+### 题目
+Q2
+
+### 答案要点
+A2
+`;
+    expect(() => parseCategoryMarkdown(invalid)).toThrow(/非法题目标题/);
+  });
+
   it('生成稳定的 raw 文本（拼装 H2 + 子段），用于全文搜索', () => {
     const cat = parseCategoryMarkdown(sample);
     const q = cat.questions[0];

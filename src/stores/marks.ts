@@ -68,7 +68,46 @@ export const useMarksStore = defineStore('marks', () => {
 
   const starredCount = computed(() => Object.keys(state.starred).length);
   const skippedCount = computed(() => Object.keys(state.skipped).length);
-  const wrongCount = computed(() => Object.keys(state.wrongReasons).length);
+  const wrongCount = computed(
+    () => Object.keys(state.wrongReasons).filter((id) => wrongReasonsOf(id).length > 0).length,
+  );
+
+  function starredCountFor(ids: Iterable<string>): number {
+    let total = 0;
+    for (const id of new Set(ids)) {
+      if (state.starred[id]) total++;
+    }
+    return total;
+  }
+
+  function skippedCountFor(ids: Iterable<string>): number {
+    let total = 0;
+    for (const id of new Set(ids)) {
+      if (state.skipped[id]) total++;
+    }
+    return total;
+  }
+
+  function wrongCountFor(ids: Iterable<string>): number {
+    let total = 0;
+    for (const id of new Set(ids)) {
+      if (wrongReasonsOf(id).length > 0) total++;
+    }
+    return total;
+  }
+
+  function pruneTo(ids: Iterable<string>): void {
+    const allowed = new Set(ids);
+    for (const id of Object.keys(state.starred)) {
+      if (!allowed.has(id)) delete state.starred[id];
+    }
+    for (const id of Object.keys(state.skipped)) {
+      if (!allowed.has(id)) delete state.skipped[id];
+    }
+    for (const id of Object.keys(state.wrongReasons)) {
+      if (!allowed.has(id)) delete state.wrongReasons[id];
+    }
+  }
 
   return {
     state,
@@ -83,5 +122,9 @@ export const useMarksStore = defineStore('marks', () => {
     starredCount,
     skippedCount,
     wrongCount,
+    starredCountFor,
+    skippedCountFor,
+    wrongCountFor,
+    pruneTo,
   };
 });

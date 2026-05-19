@@ -10,17 +10,28 @@
  */
 import { readFileSync, readdirSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
+import { parseCommonScriptArgs, resolveOnlyContentFiles } from './shared/args';
 
-const args = process.argv.slice(2);
-const write = args.includes('--write');
-const dry = !write || args.includes('--dry') || args.includes('--dry-run');
-const onlyArg = args.find((a) => a.startsWith('--only='));
-const onlyFile = onlyArg ? onlyArg.slice(7) : null;
+const parserModule = (await import(
+  new URL('../src/lib/contentBlockParser.ts', import.meta.url).href
+)) as {
+  splitQuestionBlocks(content: string): {
+    before: string;
+    blocks: Array<{
+      raw: string;
+      sections: Record<string, string>;
+    }>;
+  };
+};
+const { splitQuestionBlocks } = parserModule;
+
+const { dryRun, onlyFile } = parseCommonScriptArgs(process.argv.slice(2));
 
 const CONTENT_DIR = join(process.cwd(), 'content');
-const files = readdirSync(CONTENT_DIR)
-  .filter((f) => /^\d.*\.md$/.test(f))
-  .filter((f) => (onlyFile ? f === onlyFile : true));
+const files = resolveOnlyContentFiles(
+  readdirSync(CONTENT_DIR).filter((f) => /^\d.*\.md$/.test(f)),
+  onlyFile,
+);
 
 interface Stat {
   total: number;
@@ -58,8 +69,9 @@ function pickSentences(answer: string): string {
   if (summary.length > 130) {
     const trimmed = summary.slice(0, 128);
     const last = Math.max(trimmed.lastIndexOf('；'), trimmed.lastIndexOf('，'));
-    summary = (last > 60 ? trimmed.slice(0, last) : trimmed) + '…';
+    summary = last > 60 ? trimmed.slice(0, last) : trimmed;
   }
+  summary = summary.replace(/「([^」]{4,80}) 是什么」/g, '「$1」');
   return summary + '。';
 }
 
@@ -68,63 +80,37 @@ function processFile(file: string): Stat {
   const text = readFileSync(filePath, 'utf8');
 
   const stat: Stat = { total: 0, filled: 0, skipped: 0 };
+  const parsed = splitQuestionBlocks(text);
+  if (!parsed.blocks.length) return stat;
 
-  const headRE = /^## ([a-z][\w-]*)\s*$/gm;
-  const heads: { slug: string; index: number }[] = [];
-  let match: RegExpExecArray | null;
-  while ((match = headRE.exec(text)) !== null) {
-    heads.push({ slug: match[1], index: match.index });
-  }
-  if (!heads.length) return stat;
-
-  const replacements: { from: number; to: number; replacement: string }[] = [];
-
-  for (let i = 0; i < heads.length; i++) {
+  const rewritten = parsed.blocks.map((block) => {
     stat.total++;
-    const start = heads[i].index;
-    const end = i + 1 < heads.length ? heads[i + 1].index : text.length;
-    const block = text.slice(start, end);
-
-    if (/^### 一句话\s*$/m.test(block)) {
+    if (block.sections['一句话']) {
       stat.skipped++;
-      continue;
+      return block.raw;
     }
-
-    const titleMatch = block.match(/^### 题目\s*$/m);
-    const answerMatch = block.match(/^### 答案要点\s*\n([\s\S]*?)(?=^### |$)/m);
-    if (!answerMatch) {
+    const answer = block.sections['答案要点'];
+    if (!answer) {
       stat.skipped++;
-      continue;
+      return block.raw;
     }
-    const summary = pickSentences(answerMatch[1]);
+    const summary = pickSentences(answer);
     if (!summary) {
       stat.skipped++;
-      continue;
+      return block.raw;
     }
-    if (!titleMatch) {
+    const titleMatch = block.raw.match(/^### 题目\s*$/m);
+    if (!titleMatch?.index && titleMatch?.index !== 0) {
       stat.skipped++;
-      continue;
+      return block.raw;
     }
-
-    const titleIdx = block.indexOf(titleMatch[0]);
-    const insertOffset = start + titleIdx;
-    const inject = `### 一句话\n${summary}\n\n`;
-    replacements.push({ from: insertOffset, to: insertOffset, replacement: inject });
     stat.filled++;
-  }
+    const inject = `### 一句话\n${summary}\n\n`;
+    return `${block.raw.slice(0, titleMatch.index)}${inject}${block.raw.slice(titleMatch.index)}`;
+  });
 
-  if (!replacements.length) return stat;
-
-  let out = '';
-  let cursor = 0;
-  for (const r of replacements.sort((a, b) => a.from - b.from)) {
-    out += text.slice(cursor, r.from);
-    out += r.replacement;
-    cursor = r.to;
-  }
-  out += text.slice(cursor);
-
-  if (!dry) writeFileSync(filePath, out);
+  const out = `${parsed.before}${rewritten.join('\n')}`;
+  if (out !== text && !dryRun) writeFileSync(filePath, out);
 
   return stat;
 }
@@ -142,4 +128,4 @@ for (const file of files) {
 
 console.log('---');
 console.log(`总计 ${g.total} 题，本次自动补充 ${g.filled} 题，原已有/跳过 ${g.skipped} 题。`);
-if (dry) console.log('(dry 模式，未写入)');
+if (dryRun) console.log('(dry 模式，未写入)');
