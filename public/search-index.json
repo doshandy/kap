@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "generatedAt": "2026-05-19T08:40:32.338Z",
+  "generatedAt": "2026-05-19T08:41:47.363Z",
   "signature": "2283:539c3134",
-  "contentSignature": "2283:f50ddf73",
+  "contentSignature": "2283:f4040eaf",
   "docs": [
     {
       "id": "01-javascript/prototype-chain",
