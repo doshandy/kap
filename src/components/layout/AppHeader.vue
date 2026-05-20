@@ -210,10 +210,12 @@ const isDark = computed(() => {
   .right .btn .lbl {
     display: none;
   }
+
   /* 移动端顶部按钮进入仅图标模式时，统一使用无边框样式。 */
   .right .btn {
     --btn-border: transparent;
     --btn-bg: transparent;
+
     border-color: transparent;
     background: transparent;
     box-shadow: none;
