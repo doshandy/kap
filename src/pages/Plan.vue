@@ -7,7 +7,7 @@ import { useMarksStore } from '@/stores/marks';
 import { useProgressStore } from '@/stores/progress';
 import { questionPriority } from '@/lib/questionPriority';
 import AppIcon from '@/components/icon/AppIcon.vue';
-import type { Question } from '@/types/content';
+import type { Difficulty, Question } from '@/types/content';
 
 const { allQuestions, categories } = useContent();
 const plan = useLearningPlanStore();
@@ -26,13 +26,13 @@ const modes = [
   {
     days: 7 as const,
     title: '7 天突击',
-    desc: '优先高频、收藏、模糊题，适合临近面试快速补短板。',
+    desc: '仅抽取高优先级精选题，偏进阶/资深，适合临近面试快速补短板。',
     tone: '高压冲刺',
   },
   {
     days: 14 as const,
     title: '14 天面试准备',
-    desc: '兼顾覆盖率和复习节奏，每天任务量适中。',
+    desc: '抽取高质量核心题并兼顾基础覆盖，节奏均衡。',
     tone: '均衡推进',
   },
   {
@@ -43,32 +43,151 @@ const modes = [
   },
 ];
 
-function rankedQuestions(): Question[] {
+type PlanDays = 7 | 14 | 30;
+
+interface PlanProfile {
+  /**
+   * 计划覆盖率：
+   * - 7/14 天不做全量，聚焦高质量精选题
+   * - 30 天走全量均摊
+   */
+  targetRatio: number;
+  /** 防止题库规模较小时，日任务过少 */
+  minPerDay: number;
+  difficultyShare?: Record<Difficulty, number>;
+}
+
+const PLAN_PROFILES: Record<PlanDays, PlanProfile> = {
+  7: {
+    targetRatio: 0.42,
+    minPerDay: 12,
+    difficultyShare: { 基础: 0.15, 进阶: 0.45, 资深: 0.4 },
+  },
+  14: {
+    targetRatio: 0.68,
+    minPerDay: 10,
+    difficultyShare: { 基础: 0.25, 进阶: 0.45, 资深: 0.3 },
+  },
+  30: {
+    targetRatio: 1,
+    minPerDay: 1,
+  },
+};
+
+const DIFFICULTY_ORDER: Difficulty[] = ['资深', '进阶', '基础'];
+const HIGH_SIGNAL_TAG_RE = /高频|核心|面试|必会|原理|场景|性能|安全/;
+
+function baseQuestionScore(question: Question): number {
+  const status = progress.get(question.id).status;
+  let score = questionPriority(question, {
+    status,
+    starred: marks.isStarred(question.id),
+  });
+  if (marks.wrongReasonsOf(question.id).length) score += 14;
+  if (question.tags.some((tag) => HIGH_SIGNAL_TAG_RE.test(tag))) score += 12;
+  return score;
+}
+
+function planQuestionScore(question: Question, days: PlanDays): number {
+  const status = progress.get(question.id).status;
+  let score = baseQuestionScore(question);
+
+  if (status === 'mastered') {
+    if (days === 7) score -= 18;
+    else if (days === 14) score -= 10;
+    else score -= 4;
+  }
+
+  if (days === 7) {
+    if (question.difficulty === '资深') score += 18;
+    if (question.difficulty === '进阶') score += 10;
+    if (question.difficulty === '基础') score -= 10;
+    if (question.parentId) score -= 10;
+  } else if (days === 14) {
+    if (question.difficulty === '资深') score += 10;
+    if (question.difficulty === '进阶') score += 7;
+    if (question.difficulty === '基础') score += 2;
+    if (question.parentId) score -= 6;
+  } else if (question.parentId) {
+    score -= 3;
+  }
+
+  return score;
+}
+
+function rankedQuestions(days: PlanDays): Question[] {
   return allQuestions.value
     .filter((q) => !marks.isSkipped(q.id))
     .slice()
     .sort((a, b) => {
-      const pa = questionPriority(a, {
-        status: progress.get(a.id).status,
-        starred: marks.isStarred(a.id),
-      });
-      const pb = questionPriority(b, {
-        status: progress.get(b.id).status,
-        starred: marks.isStarred(b.id),
-      });
+      const pa = planQuestionScore(a, days);
+      const pb = planQuestionScore(b, days);
       return pb - pa || a.categoryId.localeCompare(b.categoryId) || a.title.localeCompare(b.title);
     });
 }
 
-function buildSchedule(days: number): Question[][] {
+function targetQuestionCount(days: PlanDays, total: number): number {
+  if (!total) return 0;
+  const profile = PLAN_PROFILES[days];
+  return Math.min(
+    total,
+    Math.max(days * profile.minPerDay, Math.round(total * profile.targetRatio)),
+  );
+}
+
+function pickQuestionsForPlan(days: PlanDays): Question[] {
+  const ranked = rankedQuestions(days);
+  const target = targetQuestionCount(days, ranked.length);
+  if (!target || target >= ranked.length) return ranked.slice(0, target || ranked.length);
+
+  const share = PLAN_PROFILES[days].difficultyShare;
+  if (!share) return ranked.slice(0, target);
+
+  const byDifficulty: Record<Difficulty, Question[]> = { 基础: [], 进阶: [], 资深: [] };
+  for (const question of ranked) {
+    byDifficulty[question.difficulty].push(question);
+  }
+
+  const selected: Question[] = [];
+  const selectedIds = new Set<string>();
+  let remaining = target;
+
+  DIFFICULTY_ORDER.forEach((difficulty, index) => {
+    if (remaining <= 0) return;
+    const expected =
+      index === DIFFICULTY_ORDER.length - 1 ? remaining : Math.round(target * share[difficulty]);
+    const quota = Math.min(Math.max(0, expected), byDifficulty[difficulty].length, remaining);
+    for (let i = 0; i < quota; i++) {
+      const picked = byDifficulty[difficulty][i];
+      selected.push(picked);
+      selectedIds.add(picked.id);
+    }
+    remaining -= quota;
+  });
+
+  if (selected.length < target) {
+    for (const question of ranked) {
+      if (selected.length >= target) break;
+      if (selectedIds.has(question.id)) continue;
+      selected.push(question);
+      selectedIds.add(question.id);
+    }
+  }
+
+  const rankIndex = new Map(ranked.map((question, index) => [question.id, index]));
+  selected.sort((a, b) => (rankIndex.get(a.id) ?? 0) - (rankIndex.get(b.id) ?? 0));
+  return selected;
+}
+
+function buildSchedule(days: PlanDays): Question[][] {
   const buckets = Array.from({ length: days }, () => [] as Question[]);
-  rankedQuestions().forEach((question, index) => {
+  pickQuestionsForPlan(days).forEach((question, index) => {
     buckets[index % days].push(question);
   });
   return buckets;
 }
 
-function buildScheduleIds(days: number): string[][] {
+function buildScheduleIds(days: PlanDays): string[][] {
   return buildSchedule(days).map((bucket) => bucket.map((q) => q.id));
 }
 
@@ -83,19 +202,38 @@ function sameSchedule(a: string[][], b: string[][]): boolean {
   return true;
 }
 
-function reconcileSchedule(days: number): string[][] {
+function reconcileSchedule(days: PlanDays): string[][] {
   if (plan.state.schedule.length !== days) return buildScheduleIds(days);
 
   const normalized = plan.state.schedule.map((day) =>
     [...new Set(day)].filter((id) => questionMap.value.has(id) && !marks.isSkipped(id)),
   );
+  const plannedQuestions = pickQuestionsForPlan(days);
+  const plannedIdSet = new Set(plannedQuestions.map((question) => question.id));
+  const hasOutOfPoolQuestion = normalized.some((day) => day.some((id) => !plannedIdSet.has(id)));
+  if (hasOutOfPoolQuestion) return buildScheduleIds(days);
+
   const removedCounts = plan.state.schedule.map(
     (day, index) => day.length - normalized[index].length,
   );
   const scheduledIds = new Set(normalized.flat());
-  const candidates = rankedQuestions()
-    .map((question) => question.id)
-    .filter((id) => !scheduledIds.has(id));
+  const candidates: string[] = [];
+  const candidateSet = new Set<string>();
+  for (const question of plannedQuestions) {
+    if (scheduledIds.has(question.id)) continue;
+    if (candidateSet.has(question.id)) continue;
+    candidates.push(question.id);
+    candidateSet.add(question.id);
+  }
+  const needFallback =
+    removedCounts.reduce((sum, count) => sum + Math.max(0, count), 0) > candidates.length;
+  if (needFallback) {
+    for (const question of rankedQuestions(days)) {
+      if (scheduledIds.has(question.id) || candidateSet.has(question.id)) continue;
+      candidates.push(question.id);
+      candidateSet.add(question.id);
+    }
+  }
   let cursor = 0;
 
   for (let dayIndex = 0; dayIndex < normalized.length; dayIndex++) {
