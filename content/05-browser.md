@@ -2087,6 +2087,10 @@ tags: [PWA, 离线, 追问]
 parent: service-worker
 generated: followup-script
 
+### 一句话
+
+先说判断标准，再说执行路径：回答「Service Worker 生命周期与常见缓存策略」时要能同时解释收益、代价和失败信号。；回答顺序可用「现状问题 -> PWA 方案动作 -> 验证结果」。
+
 ### 题目
 
 如果面试官追问：从工程落地角度看，当「Service Worker 生命周期与常见缓存策略」优化后，你会优先看哪些真实用户信号来确认收益？
@@ -2124,6 +2128,10 @@ difficulty: 进阶
 tags: [PWA, 离线, 追问]
 parent: service-worker
 generated: followup-script
+
+### 一句话
+
+先说判断标准，再说执行路径：回答「Service Worker 生命周期与常见缓存策略」时要能同时解释收益、代价和失败信号。；可以按「问题背景 -> PWA 机制 -> 取舍边界」回答。
 
 ### 题目
 
@@ -2164,6 +2172,10 @@ tags: [事件循环, Worker, 追问]
 parent: event-loop-worker
 generated: followup-script
 
+### 一句话
+
+先把目标和约束说清楚，再展开实现：这能避免把「浏览器事件循环、主线程限制与 Worker」讲成只在理想输入下可用。；建议按「输入约束 -> 事件循环 执行链路 -> 结果验证」展开，并结合「浏览器事件循环、主线程限制与 Worker」给出一条可复核结果。
+
 ### 题目
 
 如果面试官追问：结合真实业务约束，SharedArrayBuffer 能跨线程零拷贝，需要哪些 HTTP 头？
@@ -2202,6 +2214,10 @@ difficulty: 进阶
 tags: [事件循环, Worker, 追问]
 parent: event-loop-worker
 generated: followup-script
+
+### 一句话
+
+先给可验证结论，再补证据链：面试官想确认你是否能把「浏览器事件循环、主线程限制与 Worker」落到真实交付，而不是停在概念层。；讲「浏览器事件循环、主线程限制与 Worker」时先给 事件循环 的判断口径，再补执行动作和回退条件，会更像真实评审发言。。
 
 ### 题目
 
@@ -2242,6 +2258,10 @@ tags: [Observer, 性能, 追问]
 parent: observer-performance-api
 generated: followup-script
 
+### 一句话
+
+先说判断标准，再说执行路径：回答「Observer 家族与 Performance API 的实战用法」时要能同时解释收益、代价和失败信号。；回答顺序可用「现状问题 -> Observer 方案动作 -> 验证结果」。
+
 ### 题目
 
 如果面试官追问：从工程落地角度看，如果实验室分数变好但线上反馈一般，你会如何围绕 Observer 重新评估「Observer 家族与 Performance API 的实战用法」优化效果？
@@ -2280,6 +2300,10 @@ difficulty: 进阶
 tags: [Observer, 性能, 追问]
 parent: observer-performance-api
 generated: followup-script
+
+### 一句话
+
+先把目标和约束说清楚，再展开实现：这能避免把「Observer 家族与 Performance API 的实战用法」讲成只在理想输入下可用。；建议按「输入约束 -> Observer 执行链路 -> 结果验证」展开。
 
 ### 题目
 
@@ -2320,6 +2344,10 @@ tags: [DevTools, 调试, 追问]
 parent: devtools-memory
 generated: followup-script
 
+### 一句话
+
+先说判断标准，再说执行路径：回答「浏览器 DevTools 如何排查内存泄漏与卡顿」时要能同时解释收益、代价和失败信号。；回答顺序可用「现状问题 -> DevTools 方案动作 -> 验证结果」。
+
 ### 题目
 
 如果面试官追问：从工程落地角度看，当「浏览器 DevTools 如何排查内存泄漏与卡顿」优化后，你会优先看哪些真实用户信号来确认收益？
@@ -2358,6 +2386,10 @@ difficulty: 进阶
 tags: [DevTools, 调试, 追问]
 parent: devtools-memory
 generated: followup-script
+
+### 一句话
+
+先给可验证结论，再补证据链：面试官想确认你是否能把「浏览器 DevTools 如何排查内存泄漏与卡顿」落到真实交付，而不是停在概念层。；回答顺序可用「现状问题 -> DevTools 方案动作 -> 验证结果」。
 
 ### 题目
 
@@ -2398,6 +2430,10 @@ tags: [渲染, 性能, 追问]
 parent: reflow-vs-repaint
 generated: followup-script
 
+### 一句话
+
+验证要从可复现样例开始：准备正向、边界和失败用例，确认「回流（reflow）和重绘（repaint）的区别与触发条件」不是只在理想输入下成立。。
+
 ### 题目
 
 如果面试官追问：以「回流（reflow）和重绘（repaint）的区别与触发条件」为例，要证明「回流（reflow）和重绘（repaint）的区别与触发条件」确实改善体验，你会如何围绕 渲染 设计线上观测与对照验证？
@@ -2423,6 +2459,10 @@ difficulty: 进阶
 tags: [渲染, 性能, 追问]
 parent: reflow-vs-repaint
 generated: followup-script
+
+### 一句话
+
+先说判断标准，再说执行路径：回答「回流和重绘的区别与触发条件」时要能同时解释收益、代价和失败信号。；可以按「问题背景 -> 渲染路径 机制 -> 取舍边界」回答，再用「回流和重绘的区别与触发条件」补一个反例，避免停在口号层。。
 
 ### 题目
 
@@ -2463,6 +2503,10 @@ tags: [缓存, 性能, HTTP, 追问]
 parent: browser-cache-strategy
 generated: followup-script
 
+### 一句话
+
+先给可验证结论，再补证据链：面试官想确认你是否能把「浏览器缓存的完整链路是什么样的」落到真实交付，而不是停在概念层。；回答顺序可用「现状问题 -> 缓存策略 方案动作 -> 验证结果」，并用「浏览器缓存的完整链路是什么样的」举一条主链路说明。。
+
 ### 题目
 
 如果面试官追问：结合真实业务约束，你会怎样验证「浏览器缓存的完整链路是什么样的」在 缓存策略 维度上的优化收益在真实设备和真实网络下也成立？
@@ -2502,6 +2546,10 @@ tags: [缓存, 性能, HTTP, 追问]
 parent: browser-cache-strategy
 generated: followup-script
 
+### 一句话
+
+规模变大后先重新评估「浏览器缓存的完整链路是什么样的」瓶颈：数据量、并发、团队协作、浏览器兼容和维护成本哪个先触顶。；如果「浏览器缓存的完整链路是什么样的」对应的性能收益被复杂度抵消，就要考虑分层、缓存、懒加载、批处理或更简单的替代方案。。
+
 ### 题目
 
 如果面试官追问：结合真实业务约束，你会如何给「浏览器缓存的完整链路是什么样的」算一笔账：短期收益能不能覆盖后续在 缓存 上的维护成本？
@@ -2528,6 +2576,10 @@ tags: [存储, 安全, 追问]
 parent: cookie-localstorage-indexeddb
 generated: followup-script
 
+### 一句话
+
+验证要从可复现样例开始：准备正向、边界和失败用例，确认「Cookie / localStorage / sessionStorage / IndexedDB 选哪个」不是只在理想输入下成立。。
+
 ### 题目
 
 如果面试官追问：以「Cookie / localStorage / sessionStorage / IndexedDB 选哪个」为例，你会如何搭建「Cookie / localStorage / sessionStorage / IndexedDB 选哪个」的攻击监控面板，及时识别绕过尝试与异常行为？
@@ -2553,6 +2605,10 @@ difficulty: 基础
 tags: [存储, 安全, 追问]
 parent: cookie-localstorage-indexeddb
 generated: followup-script
+
+### 一句话
+
+先把目标和约束说清楚，再展开实现：这能避免把「Cookie / localStorage / sessionStorage / IndexedDB 选哪个」讲成只在理想输入下可用。；建议按「输入约束 -> 存储 执行链路 -> 结果验证」展开。
 
 ### 题目
 
@@ -2593,6 +2649,10 @@ tags: [Worker, 性能, 追问]
 parent: web-worker-basics
 generated: followup-script
 
+### 一句话
+
+验证要从可复现样例开始：准备正向、边界和失败用例，确认「Web Worker 是什么，什么场景应该用」不是只在理想输入下成立。；再补可观测指标：围绕「Web Worker 是什么。
+
 ### 题目
 
 如果面试官追问：以「Web Worker 是什么，什么场景应该用」为例，你会怎样验证「Web Worker 是什么，什么场景应该用」在 Worker 维度上的优化收益在真实设备和真实网络下也成立？
@@ -2618,6 +2678,10 @@ difficulty: 进阶
 tags: [Worker, 性能, 追问]
 parent: web-worker-basics
 generated: followup-script
+
+### 一句话
+
+先给可验证结论，再补证据链：面试官想确认你是否能把「Web Worker 是什么，什么场景应该用」落到真实交付，而不是停在概念层。；可以按「问题背景 -> Worker 机制 -> 取舍边界」回答，再用「Web Worker 是什么。
 
 ### 题目
 
@@ -2658,6 +2722,10 @@ tags: [架构, 进程, 追问]
 parent: browser-process-thread
 generated: followup-script
 
+### 一句话
+
+推动「Chrome 多进程 + 多线程架构是什么样的」落地时先收敛改动面：选低风险页面或模块试点，保留旧路径作为对照。；「Chrome 多进程 + 多线程架构是什么样的」迁移计划要说明数据兼容、配置开关、监控指标和失败后的恢复路径。。
+
 ### 题目
 
 如果面试官追问：在当前团队与业务约束下，团队里有人熟有人新时，你会怎么围绕 架构 把「Chrome 多进程 + 多线程架构是什么样的」拆成几段推进，确保每段都能独立验收？
@@ -2683,6 +2751,10 @@ difficulty: 进阶
 tags: [架构, 进程, 追问]
 parent: browser-process-thread
 generated: followup-script
+
+### 一句话
+
+验证要从可复现样例开始：准备正向、边界和失败用例，确认「Chrome 多进程 + 多线程架构是什么样的」不是只在理想输入下成立。。
 
 ### 题目
 
@@ -2710,6 +2782,10 @@ tags: [WebGPU, 图形, 高频, 追问]
 parent: webgpu-pipeline-basics
 generated: followup-script
 
+### 一句话
+
+验证要从可复现样例开始：准备正向、边界和失败用例，确认「WebGPU 比 WebGL 强在哪？最小可用渲染管线」不是只在理想输入下成立。。
+
 ### 题目
 
 如果面试官追问：你会怎样验证「WebGPU 比 WebGL 强在哪？最小可用渲染管线」在 WebGPU 维度上的优化收益在真实设备和真实网络下也成立？
@@ -2735,6 +2811,10 @@ difficulty: 资深
 tags: [WebGPU, 图形, 高频, 追问]
 parent: webgpu-pipeline-basics
 generated: followup-script
+
+### 一句话
+
+先说判断标准，再说执行路径：回答「WebGPU 比 WebGL 强在哪？最小可用渲染管线」时要能同时解释收益、代价和失败信号。；可以按「问题背景 -> WebGPU 机制 -> 取舍边界」回答。
 
 ### 题目
 
@@ -2775,6 +2855,10 @@ tags: [WebTransport, 实时通信, 追问]
 parent: webtransport-vs-websocket
 generated: followup-script
 
+### 一句话
+
+先给可验证结论，再补证据链：面试官想确认你是否能把「WebTransport 和 WebSocket 的关系？什么场景用」落到真实交付，而不是停在概念层。；回答顺序可用「现状问题 -> WebTransport 方案动作 -> 验证结果」。
+
 ### 题目
 
 如果面试官追问：在「WebTransport 和 WebSocket 的关系？什么场景用」场景下，在「WebTransport 和 WebSocket 的关系？什么场景用」里你会怎样划分可重试与不可重试场景，防止误重试放大故障？
@@ -2813,6 +2897,10 @@ difficulty: 资深
 tags: [WebTransport, 实时通信, 追问]
 parent: webtransport-vs-websocket
 generated: followup-script
+
+### 一句话
+
+先把目标和约束说清楚，再展开实现：这能避免把「WebTransport 和 WebSocket 的关系？什么场景用」讲成只在理想输入下可用。；围绕「WebTransport 和 WebSocket 的关系？什么场景用」组织答案时。
 
 ### 题目
 
@@ -2853,6 +2941,10 @@ tags: [OPFS, FileSystemAccess, IndexedDB, 离线, 追问]
 parent: opfs-file-system-access
 generated: followup-script
 
+### 一句话
+
+先明确这道追问要解决的业务目标，再说明「OPFS、File System Access 与 IndexedDB：浏览器本地大文件怎么存」在当前约束下为什么成立。；回答结构可按「触发条件 -> OPFS 机制 -> 风险兜底」展开。
+
 ### 题目
 
 如果面试官追问：在当前团队与业务约束下，OPFS 与 IndexedDB 在事务、随机读写和权限模型上有什么差别？
@@ -2891,6 +2983,10 @@ difficulty: 资深
 tags: [OPFS, FileSystemAccess, IndexedDB, 离线, 追问]
 parent: opfs-file-system-access
 generated: followup-script
+
+### 一句话
+
+先说判断标准，再说执行路径：回答「OPFS、File System Access 与 IndexedDB：浏览器本地大文件怎么存」时要能同时解释收益、代价和失败信号。。
 
 ### 题目
 
@@ -2931,6 +3027,10 @@ tags: [OPFS, FileSystemAccess, IndexedDB, 离线, 追问]
 parent: opfs-file-system-access
 generated: followup-script
 
+### 一句话
+
+先明确这道追问要解决的业务目标，再说明「OPFS、File System Access 与 IndexedDB：浏览器本地大文件怎么存」在当前约束下为什么成立。；建议按「输入约束 -> OPFS 执行链路 -> 结果验证」展开。
+
 ### 题目
 
 如果面试官追问：在当前团队与业务约束下，离线编辑器如何避免本地数据损坏导致用户草稿丢失？
@@ -2969,6 +3069,10 @@ difficulty: 资深
 tags: [NavigationAPI, SPA, 路由, 浏览器, 追问]
 parent: navigation-api-app-history
 generated: followup-script
+
+### 一句话
+
+先说判断标准，再说执行路径：回答「Navigation API / App History 如何统一 SPA 与浏览器导航」时要能同时解释收益、代价和失败信号。；可以按「问题背景 -> NavigationAPI 机制 -> 取舍边界」回答。
 
 ### 题目
 
@@ -3009,6 +3113,10 @@ tags: [NavigationAPI, SPA, 路由, 浏览器, 追问]
 parent: navigation-api-app-history
 generated: followup-script
 
+### 一句话
+
+先把目标和约束说清楚，再展开实现：这能避免把「Navigation API / App History 如何统一 SPA 与浏览器导航」讲成只在理想输入下可用。；回答结构可按「触发条件 -> NavigationAPI 机制 -> 风险兜底」展开。
+
 ### 题目
 
 如果面试官追问：同文档导航、跨文档导航和 BFCache 恢复在体验上有什么差别？
@@ -3047,6 +3155,10 @@ difficulty: 资深
 tags: [NavigationAPI, SPA, 路由, 浏览器, 追问]
 parent: navigation-api-app-history
 generated: followup-script
+
+### 一句话
+
+先给可验证结论，再补证据链：面试官想确认你是否能把「Navigation API / App History 如何统一 SPA 与浏览器导航」落到真实交付，而不是停在概念层。。
 
 ### 题目
 
@@ -3087,6 +3199,10 @@ tags: [存储, Cookie, 追问]
 parent: storage-cookie
 generated: followup-script
 
+### 一句话
+
+先把目标和约束说清楚，再展开实现：这能避免把「Cookie、localStorage、sessionStorage、IndexedDB、Cache Storage 如何取舍」讲成只在理想输入下可用。。
+
 ### 题目
 
 如果面试官追问：从工程落地角度看，你会如何围绕 存储 搭建验证面板，持续确认这个方案的收益没有被噪声掩盖？
@@ -3125,6 +3241,10 @@ tags: [存储, Cookie, 追问]
 parent: storage-cookie
 generated: followup-script
 
+### 一句话
+
+规模变大后先重新评估「Cookie、localStorage、sessionStorage、IndexedDB、Cache Storage 如何取舍」瓶颈：数据量、并发、团队协作、浏览器兼容和维护成本哪个先触顶。。
+
 ### 题目
 
 如果面试官追问：当约束变化导致成本上升时，你会先优化「Cookie、localStorage、sessionStorage、IndexedDB、Cache Storage 如何取舍」里和 存储 相关的哪些环节？
@@ -3150,6 +3270,10 @@ difficulty: 资深
 tags: [V8, 引擎, 追问]
 parent: v8-engine
 generated: followup-script
+
+### 一句话
+
+先给可验证结论，再补证据链：面试官想确认你是否能把「V8 引擎工作机制」落到真实交付，而不是停在概念层。；回答顺序可用「现状问题 -> V8 方案动作 -> 验证结果」，并用「V8 引擎工作机制」举一条主链路说明。。
 
 ### 题目
 
@@ -3190,6 +3314,10 @@ tags: [V8, 引擎, 追问]
 parent: v8-engine
 generated: followup-script
 
+### 一句话
+
+先给可验证结论，再补证据链：面试官想确认你是否能把「V8 引擎工作机制」落到真实交付，而不是停在概念层。；回答顺序可用「现状问题 -> V8 方案动作 -> 验证结果」，并用「V8 引擎工作机制」举一条主链路说明。。
+
 ### 题目
 
 如果面试官追问：在当前团队与业务约束下，遇到约束变化时，你会如何围绕 V8 拆分方案演进路径，而不是一次性推翻重来？
@@ -3228,6 +3356,10 @@ difficulty: 资深
 tags: [WebGPU, GPU, 追问]
 parent: webgpu-overview
 generated: followup-script
+
+### 一句话
+
+先明确这道追问要解决的业务目标，再说明「WebGPU 概览与适用场景」在当前约束下为什么成立。；回答结构可按「触发条件 -> WebGPU 机制 -> 风险兜底」展开，并以「WebGPU 概览与适用场景」补一条失败场景，能体现工程拆解能力。。
 
 ### 题目
 
@@ -3268,6 +3400,10 @@ tags: [WebGPU, GPU, 追问]
 parent: webgpu-overview
 generated: followup-script
 
+### 一句话
+
+规模变大后先重新评估「WebGPU 概览与适用场景」瓶颈：数据量、并发、团队协作、浏览器兼容和维护成本哪个先触顶。；如果「WebGPU 概览与适用场景」对应的核心机制收益被复杂度抵消，就要考虑分层、缓存、懒加载、批处理或更简单的替代方案。。
+
 ### 题目
 
 如果面试官追问：结合真实业务约束，当约束变化导致成本上升时，你会先优化「WebGPU 概览与适用场景」里和 WebGPU 相关的哪些环节？
@@ -3294,6 +3430,10 @@ tags: [WebCodecs, Streams, 视频, 追问]
 parent: webcodecs-streams
 generated: followup-script
 
+### 一句话
+
+验证要从可复现样例开始：准备正向、边界和失败用例，确认「WebCodecs + Streams 实现浏览器内视频处理」不是只在理想输入下成立。。
+
 ### 题目
 
 如果面试官追问：结合真实业务约束，上线后你会盯哪些和 WebCodecs 相关的指标，来判断「WebCodecs + Streams 实现浏览器内视频处理」的收益是否持续成立？
@@ -3319,6 +3459,10 @@ difficulty: 资深
 tags: [WebCodecs, Streams, 视频, 追问]
 parent: webcodecs-streams
 generated: followup-script
+
+### 一句话
+
+规模变大后先重新评估「WebCodecs + Streams 实现浏览器内视频处理」瓶颈：数据量、并发、团队协作、浏览器兼容和维护成本哪个先触顶。；如果「WebCodecs + Streams 实现浏览器内视频处理」对应的核心机制收益被复杂度抵消。
 
 ### 题目
 
@@ -3487,6 +3631,10 @@ tags: [兼容性, 渐进增强, 发布, 追问]
 parent: browser-progressive-enhancement-guardrail
 generated: followup-script
 
+### 一句话
+
+规模变大后先重新评估「浏览器新能力上线护栏：特性检测、降级与回滚」瓶颈：数据量、并发、团队协作、浏览器兼容和维护成本哪个先触顶。；如果「浏览器新能力上线护栏：特性检测、降级与回滚」对应的工程可维护性收益被复杂度抵消。
+
 ### 题目
 
 如果面试官追问：在「浏览器新能力上线护栏：特性检测、降级与回滚」场景下，真要把「浏览器新能力上线护栏：特性检测、降级与回滚」推到线上，你会如何围绕 兼容性 设计灰度节奏、回滚条件和迁移路径？
@@ -3512,6 +3660,10 @@ difficulty: 资深
 tags: [兼容性, 渐进增强, 发布, 追问]
 parent: browser-progressive-enhancement-guardrail
 generated: followup-script
+
+### 一句话
+
+先给可验证结论，再补证据链：面试官想确认你是否能把「浏览器新能力上线护栏：特性检测、降级与回滚」落到真实交付，而不是停在概念层。；可以按「问题背景 -> 兼容性 机制 -> 取舍边界」回答，再用「浏览器新能力上线护栏：特性检测、降级与回滚」补一个反例。
 
 ### 题目
 
@@ -3552,6 +3704,10 @@ tags: [兼容性, 渐进增强, 发布, 追问]
 parent: browser-progressive-enhancement-guardrail
 generated: followup-script
 
+### 一句话
+
+先给可验证结论，再补证据链：面试官想确认你是否能把「浏览器新能力上线护栏：特性检测、降级与回滚」落到真实交付，而不是停在概念层。；回答顺序可用「现状问题 -> 兼容性 方案动作 -> 验证结果」。
+
 ### 题目
 
 如果面试官追问：从工程落地角度看，如果上线窗口突然提前到下个月，你会怎么收敛「浏览器新能力上线护栏：特性检测、降级与回滚」范围，并把 兼容性 相关技术债回补计划讲清楚？
@@ -3591,6 +3747,10 @@ tags: [性能预算, CoreWebVitals, 治理, 追问]
 parent: browser-performance-budget-guardrail
 generated: followup-script
 
+### 一句话
+
+验证要从可复现样例开始：准备正向、边界和失败用例，确认「浏览器性能预算治理：把优化目标写进发布流程」不是只在理想输入下成立。。
+
 ### 题目
 
 如果面试官追问：结合真实业务约束，你会先看哪些与 性能预算 相关的指标来判断「浏览器性能预算治理：把优化目标写进发布流程」是不是当前性能瓶颈？
@@ -3616,6 +3776,10 @@ difficulty: 资深
 tags: [性能预算, CoreWebVitals, 治理, 追问]
 parent: browser-performance-budget-guardrail
 generated: followup-script
+
+### 一句话
+
+先给可验证结论，再补证据链：面试官想确认你是否能把「浏览器性能预算治理：把优化目标写进发布流程」落到真实交付，而不是停在概念层。；回答顺序可用「现状问题 -> 性能预算 方案动作 -> 验证结果」。
 
 ### 题目
 
@@ -3655,6 +3819,10 @@ difficulty: 资深
 tags: [性能预算, CoreWebVitals, 治理, 追问]
 parent: browser-performance-budget-guardrail
 generated: followup-script
+
+### 一句话
+
+规模变大后先重新评估「浏览器性能预算治理：把优化目标写进发布流程」瓶颈：数据量、并发、团队协作、浏览器兼容和维护成本哪个先触顶。；如果「浏览器性能预算治理：把优化目标写进发布流程」对应的性能收益被复杂度抵消。
 
 ### 题目
 
@@ -3818,6 +3986,10 @@ tags: [兼容性, 事故处置, 决策沟通, 追问]
 parent: browser-compatibility-incident-bridge
 generated: followup-script
 
+### 一句话
+
+第一条是“信号可信”：白屏、资源失败、JS fatal 三路数据要一致可复核。；第二条是“动作可执行”：版本分层开关、降级包、回滚流程都要演练过。；第三条是“责任可追踪”：技术 owner、业务同步 owner、最终拍板人必须明确。
+
 ### 题目
 
 如果面试官追问：兼容性事故指挥桥要真正落地，你会先验证哪三条前提，避免事故时现场返工？
@@ -3843,6 +4015,10 @@ difficulty: 资深
 tags: [兼容性, 事故处置, 决策沟通, 追问]
 parent: browser-compatibility-incident-bridge
 generated: followup-script
+
+### 一句话
+
+我会看四组数据：分浏览器白屏率、事故确认时长、恢复时长、结论反转次数。；再看沟通质量：业务方复问次数和“信息不一致”事件是否下降。；若恢复更快但反转更多，说明判断链路仍不稳，要先补数据可信度环节。
 
 ### 题目
 
@@ -3870,6 +4046,10 @@ tags: [兼容性, 事故处置, 决策沟通, 追问]
 parent: browser-compatibility-incident-bridge
 generated: followup-script
 
+### 一句话
+
+我会按“影响用户规模 x 关键流程损失 x 可恢复速度”排序，先救高影响高可恢复项。；高风险版本先快速降级，低风险版本进入观察与延迟修复，避免全面开战。；同时冻结非核心兼容改造，把有限产能集中在能立刻降低损失的动作上。
+
 ### 题目
 
 如果面试官追问：预算收紧但兼容性事故在增多，你会怎么重排处置优先级，既止损又不拖垮团队？
@@ -3895,6 +4075,10 @@ difficulty: 资深
 tags: [发布治理, 兼容性, 止损策略, 追问]
 parent: browser-kill-switch-orchestration
 generated: followup-script
+
+### 一句话
+
+三条关键前提：开关粒度足够细、降级路径真实可用、切换动作幂等可审计。；少一条都会在事故中放大风险：要么关不准、要么关了也不可用、要么越切越乱。；事故前至少做一次“演练+回放复盘”，确认不是纸面能力。
 
 ### 题目
 
@@ -3922,6 +4106,10 @@ tags: [发布治理, 兼容性, 止损策略, 追问]
 parent: browser-kill-switch-orchestration
 generated: followup-script
 
+### 一句话
+
+我会给出四组指标：触发到生效时延、事故影响用户量、恢复成功率、误触发率。；还会补审计证据：每次开关动作的责任人、理由、回切结果是否完整记录。；如果触发快但恢复慢，说明“止损快、恢复弱”，下一步要补恢复编排能力。
+
 ### 题目
 
 如果面试官追问：你说 Kill Switch 编排有效，会用哪些指标证明它真的缩短了损失窗口？
@@ -3947,6 +4135,10 @@ difficulty: 资深
 tags: [发布治理, 兼容性, 止损策略, 追问]
 parent: browser-kill-switch-orchestration
 generated: followup-script
+
+### 一句话
+
+我会先保三项最小能力：分版本关停、可用降级、操作审计；其余后补。；与业务约定“先保可用再保体验”的阶段目标，避免期望错位。；补债计划要有时间与 owner：哪周补演练、哪周补自动化、哪周补回切编排。
 
 ### 题目
 

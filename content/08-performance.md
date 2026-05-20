@@ -1958,6 +1958,10 @@ tags: [方法论, 指标, 追问]
 parent: methodology
 generated: followup-script
 
+### 一句话
+
+验证要从可复现样例开始：准备正向、边界和失败用例，确认「性能优化方法论：先度量，再定位，再治理」不是只在理想输入下成立。；再补可观测指标：围绕「性能优化方法论：先度量，再定位。
+
 ### 题目
 
 如果面试官追问：你会怎样验证「性能优化方法论：先度量，再定位，再治理」在 方法论 维度上的优化收益在真实设备和真实网络下也成立？
@@ -1983,6 +1987,10 @@ difficulty: 基础
 tags: [方法论, 指标, 追问]
 parent: methodology
 generated: followup-script
+
+### 一句话
+
+先给可验证结论，再补证据链：面试官想确认你是否能把「性能优化方法论：先度量，再定位，再治理」落到真实交付，而不是停在概念层。；讲「性能优化方法论：先度量，再定位，再治理」时先给 方法论 的判断口径，再补执行动作和回退条件，会更像真实评审发言。。
 
 ### 题目
 
@@ -2023,6 +2031,10 @@ tags: [资源提示, 网络, 追问]
 parent: network-resource-hints
 generated: followup-script
 
+### 一句话
+
+先明确这道追问要解决的业务目标，再说明「preload、prefetch、modulepreload、preconnect 怎么用才不浪费」在当前约束下为什么成立。；建议按「输入约束 -> 资源提示 执行链路 -> 结果验证」展开。
+
 ### 题目
 
 如果面试官追问：以「preload、prefetch、modulepreload、preconnect 怎么用才不浪费」为例，如果「preload、prefetch、modulepreload、preconnect 怎么用才不浪费」遇到外部依赖抖动，你会先收紧哪几个可靠性开关？
@@ -2061,6 +2073,10 @@ difficulty: 进阶
 tags: [资源提示, 网络, 追问]
 parent: network-resource-hints
 generated: followup-script
+
+### 一句话
+
+先明确这道追问要解决的业务目标，再说明「preload、prefetch、modulepreload、preconnect 怎么用才不浪费」在当前约束下为什么成立。；建议按「输入约束 -> 资源提示 执行链路 -> 结果验证」展开。
 
 ### 题目
 
@@ -2101,6 +2117,10 @@ tags: [图片, 字体, 包体, 追问]
 parent: image-font-bundle
 generated: followup-script
 
+### 一句话
+
+先明确这道追问要解决的业务目标，再说明「图片、字体、JS 包体是最常见的三类资源瓶颈」在当前约束下为什么成立。；回答结构可按「触发条件 -> 图片 机制 -> 风险兜底」展开，并以「图片、字体、JS 包体是最常见的三类资源瓶颈」补一条失败场景。
+
 ### 题目
 
 如果面试官追问：以「图片、字体、JS 包体是最常见的三类资源瓶颈」为例，如果数据量、并发量或页面复杂度扩大一个数量级，你会如何调整方案？
@@ -2139,6 +2159,10 @@ difficulty: 基础
 tags: [图片, 字体, 包体, 追问]
 parent: image-font-bundle
 generated: followup-script
+
+### 一句话
+
+先把目标和约束说清楚，再展开实现：这能避免把「图片、字体、JS 包体是最常见的三类资源瓶颈」讲成只在理想输入下可用。；建议按「输入约束 -> 图片 执行链路 -> 结果验证」展开，并结合「图片、字体、JS 包体是最常见的三类资源瓶颈」给出一条可复核结果。
 
 ### 题目
 
@@ -2179,6 +2203,10 @@ tags: [预算, 监控, 追问]
 parent: monitoring-budget
 generated: followup-script
 
+### 一句话
+
+验证要从可复现样例开始：准备正向、边界和失败用例，确认「性能预算与回归治理」不是只在理想输入下成立。；再补可观测指标：围绕「性能预算与回归治理」的性能收益应该能通过日志、耗时、错误率、命中率、覆盖率或用户行为指标观察到变化。。
+
 ### 题目
 
 如果面试官追问：从工程落地角度看，优化上线后，你会怎么用 预算 相关的真实用户信号，证明「性能预算与回归治理」确实让体验变好了，而不只是实验室分数提升？
@@ -2204,6 +2232,10 @@ difficulty: 进阶
 tags: [预算, 监控, 追问]
 parent: monitoring-budget
 generated: followup-script
+
+### 一句话
+
+先说判断标准，再说执行路径：回答「性能预算与回归治理」时要能同时解释收益、代价和失败信号。；回答顺序可用「现状问题 -> 预算 方案动作 -> 验证结果」，并用「性能预算与回归治理」举一条主链路说明。；如果涉及「性能预算与回归治理」的技术细节。
 
 ### 题目
 
@@ -2244,6 +2276,10 @@ tags: [图片, LCP, 追问]
 parent: image-modern-pipeline
 generated: followup-script
 
+### 一句话
+
+验证要从可复现样例开始：准备正向、边界和失败用例，确认「现代图片处理流水线（AVIF / WebP / responsive / blur-up）」不是只在理想输入下成立。。
+
 ### 题目
 
 如果面试官追问：从工程落地角度看，你会如何结合 图片 指标，避免把「现代图片处理流水线（AVIF / WebP / responsive / blur-up）」的实验室提升误判为真实用户体验改善？
@@ -2269,6 +2305,10 @@ difficulty: 进阶
 tags: [图片, LCP, 追问]
 parent: image-modern-pipeline
 generated: followup-script
+
+### 一句话
+
+先明确这道追问要解决的业务目标，再说明「现代图片处理流水线」在当前约束下为什么成立。；建议按「输入约束 -> 图片 执行链路 -> 结果验证」展开，并结合「现代图片处理流水线」给出一条可复核结果，能更快体现你对复杂场景的掌控力。。
 
 ### 题目
 
@@ -2309,6 +2349,10 @@ tags: [Web Vitals, 性能, 追问]
 parent: core-web-vitals-explain
 generated: followup-script
 
+### 一句话
+
+先说判断标准，再说执行路径：回答「Core Web Vitals 三个指标 LCP / INP / CLS 怎么解读和优化」时要能同时解释收益、代价和失败信号。。
+
 ### 题目
 
 如果面试官追问：从工程落地角度看，当「Core Web Vitals 三个指标 LCP / INP / CLS 怎么解读和优化」优化后，你会优先看哪些真实用户信号来确认收益？
@@ -2347,6 +2391,10 @@ difficulty: 进阶
 tags: [Web Vitals, 性能, 追问]
 parent: core-web-vitals-explain
 generated: followup-script
+
+### 一句话
+
+先明确这道追问要解决的业务目标，再说明「Core Web Vitals 三个指标 LCP / INP / CLS 怎么解读和优化」在当前约束下为什么成立。；建议按「输入约束 -> Web Vitals 执行链路 -> 结果验证」展开。
 
 ### 题目
 
@@ -2387,6 +2435,10 @@ tags: [性能, 调度, 追问]
 parent: long-task-scheduling
 generated: followup-script
 
+### 一句话
+
+验证要从可复现样例开始：准备正向、边界和失败用例，确认「长任务（Long Task）怎么定位与拆分」不是只在理想输入下成立。。
+
 ### 题目
 
 如果面试官追问：要证明「长任务（Long Task）怎么定位与拆分」确实改善体验，你会如何围绕 性能 设计线上观测与对照验证？
@@ -2412,6 +2464,10 @@ difficulty: 进阶
 tags: [性能, 调度, 追问]
 parent: long-task-scheduling
 generated: followup-script
+
+### 一句话
+
+验证要从可复现样例开始：准备正向、边界和失败用例，确认「长任务（Long Task）怎么定位与拆分」不是只在理想输入下成立。。
 
 ### 题目
 
@@ -2439,6 +2495,10 @@ tags: [打包, 性能, 追问]
 parent: bundle-split-strategy
 generated: followup-script
 
+### 一句话
+
+验证要从可复现样例开始：准备正向、边界和失败用例，确认「bundle 拆分与按需加载策略」不是只在理想输入下成立。；再补可观测指标：围绕「bundle 拆分与按需加载策略」的性能收益应该能通过日志、耗时、错误率、命中率、覆盖率或用户行为指标观察到变化。。
+
 ### 题目
 
 如果面试官追问：以「bundle 拆分与按需加载策略」为例，围绕「bundle 拆分与按需加载策略」上线效果，你会优先看哪些和 打包 相关的真实用户指标来佐证体验提升？
@@ -2464,6 +2524,10 @@ difficulty: 进阶
 tags: [打包, 性能, 追问]
 parent: bundle-split-strategy
 generated: followup-script
+
+### 一句话
+
+先说判断标准，再说执行路径：回答「bundle 拆分与按需加载策略」时要能同时解释收益、代价和失败信号。；回答顺序可用「现状问题 -> 打包 方案动作 -> 验证结果」，并用「bundle 拆分与按需加载策略」举一条主链路说明。。
 
 ### 题目
 
@@ -2504,6 +2568,10 @@ tags: [性能, 内存, 高频, 追问]
 parent: memory-leak-frontend
 generated: followup-script
 
+### 一句话
+
+先说判断标准，再说执行路径：回答「怎么排查前端内存泄漏」时要能同时解释收益、代价和失败信号。；可以按「问题背景 -> 性能瓶颈 机制 -> 取舍边界」回答，再用「怎么排查前端内存泄漏」补一个反例，避免停在口号层。。
+
 ### 题目
 
 如果面试官追问：在「怎么排查前端内存泄漏」场景下，如果实验室分数变好但线上反馈一般，你会如何围绕 性能瓶颈 重新评估「怎么排查前端内存泄漏」优化效果？
@@ -2542,6 +2610,10 @@ difficulty: 资深
 tags: [性能, 内存, 高频, 追问]
 parent: memory-leak-frontend
 generated: followup-script
+
+### 一句话
+
+先说判断标准，再说执行路径：回答「怎么排查前端内存泄漏」时要能同时解释收益、代价和失败信号。；讲「怎么排查前端内存泄漏」时先给 性能瓶颈 的判断口径，再补执行动作和回退条件，会更像真实评审发言。；如果涉及「怎么排查前端内存泄漏」的技术细节。
 
 ### 题目
 
@@ -2582,6 +2654,10 @@ tags: [SpeculationRules, prerender, 性能, 追问]
 parent: speculation-rules-prerender
 generated: followup-script
 
+### 一句话
+
+先明确这道追问要解决的业务目标，再说明「Speculation Rules API：浏览器级 prerender 怎么用才不反噬」在当前约束下为什么成立。。
+
 ### 题目
 
 如果面试官追问：在当前团队与业务约束下，prerender 和 prefetch 分别适合哪些导航场景？
@@ -2620,6 +2696,10 @@ difficulty: 资深
 tags: [SpeculationRules, prerender, 性能, 追问]
 parent: speculation-rules-prerender
 generated: followup-script
+
+### 一句话
+
+先给可验证结论，再补证据链：面试官想确认你是否能把「Speculation Rules API：浏览器级 prerender 怎么用才不反噬」落到真实交付，而不是停在概念层。；可以按「问题背景 -> prerender 机制 -> 取舍边界」回答。
 
 ### 题目
 
@@ -2660,6 +2740,10 @@ tags: [SpeculationRules, prerender, 性能, 追问]
 parent: speculation-rules-prerender
 generated: followup-script
 
+### 一句话
+
+先给可验证结论，再补证据链：面试官想确认你是否能把「Speculation Rules API：浏览器级 prerender 怎么用才不反噬」落到真实交付，而不是停在概念层。；回答顺序可用「现状问题 -> prerender 方案动作 -> 验证结果」。
+
 ### 题目
 
 如果面试官追问：在「Speculation Rules API：浏览器级 prerender 怎么用才不反噬」场景下，你会如何评估预测命中率和额外资源消耗是否值得？
@@ -2698,6 +2782,10 @@ difficulty: 资深
 tags: [INP, LoAF, PerformanceObserver, RUM, 追问]
 parent: loaf-rendering-attribution
 generated: followup-script
+
+### 一句话
+
+先明确这道追问要解决的业务目标，再说明「Long Animation Frames API 如何定位 INP 卡顿根因」在当前约束下为什么成立。；回答结构可按「触发条件 -> INP 机制 -> 风险兜底」展开。
 
 ### 题目
 
@@ -2738,6 +2826,10 @@ tags: [INP, LoAF, PerformanceObserver, RUM, 追问]
 parent: loaf-rendering-attribution
 generated: followup-script
 
+### 一句话
+
+先把目标和约束说清楚，再展开实现：这能避免把「Long Animation Frames API 如何定位 INP 卡顿根因」讲成只在理想输入下可用。；围绕「Long Animation Frames API 如何定位 INP 卡顿根因」组织答案时。
+
 ### 题目
 
 如果面试官追问：在当前团队与业务约束下，如果 LoAF 指向第三方脚本，你会如何治理而不影响业务投放？
@@ -2776,6 +2868,10 @@ difficulty: 资深
 tags: [INP, LoAF, PerformanceObserver, RUM, 追问]
 parent: loaf-rendering-attribution
 generated: followup-script
+
+### 一句话
+
+先说判断标准，再说执行路径：回答「Long Animation Frames API 如何定位 INP 卡顿根因」时要能同时解释收益、代价和失败信号。；可以按「问题背景 -> INP 机制 -> 取舍边界」回答。
 
 ### 题目
 
@@ -2816,6 +2912,10 @@ tags: [第三方脚本, 性能, 安全, RUM, 追问]
 parent: third-party-script-governance
 generated: followup-script
 
+### 一句话
+
+先把目标和约束说清楚，再展开实现：这能避免把「第三方脚本如何治理：性能、隐私、安全与降级」讲成只在理想输入下可用。；围绕「第三方脚本如何治理：性能、隐私、安全与降级」组织答案时，建议按「约束来源 -> 第三方脚本 关键决策 -> 验证闭环」展开。。
+
 ### 题目
 
 如果面试官追问：在当前团队与业务约束下，如何证明某个第三方脚本对 INP 或 LCP 有显著影响？
@@ -2854,6 +2954,10 @@ difficulty: 资深
 tags: [第三方脚本, 性能, 安全, RUM, 追问]
 parent: third-party-script-governance
 generated: followup-script
+
+### 一句话
+
+先说判断标准，再说执行路径：回答「第三方脚本如何治理：性能、隐私、安全与降级」时要能同时解释收益、代价和失败信号。；可以按「问题背景 -> 第三方脚本 机制 -> 取舍边界」回答，再用「第三方脚本如何治理：性能、隐私、安全与降级」补一个反例。
 
 ### 题目
 
@@ -2894,6 +2998,10 @@ tags: [第三方脚本, 性能, 安全, RUM, 追问]
 parent: third-party-script-governance
 generated: followup-script
 
+### 一句话
+
+先说判断标准，再说执行路径：回答「第三方脚本如何治理：性能、隐私、安全与降级」时要能同时解释收益、代价和失败信号。；回答顺序可用「现状问题 -> 第三方脚本 方案动作 -> 验证结果」，并用「第三方脚本如何治理：性能、隐私、安全与降级」举一条主链路说明。。
+
 ### 题目
 
 如果面试官追问：结合真实业务约束，CSP 和 SRI 在第三方脚本治理里分别解决什么问题？
@@ -2932,6 +3040,10 @@ difficulty: 资深
 tags: [bfcache, PageLifecycle, 性能, 追问]
 parent: bfcache-page-lifecycle
 generated: followup-script
+
+### 一句话
+
+先说判断标准，再说执行路径：回答「bfcache 与 Page Lifecycle：返回秒开为什么会失效」时要能同时解释收益、代价和失败信号。；讲「bfcache 与 Page Lifecycle：返回秒开为什么会失效」时先给 bfcache 的判断口径。
 
 ### 题目
 
@@ -2972,6 +3084,10 @@ tags: [bfcache, PageLifecycle, 性能, 追问]
 parent: bfcache-page-lifecycle
 generated: followup-script
 
+### 一句话
+
+先把目标和约束说清楚，再展开实现：这能避免把「bfcache 与 Page Lifecycle：返回秒开为什么会失效」讲成只在理想输入下可用。；围绕「bfcache 与 Page Lifecycle：返回秒开为什么会失效」组织答案时。
+
 ### 题目
 
 如果面试官追问：以「bfcache 与 Page Lifecycle：返回秒开为什么会失效」为例，如何在命中 bfcache 的同时保证关键数据恢复后不过期？
@@ -3010,6 +3126,10 @@ difficulty: 资深
 tags: [bfcache, PageLifecycle, 性能, 追问]
 parent: bfcache-page-lifecycle
 generated: followup-script
+
+### 一句话
+
+先说判断标准，再说执行路径：回答「bfcache 与 Page Lifecycle：返回秒开为什么会失效」时要能同时解释收益、代价和失败信号。；讲「bfcache 与 Page Lifecycle：返回秒开为什么会失效」时先给 bfcache 的判断口径。
 
 ### 题目
 
@@ -3050,6 +3170,10 @@ tags: [RUM, Lighthouse, WebVitals, 追问]
 parent: rum-vs-lab
 generated: followup-script
 
+### 一句话
+
+先说判断标准，再说执行路径：回答「实验室数据与真实用户数据为什么经常不一致」时要能同时解释收益、代价和失败信号。；可以按「问题背景 -> RUM 机制 -> 取舍边界」回答，再用「实验室数据与真实用户数据为什么经常不一致」补一个反例，避免停在口号层。。
+
 ### 题目
 
 如果面试官追问：在当前团队与业务约束下，你会如何围绕 RUM 搭建验证面板，持续确认这个方案的收益没有被噪声掩盖？
@@ -3089,6 +3213,10 @@ tags: [RUM, Lighthouse, WebVitals, 追问]
 parent: rum-vs-lab
 generated: followup-script
 
+### 一句话
+
+规模变大后先重新评估「实验室数据与真实用户数据为什么经常不一致」瓶颈：数据量、并发、团队协作、浏览器兼容和维护成本哪个先触顶。；如果「实验室数据与真实用户数据为什么经常不一致」对应的核心机制收益被复杂度抵消。
+
 ### 题目
 
 如果面试官追问：结合真实业务约束，当约束变化导致成本上升时，你会先优化「实验室数据与真实用户数据为什么经常不一致」里和 RUM 相关的哪些环节？
@@ -3114,6 +3242,10 @@ difficulty: 进阶
 tags: [运行时, 长任务, 追问]
 parent: runtime-optimization
 generated: followup-script
+
+### 一句话
+
+先把目标和约束说清楚，再展开实现：这能避免把「运行时优化：虚拟列表、拆长任务、批量更新」讲成只在理想输入下可用。；回答结构可按「触发条件 -> 运行时 机制 -> 风险兜底」展开，并以「运行时优化：虚拟列表、拆长任务、批量更新」补一条失败场景。
 
 ### 题目
 
@@ -3154,6 +3286,10 @@ tags: [运行时, 长任务, 追问]
 parent: runtime-optimization
 generated: followup-script
 
+### 一句话
+
+规模变大后先重新评估「运行时优化：虚拟列表、拆长任务、批量更新」瓶颈：数据量、并发、团队协作、浏览器兼容和维护成本哪个先触顶。；如果「运行时优化：虚拟列表、拆长任务、批量更新」对应的核心机制收益被复杂度抵消。
+
 ### 题目
 
 如果面试官追问：以「运行时优化：虚拟列表、拆长任务、批量更新」为例，面对规模与资源变化并存时，你会如何围绕 运行时 调整「运行时优化：虚拟列表、拆长任务、批量更新」的推进顺序？
@@ -3179,6 +3315,10 @@ difficulty: 资深
 tags: [INP, 交互, 追问]
 parent: inp-deep
 generated: followup-script
+
+### 一句话
+
+先给可验证结论，再补证据链：面试官想确认你是否能把「INP 取代 FID 后，前端要怎么优化交互响应」落到真实交付，而不是停在概念层。；回答顺序可用「现状问题 -> INP 方案动作 -> 验证结果」，并用「INP 取代 FID 后。
 
 ### 题目
 
@@ -3218,6 +3358,10 @@ difficulty: 资深
 tags: [INP, 交互, 追问]
 parent: inp-deep
 generated: followup-script
+
+### 一句话
+
+规模变大后先重新评估「INP 取代 FID 后，前端要怎么优化交互响应」瓶颈：数据量、并发、团队协作、浏览器兼容和维护成本哪个先触顶。；如果「INP 取代 FID 后，前端要怎么优化交互响应」对应的核心机制收益被复杂度抵消。
 
 ### 题目
 
@@ -3382,6 +3526,10 @@ tags: [性能治理, 决策沟通, 发布, 追问]
 parent: performance-warroom-decision-brief
 generated: followup-script
 
+### 一句话
+
+我会先盯三件事：拍板人是否在线、指标口径是否统一、状态更新是否按节奏进行。；一旦出现“同一个数据两种解读”，先冻结讨论并回到统一数据源，再继续决策。；如果 10 分钟内无法收敛，直接触发限时拍板机制，避免会议无限拉长。
+
 ### 题目
 
 如果面试官追问：高压性能战情室里，哪些边界条件最容易让沟通失灵？你会怎么提前兜住？
@@ -3407,6 +3555,10 @@ difficulty: 资深
 tags: [性能治理, 决策沟通, 发布, 追问]
 parent: performance-warroom-decision-brief
 generated: followup-script
+
+### 一句话
+
+我会看四组前后对比：平均拍板耗时、决策反转率、行动项按时完成率、跨群重复沟通次数。；至少对比落地前后 2-4 周，避免用单次异常判断机制优劣。；再补一个失败样本：说明机制在哪类场景没起作用，以及你如何修订模板。
 
 ### 题目
 
@@ -3434,6 +3586,10 @@ tags: [性能治理, 决策沟通, 发布, 追问]
 parent: performance-warroom-decision-brief
 generated: followup-script
 
+### 一句话
+
+我会先划红线：错误率、转化跌幅、体验阈值任何一项触线就优先止损。；在红线内可继续放量，但必须附带下一轮观察窗口和自动收缩条件。；结论不说“要不要做”，而是说“在什么条件下做、做到什么程度就停”。
+
 ### 题目
 
 如果面试官追问：业务方希望继续放量，但性能风险在升高，你会怎么给出可执行的拍板建议？
@@ -3459,6 +3615,10 @@ difficulty: 资深
 tags: [预算治理, 技术债, 发布策略, 追问]
 parent: performance-budget-exception-governance
 generated: followup-script
+
+### 一句话
+
+我会同时看收益指标和债务指标：GMV/转化增益是否还在、LCP/INP 是否持续恶化。；再看治理指标：例外是否按期回收、逾期项占比是否上升、补债计划是否兑现。；当“收益衰减 + 债务上升”同时出现，就应触发回收或替代方案。
 
 ### 题目
 
@@ -3486,6 +3646,10 @@ tags: [预算治理, 技术债, 发布策略, 追问]
 parent: performance-budget-exception-governance
 generated: followup-script
 
+### 一句话
+
+回收达标至少包含三项：超预算项回落到阈值内、例外单关闭、补债任务按计划完成。；评估不仅看技术指标，还要看业务是否接受回收后的体验与节奏变化。；若到期仍不达标，必须重新走审批而不是自动续期，避免例外永久化。
+
 ### 题目
 
 如果面试官追问：预算例外写了到期回收，你会怎么定义“回收达标”，并防止它变成一句口号？
@@ -3511,6 +3675,10 @@ difficulty: 资深
 tags: [预算治理, 技术债, 发布策略, 追问]
 parent: performance-budget-exception-governance
 generated: followup-script
+
+### 一句话
+
+我会先按“影响用户规模 x 债务利息 x 回收成本”分层，先清高影响低成本项。；清债节奏采用“双轨制”：业务线继续迭代，治理线按周交付可见回收成果。；同时设置例外上限，超过阈值自动收紧放行，防止边清边加债。
 
 ### 题目
 

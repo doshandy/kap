@@ -179,6 +179,7 @@ onBeforeUnmount(() => {
         <label :for="fieldIds.theme">主题：</label>
         <select
           :id="fieldIds.theme"
+          class="ui-select"
           :value="settings.state.theme"
           @change="settings.setTheme(($event.target as HTMLSelectElement).value as any)"
         >
@@ -189,7 +190,7 @@ onBeforeUnmount(() => {
       </div>
       <div class="row">
         <label :for="fieldIds.fontSize">字号：</label>
-        <select :id="fieldIds.fontSize" v-model="settings.state.fontSize">
+        <select :id="fieldIds.fontSize" v-model="settings.state.fontSize" class="ui-select">
           <option value="sm">小</option>
           <option value="md">中</option>
           <option value="lg">大</option>
@@ -204,12 +205,18 @@ onBeforeUnmount(() => {
         <input
           :id="fieldIds.showAnswer"
           v-model="settings.state.showAnswerByDefault"
+          class="ui-checkbox"
           type="checkbox"
         />
       </div>
       <div class="row">
         <label :for="fieldIds.shortcuts">启用快捷键：</label>
-        <input :id="fieldIds.shortcuts" v-model="settings.state.shortcutsEnabled" type="checkbox" />
+        <input
+          :id="fieldIds.shortcuts"
+          v-model="settings.state.shortcutsEnabled"
+          class="ui-checkbox"
+          type="checkbox"
+        />
       </div>
     </section>
 
@@ -255,12 +262,18 @@ onBeforeUnmount(() => {
       </p>
       <div class="row">
         <label :for="fieldIds.aiEnabled">启用：</label>
-        <input :id="fieldIds.aiEnabled" v-model="ai.state.enabled" type="checkbox" />
+        <input
+          :id="fieldIds.aiEnabled"
+          v-model="ai.state.enabled"
+          class="ui-checkbox"
+          type="checkbox"
+        />
       </div>
       <div class="row">
         <label :for="fieldIds.aiProvider">提供方：</label>
         <select
           :id="fieldIds.aiProvider"
+          class="ui-select"
           :value="ai.state.provider"
           @change="ai.setProvider(($event.target as HTMLSelectElement).value as any)"
         >
@@ -274,6 +287,7 @@ onBeforeUnmount(() => {
         <input
           :id="fieldIds.aiBaseUrl"
           v-model="ai.state.baseUrl"
+          class="ui-input"
           placeholder="https://api.openai.com"
           :aria-describedby="ai.baseUrlWarning ? 'ai-base-url-warning' : undefined"
         />
@@ -292,6 +306,7 @@ onBeforeUnmount(() => {
         <input
           :id="fieldIds.aiApiKey"
           v-model="ai.state.apiKey"
+          class="ui-input"
           type="password"
           placeholder="sk-..."
           autocomplete="off"
@@ -313,7 +328,12 @@ onBeforeUnmount(() => {
       </div>
       <div class="row">
         <label :for="fieldIds.aiRemember">记住 API Key：</label>
-        <input :id="fieldIds.aiRemember" v-model="ai.state.rememberApiKey" type="checkbox" />
+        <input
+          :id="fieldIds.aiRemember"
+          v-model="ai.state.rememberApiKey"
+          class="ui-checkbox"
+          type="checkbox"
+        />
         <span id="ai-remember-hint" class="hint"
           >仅在自己的设备上使用；关闭后会清除本地保存的 Key。</span
         >
@@ -326,12 +346,13 @@ onBeforeUnmount(() => {
         <input
           :id="fieldIds.aiModel"
           v-model="ai.state.model"
+          class="ui-input"
           placeholder="gpt-4o-mini / claude-3-5-sonnet-..."
         />
       </div>
       <div class="row">
         <label :for="fieldIds.aiRole">角色：</label>
-        <select :id="fieldIds.aiRole" v-model="ai.state.systemRole">
+        <select :id="fieldIds.aiRole" v-model="ai.state.systemRole" class="ui-select">
           <option value="mentor">资深导师（讲解为主）</option>
           <option value="interviewer">严格面试官（追问为主）</option>
           <option value="concise">极简助手（要点为主）</option>
@@ -342,6 +363,7 @@ onBeforeUnmount(() => {
         <input
           :id="fieldIds.aiTemperature"
           v-model.number="ai.state.temperature"
+          class="ui-input"
           type="number"
           min="0"
           max="1"
@@ -366,7 +388,7 @@ onBeforeUnmount(() => {
       <p class="muted">把题目导出为 Markdown 小抄方便打印 / 阅读，或导出 Anki 卡片做间隔重复。</p>
       <div class="row">
         <label :for="fieldIds.exportSource">导出范围：</label>
-        <select :id="fieldIds.exportSource" v-model="exportSource">
+        <select :id="fieldIds.exportSource" v-model="exportSource" class="ui-select">
           <option value="starred">仅收藏（{{ exportCountBySource.starred }}）</option>
           <option value="review">仅复习 / 模糊（{{ exportCountBySource.review }}）</option>
           <option value="mastered">仅已掌握（{{ exportCountBySource.mastered }}）</option>
@@ -436,7 +458,8 @@ onBeforeUnmount(() => {
   padding: 4px 8px;
 }
 .link-btn:hover {
-  text-decoration: underline;
+  text-decoration: none;
+  opacity: 0.9;
 }
 h1 {
   font-size: 20px;
@@ -478,6 +501,8 @@ h1 {
   padding: 5px 12px;
 }
 
+.row .ui-input,
+.row .ui-select,
 .row input[type='text'],
 .row input[type='password'],
 .row input[type='url'],
@@ -486,18 +511,10 @@ h1 {
 .row select {
   flex: 1;
   min-width: 0;
-  height: 30px;
+  height: 32px;
   padding: 0 10px;
   font-size: 12.5px;
   line-height: 1.4;
-  color: var(--c-text);
-  background: var(--c-surface);
-  border: 1px solid var(--c-border);
-  border-radius: var(--radius);
-  outline: none;
-  transition:
-    border-color 0.15s ease,
-    box-shadow 0.15s ease;
   font-family: inherit;
   box-sizing: border-box;
 }
@@ -506,35 +523,15 @@ h1 {
   width: 90px;
 }
 
-/* 自定义 select 下拉箭头 */
-.row select {
-  appearance: none;
-  -webkit-appearance: none;
-  padding-right: 28px;
-  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 12 12'><path d='M2 4l4 4 4-4' fill='none' stroke='%2364748b' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/></svg>");
-  background-repeat: no-repeat;
-  background-position: right 10px center;
-  background-size: 10px 10px;
+.row .ui-select {
   cursor: pointer;
-}
-.row input:focus,
-.row select:focus {
-  border-color: var(--c-primary);
-  box-shadow: 0 0 0 3px var(--c-primary-soft, rgba(59, 130, 246, 0.15));
 }
 .row input::placeholder {
   color: var(--c-text-mute);
 }
 
-/* checkbox：恢复成正常的小框，不被上面规则吃掉 */
-.row input[type='checkbox'] {
+.row .ui-checkbox {
   flex: 0 0 auto;
-  width: 16px;
-  height: 16px;
-  margin: 0;
-  padding: 0;
-  accent-color: var(--c-primary);
-  cursor: pointer;
 }
 
 .muted {
@@ -587,6 +584,8 @@ h1 {
     justify-content: center;
     font-size: 14px;
   }
+  .row .ui-input,
+  .row .ui-select,
   .row input[type='text'],
   .row input[type='password'],
   .row input[type='url'],
@@ -597,10 +596,6 @@ h1 {
     width: 100%;
     min-height: 44px;
     font-size: 16px;
-  }
-  .row input[type='checkbox'] {
-    width: 22px;
-    height: 22px;
   }
   .hint,
   .muted,

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, defineAsyncComponent, ref, watch } from 'vue';
+import { computed, defineAsyncComponent, onBeforeUnmount, onMounted, ref, watch } from 'vue';
 import { useRouter } from 'vue-router';
 import type { Question } from '@/types/content';
 import { useProgressStore } from '@/stores/progress';
@@ -44,6 +44,8 @@ const showMoreActions = ref(false);
 const draftAnswer = ref('');
 const aiStore = useAIStore();
 const reciteIndex = ref(0);
+const MOBILE_READONLY_BREAKPOINT = 768;
+const isMobileReadonly = ref(false);
 const AI_TIP_KEYS = {
   gpt: 'kap-ai-explain-gpt-tip-seen',
   kimi: 'kap-ai-explain-kimi-tip-seen',
@@ -71,6 +73,7 @@ const reciteCards = computed(() => buildReciteCards(props.question));
 const currentReciteCard = computed(
   () => reciteCards.value[reciteIndex.value] || reciteCards.value[0],
 );
+const allowWritableInteraction = computed(() => !isMobileReadonly.value);
 
 const { isSpeaking, toggle: toggleSpeak } = useSpeechController(() =>
   stripHtml(props.question.question + ' ' + props.question.answer),
@@ -205,6 +208,10 @@ function startFollowupChain(): void {
   });
 }
 
+function syncMobileReadonly(): void {
+  isMobileReadonly.value = window.innerWidth <= MOBILE_READONLY_BREAKPOINT;
+}
+
 watch(
   open,
   (isOpen) => {
@@ -212,6 +219,22 @@ watch(
   },
   { immediate: true },
 );
+
+watch(isMobileReadonly, (mobile) => {
+  if (!mobile) return;
+  showNote.value = false;
+  showRunner.value = false;
+  showAIPanel.value = false;
+});
+
+onMounted(() => {
+  syncMobileReadonly();
+  window.addEventListener('resize', syncMobileReadonly);
+});
+
+onBeforeUnmount(() => {
+  window.removeEventListener('resize', syncMobileReadonly);
+});
 
 defineExpose({ toggle, markMastered, markReview, toggleNotePanel });
 </script>
@@ -320,7 +343,7 @@ defineExpose({ toggle, markMastered, markReview, toggleNotePanel });
       />
       <Transition name="fade">
         <div v-if="open" class="answer">
-          <div v-if="revealLevel < 2" class="self-check card-soft">
+          <div v-if="allowWritableInteraction && revealLevel < 2" class="self-check card-soft">
             <h4><AppIcon name="edit" /> 先试着自己答</h4>
             <textarea
               v-model="draftAnswer"
@@ -423,7 +446,7 @@ defineExpose({ toggle, markMastered, markReview, toggleNotePanel });
             </div>
           </div>
 
-          <div v-if="revealLevel >= 2" class="answer-score card-soft">
+          <div v-if="allowWritableInteraction && revealLevel >= 2" class="answer-score card-soft">
             <h4><AppIcon name="trophy" /> 面试回答评分</h4>
             <textarea
               v-model="draftAnswer"
@@ -438,11 +461,14 @@ defineExpose({ toggle, markMastered, markReview, toggleNotePanel });
             </div>
           </div>
 
-          <CodeRunner v-if="showRunner" :code-html="question.code || ''" />
+          <CodeRunner
+            v-if="allowWritableInteraction && showRunner"
+            :code-html="question.code || ''"
+          />
 
-          <AIChatPanel v-if="showAIPanel" :question="question" />
+          <AIChatPanel v-if="allowWritableInteraction && showAIPanel" :question="question" />
 
-          <div v-if="showNote" class="note-box">
+          <div v-if="allowWritableInteraction && showNote" class="note-box">
             <textarea
               v-model="noteText"
               rows="4"
@@ -518,7 +544,8 @@ defineExpose({ toggle, markMastered, markReview, toggleNotePanel });
                 <AppIcon name="reload" /> 需复习
               </button>
               <button
-                class="btn btn-ghost primary-action"
+                v-if="allowWritableInteraction"
+                class="btn btn-ghost primary-action note-input-action"
                 title="编辑这道题的笔记（快捷键 n）"
                 :aria-pressed="showNote"
                 @click="showNote = !showNote"
@@ -535,7 +562,7 @@ defineExpose({ toggle, markMastered, markReview, toggleNotePanel });
                 {{ isSpeaking ? '停止朗读' : '朗读' }}
               </button>
               <button
-                v-if="aiStore.isReady"
+                v-if="allowWritableInteraction && aiStore.isReady"
                 class="btn btn-ghost secondary-action"
                 :class="{ active: showAIPanel }"
                 :title="showAIPanel ? '收起 AI 站内讲解' : '展开 AI 站内讲解（流式）'"
@@ -565,7 +592,7 @@ defineExpose({ toggle, markMastered, markReview, toggleNotePanel });
                 <AppIcon name="copy" /> 复制 Prompt
               </button>
               <button
-                v-if="question.code"
+                v-if="allowWritableInteraction && question.code"
                 class="btn btn-ghost secondary-action"
                 :title="showRunner ? '关闭代码沙盒' : '在沙盒里运行示例代码'"
                 @click="showRunner = !showRunner"
@@ -870,9 +897,7 @@ defineExpose({ toggle, markMastered, markReview, toggleNotePanel });
   color: var(--c-text);
   line-height: 1.7;
   text-align: left;
-  text-decoration: underline;
-  text-decoration-color: rgba(99, 102, 241, 0.45);
-  text-underline-offset: 3px;
+  text-decoration: none;
   background: transparent;
   padding: 0;
 }
@@ -1009,6 +1034,14 @@ defineExpose({ toggle, markMastered, markReview, toggleNotePanel });
 .fade-enter-from,
 .fade-leave-to {
   opacity: 0;
+}
+@media (max-width: 768px) {
+  .self-check,
+  .answer-score,
+  .note-box,
+  .note-input-action {
+    display: none;
+  }
 }
 @media (max-width: 560px) {
   .qcard {

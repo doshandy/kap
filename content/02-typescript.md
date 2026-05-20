@@ -1424,6 +1424,10 @@ tags: [类型, 追问]
 parent: any-vs-unknown
 generated: followup-script
 
+### 一句话
+
+先说判断标准，再说执行路径：回答「any、unknown、never 三者的区别」时要能同时解释收益、代价和失败信号。；回答顺序可用「现状问题 -> any 方案动作 -> 验证结果」。
+
 ### 题目
 
 如果面试官追问：从工程落地角度看，函数签名里 `unknown` 和 `any` 怎么选？
@@ -1462,6 +1466,10 @@ difficulty: 基础
 tags: [类型, 追问]
 parent: any-vs-unknown
 generated: followup-script
+
+### 一句话
+
+先给可验证结论，再补证据链：面试官想确认你是否能把「any、unknown、never 三者的区别」落到真实交付，而不是停在概念层。；可以按「问题背景 -> any 机制 -> 取舍边界」回答。
 
 ### 题目
 
@@ -1502,6 +1510,10 @@ tags: [类型, 追问]
 parent: type-vs-interface
 generated: followup-script
 
+### 一句话
+
+先把目标和约束说清楚，再展开实现：这能避免把「type 与 interface 的区别与取舍」讲成只在理想输入下可用。；围绕「type 与 interface 的区别与取舍」组织答案时，建议按「约束来源 -> type 关键决策 -> 验证闭环」展开。。
+
 ### 题目
 
 如果面试官追问：结合真实业务约束，联合类型加 discriminant 字段为什么能让 narrow 成立？
@@ -1541,6 +1553,10 @@ tags: [类型, 追问]
 parent: type-vs-interface
 generated: followup-script
 
+### 一句话
+
+先明确这道追问要解决的业务目标，再说明「type 与 interface 的区别与取舍」在当前约束下为什么成立。；建议按「输入约束 -> type 执行链路 -> 结果验证」展开，并结合「type 与 interface 的区别与取舍」给出一条可复核结果。
+
 ### 题目
 
 如果面试官追问：declare module '\*.svg' 这种用法是什么原理？
@@ -1577,6 +1593,10 @@ difficulty: 进阶
 tags: [类型, 手写, 追问]
 parent: utility-types
 generated: followup-script
+
+### 一句话
+
+先给可验证结论，再补证据链：面试官想确认你是否能把「内置工具类型 Pick / Omit / Partial / Required / Readonly / Record 实现」落到真实交付，而不是停在概念层。。
 
 ### 题目
 
@@ -1617,6 +1637,10 @@ tags: [类型, 手写, 追问]
 parent: utility-types
 generated: followup-script
 
+### 一句话
+
+先说判断标准，再说执行路径：回答「内置工具类型 Pick / Omit / Partial / Required / Readonly / Record 实现」时要能同时解释收益、代价和失败信号。。
+
 ### 题目
 
 如果面试官追问：在「内置工具类型 Pick / Omit / Partial / Required / Readonly / Record 实现」场景下，实现 PickByValue（按值类型筛选 key）？
@@ -1656,6 +1680,10 @@ tags: [类型, 追问]
 parent: discriminated-union
 generated: followup-script
 
+### 一句话
+
+推动「判别联合（Tagged Union）的设计与穷尽性」落地时先收敛改动面：选低风险页面或模块试点，保留旧路径作为对照。；「判别联合（Tagged Union）的设计与穷尽性」迁移计划要说明数据兼容、配置开关、监控指标和失败后的恢复路径。。
+
 ### 题目
 
 如果面试官追问：当团队成熟度不一致时，你会如何围绕 判别联合 定义「判别联合（Tagged Union）的设计与穷尽性」的先后改造顺序？
@@ -1681,6 +1709,10 @@ difficulty: 进阶
 tags: [类型, 追问]
 parent: discriminated-union
 generated: followup-script
+
+### 一句话
+
+先说判断标准，再说执行路径：回答「判别联合的设计与穷尽性」时要能同时解释收益、代价和失败信号。；可以按「问题背景 -> 判别联合的设计与穷尽性 机制 -> 取舍边界」回答，再用「判别联合的设计与穷尽性」补一个反例，避免停在口号层。。
 
 ### 题目
 
@@ -1721,6 +1753,10 @@ tags: [工程, 追问]
 parent: tsconfig-strict
 generated: followup-script
 
+### 一句话
+
+先说判断标准，再说执行路径：回答「tsconfig 关键字段与严格模式开启策略」时要能同时解释收益、代价和失败信号。；回答顺序可用「现状问题 -> tsconfig 方案动作 -> 验证结果」。
+
 ### 题目
 
 如果面试官追问：在当前团队与业务约束下，老系统包袱重、牵一发而动全身时，你会怎么围绕 tsconfig 安排「tsconfig 关键字段与严格模式开启策略」的渐进改造路线？
@@ -1759,6 +1795,10 @@ tags: [工程, 追问]
 parent: tsconfig-strict
 generated: followup-script
 
+### 一句话
+
+推动「tsconfig 关键字段与严格模式开启策略」落地时先收敛改动面：选低风险页面或模块试点，保留旧路径作为对照。；「tsconfig 关键字段与严格模式开启策略」迁移计划要说明数据兼容、配置开关、监控指标和失败后的恢复路径。。
+
 ### 题目
 
 如果面试官追问：在当前团队与业务约束下，为了确认「tsconfig 关键字段与严格模式开启策略」在 tsconfig 上能持续跑稳，你会长期追哪些稳定性和效率信号？
@@ -1785,6 +1825,10 @@ tags: [类型, 工程, 追问]
 parent: declaration-merging
 generated: followup-script
 
+### 一句话
+
+推动「声明合并与模块扩展（Module Augmentation）」落地时先收敛改动面：选低风险页面或模块试点，保留旧路径作为对照。。
+
 ### 题目
 
 如果面试官追问：当团队成熟度不一致时，你会如何围绕 声明合并与模块扩展 定义「声明合并与模块扩展（Module Augmentation）」的先后改造顺序？
@@ -1810,6 +1854,10 @@ difficulty: 进阶
 tags: [类型, 工程, 追问]
 parent: declaration-merging
 generated: followup-script
+
+### 一句话
+
+先明确这道追问要解决的业务目标，再说明「声明合并与模块扩展」在当前约束下为什么成立。；围绕「声明合并与模块扩展」组织答案时，建议按「约束来源 -> 声明合并与模块扩展 关键决策 -> 验证闭环」展开。；不要只罗列工具名或 API。
 
 ### 题目
 
@@ -1850,6 +1898,10 @@ tags: [Vue, 类型, 追问]
 parent: vue-with-ts
 generated: followup-script
 
+### 一句话
+
+先明确这道追问要解决的业务目标，再说明「Vue 3 中 TypeScript 的最佳实践」在当前约束下为什么成立。；回答结构可按「触发条件 -> Vue 机制 -> 风险兜底」展开，并以「Vue 3 中 TypeScript 的最佳实践」补一条失败场景。
+
 ### 题目
 
 如果面试官追问：面对「Vue 3 中 TypeScript 的最佳实践」里的耦合问题，你会怎样划分边界、补回归并逐步替换旧实现？
@@ -1887,6 +1939,10 @@ difficulty: 进阶
 tags: [Vue, 类型, 追问]
 parent: vue-with-ts
 generated: followup-script
+
+### 一句话
+
+先明确这道追问要解决的业务目标，再说明「Vue 3 中 TypeScript 的最佳实践」在当前约束下为什么成立。；建议按「输入约束 -> Vue 执行链路 -> 结果验证」展开。
 
 ### 题目
 
@@ -1927,6 +1983,10 @@ tags: [类型安全, Branded, 追问]
 parent: branded-vs-opaque
 generated: followup-script
 
+### 一句话
+
+验证要从可复现样例开始：准备正向、边界和失败用例，确认「品牌类型 (Branded Types) 与不透明类型」不是只在理想输入下成立。。
+
 ### 题目
 
 如果面试官追问：从工程落地角度看，如果要审计「品牌类型 (Branded Types) 与不透明类型」在 类型安全 维度的安全性，你会用哪些证据证明方案不可轻易绕过？
@@ -1953,6 +2013,10 @@ tags: [类型安全, Branded, 追问]
 parent: branded-vs-opaque
 generated: followup-script
 
+### 一句话
+
+规模变大后先重新评估「品牌类型 (Branded Types) 与不透明类型」瓶颈：数据量、并发、团队协作、浏览器兼容和维护成本哪个先触顶。；如果「品牌类型 (Branded Types) 与不透明类型」对应的安全边界收益被复杂度抵消。
+
 ### 题目
 
 如果面试官追问：在「品牌类型 (Branded Types) 与不透明类型」场景下，当安全性、用户体验和研发成本互相拉扯时，你会怎么围绕 类型安全 给「品牌类型 (Branded Types) 与不透明类型」排优先级？
@@ -1978,6 +2042,10 @@ difficulty: 进阶
 tags: [TypeScript, Zod, Schema, 类型安全, 追问]
 parent: runtime-schema-validation
 generated: followup-script
+
+### 一句话
+
+先明确这道追问要解决的业务目标，再说明「TypeScript 类型和运行时 Schema 校验如何配合」在当前约束下为什么成立。；建议按「输入约束 -> TypeScript 执行链路 -> 结果验证」展开。
 
 ### 题目
 
@@ -2018,6 +2086,10 @@ tags: [TypeScript, Zod, Schema, 类型安全, 追问]
 parent: runtime-schema-validation
 generated: followup-script
 
+### 一句话
+
+先给可验证结论，再补证据链：面试官想确认你是否能把「TypeScript 类型和运行时 Schema 校验如何配合」落到真实交付，而不是停在概念层。；回答顺序可用「现状问题 -> TypeScript 方案动作 -> 验证结果」。
+
 ### 题目
 
 如果面试官追问：在「TypeScript 类型和运行时 Schema 校验如何配合」场景下，Schema 校验放前端、BFF、后端各有什么价值和边界？
@@ -2056,6 +2128,10 @@ difficulty: 进阶
 tags: [TypeScript, Zod, Schema, 类型安全, 追问]
 parent: runtime-schema-validation
 generated: followup-script
+
+### 一句话
+
+先明确这道追问要解决的业务目标，再说明「TypeScript 类型和运行时 Schema 校验如何配合」在当前约束下为什么成立。；回答结构可按「触发条件 -> TypeScript 机制 -> 风险兜底」展开。
 
 ### 题目
 
@@ -2096,6 +2172,10 @@ tags: [泛型, 追问]
 parent: generic-constraints
 generated: followup-script
 
+### 一句话
+
+先明确这道追问要解决的业务目标，再说明「泛型约束、默认值与条件类型」在当前约束下为什么成立。；回答结构可按「触发条件 -> 泛型 机制 -> 风险兜底」展开，并以「泛型约束、默认值与条件类型」补一条失败场景，能体现工程拆解能力。。
+
 ### 题目
 
 如果面试官追问：从工程落地角度看，你会如何围绕 泛型 搭建验证面板，持续确认这个方案的收益没有被噪声掩盖？
@@ -2135,6 +2215,10 @@ tags: [泛型, 追问]
 parent: generic-constraints
 generated: followup-script
 
+### 一句话
+
+规模变大后先重新评估「泛型约束、默认值与条件类型」瓶颈：数据量、并发、团队协作、浏览器兼容和维护成本哪个先触顶。；如果「泛型约束、默认值与条件类型」对应的核心机制收益被复杂度抵消，就要考虑分层、缓存、懒加载、批处理或更简单的替代方案。。
+
 ### 题目
 
 如果面试官追问：以「泛型约束、默认值与条件类型」为例，当约束变化导致成本上升时，你会先优化「泛型约束、默认值与条件类型」里和 泛型 相关的哪些环节？
@@ -2160,6 +2244,10 @@ difficulty: 进阶
 tags: [类型, 字符串, 追问]
 parent: template-literal-types
 generated: followup-script
+
+### 一句话
+
+先明确这道追问要解决的业务目标，再说明「模板字面量类型与字符串操纵」在当前约束下为什么成立。；围绕「模板字面量类型与字符串操纵」组织答案时，建议按「约束来源 -> 字符串 关键决策 -> 验证闭环」展开。；不要只罗列工具名或 API。
 
 ### 题目
 
@@ -2200,6 +2288,10 @@ tags: [类型, 字符串, 追问]
 parent: template-literal-types
 generated: followup-script
 
+### 一句话
+
+规模变大后先重新评估「模板字面量类型与字符串操纵」瓶颈：数据量、并发、团队协作、浏览器兼容和维护成本哪个先触顶。；如果「模板字面量类型与字符串操纵」对应的核心机制收益被复杂度抵消，就要考虑分层、缓存、懒加载、批处理或更简单的替代方案。。
+
 ### 题目
 
 如果面试官追问：如果目标不变但约束更严，你会如何围绕 字符串 调整「模板字面量类型与字符串操纵」方案的边界和节奏？
@@ -2225,6 +2317,10 @@ difficulty: 资深
 tags: [类型, 模式, 追问]
 parent: branded-types
 generated: followup-script
+
+### 一句话
+
+先明确这道追问要解决的业务目标，再说明「品牌类型实现单位/ID 隔离」在当前约束下为什么成立。；围绕「品牌类型实现单位/ID 隔离」组织答案时，建议按「约束来源 -> 模式 关键决策 -> 验证闭环」展开。；不要只罗列工具名或 API。
 
 ### 题目
 
@@ -2265,6 +2361,10 @@ tags: [类型, 模式, 追问]
 parent: branded-types
 generated: followup-script
 
+### 一句话
+
+规模变大后先重新评估「品牌类型（Branded Types）实现单位/ID 隔离」瓶颈：数据量、并发、团队协作、浏览器兼容和维护成本哪个先触顶。；如果「品牌类型（Branded Types）实现单位/ID 隔离」对应的核心机制收益被复杂度抵消。
+
 ### 题目
 
 如果面试官追问：面对规模与资源变化并存时，你会如何围绕 模式 调整「品牌类型（Branded Types）实现单位/ID 隔离」的推进顺序？
@@ -2290,6 +2390,10 @@ difficulty: 资深
 tags: [类型, 追问]
 parent: conditional-distribution
 generated: followup-script
+
+### 一句话
+
+先把目标和约束说清楚，再展开实现：这能避免把「分布式条件类型与 Naked Type Parameter」讲成只在理想输入下可用。；围绕「分布式条件类型与 Naked Type Parameter」组织答案时。
 
 ### 题目
 
@@ -2330,6 +2434,10 @@ tags: [类型, 追问]
 parent: conditional-distribution
 generated: followup-script
 
+### 一句话
+
+先说判断标准，再说执行路径：回答「分布式条件类型与 Naked Type Parameter」时要能同时解释收益、代价和失败信号。；可以按「问题背景 -> 分布式条件类型与 机制 -> 取舍边界」回答。
+
 ### 题目
 
 如果面试官追问：从工程落地角度看，遇到约束变化时，你会如何围绕 分布式条件类型与 拆分方案演进路径，而不是一次性推翻重来？
@@ -2368,6 +2476,10 @@ difficulty: 资深
 tags: [infer, 条件类型, 追问]
 parent: infer-extract
 generated: followup-script
+
+### 一句话
+
+先给可验证结论，再补证据链：面试官想确认你是否能把「用 infer 在条件类型里抽取类型」落到真实交付，而不是停在概念层。；可以按「问题背景 -> infer 机制 -> 取舍边界」回答，再用「用 infer 在条件类型里抽取类型」补一个反例。
 
 ### 题目
 
@@ -2408,6 +2520,10 @@ tags: [infer, 条件类型, 追问]
 parent: infer-extract
 generated: followup-script
 
+### 一句话
+
+规模变大后先重新评估「用 infer 在条件类型里抽取类型」瓶颈：数据量、并发、团队协作、浏览器兼容和维护成本哪个先触顶。；如果「用 infer 在条件类型里抽取类型」对应的核心机制收益被复杂度抵消，就要考虑分层、缓存、懒加载、批处理或更简单的替代方案。。
+
 ### 题目
 
 如果面试官追问：以「用 infer 在条件类型里抽取类型」为例，面对规模与资源变化并存时，你会如何围绕 infer 调整「用 infer 在条件类型里抽取类型」的推进顺序？
@@ -2433,6 +2549,10 @@ difficulty: 资深
 tags: [声明合并, ambient, 追问]
 parent: global-augmentation
 generated: followup-script
+
+### 一句话
+
+先说判断标准，再说执行路径：回答「全局类型扩展与模块声明合并」时要能同时解释收益、代价和失败信号。；回答顺序可用「现状问题 -> 声明合并 方案动作 -> 验证结果」，并用「全局类型扩展与模块声明合并」举一条主链路说明。。
 
 ### 题目
 
@@ -2473,6 +2593,10 @@ tags: [声明合并, ambient, 追问]
 parent: global-augmentation
 generated: followup-script
 
+### 一句话
+
+先说判断标准，再说执行路径：回答「全局类型扩展与模块声明合并」时要能同时解释收益、代价和失败信号。；讲「全局类型扩展与模块声明合并」时先给 声明合并 的判断口径，再补执行动作和回退条件，会更像真实评审发言。。
+
 ### 题目
 
 如果面试官追问：以「全局类型扩展与模块声明合并」为例，当兼容性要求提升或预算收紧时，你会如何围绕 声明合并 调整方案边界与实施节奏？
@@ -2512,6 +2636,10 @@ tags: [类型体操, 模板字符串类型, 追问]
 parent: type-level-gymnastics
 generated: followup-script
 
+### 一句话
+
+先给可验证结论，再补证据链：面试官想确认你是否能把「类型体操实用模式」落到真实交付，而不是停在概念层。；可以按「问题背景 -> 类型体操 机制 -> 取舍边界」回答，再用「类型体操实用模式」补一个反例，避免停在口号层。。
+
 ### 题目
 
 如果面试官追问：从工程落地角度看，为了证明这个方案在 类型体操 维度有效，你会怎么设计测试闭环和线上观测指标？
@@ -2550,6 +2678,10 @@ difficulty: 资深
 tags: [类型体操, 模板字符串类型, 追问]
 parent: type-level-gymnastics
 generated: followup-script
+
+### 一句话
+
+规模变大后先重新评估「类型体操实用模式（不只是为了炫技）」瓶颈：数据量、并发、团队协作、浏览器兼容和维护成本哪个先触顶。；如果「类型体操实用模式（不只是为了炫技）」对应的核心机制收益被复杂度抵消，就要考虑分层、缓存、懒加载、批处理或更简单的替代方案。。
 
 ### 题目
 
@@ -2706,6 +2838,10 @@ tags: [类型治理, API 兼容, SemVer, 追问]
 parent: typescript-public-api-compat-gate
 generated: followup-script
 
+### 一句话
+
+规模变大后先重新评估「TypeScript 公共类型 API 兼容闸门：防止“静默破坏升级”」瓶颈：数据量、并发、团队协作、浏览器兼容和维护成本哪个先触顶。。
+
 ### 题目
 
 如果面试官追问：以「TypeScript 公共类型 API 兼容闸门：防止“静默破坏升级”」为例，真要把「TypeScript 公共类型 API 兼容闸门：防止“静默破坏升级”」推到线上，你会如何围绕 类型治理 设计灰度节奏、回滚条件和迁移路径？
@@ -2731,6 +2867,10 @@ difficulty: 资深
 tags: [类型治理, API 兼容, SemVer, 追问]
 parent: typescript-public-api-compat-gate
 generated: followup-script
+
+### 一句话
+
+先把目标和约束说清楚，再展开实现：这能避免把「TypeScript 公共类型 API 兼容闸门：防止“静默破坏升级”」讲成只在理想输入下可用。；回答结构可按「触发条件 -> 类型治理 机制 -> 风险兜底」展开。
 
 ### 题目
 
@@ -2771,6 +2911,10 @@ tags: [类型治理, API 兼容, SemVer, 追问]
 parent: typescript-public-api-compat-gate
 generated: followup-script
 
+### 一句话
+
+规模变大后先重新评估「TypeScript 公共类型 API 兼容闸门：防止“静默破坏升级”」瓶颈：数据量、并发、团队协作、浏览器兼容和维护成本哪个先触顶。。
+
 ### 题目
 
 如果面试官追问：在「TypeScript 公共类型 API 兼容闸门：防止“静默破坏升级”」场景下，复盘「TypeScript 公共类型 API 兼容闸门：防止“静默破坏升级”」时，你会拿哪些数据判断这套方案该继续投入还是该止损？
@@ -2796,6 +2940,10 @@ difficulty: 资深
 tags: [strict 模式, 迁移治理, 工程化, 追问]
 parent: strict-migration-playbook
 generated: followup-script
+
+### 一句话
+
+先说判断标准，再说执行路径：回答「严格模式迁移实战：从“能编译”到“可治理”的分阶段落地」时要能同时解释收益、代价和失败信号。；可以按「问题背景 -> strict 模式 机制 -> 取舍边界」回答。
 
 ### 题目
 
@@ -2836,6 +2984,10 @@ tags: [strict 模式, 迁移治理, 工程化, 追问]
 parent: strict-migration-playbook
 generated: followup-script
 
+### 一句话
+
+先说判断标准，再说执行路径：回答「严格模式迁移实战：从“能编译”到“可治理”的分阶段落地」时要能同时解释收益、代价和失败信号。；讲「严格模式迁移实战：从“能编译”到“可治理”的分阶段落地」时先给 strict 模式 的判断口径，再补执行动作和回退条件。
+
 ### 题目
 
 如果面试官追问：在当前团队与业务约束下，为了证明这个方案在 strict 模式 维度有效，你会怎么设计测试闭环和线上观测指标？
@@ -2874,6 +3026,10 @@ difficulty: 资深
 tags: [strict 模式, 迁移治理, 工程化, 追问]
 parent: strict-migration-playbook
 generated: followup-script
+
+### 一句话
+
+推动「严格模式迁移实战：从“能编译”到“可治理”的分阶段落地」落地时先收敛改动面：选低风险页面或模块试点，保留旧路径作为对照。；「严格模式迁移实战：从“能编译”到“可治理”的分阶段落地」迁移计划要说明数据兼容、配置开关、监控指标和失败后的恢复路径。。
 
 ### 题目
 
@@ -3035,6 +3191,10 @@ tags: [升级治理, 类型系统, 决策沟通, 追问]
 parent: typescript-version-upgrade-incident-bridge
 generated: followup-script
 
+### 一句话
+
+第一阶段先保发布：只处理阻塞型错误，必要时临时豁免并绑定 owner 与到期日。；第二阶段稳恢复：补齐工具链兼容和高频类型回归，防止“今天能发、明天再炸”。；第三阶段做治理：把豁免逐步回收，并沉淀升级清单，减少下次版本切换成本。
+
 ### 题目
 
 如果面试官追问：TS 升级已经阻塞发布了，你会怎样分阶段止损，既保交付又不给后续治理挖更大坑？
@@ -3060,6 +3220,10 @@ difficulty: 资深
 tags: [升级治理, 类型系统, 决策沟通, 追问]
 parent: typescript-version-upgrade-incident-bridge
 generated: followup-script
+
+### 一句话
+
+面板至少分三层：发布阻塞指标、迁移进度指标、业务交付影响指标。；指标要成对出现：例如“报错数下降”要配“豁免数变化”，防止靠放宽规则制造假改善。；固定复盘节奏：每日看止损、每周看回收、每月看长期趋势，避免只盯单日波动。
 
 ### 题目
 
@@ -3087,6 +3251,10 @@ tags: [升级治理, 类型系统, 决策沟通, 追问]
 parent: typescript-version-upgrade-incident-bridge
 generated: followup-script
 
+### 一句话
+
+我会看交付面：受阻流水线占比、平均恢复时长、版本发布延迟天数。；我会看质量面：阻塞型类型错误趋势、误报率、豁免到期回收率。；我会看组织面：跨团队协作时延、升级争议次数、规则复用率，判断机制是否可持续。
+
 ### 题目
 
 如果面试官追问：三个月后团队讨论这条升级路线是否继续，你会给哪几组硬指标作为去留依据？
@@ -3112,6 +3280,10 @@ difficulty: 资深
 tags: [技术债治理, strict, 工程化, 追问]
 parent: typescript-type-debt-budget-governance
 generated: followup-script
+
+### 一句话
+
+先验“分层配额”是否合理：核心链路和边缘链路不能用同一把尺子。；先验“审批与到期机制”是否能执行：没有 owner、到期日、回收人就不应放行。；先验“发布联动”是否清晰：超配额时是阻断发布还是升级审批，规则要提前说死。
 
 ### 题目
 
@@ -3139,6 +3311,10 @@ tags: [技术债治理, strict, 工程化, 追问]
 parent: typescript-type-debt-budget-governance
 generated: followup-script
 
+### 一句话
+
+看净变化：每周新增债务与回收债务要同时下降，单看总量没有意义。；看逾期率：到期未清理占比是最关键质量信号，能直接暴露治理是否失效。；看交付影响：PR 周期和发布成功率不能明显恶化，否则治理会被团队抵触。
+
 ### 题目
 
 如果面试官追问：你这套类型债治理怎么证明有效，而不是做了一堆流程却没带来真实改善？
@@ -3164,6 +3340,10 @@ difficulty: 资深
 tags: [技术债治理, strict, 工程化, 追问]
 parent: typescript-type-debt-budget-governance
 generated: followup-script
+
+### 一句话
+
+我会追三类趋势：逾期债务占比、核心域债务密度、回收完成率。；再追两类效率：PR 评审时长和发布稳定性，确认治理没有把交付链路拖垮。；每月看一次“风险前十债务清单”是否在收敛，避免只处理低风险、好清理的问题。
 
 ### 题目
 

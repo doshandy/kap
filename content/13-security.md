@@ -1844,6 +1844,10 @@ tags: [CORS, OAuth, JWT, 追问]
 parent: cors-oauth-jwt
 generated: followup-script
 
+### 一句话
+
+验证要从可复现样例开始：准备正向、边界和失败用例，确认「CORS、OAuth、JWT 是三回事，别混着讲」不是只在理想输入下成立。；再补可观测指标：围绕「CORS、OAuth、JWT 是三回事。
+
 ### 题目
 
 如果面试官追问：结合真实业务约束，你会怎样验证「CORS、OAuth、JWT 是三回事，别混着讲」在真实攻击流量下仍能维持防护效果与可观测性？
@@ -1869,6 +1873,10 @@ difficulty: 进阶
 tags: [CORS, OAuth, JWT, 追问]
 parent: cors-oauth-jwt
 generated: followup-script
+
+### 一句话
+
+先明确这道追问要解决的业务目标，再说明「CORS、OAuth、JWT 是三回事，别混着讲」在当前约束下为什么成立。；围绕「CORS、OAuth、JWT 是三回事，别混着讲」组织答案时，建议按「约束来源 -> CORS 关键决策 -> 验证闭环」展开。。
 
 ### 题目
 
@@ -1909,6 +1917,10 @@ tags: [供应链安全, npm, 追问]
 parent: supply-chain
 generated: followup-script
 
+### 一句话
+
+验证要从可复现样例开始：准备正向、边界和失败用例，确认「npm 供应链攻击与前端依赖治理」不是只在理想输入下成立。；再补可观测指标：围绕「npm 供应链攻击与前端依赖治理」的安全边界应该能通过日志、耗时、错误率、命中率、覆盖率或用户行为指标观察到变化。。
+
 ### 题目
 
 如果面试官追问：结合真实业务约束，你会如何搭建「npm 供应链攻击与前端依赖治理」的攻击监控面板，及时识别绕过尝试与异常行为？
@@ -1934,6 +1946,10 @@ difficulty: 进阶
 tags: [供应链安全, npm, 追问]
 parent: supply-chain
 generated: followup-script
+
+### 一句话
+
+先把目标和约束说清楚，再展开实现：这能避免把「npm 供应链攻击与前端依赖治理」讲成只在理想输入下可用。；围绕「npm 供应链攻击与前端依赖治理」组织答案时，建议按「约束来源 -> 供应链安全 关键决策 -> 验证闭环」展开。。
 
 ### 题目
 
@@ -1974,6 +1990,10 @@ tags: [Passkeys, WebAuthn, 追问]
 parent: passkeys-webauthn
 generated: followup-script
 
+### 一句话
+
+验证要从可复现样例开始：准备正向、边界和失败用例，确认「Passkeys / WebAuthn 取代密码的工程化路径」不是只在理想输入下成立。。
+
 ### 题目
 
 如果面试官追问：在「Passkeys / WebAuthn 取代密码的工程化路径」场景下，如果要审计「Passkeys / WebAuthn 取代密码的工程化路径」在 Passkeys 维度的安全性，你会用哪些证据证明方案不可轻易绕过？
@@ -1999,6 +2019,10 @@ difficulty: 资深
 tags: [Passkeys, WebAuthn, 追问]
 parent: passkeys-webauthn
 generated: followup-script
+
+### 一句话
+
+先把目标和约束说清楚，再展开实现：这能避免把「Passkeys / WebAuthn 取代密码的工程化路径」讲成只在理想输入下可用。；围绕「Passkeys / WebAuthn 取代密码的工程化路径」组织答案时。
 
 ### 题目
 
@@ -2039,6 +2063,10 @@ tags: [SRI, CDN, 追问]
 parent: subresource-integrity
 generated: followup-script
 
+### 一句话
+
+先把目标和约束说清楚，再展开实现：这能避免把「Subresource Integrity 与第三方资源篡改」讲成只在理想输入下可用。；建议按「输入约束 -> SRI 执行链路 -> 结果验证」展开。
+
 ### 题目
 
 如果面试官追问：当「Subresource Integrity 与第三方资源篡改」进入高峰流量时，你会如何调整重试和降级，避免雪崩放大？
@@ -2077,6 +2105,10 @@ difficulty: 进阶
 tags: [SRI, CDN, 追问]
 parent: subresource-integrity
 generated: followup-script
+
+### 一句话
+
+先明确这道追问要解决的业务目标，再说明「Subresource Integrity 与第三方资源篡改」在当前约束下为什么成立。；回答结构可按「触发条件 -> SRI 机制 -> 风险兜底」展开。
 
 ### 题目
 
@@ -2117,6 +2149,10 @@ tags: [安全, XSS, CSRF, 高频, 追问]
 parent: xss-csrf-defense
 generated: followup-script
 
+### 一句话
+
+验证要从可复现样例开始：准备正向、边界和失败用例，确认「XSS 与 CSRF 的区别和防御」不是只在理想输入下成立。；再补可观测指标：围绕「XSS 与 CSRF 的区别和防御」的安全边界应该能通过日志、耗时、错误率、命中率、覆盖率或用户行为指标观察到变化。。
+
 ### 题目
 
 如果面试官追问：在「XSS 与 CSRF 的区别和防御」场景下，要证明「XSS 与 CSRF 的区别和防御」防护可信，你会如何结合攻击样例、审计日志和告警阈值？
@@ -2142,6 +2178,10 @@ difficulty: 进阶
 tags: [安全, XSS, CSRF, 高频, 追问]
 parent: xss-csrf-defense
 generated: followup-script
+
+### 一句话
+
+规模变大后先重新评估「XSS 与 CSRF 的区别和防御」瓶颈：数据量、并发、团队协作、浏览器兼容和维护成本哪个先触顶。；如果「XSS 与 CSRF 的区别和防御」对应的安全边界收益被复杂度抵消，就要考虑分层、缓存、懒加载、批处理或更简单的替代方案。。
 
 ### 题目
 
@@ -2169,6 +2209,10 @@ tags: [鉴权, JWT, Session, 追问]
 parent: auth-token-jwt
 generated: followup-script
 
+### 一句话
+
+验证要从可复现样例开始：准备正向、边界和失败用例，确认「鉴权方案 Cookie+Session vs JWT 怎么选」不是只在理想输入下成立。。
+
 ### 题目
 
 如果面试官追问：从工程落地角度看，如果要审计「鉴权方案 Cookie+Session vs JWT 怎么选」在 鉴权 维度的安全性，你会用哪些证据证明方案不可轻易绕过？
@@ -2194,6 +2238,10 @@ difficulty: 进阶
 tags: [鉴权, JWT, Session, 追问]
 parent: auth-token-jwt
 generated: followup-script
+
+### 一句话
+
+先明确这道追问要解决的业务目标，再说明「鉴权方案 Cookie+Session vs JWT 怎么选」在当前约束下为什么成立。；回答结构可按「触发条件 -> 鉴权 机制 -> 风险兜底」展开。
 
 ### 题目
 
@@ -2234,6 +2282,10 @@ tags: [安全, 供应链, 高频, 追问]
 parent: supply-chain-attack
 generated: followup-script
 
+### 一句话
+
+验证要从可复现样例开始：准备正向、边界和失败用例，确认「前端供应链攻击怎么防」不是只在理想输入下成立。；再补可观测指标：围绕「前端供应链攻击怎么防」的安全边界应该能通过日志、耗时、错误率、命中率、覆盖率或用户行为指标观察到变化。。
+
 ### 题目
 
 如果面试官追问：在「前端供应链攻击怎么防」场景下，如果要审计「前端供应链攻击怎么防」在 安全 维度的安全性，你会用哪些证据证明方案不可轻易绕过？
@@ -2260,6 +2312,10 @@ tags: [安全, 供应链, 高频, 追问]
 parent: supply-chain-attack
 generated: followup-script
 
+### 一句话
+
+规模变大后先重新评估「前端供应链攻击怎么防」瓶颈：数据量、并发、团队协作、浏览器兼容和维护成本哪个先触顶。；如果「前端供应链攻击怎么防」对应的安全边界收益被复杂度抵消，就要考虑分层、缓存、懒加载、批处理或更简单的替代方案。。
+
 ### 题目
 
 如果面试官追问：从工程落地角度看，当安全性、用户体验和研发成本互相拉扯时，你会怎么围绕 安全 给「前端供应链攻击怎么防」排优先级？
@@ -2285,6 +2341,10 @@ difficulty: 资深
 tags: [Cookie, CHIPS, FedCM, PrivacySandbox, 追问]
 parent: third-party-cookie-privacy-sandbox
 generated: followup-script
+
+### 一句话
+
+先给可验证结论，再补证据链：面试官想确认你是否能把「第三方 Cookie 退场后，CHIPS、FedCM、Storage Access 怎么选」落到真实交付，而不是停在概念层。；讲「第三方 Cookie 退场后。
 
 ### 题目
 
@@ -2325,6 +2385,10 @@ tags: [Cookie, CHIPS, FedCM, PrivacySandbox, 追问]
 parent: third-party-cookie-privacy-sandbox
 generated: followup-script
 
+### 一句话
+
+先把目标和约束说清楚，再展开实现：这能避免把「第三方 Cookie 退场后，CHIPS、FedCM、Storage Access 怎么选」讲成只在理想输入下可用。；围绕「第三方 Cookie 退场后。
+
 ### 题目
 
 如果面试官追问：从工程落地角度看，嵌入式 SaaS 要在客户域名里保持登录态，你会设计哪些降级链路？
@@ -2363,6 +2427,10 @@ difficulty: 资深
 tags: [Cookie, CHIPS, FedCM, PrivacySandbox, 追问]
 parent: third-party-cookie-privacy-sandbox
 generated: followup-script
+
+### 一句话
+
+先把目标和约束说清楚，再展开实现：这能避免把「第三方 Cookie 退场后，CHIPS、FedCM、Storage Access 怎么选」讲成只在理想输入下可用。；回答结构可按「触发条件 -> Cookie 机制 -> 风险兜底」展开。
 
 ### 题目
 
@@ -2403,6 +2471,10 @@ tags: [CSP, TrustedTypes, 追问]
 parent: csp-trusted-types
 generated: followup-script
 
+### 一句话
+
+先明确这道追问要解决的业务目标，再说明「CSP 与 Trusted Types 为什么是现代前端的高阶防线」在当前约束下为什么成立。；建议按「输入约束 -> CSP 执行链路 -> 结果验证」展开。
+
 ### 题目
 
 如果面试官追问：从工程落地角度看，为了证明这个方案在 CSP 维度有效，你会怎么设计测试闭环和线上观测指标？
@@ -2442,6 +2514,10 @@ tags: [CSP, TrustedTypes, 追问]
 parent: csp-trusted-types
 generated: followup-script
 
+### 一句话
+
+规模变大后先重新评估「CSP 与 Trusted Types 为什么是现代前端的高阶防线」瓶颈：数据量、并发、团队协作、浏览器兼容和维护成本哪个先触顶。。
+
 ### 题目
 
 如果面试官追问：以「CSP 与 Trusted Types 为什么是现代前端的高阶防线」为例，面对规模与资源变化并存时，你会如何围绕 CSP 调整「CSP 与 Trusted Types 为什么是现代前端的高阶防线」的推进顺序？
@@ -2467,6 +2543,10 @@ difficulty: 进阶
 tags: [原型链污染, 对象合并, 追问]
 parent: prototype-pollution
 generated: followup-script
+
+### 一句话
+
+验证要从可复现样例开始：准备正向、边界和失败用例，确认「原型链污染为什么危险，如何防」不是只在理想输入下成立。；再补可观测指标：围绕「原型链污染为什么危险，如何防」的核心机制应该能通过日志、耗时、错误率、命中率、覆盖率或用户行为指标观察到变化。。
 
 ### 题目
 
@@ -2494,6 +2574,10 @@ tags: [原型链污染, 对象合并, 追问]
 parent: prototype-pollution
 generated: followup-script
 
+### 一句话
+
+规模变大后先重新评估「原型链污染为什么危险，如何防」瓶颈：数据量、并发、团队协作、浏览器兼容和维护成本哪个先触顶。；如果「原型链污染为什么危险，如何防」对应的核心机制收益被复杂度抵消，就要考虑分层、缓存、懒加载、批处理或更简单的替代方案。。
+
 ### 题目
 
 如果面试官追问：从工程落地角度看，当需求规模、团队资源或兼容性要求变化时，你会如何围绕 原型链污染 重排「原型链污染为什么危险，如何防」方案优先级？
@@ -2519,6 +2603,10 @@ difficulty: 基础
 tags: [SourceMap, Secrets, 追问]
 parent: source-map-secrets
 generated: followup-script
+
+### 一句话
+
+先明确这道追问要解决的业务目标，再说明「Source Map、环境变量与前端敏感信息边界」在当前约束下为什么成立。；建议按「输入约束 -> SourceMap 执行链路 -> 结果验证」展开。
 
 ### 题目
 
@@ -2558,6 +2646,10 @@ difficulty: 基础
 tags: [SourceMap, Secrets, 追问]
 parent: source-map-secrets
 generated: followup-script
+
+### 一句话
+
+规模变大后先重新评估「Source Map、环境变量与前端敏感信息边界」瓶颈：数据量、并发、团队协作、浏览器兼容和维护成本哪个先触顶。；如果「Source Map、环境变量与前端敏感信息边界」对应的核心机制收益被复杂度抵消。
 
 ### 题目
 
@@ -2720,6 +2812,10 @@ tags: [供应链安全, SBOM, 签名, 追问]
 parent: security-sbom-signing-gate
 generated: followup-script
 
+### 一句话
+
+推动「供应链准入闸门：SBOM、依赖签名与高危包阻断」落地时先收敛改动面：选低风险页面或模块试点，保留旧路径作为对照。；「供应链准入闸门：SBOM、依赖签名与高危包阻断」迁移计划要说明数据兼容、配置开关、监控指标和失败后的恢复路径。。
+
 ### 题目
 
 如果面试官追问：在当前团队与业务约束下，如果把「供应链准入闸门：SBOM、依赖签名与高危包阻断」放到真实业务里，你会如何划分信任边界和服务端兜底？
@@ -2745,6 +2841,10 @@ difficulty: 资深
 tags: [供应链安全, SBOM, 签名, 追问]
 parent: security-sbom-signing-gate
 generated: followup-script
+
+### 一句话
+
+先把目标和约束说清楚，再展开实现：这能避免把「供应链准入闸门：SBOM、依赖签名与高危包阻断」讲成只在理想输入下可用。；围绕「供应链准入闸门：SBOM、依赖签名与高危包阻断」组织答案时，建议按「约束来源 -> 供应链安全 关键决策 -> 验证闭环」展开。。
 
 ### 题目
 
@@ -2785,6 +2885,10 @@ tags: [供应链安全, SBOM, 签名, 追问]
 parent: security-sbom-signing-gate
 generated: followup-script
 
+### 一句话
+
+先画清「供应链准入闸门：SBOM、依赖签名与高危包阻断」信任边界：哪些输入来自用户、第三方或模型，哪些校验必须在服务端完成。；证明「供应链准入闸门：SBOM、依赖签名与高危包阻断」没有被绕过要靠攻击样例、审计日志、告警阈值和最小权限。
+
 ### 题目
 
 如果面试官追问：在「供应链准入闸门：SBOM、依赖签名与高危包阻断」场景下，如果「供应链准入闸门：SBOM、依赖签名与高危包阻断」安全策略影响用户路径，你会如何平衡风险控制与体验损耗？
@@ -2810,6 +2914,10 @@ difficulty: 资深
 tags: [安全应急, 密钥轮换, 会话安全, 追问]
 parent: security-incident-key-rotation
 generated: followup-script
+
+### 一句话
+
+先给可验证结论，再补证据链：面试官想确认你是否能把「前端安全事故止损：密钥轮换、会话失效与用户保护」落到真实交付，而不是停在概念层。；讲「前端安全事故止损：密钥轮换、会话失效与用户保护」时先给 安全应急 的判断口径，再补执行动作和回退条件。
 
 ### 题目
 
@@ -2850,6 +2958,10 @@ tags: [安全应急, 密钥轮换, 会话安全, 追问]
 parent: security-incident-key-rotation
 generated: followup-script
 
+### 一句话
+
+先明确这道追问要解决的业务目标，再说明「前端安全事故止损：密钥轮换、会话失效与用户保护」在当前约束下为什么成立。；建议按「输入约束 -> 安全应急 执行链路 -> 结果验证」展开，并结合「前端安全事故止损：密钥轮换、会话失效与用户保护」给出一条可复核结果。
+
 ### 题目
 
 如果面试官追问：在「前端安全事故止损：密钥轮换、会话失效与用户保护」场景下，为了证明这个方案在 安全应急 维度有效，你会怎么设计测试闭环和线上观测指标？
@@ -2888,6 +3000,10 @@ difficulty: 资深
 tags: [安全应急, 密钥轮换, 会话安全, 追问]
 parent: security-incident-key-rotation
 generated: followup-script
+
+### 一句话
+
+推动「前端安全事故止损：密钥轮换、会话失效与用户保护」落地时先收敛改动面：选低风险页面或模块试点，保留旧路径作为对照。；「前端安全事故止损：密钥轮换、会话失效与用户保护」迁移计划要说明数据兼容、配置开关、监控指标和失败后的恢复路径。。
 
 ### 题目
 

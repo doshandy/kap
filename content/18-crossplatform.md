@@ -1324,6 +1324,10 @@ tags: [Hybrid, JSBridge, 追问]
 parent: hybrid-jsbridge
 generated: followup-script
 
+### 一句话
+
+先把目标和约束说清楚，再展开实现：这能避免把「Hybrid WebView 与 JSBridge 的核心设计点」讲成只在理想输入下可用。；围绕「Hybrid WebView 与 JSBridge 的核心设计点」组织答案时。
+
 ### 题目
 
 如果面试官追问：在当前团队与业务约束下，面对跨团队协作成本，你会如何围绕 Hybrid 规划「Hybrid WebView 与 JSBridge 的核心设计点」的阶段目标与交付边界？
@@ -1362,6 +1366,10 @@ difficulty: 进阶
 tags: [Hybrid, JSBridge, 追问]
 parent: hybrid-jsbridge
 generated: followup-script
+
+### 一句话
+
+先明确这道追问要解决的业务目标，再说明「Hybrid WebView 与 JSBridge 的核心设计点」在当前约束下为什么成立。；回答结构可按「触发条件 -> Hybrid 机制 -> 风险兜底」展开。
 
 ### 题目
 
@@ -1402,6 +1410,10 @@ tags: [Electron, 安全, IPC, 追问]
 parent: electron-security-ipc
 generated: followup-script
 
+### 一句话
+
+验证要从可复现样例开始：准备正向、边界和失败用例，确认「Electron 安全边界为什么离不开 preload、contextIsolation、IPC」不是只在理想输入下成立。。
+
 ### 题目
 
 如果面试官追问：在当前团队与业务约束下，要证明「Electron 安全边界为什么离不开 preload、contextIsolation、IPC」防护可信，你会如何结合攻击样例、审计日志和告警阈值？
@@ -1427,6 +1439,10 @@ difficulty: 资深
 tags: [Electron, 安全, IPC, 追问]
 parent: electron-security-ipc
 generated: followup-script
+
+### 一句话
+
+先给可验证结论，再补证据链：面试官想确认你是否能把「Electron 安全边界为什么离不开 preload、contextIsolation、IPC」落到真实交付，而不是停在概念层。；可以按「问题背景 -> Electron 机制 -> 取舍边界」回答。
 
 ### 题目
 
@@ -1467,6 +1483,10 @@ tags: [PWA, Capacitor, 追问]
 parent: pwa-capacitor
 generated: followup-script
 
+### 一句话
+
+推动「PWA、Capacitor、H5 容器化各自适合什么业务」落地时先收敛改动面：选低风险页面或模块试点，保留旧路径作为对照。；「PWA、Capacitor、H5 容器化各自适合什么业务」迁移计划要说明数据兼容、配置开关、监控指标和失败后的恢复路径。。
+
 ### 题目
 
 如果面试官追问：在「PWA、Capacitor、H5 容器化各自适合什么业务」场景下，团队里有人熟有人新时，你会怎么围绕 PWA 把「PWA、Capacitor、H5 容器化各自适合什么业务」拆成几段推进，确保每段都能独立验收？
@@ -1492,6 +1512,10 @@ difficulty: 基础
 tags: [PWA, Capacitor, 追问]
 parent: pwa-capacitor
 generated: followup-script
+
+### 一句话
+
+先把目标和约束说清楚，再展开实现：这能避免把「PWA、Capacitor、H5 容器化各自适合什么业务」讲成只在理想输入下可用。；建议按「输入约束 -> PWA 执行链路 -> 结果验证」展开。
 
 ### 题目
 
@@ -1532,6 +1556,10 @@ tags: [ReactNative, Flutter, KMP, 追问]
 parent: native-crossplatform-choice
 generated: followup-script
 
+### 一句话
+
+先给可验证结论，再补证据链：面试官想确认你是否能把「React Native、Flutter、KMP 各自解决哪一层跨端问题」落到真实交付，而不是停在概念层。。
+
 ### 题目
 
 如果面试官追问：结合真实业务约束，如果要让结论在 ReactNative 上可复核，你会怎样安排测试、日志和指标的组合验证？
@@ -1571,6 +1599,10 @@ tags: [ReactNative, Flutter, KMP, 追问]
 parent: native-crossplatform-choice
 generated: followup-script
 
+### 一句话
+
+规模变大后先重新评估「React Native、Flutter、KMP 各自解决哪一层跨端问题」瓶颈：数据量、并发、团队协作、浏览器兼容和维护成本哪个先触顶。。
+
 ### 题目
 
 如果面试官追问：在「React Native、Flutter、KMP 各自解决哪一层跨端问题」场景下，和常见替代方案相比，「React Native、Flutter、KMP 各自解决哪一层跨端问题」在 ReactNative 这个维度更适合什么团队规模与业务复杂度？
@@ -1597,6 +1629,10 @@ tags: [调试, 自动更新, 追问]
 parent: desktop-mobile-debug
 generated: followup-script
 
+### 一句话
+
+推动「跨端调试、自动更新与发布链路」落地时先收敛改动面：选低风险页面或模块试点，保留旧路径作为对照。；「跨端调试、自动更新与发布链路」迁移计划要说明数据兼容、配置开关、监控指标和失败后的恢复路径。；团队推进重点不是一次性重写。
+
 ### 题目
 
 如果面试官追问：在「跨端调试、自动更新与发布链路」场景下，你会怎样围绕 调试 拆分「跨端调试、自动更新与发布链路」的推进节奏，兼顾短期交付和长期治理？
@@ -1622,6 +1658,10 @@ difficulty: 进阶
 tags: [调试, 自动更新, 追问]
 parent: desktop-mobile-debug
 generated: followup-script
+
+### 一句话
+
+先明确这道追问要解决的业务目标，再说明「跨端调试、自动更新与发布链路」在当前约束下为什么成立。；围绕「跨端调试、自动更新与发布链路」组织答案时，建议按「约束来源 -> 调试 关键决策 -> 验证闭环」展开。；不要只罗列工具名或 API。
 
 ### 题目
 
@@ -1662,6 +1702,10 @@ tags: [性能, 一致性, 追问]
 parent: crossplatform-performance
 generated: followup-script
 
+### 一句话
+
+验证要从可复现样例开始：准备正向、边界和失败用例，确认「跨端性能与一致性为什么总在拉扯」不是只在理想输入下成立。；再补可观测指标：围绕「跨端性能与一致性为什么总在拉扯」的性能收益应该能通过日志、耗时、错误率、命中率、覆盖率或用户行为指标观察到变化。。
+
 ### 题目
 
 如果面试官追问：在「跨端性能与一致性为什么总在拉扯」场景下，你会如何结合 性能 指标，避免把「跨端性能与一致性为什么总在拉扯」的实验室提升误判为真实用户体验改善？
@@ -1687,6 +1731,10 @@ difficulty: 进阶
 tags: [性能, 一致性, 追问]
 parent: crossplatform-performance
 generated: followup-script
+
+### 一句话
+
+先给可验证结论，再补证据链：面试官想确认你是否能把「跨端性能与一致性为什么总在拉扯」落到真实交付，而不是停在概念层。；回答顺序可用「现状问题 -> 性能瓶颈 方案动作 -> 验证结果」，并用「跨端性能与一致性为什么总在拉扯」举一条主链路说明。。
 
 ### 题目
 
@@ -1727,6 +1775,10 @@ tags: [小程序, 双线程, 追问]
 parent: miniapp-architecture
 generated: followup-script
 
+### 一句话
+
+验证要从可复现样例开始：准备正向、边界和失败用例，确认「微信小程序的双线程架构与性能边界」不是只在理想输入下成立。；再补可观测指标：围绕「微信小程序的双线程架构与性能边界」的性能收益应该能通过日志、耗时、错误率、命中率、覆盖率或用户行为指标观察到变化。。
+
 ### 题目
 
 如果面试官追问：在当前团队与业务约束下，你会如何结合 小程序 指标，避免把「微信小程序的双线程架构与性能边界」的实验室提升误判为真实用户体验改善？
@@ -1752,6 +1804,10 @@ difficulty: 进阶
 tags: [小程序, 双线程, 追问]
 parent: miniapp-architecture
 generated: followup-script
+
+### 一句话
+
+先给可验证结论，再补证据链：面试官想确认你是否能把「微信小程序的双线程架构与性能边界」落到真实交付，而不是停在概念层。；回答顺序可用「现状问题 -> 小程序 方案动作 -> 验证结果」，并用「微信小程序的双线程架构与性能边界」举一条主链路说明。。
 
 ### 题目
 
@@ -1792,6 +1848,10 @@ tags: [Electron, Tauri, 追问]
 parent: electron-tauri
 generated: followup-script
 
+### 一句话
+
+先说判断标准，再说执行路径：回答「Electron 与 Tauri 的差异和取舍」时要能同时解释收益、代价和失败信号。；回答顺序可用「现状问题 -> Electron 方案动作 -> 验证结果」。
+
 ### 题目
 
 如果面试官追问：从工程落地角度看，上线后你会盯哪些与 Electron 相关的日志与指标，来确认这套方案确实带来改进？
@@ -1830,6 +1890,10 @@ difficulty: 进阶
 tags: [Electron, Tauri, 追问]
 parent: electron-tauri
 generated: followup-script
+
+### 一句话
+
+先给可验证结论，再补证据链：面试官想确认你是否能把「Electron 与 Tauri 的差异和取舍」落到真实交付，而不是停在概念层。；可以按「问题背景 -> Electron 机制 -> 取舍边界」回答。
 
 ### 题目
 
@@ -1870,6 +1934,10 @@ tags: [小程序, Taro, uni-app, 追问]
 parent: mini-program
 generated: followup-script
 
+### 一句话
+
+先说判断标准，再说执行路径：回答「小程序与多端框架的本质是“多宿主适配”」时要能同时解释收益、代价和失败信号。；讲「小程序与多端框架的本质是“多宿主适配”」时先给 小程序 的判断口径，再补执行动作和回退条件，会更像真实评审发言。。
+
 ### 题目
 
 如果面试官追问：在「小程序与多端框架的本质是“多宿主适配”」场景下，你会如何围绕 小程序 搭建验证面板，持续确认这个方案的收益没有被噪声掩盖？
@@ -1909,6 +1977,10 @@ tags: [小程序, Taro, uni-app, 追问]
 parent: mini-program
 generated: followup-script
 
+### 一句话
+
+规模变大后先重新评估「小程序与多端框架的本质是“多宿主适配”」瓶颈：数据量、并发、团队协作、浏览器兼容和维护成本哪个先触顶。；如果「小程序与多端框架的本质是“多宿主适配”」对应的核心机制收益被复杂度抵消。
+
 ### 题目
 
 如果面试官追问：当约束变化导致成本上升时，你会先优化「小程序与多端框架的本质是“多宿主适配”」里和 小程序 相关的哪些环节？
@@ -1934,6 +2006,10 @@ difficulty: 进阶
 tags: [Taro, uni-app, 跨端, 追问]
 parent: taro-uniapp-choice
 generated: followup-script
+
+### 一句话
+
+先明确这道追问要解决的业务目标，再说明「Taro / uni-app 与原生小程序如何选择」在当前约束下为什么成立。；围绕「Taro / uni-app 与原生小程序如何选择」组织答案时，建议按「约束来源 -> Taro 关键决策 -> 验证闭环」展开。。
 
 ### 题目
 
@@ -1974,6 +2050,10 @@ tags: [Taro, uni-app, 跨端, 追问]
 parent: taro-uniapp-choice
 generated: followup-script
 
+### 一句话
+
+规模变大后先重新评估「Taro / uni-app 与原生小程序如何选择」瓶颈：数据量、并发、团队协作、浏览器兼容和维护成本哪个先触顶。；如果「Taro / uni-app 与原生小程序如何选择」对应的核心机制收益被复杂度抵消。
+
 ### 题目
 
 如果面试官追问：以「Taro / uni-app 与原生小程序如何选择」为例，如果目标不变但约束更严，你会如何围绕 Taro 调整「Taro / uni-app 与原生小程序如何选择」方案的边界和节奏？
@@ -1999,6 +2079,10 @@ difficulty: 进阶
 tags: [JSBridge, Hybrid, 追问]
 parent: webview-jsbridge
 generated: followup-script
+
+### 一句话
+
+先把目标和约束说清楚，再展开实现：这能避免把「WebView / JSBridge 怎么实现」讲成只在理想输入下可用。；回答结构可按「触发条件 -> JSBridge 机制 -> 风险兜底」展开。
 
 ### 题目
 
@@ -2038,6 +2122,10 @@ difficulty: 进阶
 tags: [JSBridge, Hybrid, 追问]
 parent: webview-jsbridge
 generated: followup-script
+
+### 一句话
+
+规模变大后先重新评估「WebView / JSBridge 怎么实现」瓶颈：数据量、并发、团队协作、浏览器兼容和维护成本哪个先触顶。；如果「WebView / JSBridge 怎么实现」对应的核心机制收益被复杂度抵消。
 
 ### 题目
 
@@ -2192,6 +2280,10 @@ tags: [多端治理, 能力检测, 降级策略, 追问]
 parent: crossplatform-capability-matrix-guardrail
 generated: followup-script
 
+### 一句话
+
+先给可验证结论，再补证据链：面试官想确认你是否能把「多端能力矩阵治理：特性检测、降级路径与上线护栏」落到真实交付，而不是停在概念层。；回答顺序可用「现状问题 -> 多端治理 方案动作 -> 验证结果」。
+
 ### 题目
 
 如果面试官追问：结合真实业务约束，围绕「多端能力矩阵治理：特性检测、降级路径与上线护栏」做方案评审时，你会先检查哪些与 多端治理 相关的边界假设是否成立？
@@ -2231,6 +2323,10 @@ tags: [多端治理, 能力检测, 降级策略, 追问]
 parent: crossplatform-capability-matrix-guardrail
 generated: followup-script
 
+### 一句话
+
+先说判断标准，再说执行路径：回答「多端能力矩阵治理：特性检测、降级路径与上线护栏」时要能同时解释收益、代价和失败信号。；可以按「问题背景 -> 多端治理 机制 -> 取舍边界」回答，再用「多端能力矩阵治理：特性检测、降级路径与上线护栏」补一个反例。
+
 ### 题目
 
 如果面试官追问：在当前团队与业务约束下，如果要向团队复盘 多端治理 相关优化，你会展示哪些关键日志和指标来支撑结论？
@@ -2269,6 +2365,10 @@ tags: [多端治理, 能力检测, 降级策略, 追问]
 parent: crossplatform-capability-matrix-guardrail
 generated: followup-script
 
+### 一句话
+
+规模变大后先重新评估「多端能力矩阵治理：特性检测、降级路径与上线护栏」瓶颈：数据量、并发、团队协作、浏览器兼容和维护成本哪个先触顶。；如果「多端能力矩阵治理：特性检测、降级路径与上线护栏」对应的工程可维护性收益被复杂度抵消。
+
 ### 题目
 
 如果面试官追问：结合真实业务约束，你会如何用可观测数据衡量「多端能力矩阵治理：特性检测、降级路径与上线护栏」在 多端治理 上的维护成本和收益平衡？
@@ -2294,6 +2394,10 @@ difficulty: 资深
 tags: [版本治理, 兼容契约, 发布, 追问]
 parent: crossplatform-version-contract-governance
 generated: followup-script
+
+### 一句话
+
+先把目标和约束说清楚，再展开实现：这能避免把「多端版本契约治理：壳版本、H5 包与协议兼容怎么控风险」讲成只在理想输入下可用。；围绕「多端版本契约治理：壳版本、H5 包与协议兼容怎么控风险」组织答案时。
 
 ### 题目
 
@@ -2334,6 +2438,10 @@ tags: [版本治理, 兼容契约, 发布, 追问]
 parent: crossplatform-version-contract-governance
 generated: followup-script
 
+### 一句话
+
+先说判断标准，再说执行路径：回答「多端版本契约治理：壳版本、H5 包与协议兼容怎么控风险」时要能同时解释收益、代价和失败信号。；回答顺序可用「现状问题 -> 版本治理 方案动作 -> 验证结果」。
+
 ### 题目
 
 如果面试官追问：从工程落地角度看，上线后你会盯哪些与 版本治理 相关的日志与指标，来确认这套方案确实带来改进？
@@ -2372,6 +2480,10 @@ difficulty: 资深
 tags: [版本治理, 兼容契约, 发布, 追问]
 parent: crossplatform-version-contract-governance
 generated: followup-script
+
+### 一句话
+
+规模变大后先重新评估「多端版本契约治理：壳版本、H5 包与协议兼容怎么控风险」瓶颈：数据量、并发、团队协作、浏览器兼容和维护成本哪个先触顶。；如果「多端版本契约治理：壳版本、H5 包与协议兼容怎么控风险」对应的工程可维护性收益被复杂度抵消。
 
 ### 题目
 
@@ -2525,6 +2637,10 @@ tags: [跨端发布, 一致性, 风险治理, 追问]
 parent: crossplatform-release-consistency-gate
 generated: followup-script
 
+### 一句话
+
+推动「多端发布一致性闸门：壳包、H5 包、配置中心的同步准入」落地时先收敛改动面：选低风险页面或模块试点，保留旧路径作为对照。；「多端发布一致性闸门：壳包、H5 包、配置中心的同步准入」迁移计划要说明数据兼容、配置开关、监控指标和失败后的恢复路径。。
+
 ### 题目
 
 如果面试官追问：从工程落地角度看，真要把「多端发布一致性闸门：壳包、H5 包、配置中心的同步准入」推到线上，你会如何围绕 跨端发布 设计灰度节奏、回滚条件和迁移路径？
@@ -2550,6 +2666,10 @@ difficulty: 资深
 tags: [跨端发布, 一致性, 风险治理, 追问]
 parent: crossplatform-release-consistency-gate
 generated: followup-script
+
+### 一句话
+
+先说判断标准，再说执行路径：回答「多端发布一致性闸门：壳包、H5 包、配置中心的同步准入」时要能同时解释收益、代价和失败信号。；回答顺序可用「现状问题 -> 跨端发布 方案动作 -> 验证结果」。
 
 ### 题目
 
@@ -2590,6 +2710,10 @@ tags: [跨端发布, 一致性, 风险治理, 追问]
 parent: crossplatform-release-consistency-gate
 generated: followup-script
 
+### 一句话
+
+验证要从可复现样例开始：准备正向、边界和失败用例，确认「多端发布一致性闸门：壳包、H5 包、配置中心的同步准入」不是只在理想输入下成立。。
+
 ### 题目
 
 如果面试官追问：以「多端发布一致性闸门：壳包、H5 包、配置中心的同步准入」为例，当团队讨论「多端发布一致性闸门：壳包、H5 包、配置中心的同步准入」去留时，你会给出哪几组关键指标作为决策依据？
@@ -2616,6 +2740,10 @@ tags: [跨端安全, JSBridge, 权限治理, 追问]
 parent: crossplatform-bridge-permission-risk-gate
 generated: followup-script
 
+### 一句话
+
+推动「跨端桥接权限风险闸门：能力分级、调用审计与远程熔断」落地时先收敛改动面：选低风险页面或模块试点，保留旧路径作为对照。；「跨端桥接权限风险闸门：能力分级、调用审计与远程熔断」迁移计划要说明数据兼容、配置开关、监控指标和失败后的恢复路径。。
+
 ### 题目
 
 如果面试官追问：围绕「跨端桥接权限风险闸门：能力分级、调用审计与远程熔断」落地时，你会怎样定义前端可信范围与服务端强校验边界？
@@ -2641,6 +2769,10 @@ difficulty: 资深
 tags: [跨端安全, JSBridge, 权限治理, 追问]
 parent: crossplatform-bridge-permission-risk-gate
 generated: followup-script
+
+### 一句话
+
+先说判断标准，再说执行路径：回答「跨端桥接权限风险闸门：能力分级、调用审计与远程熔断」时要能同时解释收益、代价和失败信号。；可以按「问题背景 -> 跨端安全 机制 -> 取舍边界」回答，再用「跨端桥接权限风险闸门：能力分级、调用审计与远程熔断」补一个反例。
 
 ### 题目
 
@@ -2680,6 +2812,10 @@ difficulty: 资深
 tags: [跨端安全, JSBridge, 权限治理, 追问]
 parent: crossplatform-bridge-permission-risk-gate
 generated: followup-script
+
+### 一句话
+
+先画清「跨端桥接权限风险闸门：能力分级、调用审计与远程熔断」信任边界：哪些输入来自用户、第三方或模型，哪些校验必须在服务端完成。；证明「跨端桥接权限风险闸门：能力分级、调用审计与远程熔断」没有被绕过要靠攻击样例、审计日志、告警阈值和最小权限。
 
 ### 题目
 

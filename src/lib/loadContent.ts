@@ -15,6 +15,7 @@ const CONTENT_CACHE_KEY = 'kap-content-index-v1';
 const CONTENT_CACHE_SIGNATURE_KEY = 'kap-content-signature-v1';
 const CONTENT_STATIC_CACHE_URL = `${import.meta.env.BASE_URL}content-cache.json`;
 const CONTENT_STATIC_CACHE_TIMEOUT_MS = 1500;
+const CONTENT_STATIC_CACHE_COLD_START_TIMEOUT_MS = 5000;
 const PARSE_YIELD_BATCH = 4;
 
 let cache: ContentIndex | null = null;
@@ -22,8 +23,42 @@ let pending: Promise<ContentIndex> | null = null;
 let cacheSignature = '';
 let hydratedFromStorage = false;
 
+export type ContentInitStage =
+  | 'bootstrap'
+  | 'fetch-static-cache'
+  | 'load-static-cache'
+  | 'load-markdown'
+  | 'finalize';
+
+export interface ContentInitProgress {
+  stage: ContentInitStage;
+  percent: number;
+  message: string;
+  loaded?: number;
+  total?: number;
+}
+
+interface InitContentOptions {
+  onProgress?: (progress: ContentInitProgress) => void;
+}
+
 function canUseStorage(): boolean {
   return typeof window !== 'undefined' && typeof window.localStorage !== 'undefined';
+}
+
+function clampPercent(value: number): number {
+  return Math.max(0, Math.min(100, Math.round(value)));
+}
+
+function reportProgress(
+  onProgress: InitContentOptions['onProgress'],
+  payload: ContentInitProgress,
+): void {
+  if (!onProgress) return;
+  onProgress({
+    ...payload,
+    percent: clampPercent(payload.percent),
+  });
 }
 
 function hashText(text: string, seed = 2166136261): number {
@@ -166,33 +201,55 @@ async function yieldToMainThread(): Promise<void> {
   });
 }
 
-async function loadFromStaticCache(): Promise<ContentIndex | null> {
+async function loadFromStaticCache(
+  onProgress?: InitContentOptions['onProgress'],
+): Promise<ContentIndex | null> {
   if (import.meta.env.DEV || typeof fetch !== 'function') return null;
   const fallback = readAnyCachedIndex();
   const fallbackIndex = fallback?.index ?? null;
   if (fallback?.signature) cacheSignature = fallback.signature;
+  const timeoutMs = fallbackIndex
+    ? CONTENT_STATIC_CACHE_TIMEOUT_MS
+    : CONTENT_STATIC_CACHE_COLD_START_TIMEOUT_MS;
   let timeoutId: number | null = null;
   try {
+    reportProgress(onProgress, {
+      stage: 'fetch-static-cache',
+      percent: fallbackIndex ? 30 : 10,
+      message: fallbackIndex ? '正在后台同步最新题库…' : '正在下载题库缓存…',
+    });
     const controller = typeof AbortController !== 'undefined' ? new AbortController() : null;
-    timeoutId =
-      controller != null
-        ? window.setTimeout(() => controller.abort(), CONTENT_STATIC_CACHE_TIMEOUT_MS)
-        : null;
+    timeoutId = controller != null ? window.setTimeout(() => controller.abort(), timeoutMs) : null;
     const response = await fetch(CONTENT_STATIC_CACHE_URL, {
-      cache: 'no-cache',
+      cache: 'default',
       signal: controller?.signal,
     });
     if (!response.ok) return fallbackIndex;
+    reportProgress(onProgress, {
+      stage: 'load-static-cache',
+      percent: fallbackIndex ? 50 : 40,
+      message: '题库缓存下载完成，正在校验…',
+    });
     const payload: unknown = await response.json();
     if (!isCachePayload(payload)) return fallbackIndex;
 
     const cached = readCachedIndex(payload.signature);
     if (cached) {
       cacheSignature = payload.signature;
+      reportProgress(onProgress, {
+        stage: 'load-static-cache',
+        percent: 90,
+        message: '命中本地题库索引缓存',
+      });
       return cached;
     }
 
     const index = buildIndexFromCategories(payload.categories);
+    reportProgress(onProgress, {
+      stage: 'load-static-cache',
+      percent: 92,
+      message: '正在写入本地题库缓存…',
+    });
     writeCachedIndex(payload.signature, index.categories);
     cacheSignature = payload.signature;
     return index;
@@ -203,30 +260,63 @@ async function loadFromStaticCache(): Promise<ContentIndex | null> {
   }
 }
 
-async function buildIndex(): Promise<ContentIndex> {
-  const staticIndex = await loadFromStaticCache();
+async function buildIndex(onProgress?: InitContentOptions['onProgress']): Promise<ContentIndex> {
+  reportProgress(onProgress, {
+    stage: 'bootstrap',
+    percent: 5,
+    message: '准备加载题库…',
+  });
+  const staticIndex = await loadFromStaticCache(onProgress);
   if (staticIndex) {
     cache = staticIndex;
     hydratedFromStorage = false;
+    reportProgress(onProgress, {
+      stage: 'finalize',
+      percent: 100,
+      message: '题库加载完成',
+    });
     return staticIndex;
   }
 
   const entries = Object.entries(modules);
+  reportProgress(onProgress, {
+    stage: 'load-markdown',
+    percent: 18,
+    message: '静态缓存不可用，正在读取题库文件…',
+  });
   const rawList = await Promise.all(
     entries.map(async ([path, loader]) => ({ path, raw: await loader() })),
   );
+  reportProgress(onProgress, {
+    stage: 'load-markdown',
+    percent: 35,
+    message: '题库文件读取完成，正在校验缓存签名…',
+  });
   const signature = buildSignature(rawList);
   const cachedIndex = readCachedIndex(signature);
   if (cachedIndex) {
     cacheSignature = signature;
     cache = cachedIndex;
     hydratedFromStorage = false;
+    reportProgress(onProgress, {
+      stage: 'finalize',
+      percent: 100,
+      message: '已恢复本地题库缓存',
+    });
     return cachedIndex;
   }
 
+  reportProgress(onProgress, {
+    stage: 'load-markdown',
+    percent: 45,
+    message: '正在解析题库内容…',
+    loaded: 0,
+    total: rawList.length,
+  });
   const parser = await import('./parseMarkdown');
   const categories: Category[] = [];
   const errors: Error[] = [];
+  const parseTotal = rawList.length || 1;
   for (let index = 0; index < rawList.length; index++) {
     const { path, raw } = rawList[index];
     try {
@@ -235,6 +325,13 @@ async function buildIndex(): Promise<ContentIndex> {
       const reason = e instanceof Error ? e.message : String(e);
       errors.push(new Error(`${path}: ${reason}`));
     }
+    reportProgress(onProgress, {
+      stage: 'load-markdown',
+      percent: 45 + ((index + 1) / parseTotal) * 50,
+      message: `正在解析题库内容（${index + 1}/${rawList.length}）…`,
+      loaded: index + 1,
+      total: rawList.length,
+    });
     if ((index + 1) % PARSE_YIELD_BATCH === 0) {
       await yieldToMainThread();
     }
@@ -243,10 +340,20 @@ async function buildIndex(): Promise<ContentIndex> {
     throw new AggregateError(errors, `[content] ${errors.length} markdown file(s) failed to parse`);
   }
   const index = buildIndexFromCategories(categories);
+  reportProgress(onProgress, {
+    stage: 'finalize',
+    percent: 97,
+    message: '正在写入本地缓存…',
+  });
   writeCachedIndex(signature, index.categories);
   cacheSignature = signature;
   cache = index;
   hydratedFromStorage = false;
+  reportProgress(onProgress, {
+    stage: 'finalize',
+    percent: 100,
+    message: '题库加载完成',
+  });
   return cache;
 }
 
@@ -271,10 +378,10 @@ export function getContentSignature(): string {
 /**
  * 异步初始化（启动期调用一次，等所有 markdown 完成解析）。
  */
-export async function initContent(): Promise<ContentIndex> {
+export async function initContent(options?: InitContentOptions): Promise<ContentIndex> {
   if (cache && !hydratedFromStorage) return cache;
   if (pending) return pending;
-  pending = buildIndex().catch((e) => {
+  pending = buildIndex(options?.onProgress).catch((e) => {
     pending = null;
     throw e;
   });

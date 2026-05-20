@@ -63,14 +63,14 @@ const fmtDate = (ts: number) => {
 
 <template>
   <div class="rv">
-    <header>
+    <header class="head card">
       <h1><AppIcon name="reload" /> 间隔复习</h1>
       <p class="muted">
         基于 SM-2 计算下次复习时间；同时会把你手动标记的「需复习 / 模糊」题纳入今日队列。
       </p>
     </header>
 
-    <section>
+    <section class="review-section">
       <h3>今日待复习（{{ dueQuestions.length }}）</h3>
       <div v-if="!dueQuestions.length" class="empty">
         <AppIcon name="trophy" /> 今天没有待复习题，你可以去抽题或学新知识。
@@ -78,7 +78,7 @@ const fmtDate = (ts: number) => {
       <QuestionCard v-for="(q, i) in dueQuestions" :key="q.id" :question="q" :index="i + 1" />
     </section>
 
-    <section v-if="upcoming.length">
+    <section v-if="upcoming.length" class="review-section card upcoming-panel">
       <h3>未来排期</h3>
       <ul class="upcoming">
         <li v-for="u in upcoming" :key="u.q.id">
@@ -98,27 +98,47 @@ const fmtDate = (ts: number) => {
   max-width: 920px;
   margin: 0 auto;
 }
-header h1 {
+.head {
+  padding: 16px 18px;
+  border: 1px solid var(--c-border);
+  background:
+    linear-gradient(180deg, color-mix(in srgb, var(--c-primary) 10%, transparent), transparent 66%),
+    var(--c-surface);
+  box-shadow: var(--c-shadow-sm);
+}
+.head h1 {
   font-size: 22px;
   display: inline-flex;
   align-items: center;
   gap: 8px;
+  margin: 0;
 }
 .muted {
   color: var(--c-text-mute);
   font-size: 13px;
-  margin-top: 4px;
+  margin: 6px 0 0;
+  line-height: 1.65;
 }
-section {
-  margin-top: 22px;
+.review-section {
+  margin-top: 18px;
 }
-section h3 {
-  margin-bottom: 10px;
+.review-section h3 {
+  margin: 0 0 10px;
+  font-size: 18px;
+}
+.upcoming-panel {
+  padding: 14px 16px;
+  border: 1px solid var(--c-border);
+  background:
+    linear-gradient(180deg, color-mix(in srgb, var(--c-primary) 8%, transparent), transparent 70%),
+    var(--c-surface);
+  box-shadow: var(--c-shadow-sm);
 }
 .empty {
   padding: 30px;
   text-align: center;
   color: var(--c-text-mute);
+  border: 1px dashed var(--c-border);
   background: var(--c-bg-soft);
   border-radius: var(--radius);
 }
@@ -126,18 +146,26 @@ section h3 {
   list-style: none;
   padding: 0;
   margin: 0;
+  display: grid;
+  gap: 8px;
 }
 .upcoming li {
   display: grid;
   grid-template-columns: 110px 1fr 110px;
   gap: 10px;
-  padding: 8px 12px;
-  border-bottom: 1px solid var(--c-border-soft);
+  align-items: center;
+  padding: 10px 12px;
+  border: 1px solid var(--c-border);
+  border-radius: 10px;
+  background: var(--c-bg-soft);
   font-size: 13px;
 }
 .date {
   color: var(--c-text-mute);
   font-family: monospace;
+}
+.link {
+  overflow-wrap: anywhere;
 }
 .cat {
   color: var(--c-text-mute);
@@ -149,7 +177,7 @@ section h3 {
   .upcoming li {
     grid-template-columns: 1fr;
     gap: 4px;
-    padding: 10px 0;
+    padding: 10px;
   }
   .link {
     order: -1;

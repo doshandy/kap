@@ -4,9 +4,15 @@ import { useRoute } from 'vue-router';
 import AppHeader from '@/components/layout/AppHeader.vue';
 import AppSidebar from '@/components/layout/AppSidebar.vue';
 import AppIcon from '@/components/icon/AppIcon.vue';
+import AppLoader from '@/components/common/AppLoader.vue';
 import { useSettingsStore } from '@/stores/settings';
 import { useShortcuts } from '@/composables/useShortcuts';
-import { getContentSignature, hydrateContentFromStorage, initContent } from '@/lib/loadContent';
+import {
+  getContentSignature,
+  hydrateContentFromStorage,
+  initContent,
+  type ContentInitProgress,
+} from '@/lib/loadContent';
 import { prewarmSearch } from '@/composables/useSearch';
 
 // 搜索面板和快捷键弹窗仅在用户触发时才需要加载，配合动态 fuse.js
@@ -23,6 +29,9 @@ const helpOpen = ref(false);
 const searchOpen = ref(false);
 const contentReady = ref(false);
 const contentError = ref('');
+const loadingProgress = ref(0);
+const loadingMessage = ref('准备加载题库…');
+const loadingDetail = ref('');
 const appMain = ref<HTMLElement | null>(null);
 
 let mq: MediaQueryList | null = null;
@@ -69,16 +78,37 @@ function reloadPage() {
   location.reload();
 }
 
+function applyContentProgress(progress: ContentInitProgress): void {
+  loadingProgress.value = Math.max(
+    loadingProgress.value,
+    Math.min(100, Math.round(progress.percent)),
+  );
+  loadingMessage.value = progress.message;
+  loadingDetail.value =
+    typeof progress.loaded === 'number' && typeof progress.total === 'number'
+      ? `${progress.loaded}/${progress.total}`
+      : '';
+}
+
 onMounted(() => {
   settings.applyTheme();
   mq = window.matchMedia('(prefers-color-scheme: dark)');
   mq.addEventListener('change', onColorSchemeChange);
+  loadingProgress.value = 5;
+  loadingMessage.value = '检查本地题库缓存…';
   const bootstrapped = hydrateContentFromStorage();
   const bootSignature = getContentSignature();
-  if (bootstrapped) contentReady.value = true;
-  void initContent()
+  if (bootstrapped) {
+    contentReady.value = true;
+    loadingProgress.value = 72;
+    loadingMessage.value = '已使用本地缓存，正在同步最新题库…';
+  }
+  void initContent({ onProgress: applyContentProgress })
     .then(() => {
       contentReady.value = true;
+      loadingProgress.value = 100;
+      loadingMessage.value = '题库加载完成';
+      loadingDetail.value = '';
       scheduleSearchPrewarm();
       if (bootstrapped && bootSignature && getContentSignature() !== bootSignature) {
         // 已先用本地缓存渲染过页面，若后台拉到新题库签名则刷新一次确保路由与侧栏同步最新数据。
@@ -133,14 +163,25 @@ useShortcuts({
         <h1>KAP 加载失败</h1>
         <p>题库内容初始化没有完成，请检查网络后刷新页面。</p>
         <pre>{{ contentError }}</pre>
-        <button type="button" @click="reloadPage">刷新页面</button>
+        <button type="button" class="btn btn-primary" @click="reloadPage">刷新页面</button>
       </div>
-      <div v-else-if="!contentReady" class="loading">题库加载中...</div>
+      <div v-else-if="!contentReady" class="startup-loading-card" role="status" aria-live="polite">
+        <h2>题库加载中 {{ loadingProgress }}%</h2>
+        <p>{{ loadingMessage }}</p>
+        <AppLoader class="startup-loader" />
+        <div class="startup-loading-track" aria-hidden="true">
+          <div class="startup-loading-fill" :style="{ width: `${loadingProgress}%` }" />
+        </div>
+        <small v-if="loadingDetail" class="startup-loading-detail">{{ loadingDetail }}</small>
+      </div>
       <RouterView v-else v-slot="{ Component }">
         <Suspense>
           <component :is="Component" />
           <template #fallback>
-            <div class="loading">加载中...</div>
+            <div class="loading">
+              <AppLoader class="route-loader" />
+              <p>页面加载中...</p>
+            </div>
           </template>
         </Suspense>
       </RouterView>
@@ -205,8 +246,58 @@ useShortcuts({
   overscroll-behavior: contain;
 }
 .loading {
-  padding: 40px;
+  padding: 40px 16px;
+  display: grid;
+  place-items: center;
+  gap: 6px;
   text-align: center;
+  color: var(--c-text-mute);
+}
+.loading p {
+  margin: 0;
+}
+.route-loader {
+  --loader-font-size: 7px;
+}
+.startup-loading-card {
+  max-width: 560px;
+  margin: 48px auto 0;
+  padding: 20px;
+  border: 1px solid var(--c-border);
+  border-radius: 14px;
+  background: var(--c-surface);
+  box-shadow: var(--c-shadow-sm);
+}
+.startup-loading-card h2 {
+  margin: 0;
+  font-size: 20px;
+}
+.startup-loading-card p {
+  margin: 10px 0 14px;
+  color: var(--c-text-mute);
+}
+.startup-loader {
+  --loader-font-size: 9px;
+
+  margin: 0 auto 10px;
+}
+.startup-loading-track {
+  width: 100%;
+  height: 10px;
+  border-radius: 999px;
+  overflow: hidden;
+  background: var(--c-bg-soft);
+}
+.startup-loading-fill {
+  height: 100%;
+  width: 0;
+  border-radius: inherit;
+  background: linear-gradient(90deg, #38bdf8, #0ea5e9);
+  transition: width 220ms ease;
+}
+.startup-loading-detail {
+  display: block;
+  margin-top: 10px;
   color: var(--c-text-mute);
 }
 .app-bottom-nav {

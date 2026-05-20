@@ -2216,6 +2216,10 @@ tags: [pnpm, 依赖管理, 追问]
 parent: package-manager
 generated: followup-script
 
+### 一句话
+
+规模变大后先重新评估「npm、yarn、pnpm 与 lockfile、peerDependencies 的本质」瓶颈：数据量、并发、团队协作、浏览器兼容和维护成本哪个先触顶。。
+
 ### 题目
 
 如果面试官追问：结合真实业务约束，如果部分模块技术债很重，你会如何围绕 pnpm 调整「npm、yarn、pnpm 与 lockfile、peerDependencies 的本质」的分阶段策略？
@@ -2241,6 +2245,10 @@ difficulty: 进阶
 tags: [pnpm, 依赖管理, 追问]
 parent: package-manager
 generated: followup-script
+
+### 一句话
+
+先说判断标准，再说执行路径：回答「npm、yarn、pnpm 与 lockfile、peerDependencies 的本质」时要能同时解释收益、代价和失败信号。；可以按「问题背景 -> pnpm 机制 -> 取舍边界」回答。
 
 ### 题目
 
@@ -2281,6 +2289,10 @@ tags: [SemVer, ConventionalCommits, Changesets, 追问]
 parent: semver-commit-governance
 generated: followup-script
 
+### 一句话
+
+先把目标和约束说清楚，再展开实现：这能避免把「SemVer、Conventional Commits、Changesets 分别治理什么问题」讲成只在理想输入下可用。。
+
 ### 题目
 
 如果面试官追问：在当前团队与业务约束下，面对跨团队协作成本，你会如何围绕 SemVer 规划「SemVer、Conventional Commits、Changesets 分别治理什么问题」的阶段目标与交付边界？
@@ -2319,6 +2331,10 @@ difficulty: 进阶
 tags: [SemVer, ConventionalCommits, Changesets, 追问]
 parent: semver-commit-governance
 generated: followup-script
+
+### 一句话
+
+先把目标和约束说清楚，再展开实现：这能避免把「SemVer、Conventional Commits、Changesets 分别治理什么问题」讲成只在理想输入下可用。。
 
 ### 题目
 
@@ -2359,6 +2375,10 @@ tags: [规范, CI, 追问]
 parent: lint-ci
 generated: followup-script
 
+### 一句话
+
+先说判断标准，再说执行路径：回答「ESLint、Prettier、Husky、lint-staged、CI 的职责边界」时要能同时解释收益、代价和失败信号。；回答顺序可用「现状问题 -> 规范 方案动作 -> 验证结果」。
+
 ### 题目
 
 如果面试官追问：当团队成熟度不一致时，你会如何围绕 规范 定义「ESLint、Prettier、Husky、lint-staged、CI 的职责边界」的先后改造顺序？
@@ -2398,6 +2418,10 @@ tags: [规范, CI, 追问]
 parent: lint-ci
 generated: followup-script
 
+### 一句话
+
+验证要从可复现样例开始：准备正向、边界和失败用例，确认「ESLint、Prettier、Husky、lint-staged、CI 的职责边界」不是只在理想输入下成立。。
+
 ### 题目
 
 如果面试官追问：以「ESLint、Prettier、Husky、lint-staged、CI 的职责边界」为例，你会如何用可观测数据衡量「ESLint、Prettier、Husky、lint-staged、CI 的职责边界」在 规范 上的维护成本和收益平衡？
@@ -2423,6 +2447,10 @@ difficulty: 资深
 tags: [发布, 包设计, 追问]
 parent: package-publishing
 generated: followup-script
+
+### 一句话
+
+推动「前端库的产物设计：ESM/CJS/types/exports/sideEffects」落地时先收敛改动面：选低风险页面或模块试点，保留旧路径作为对照。。
 
 ### 题目
 
@@ -2450,6 +2478,10 @@ tags: [发布, 包设计, 追问]
 parent: package-publishing
 generated: followup-script
 
+### 一句话
+
+规模变大后先重新评估「前端库的产物设计：ESM/CJS/types/exports/sideEffects」瓶颈：数据量、并发、团队协作、浏览器兼容和维护成本哪个先触顶。。
+
 ### 题目
 
 如果面试官追问：以「前端库的产物设计：ESM/CJS/types/exports/sideEffects」为例，半年后要做去留决策时，你会拿哪些数据判断「前端库的产物设计：ESM/CJS/types/exports/sideEffects」还值不值得继续维护？
@@ -2475,6 +2507,10 @@ difficulty: 资深
 tags: [package.json, exports, imports, 追问]
 parent: exports-subpath
 generated: followup-script
+
+### 一句话
+
+先把目标和约束说清楚，再展开实现：这能避免把「exports、subpath imports 与现代包入口设计」讲成只在理想输入下可用。；建议按「输入约束 -> package.json 执行链路 -> 结果验证」展开。
 
 ### 题目
 
@@ -2515,6 +2551,10 @@ tags: [package.json, exports, imports, 追问]
 parent: exports-subpath
 generated: followup-script
 
+### 一句话
+
+先把目标和约束说清楚，再展开实现：这能避免把「exports、subpath imports 与现代包入口设计」讲成只在理想输入下可用。；围绕「exports、subpath imports 与现代包入口设计」组织答案时。
+
 ### 题目
 
 如果面试官追问：在当前团队与业务约束下，为了确认「exports、subpath imports 与现代包入口设计」在 package.json 上能持续跑稳，你会长期追哪些稳定性和效率信号？
@@ -2554,6 +2594,10 @@ tags: [CI, GitHubActions, 缓存, 追问]
 parent: ci-cd-cache
 generated: followup-script
 
+### 一句话
+
+验证要从可复现样例开始：准备正向、边界和失败用例，确认「CI/CD 缓存、矩阵构建与门禁设计」不是只在理想输入下成立。；再补可观测指标：围绕「CI/CD 缓存、矩阵构建与门禁设计」的性能收益应该能通过日志、耗时、错误率、命中率、覆盖率或用户行为指标观察到变。
+
 ### 题目
 
 如果面试官追问：以「CI/CD 缓存、矩阵构建与门禁设计」为例，要证明「CI/CD 缓存、矩阵构建与门禁设计」确实改善体验，你会如何围绕 CI 设计线上观测与对照验证？
@@ -2579,6 +2623,10 @@ difficulty: 进阶
 tags: [CI, GitHubActions, 缓存, 追问]
 parent: ci-cd-cache
 generated: followup-script
+
+### 一句话
+
+先明确这道追问要解决的业务目标，再说明「CI/CD 缓存、矩阵构建与门禁设计」在当前约束下为什么成立。；围绕「CI/CD 缓存、矩阵构建与门禁设计」组织答案时，建议按「约束来源 -> CI 关键决策 -> 验证闭环」展开。；不要只罗列工具名或 API。
 
 ### 题目
 
@@ -2619,6 +2667,10 @@ tags: [Webpack, Vite, 构建, 追问]
 parent: webpack-vs-vite
 generated: followup-script
 
+### 一句话
+
+规模变大后先重新评估「Webpack 与 Vite 在开发态、构建态的差异」瓶颈：数据量、并发、团队协作、浏览器兼容和维护成本哪个先触顶。；如果「Webpack 与 Vite 在开发态、构建态的差异」对应的工程可维护性收益被复杂度抵消。
+
 ### 题目
 
 如果面试官追问：以「Webpack 与 Vite 在开发态、构建态的差异」为例，如果部分模块技术债很重，你会如何围绕 Webpack 调整「Webpack 与 Vite 在开发态、构建态的差异」的分阶段策略？
@@ -2644,6 +2696,10 @@ difficulty: 进阶
 tags: [Webpack, Vite, 构建, 追问]
 parent: webpack-vs-vite
 generated: followup-script
+
+### 一句话
+
+先给可验证结论，再补证据链：面试官想确认你是否能把「Webpack 与 Vite 在开发态、构建态的差异」落到真实交付，而不是停在概念层。；讲「Webpack 与 Vite 在开发态、构建态的差异」时先给 Webpack 的判断口径。
 
 ### 题目
 
@@ -2684,6 +2740,10 @@ tags: [Vite, Webpack, 高频, 追问]
 parent: vite-vs-webpack-deep
 generated: followup-script
 
+### 一句话
+
+先给可验证结论，再补证据链：面试官想确认你是否能把「为什么 Vite 比 Webpack 快？快在哪里」落到真实交付，而不是停在概念层。；可以按「问题背景 -> Vite 机制 -> 取舍边界」回答。
+
 ### 题目
 
 如果面试官追问：结合真实业务约束，Go 原生并发；汇编级解析器；不做 babel 那种 plugin AST 多次重写；牺牲了部分语法兼容性？
@@ -2722,6 +2782,10 @@ difficulty: 进阶
 tags: [Vite, Webpack, 高频, 追问]
 parent: vite-vs-webpack-deep
 generated: followup-script
+
+### 一句话
+
+先明确这道追问要解决的业务目标，再说明「为什么 Vite 比 Webpack 快？快在哪里」在当前约束下为什么成立。；围绕「为什么 Vite 比 Webpack 快？快在哪里」组织答案时，建议按「约束来源 -> Vite 关键决策 -> 验证闭环」展开。。
 
 ### 题目
 
@@ -2762,6 +2826,10 @@ tags: [Vite, esbuild, Rolldown, 追问]
 parent: vite-go-and-rolldown
 generated: followup-script
 
+### 一句话
+
+先说判断标准，再说执行路径：回答「Vite 哪部分用 Go？Rolldown 与 Vite 7 大版本变化」时要能同时解释收益、代价和失败信号。；回答顺序可用「现状问题 -> Vite 方案动作 -> 验证结果」。
+
 ### 题目
 
 如果面试官追问：结合真实业务约束，大部分插件兼容（按 plugin API 接入）；某些钩子和 source map 处理有差异？
@@ -2798,6 +2866,10 @@ difficulty: 资深
 tags: [Vite, esbuild, Rolldown, 追问]
 parent: vite-go-and-rolldown
 generated: followup-script
+
+### 一句话
+
+先说判断标准，再说执行路径：回答「Vite 哪部分用 Go？Rolldown 与 Vite 7 大版本变化」时要能同时解释收益、代价和失败信号。；讲「Vite 哪部分用 Go？Rolldown 与 Vite 7 大版本变化」时先给 Vite 的判断口径。
 
 ### 题目
 
@@ -2838,6 +2910,10 @@ tags: [配置, alias, monorepo, 追问]
 parent: tsconfig-paths-to-bundler-alias
 generated: followup-script
 
+### 一句话
+
+先明确这道追问要解决的业务目标，再说明「通过配置文件生成路径映射 / 别名」在当前约束下为什么成立。；回答结构可按「触发条件 -> 配置 机制 -> 风险兜底」展开，并以「通过配置文件生成路径映射 / 别名」补一条失败场景，能体现工程拆解能力。。
+
 ### 题目
 
 如果面试官追问：从工程落地角度看，根 tsconfig.base.json + 子包 extends；alias 基于 root 解析？
@@ -2876,6 +2952,10 @@ difficulty: 进阶
 tags: [配置, alias, monorepo, 追问]
 parent: tsconfig-paths-to-bundler-alias
 generated: followup-script
+
+### 一句话
+
+先给可验证结论，再补证据链：面试官想确认你是否能把「通过配置文件生成路径映射 / 别名」落到真实交付，而不是停在概念层。；讲「通过配置文件生成路径映射 / 别名」时先给 配置 的判断口径，再补执行动作和回退条件，会更像真实评审发言。。
 
 ### 题目
 
@@ -2916,6 +2996,10 @@ tags: [Webpack, Rollup, esbuild, SWC, 追问]
 parent: bundler-ecosystem
 generated: followup-script
 
+### 一句话
+
+先明确这道追问要解决的业务目标，再说明「Webpack、Rollup、esbuild、SWC 各自擅长什么」在当前约束下为什么成立。；建议按「输入约束 -> Webpack 执行链路 -> 结果验证」展开。
+
 ### 题目
 
 如果面试官追问：结合真实业务约束，如果要让结论在 Webpack 上可复核，你会怎样安排测试、日志和指标的组合验证？
@@ -2954,6 +3038,10 @@ difficulty: 进阶
 tags: [Webpack, Rollup, esbuild, SWC, 追问]
 parent: bundler-ecosystem
 generated: followup-script
+
+### 一句话
+
+先给可验证结论，再补证据链：面试官想确认你是否能把「Webpack、Rollup、esbuild、SWC 各自擅长什么」落到真实交付，而不是停在概念层。；可以按「问题背景 -> Webpack 机制 -> 取舍边界」回答。
 
 ### 题目
 
@@ -2994,6 +3082,10 @@ tags: [SourceMap, Polyfill, 追问]
 parent: source-map-polyfill
 generated: followup-script
 
+### 一句话
+
+先给可验证结论，再补证据链：面试官想确认你是否能把「Source Map、Browserslist 与 Polyfill 策略」落到真实交付，而不是停在概念层。；可以按「问题背景 -> SourceMap 机制 -> 取舍边界」回答。
+
 ### 题目
 
 如果面试官追问：在当前团队与业务约束下，上线后你会盯哪些与 SourceMap 相关的日志与指标，来确认这套方案确实带来改进？
@@ -3032,6 +3124,10 @@ difficulty: 进阶
 tags: [SourceMap, Polyfill, 追问]
 parent: source-map-polyfill
 generated: followup-script
+
+### 一句话
+
+先明确这道追问要解决的业务目标，再说明「Source Map、Browserslist 与 Polyfill 策略」在当前约束下为什么成立。；围绕「Source Map、Browserslist 与 Polyfill 策略」组织答案时。
 
 ### 题目
 
@@ -3072,6 +3168,10 @@ tags: [Monorepo, TS, 追问]
 parent: monorepo
 generated: followup-script
 
+### 一句话
+
+验证要从可复现样例开始：准备正向、边界和失败用例，确认「Monorepo、workspace、project references 的组合打法」不是只在理想输入下成立。。
+
 ### 题目
 
 如果面试官追问：你会如何围绕 Monorepo 定义「Monorepo、workspace、project references 的组合打法」生效的判据，并用测试与监控长期验证？
@@ -3098,6 +3198,10 @@ tags: [Monorepo, TS, 追问]
 parent: monorepo
 generated: followup-script
 
+### 一句话
+
+推动「Monorepo、workspace、project references 的组合打法」落地时先收敛改动面：选低风险页面或模块试点，保留旧路径作为对照。。
+
 ### 题目
 
 如果面试官追问：在当前团队与业务约束下，当需求复杂度增长但团队产能有限时，你会如何围绕 Monorepo 拆分「Monorepo、workspace、project references 的组合打法」的落地路径？
@@ -3123,6 +3227,10 @@ difficulty: 资深
 tags: [Webpack, ModuleFederation, 微前端, 追问]
 parent: webpack-module-federation
 generated: followup-script
+
+### 一句话
+
+先给可验证结论，再补证据链：面试官想确认你是否能把「Webpack 5 Module Federation 的价值与边界」落到真实交付，而不是停在概念层。；可以按「问题背景 -> Webpack 机制 -> 取舍边界」回答。
 
 ### 题目
 
@@ -3163,6 +3271,10 @@ tags: [Webpack, ModuleFederation, 微前端, 追问]
 parent: webpack-module-federation
 generated: followup-script
 
+### 一句话
+
+规模变大后先重新评估「Webpack 5 Module Federation 的价值与边界」瓶颈：数据量、并发、团队协作、浏览器兼容和维护成本哪个先触顶。。
+
 ### 题目
 
 如果面试官追问：结合真实业务约束，如果目标不变但约束更严，你会如何围绕 Webpack 调整「Webpack 5 Module Federation 的价值与边界」方案的边界和节奏？
@@ -3188,6 +3300,10 @@ difficulty: 资深
 tags: [Monorepo, 发版, 追问]
 parent: monorepo-changesets
 generated: followup-script
+
+### 一句话
+
+先把目标和约束说清楚，再展开实现：这能避免把「Monorepo 多包发版」讲成只在理想输入下可用。；回答结构可按「触发条件 -> Monorepo 机制 -> 风险兜底」展开，并以「Monorepo 多包发版」补一条失败场景，能体现工程拆解能力。。
 
 ### 题目
 
@@ -3227,6 +3343,10 @@ tags: [Monorepo, 发版, 追问]
 parent: monorepo-changesets
 generated: followup-script
 
+### 一句话
+
+规模变大后先重新评估「Monorepo 多包发版（Changesets / Nx Release / Turborepo）」瓶颈：数据量、并发、团队协作、浏览器兼容和维护成本哪个先触顶。。
+
 ### 题目
 
 如果面试官追问：在当前团队与业务约束下，如果兼容性压力突然升高，你会如何围绕 Monorepo 重新划分「Monorepo 多包发版（Changesets / Nx Release / Turborepo）」的实施阶段？
@@ -3253,6 +3373,10 @@ tags: [打包工具, Vite, 追问]
 parent: bundler-deep
 generated: followup-script
 
+### 一句话
+
+验证要从可复现样例开始：准备正向、边界和失败用例，确认「Webpack / Rollup / Vite / Rolldown / Turbopack 比较」不是只在理想输入下成立。。
+
 ### 题目
 
 如果面试官追问：结合真实业务约束，为了确认「Webpack / Rollup / Vite / Rolldown / Turbopack 比较」不是“看起来有效”，你会如何安排测试证据和观测指标？
@@ -3278,6 +3402,10 @@ difficulty: 资深
 tags: [打包工具, Vite, 追问]
 parent: bundler-deep
 generated: followup-script
+
+### 一句话
+
+推动「Webpack / Rollup / Vite / Rolldown / Turbopack 比较」落地时先收敛改动面：选低风险页面或模块试点，保留旧路径作为对照。。
 
 ### 题目
 
@@ -3420,6 +3548,10 @@ tags: [Git, 排障, 发布, 追问]
 parent: git-bisect-reflog-worktree
 generated: followup-script
 
+### 一句话
+
+先给可验证结论，再补证据链：面试官想确认你是否能把「Git 事故恢复：reflog、bisect、worktree 怎么配合」落到真实交付，而不是停在概念层。；回答顺序可用「现状问题 -> Git 方案动作 -> 验证结果」。
+
 ### 题目
 
 如果面试官追问：结合真实业务约束，如果回归问题只在生产流量下出现、测试环境复现不稳定，你会怎么改造 bisect 判定脚本？
@@ -3458,6 +3590,10 @@ difficulty: 资深
 tags: [Git, 排障, 发布, 追问]
 parent: git-bisect-reflog-worktree
 generated: followup-script
+
+### 一句话
+
+先说判断标准，再说执行路径：回答「Git 事故恢复：reflog、bisect、worktree 怎么配合」时要能同时解释收益、代价和失败信号。；讲「Git 事故恢复：reflog、bisect、worktree 怎么配合」时先给 Git 的判断口径。
 
 ### 题目
 
@@ -3498,6 +3634,10 @@ tags: [Git, 排障, 发布, 追问]
 parent: git-bisect-reflog-worktree
 generated: followup-script
 
+### 一句话
+
+先说判断标准，再说执行路径：回答「Git 事故恢复：reflog、bisect、worktree 怎么配合」时要能同时解释收益、代价和失败信号。；可以按「问题背景 -> Git 机制 -> 取舍边界」回答。
+
 ### 题目
 
 如果面试官追问：在「Git 事故恢复：reflog、bisect、worktree 怎么配合」场景下，如何把这次 Git 事故恢复流程沉淀成团队可复用的应急手册和演练机制？
@@ -3536,6 +3676,10 @@ difficulty: 进阶
 tags: [Linux, 网络排障, 运维协作, 追问]
 parent: linux-network-debug-playbook
 generated: followup-script
+
+### 一句话
+
+先给可验证结论，再补证据链：面试官想确认你是否能把「前端工程师的 Linux 排障工具链：lsof、ss、tcpdump、strace」落到真实交付，而不是停在概念层。；回答顺序可用「现状问题 -> Linux 方案动作 -> 验证结果」。
 
 ### 题目
 
@@ -3576,6 +3720,10 @@ tags: [Linux, 网络排障, 运维协作, 追问]
 parent: linux-network-debug-playbook
 generated: followup-script
 
+### 一句话
+
+先给可验证结论，再补证据链：面试官想确认你是否能把「前端工程师的 Linux 排障工具链：lsof、ss、tcpdump、strace」落到真实交付，而不是停在概念层。；回答顺序可用「现状问题 -> Linux 方案动作 -> 验证结果」。
+
 ### 题目
 
 如果面试官追问：在「前端工程师的 Linux 排障工具链：lsof、ss、tcpdump、strace」场景下，当问题只在高峰时段出现、平峰无法复现时，你会怎么设计“低风险观测”方案？
@@ -3614,6 +3762,10 @@ difficulty: 进阶
 tags: [Linux, 网络排障, 运维协作, 追问]
 parent: linux-network-debug-playbook
 generated: followup-script
+
+### 一句话
+
+先给可验证结论，再补证据链：面试官想确认你是否能把「前端工程师的 Linux 排障工具链：lsof、ss、tcpdump、strace」落到真实交付，而不是停在概念层。；回答顺序可用「现状问题 -> Linux 方案动作 -> 验证结果」。
 
 ### 题目
 
@@ -3772,6 +3924,10 @@ tags: [发布治理, 协同, CI/CD, 追问]
 parent: release-train-cross-team-gate
 generated: followup-script
 
+### 一句话
+
+先明确这道追问要解决的业务目标，再说明「跨团队发布列车：依赖冻结窗口、并行联调与止损闸门」在当前约束下为什么成立。；围绕「跨团队发布列车：依赖冻结窗口、并行联调与止损闸门」组织答案时，建议按「约束来源 -> 发布治理 关键决策 -> 验证闭环」展开。。
+
 ### 题目
 
 如果面试官追问：从工程落地角度看，当「跨团队发布列车：依赖冻结窗口、并行联调与止损闸门」进入复杂业务场景时，你会先确认哪些边界条件是否可控？
@@ -3811,6 +3967,10 @@ tags: [发布治理, 协同, CI/CD, 追问]
 parent: release-train-cross-team-gate
 generated: followup-script
 
+### 一句话
+
+推动「跨团队发布列车：依赖冻结窗口、并行联调与止损闸门」落地时先收敛改动面：选低风险页面或模块试点，保留旧路径作为对照。；「跨团队发布列车：依赖冻结窗口、并行联调与止损闸门」迁移计划要说明数据兼容、配置开关、监控指标和失败后的恢复路径。。
+
 ### 题目
 
 如果面试官追问：从工程落地角度看，团队里有人熟有人新时，你会怎么围绕 发布治理 把「跨团队发布列车：依赖冻结窗口、并行联调与止损闸门」拆成几段推进，确保每段都能独立验收？
@@ -3836,6 +3996,10 @@ difficulty: 资深
 tags: [发布治理, 协同, CI/CD, 追问]
 parent: release-train-cross-team-gate
 generated: followup-script
+
+### 一句话
+
+验证要从可复现样例开始：准备正向、边界和失败用例，确认「跨团队发布列车：依赖冻结窗口、并行联调与止损闸门」不是只在理想输入下成立。。
 
 ### 题目
 
@@ -3863,6 +4027,10 @@ tags: [回滚, 运维协作, 工程治理, 追问]
 parent: layered-rollback-runbook
 generated: followup-script
 
+### 一句话
+
+推动「分层回滚手册：包版本、配置开关与基础设施如何协同回退」落地时先收敛改动面：选低风险页面或模块试点，保留旧路径作为对照。；「分层回滚手册：包版本、配置开关与基础设施如何协同回退」迁移计划要说明数据兼容、配置开关、监控指标和失败后的恢复路径。。
+
 ### 题目
 
 如果面试官追问：结合真实业务约束，真要把「分层回滚手册：包版本、配置开关与基础设施如何协同回退」推到线上，你会如何围绕 回滚 设计灰度节奏、回滚条件和迁移路径？
@@ -3888,6 +4056,10 @@ difficulty: 资深
 tags: [回滚, 运维协作, 工程治理, 追问]
 parent: layered-rollback-runbook
 generated: followup-script
+
+### 一句话
+
+先把目标和约束说清楚，再展开实现：这能避免把「分层回滚手册：包版本、配置开关与基础设施如何协同回退」讲成只在理想输入下可用。；建议按「输入约束 -> 回滚 执行链路 -> 结果验证」展开。
 
 ### 题目
 
@@ -3927,6 +4099,10 @@ difficulty: 资深
 tags: [回滚, 运维协作, 工程治理, 追问]
 parent: layered-rollback-runbook
 generated: followup-script
+
+### 一句话
+
+先把目标和约束说清楚，再展开实现：这能避免把「分层回滚手册：包版本、配置开关与基础设施如何协同回退」讲成只在理想输入下可用。；回答结构可按「触发条件 -> 回滚 机制 -> 风险兜底」展开。
 
 ### 题目
 
@@ -4106,6 +4282,10 @@ tags: [构建治理, 发布止损, 战情室, 追问]
 parent: frontend-build-regression-warroom
 generated: followup-script
 
+### 一句话
+
+我会先验三件事：回归是否可稳定复现、影响面是否可量化、回退路径是否可执行。；优先核对环境差异（Node 版本、缓存命中、依赖锁定），排除“伪回归”噪声。；在边界未确认前先冻结高风险发布，避免问题扩大到更多业务线。
+
 ### 题目
 
 如果面试官追问：构建回归已经发生时，你会先验哪些边界条件，确保后续止损动作不会误伤主线发布？
@@ -4131,6 +4311,10 @@ difficulty: 资深
 tags: [构建治理, 发布止损, 战情室, 追问]
 parent: frontend-build-regression-warroom
 generated: followup-script
+
+### 一句话
+
+0-24 小时先止损：冻结发布、回退高风险改动、恢复核心业务产物稳定性。；1 周内做根因闭环：补差异报告、修复配置与依赖、重跑关键回归链路。；1 个月内做机制化：把高频回归规则沉淀成 CI 闸门和升级前检查清单。
 
 ### 题目
 
@@ -4158,6 +4342,10 @@ tags: [构建治理, 发布止损, 战情室, 追问]
 parent: frontend-build-regression-warroom
 generated: followup-script
 
+### 一句话
+
+我会看四类趋势：构建时长稳定性、包体回归率、发布阻塞时长、同类事故复发率。；同时看治理效率：从发现到止损的平均时长是否持续缩短。；若指标长期不改善，就要重构流程而不是继续叠加规则。
+
 ### 题目
 
 如果面试官追问：这套构建回归治理是否值得长期维护，你会用哪些核心指标来判断？
@@ -4183,6 +4371,10 @@ difficulty: 资深
 tags: [依赖治理, 升级策略, 工程化, 追问]
 parent: dependency-upgrade-shadow-release-governance
 generated: followup-script
+
+### 一句话
+
+先跑影子流水线，通过后再从低风险业务灰度，最后才进入核心链路。；每一阶段都要绑定明确回退条件：回归率、修复时长、业务指标跌幅任一触线就停。；回退矩阵必须提前演练，确保不是“文档可回退、现场不可回退”。
 
 ### 题目
 
@@ -4210,6 +4402,10 @@ tags: [依赖治理, 升级策略, 工程化, 追问]
 parent: dependency-upgrade-shadow-release-governance
 generated: followup-script
 
+### 一句话
+
+面板至少要有三层：契约破坏指标、影子流水线差异指标、业务回归指标。；指标需要前后对照窗口，避免只看单次发布结论。；结论要可执行：每个指标都要对应“继续推进 / 暂停 / 回退”的动作规则。
+
 ### 题目
 
 如果面试官追问：依赖升级方案要持续评估收益，你会怎么搭验证面板，避免被噪声带偏？
@@ -4235,6 +4431,10 @@ difficulty: 资深
 tags: [依赖治理, 升级策略, 工程化, 追问]
 parent: dependency-upgrade-shadow-release-governance
 generated: followup-script
+
+### 一句话
+
+我会看质量面：契约破坏率、回归率、升级后事故率。；我会看效率面：从发现问题到恢复稳定的平均时长，以及升级迭代周期。；我会看成本面：维护开销是否持续上升，是否挤压业务交付节奏。
 
 ### 题目
 

@@ -1910,6 +1910,10 @@ tags: [分层, 边界, 追问]
 parent: layering-boundary
 generated: followup-script
 
+### 一句话
+
+推动「前端架构中的分层、边界与依赖方向」落地时先收敛改动面：选低风险页面或模块试点，保留旧路径作为对照。；「前端架构中的分层、边界与依赖方向」迁移计划要说明数据兼容、配置开关、监控指标和失败后的恢复路径。；团队推进重点不是一次性重写。
+
 ### 题目
 
 如果面试官追问：当团队成熟度不一致时，你会如何围绕 分层 定义「前端架构中的分层、边界与依赖方向」的先后改造顺序？
@@ -1935,6 +1939,10 @@ difficulty: 基础
 tags: [分层, 边界, 追问]
 parent: layering-boundary
 generated: followup-script
+
+### 一句话
+
+先界定「前端架构中的分层、边界与依赖方向」的适用条件，再说明哪些输入、运行环境或团队约束会让默认方案失效。；围绕「前端架构中的分层、边界与依赖方向」的工程可维护性展开：正常路径要能讲清楚，异常路径要说明降级、替代方案和用户可见影响。。
 
 ### 题目
 
@@ -1962,6 +1970,10 @@ tags: [设计模式, 实战, 追问]
 parent: design-patterns
 generated: followup-script
 
+### 一句话
+
+推动「前端里最常见的设计模式如何落地」落地时先收敛改动面：选低风险页面或模块试点，保留旧路径作为对照。；「前端里最常见的设计模式如何落地」迁移计划要说明数据兼容、配置开关、监控指标和失败后的恢复路径。；团队推进重点不是一次性重写。
+
 ### 题目
 
 如果面试官追问：以「前端里最常见的设计模式如何落地」为例，面对团队能力差异，你会如何围绕 设计模式 把「前端里最常见的设计模式如何落地」拆成可并行推进的小阶段？
@@ -1987,6 +1999,10 @@ difficulty: 进阶
 tags: [设计模式, 实战, 追问]
 parent: design-patterns
 generated: followup-script
+
+### 一句话
+
+先把目标和约束说清楚，再展开实现：这能避免把「前端里最常见的设计模式如何落地」讲成只在理想输入下可用。；围绕「前端里最常见的设计模式如何落地」组织答案时，建议按「约束来源 -> 设计模式 关键决策 -> 验证闭环」展开。。
 
 ### 题目
 
@@ -2027,6 +2043,10 @@ tags: [DI, InversifyJS, Tsyringe, 追问]
 parent: dependency-injection
 generated: followup-script
 
+### 一句话
+
+先说判断标准，再说执行路径：回答「依赖注入在前端什么时候有价值，什么时候会过度设计」时要能同时解释收益、代价和失败信号。；可以按「问题背景 -> DI 机制 -> 取舍边界」回答，再用「依赖注入在前端什么时候有价值，什么时候会过度设计」补一个反例。
+
 ### 题目
 
 如果面试官追问：在当前团队与业务约束下，老系统包袱重、牵一发而动全身时，你会怎么围绕 DI 安排「依赖注入在前端什么时候有价值，什么时候会过度设计」的渐进改造路线？
@@ -2066,6 +2086,10 @@ tags: [DI, InversifyJS, Tsyringe, 追问]
 parent: dependency-injection
 generated: followup-script
 
+### 一句话
+
+推动「依赖注入在前端什么时候有价值，什么时候会过度设计」落地时先收敛改动面：选低风险页面或模块试点，保留旧路径作为对照。；「依赖注入在前端什么时候有价值，什么时候会过度设计」迁移计划要说明数据兼容、配置开关、监控指标和失败后的恢复路径。。
+
 ### 题目
 
 如果面试官追问：从工程落地角度看，为了确认「依赖注入在前端什么时候有价值，什么时候会过度设计」在 DI 上能持续跑稳，你会长期追哪些稳定性和效率信号？
@@ -2091,6 +2115,10 @@ difficulty: 进阶
 tags: [状态管理, Signals, 追问]
 parent: state-management
 generated: followup-script
+
+### 一句话
+
+先说判断标准，再说执行路径：回答「Flux、Redux、MobX、Pinia、Signals 的核心差别」时要能同时解释收益、代价和失败信号。；回答顺序可用「现状问题 -> 状态管理 方案动作 -> 验证结果」。
 
 ### 题目
 
@@ -2131,6 +2159,10 @@ tags: [状态管理, Signals, 追问]
 parent: state-management
 generated: followup-script
 
+### 一句话
+
+推动「Flux、Redux、MobX、Pinia、Signals 的核心差别」落地时先收敛改动面：选低风险页面或模块试点，保留旧路径作为对照。。
+
 ### 题目
 
 如果面试官追问：在当前团队与业务约束下，如果比较「Flux、Redux、MobX、Pinia、Signals 的核心差别」与替代方案，你会如何基于 状态管理 判断不同团队阶段的最佳选择？
@@ -2156,6 +2188,10 @@ difficulty: 资深
 tags: [框架选型, Vue, React, Solid, 追问]
 parent: framework-comparison
 generated: followup-script
+
+### 一句话
+
+先说判断标准，再说执行路径：回答「Vue、React、Solid、Svelte、Qwik 应该从什么维度比较」时要能同时解释收益、代价和失败信号。；可以按「问题背景 -> 框架选型 机制 -> 取舍边界」回答。
 
 ### 题目
 
@@ -2196,6 +2232,10 @@ tags: [框架选型, Vue, React, Solid, 追问]
 parent: framework-comparison
 generated: followup-script
 
+### 一句话
+
+先把目标和约束说清楚，再展开实现：这能避免把「Vue、React、Solid、Svelte、Qwik 应该从什么维度比较」讲成只在理想输入下可用。；围绕「Vue、React、Solid、Svelte、Qwik 应该从什么维度比较」组织答案时。
+
 ### 题目
 
 如果面试官追问：在评审「Vue、React、Solid、Svelte、Qwik 应该从什么维度比较」时，你会如何围绕 框架选型 向团队解释“什么时候值得用，什么时候别硬上”？
@@ -2235,6 +2275,10 @@ tags: [组件库, DesignSystem, 追问]
 parent: component-library
 generated: followup-script
 
+### 一句话
+
+验证要从可复现样例开始：准备正向、边界和失败用例，确认「组件库设计的关键指标：一致性、可扩展、可访问、可主题化」不是只在理想输入下成立。。
+
 ### 题目
 
 如果面试官追问：在当前团队与业务约束下，团队里有人熟有人新时，你会怎么围绕 组件库 把「组件库设计的关键指标：一致性、可扩展、可访问、可主题化」拆成几段推进，确保每段都能独立验收？
@@ -2260,6 +2304,10 @@ difficulty: 资深
 tags: [组件库, DesignSystem, 追问]
 parent: component-library
 generated: followup-script
+
+### 一句话
+
+先明确这道追问要解决的业务目标，再说明「组件库设计的关键指标：一致性、可扩展、可访问、可主题化」在当前约束下为什么成立。；围绕「组件库设计的关键指标：一致性、可扩展、可访问、可主题化」组织答案时。
 
 ### 题目
 
@@ -2300,6 +2348,10 @@ tags: [灰度, AB实验, 追问]
 parent: feature-flag
 generated: followup-script
 
+### 一句话
+
+推动「Feature Flag、灰度发布与实验系统的前端视角」落地时先收敛改动面：选低风险页面或模块试点，保留旧路径作为对照。；「Feature Flag、灰度发布与实验系统的前端视角」迁移计划要说明数据兼容、配置开关、监控指标和失败后的恢复路径。。
+
 ### 题目
 
 如果面试官追问：在当前团队与业务约束下，老系统包袱重、牵一发而动全身时，你会怎么围绕 灰度 安排「Feature Flag、灰度发布与实验系统的前端视角」的渐进改造路线？
@@ -2325,6 +2377,10 @@ difficulty: 进阶
 tags: [灰度, AB实验, 追问]
 parent: feature-flag
 generated: followup-script
+
+### 一句话
+
+先把目标和约束说清楚，再展开实现：这能避免把「Feature Flag、灰度发布与实验系统的前端视角」讲成只在理想输入下可用。；建议按「输入约束 -> 灰度 执行链路 -> 结果验证」展开。
 
 ### 题目
 
@@ -2365,6 +2421,10 @@ tags: [SDK, 文档, 追问]
 parent: sdk-docs
 generated: followup-script
 
+### 一句话
+
+推动「SDK 与文档站设计原则」落地时先收敛改动面：选低风险页面或模块试点，保留旧路径作为对照。；「SDK 与文档站设计原则」迁移计划要说明数据兼容、配置开关、监控指标和失败后的恢复路径。；团队推进重点不是一次性重写。
+
 ### 题目
 
 如果面试官追问：以「SDK 与文档站设计原则」为例，面对团队能力差异，你会如何围绕 SDK 把「SDK 与文档站设计原则」拆成可并行推进的小阶段？
@@ -2390,6 +2450,10 @@ difficulty: 进阶
 tags: [SDK, 文档, 追问]
 parent: sdk-docs
 generated: followup-script
+
+### 一句话
+
+先给可验证结论，再补证据链：面试官想确认你是否能把「SDK 与文档站设计原则」落到真实交付，而不是停在概念层。；讲「SDK 与文档站设计原则」时先给 SDK 的判断口径，再补执行动作和回退条件，会更像真实评审发言。。
 
 ### 题目
 
@@ -2430,6 +2494,10 @@ tags: [Islands, RSC, SSR, 追问]
 parent: islands-rsc
 generated: followup-script
 
+### 一句话
+
+先给可验证结论，再补证据链：面试官想确认你是否能把「岛屿架构、RSC、部分水合分别在优化什么」落到真实交付，而不是停在概念层。；讲「岛屿架构、RSC、部分水合分别在优化什么」时先给 Islands 的判断口径，再补执行动作和回退条件，会更像真实评审发言。。
+
 ### 题目
 
 如果面试官追问：以「岛屿架构、RSC、部分水合分别在优化什么」为例，你会如何围绕 Islands 定义“方案生效”的判据，并通过测试与观测数据持续验证？
@@ -2468,6 +2536,10 @@ difficulty: 资深
 tags: [Islands, RSC, SSR, 追问]
 parent: islands-rsc
 generated: followup-script
+
+### 一句话
+
+先把目标和约束说清楚，再展开实现：这能避免把「岛屿架构、RSC、部分水合分别在优化什么」讲成只在理想输入下可用。；建议按「输入约束 -> Islands 执行链路 -> 结果验证」展开，并结合「岛屿架构、RSC、部分水合分别在优化什么」给出一条可复核结果。
 
 ### 题目
 
@@ -2508,6 +2580,10 @@ tags: [设计系统, Design Tokens, 追问]
 parent: design-system-engineering
 generated: followup-script
 
+### 一句话
+
+推动「设计系统的工程化（tokens / multi-brand / a11y）」落地时先收敛改动面：选低风险页面或模块试点，保留旧路径作为对照。。
+
 ### 题目
 
 如果面试官追问：结合真实业务约束，当团队成熟度不一致时，你会如何围绕 设计系统 定义「设计系统的工程化（tokens / multi-brand / a11y）」的先后改造顺序？
@@ -2533,6 +2609,10 @@ difficulty: 资深
 tags: [设计系统, Design Tokens, 追问]
 parent: design-system-engineering
 generated: followup-script
+
+### 一句话
+
+先给可验证结论，再补证据链：面试官想确认你是否能把「设计系统的工程化」落到真实交付，而不是停在概念层。；回答顺序可用「现状问题 -> 设计系统 方案动作 -> 验证结果」，并用「设计系统的工程化」举一条主链路说明。。
 
 ### 题目
 
@@ -2573,6 +2653,10 @@ tags: [错误边界, 韧性, 追问]
 parent: error-boundaries-resilience
 generated: followup-script
 
+### 一句话
+
+先给可验证结论，再补证据链：面试官想确认你是否能把「前端错误隔离与韧性设计」落到真实交付，而不是停在概念层。；回答顺序可用「现状问题 -> 错误边界 方案动作 -> 验证结果」，并用「前端错误隔离与韧性设计」举一条主链路说明。。
+
 ### 题目
 
 如果面试官追问：从工程落地角度看，面对跨团队协作成本，你会如何围绕 错误边界 规划「前端错误隔离与韧性设计」的阶段目标与交付边界？
@@ -2611,6 +2695,10 @@ difficulty: 资深
 tags: [错误边界, 韧性, 追问]
 parent: error-boundaries-resilience
 generated: followup-script
+
+### 一句话
+
+先说判断标准，再说执行路径：回答「前端错误隔离与韧性设计」时要能同时解释收益、代价和失败信号。；讲「前端错误隔离与韧性设计」时先给 错误边界 的判断口径，再补执行动作和回退条件，会更像真实评审发言。；如果涉及「前端错误隔离与韧性设计」的技术细节。
 
 ### 题目
 
@@ -2651,6 +2739,10 @@ tags: [架构, Monorepo, 追问]
 parent: monorepo-vs-multirepo
 generated: followup-script
 
+### 一句话
+
+推动「Monorepo 和 Multirepo 怎么选」落地时先收敛改动面：选低风险页面或模块试点，保留旧路径作为对照。；「Monorepo 和 Multirepo 怎么选」迁移计划要说明数据兼容、配置开关、监控指标和失败后的恢复路径。。
+
 ### 题目
 
 如果面试官追问：从工程落地角度看，团队里有人熟有人新时，你会怎么围绕 架构 把「Monorepo 和 Multirepo 怎么选」拆成几段推进，确保每段都能独立验收？
@@ -2677,6 +2769,10 @@ tags: [架构, Monorepo, 追问]
 parent: monorepo-vs-multirepo
 generated: followup-script
 
+### 一句话
+
+验证要从可复现样例开始：准备正向、边界和失败用例，确认「Monorepo 和 Multirepo 怎么选」不是只在理想输入下成立。。
+
 ### 题目
 
 如果面试官追问：从工程落地角度看，要判断「Monorepo 和 Multirepo 怎么选」值不值得长期维护，你会先盯哪些和 架构 相关的核心指标？
@@ -2702,6 +2798,10 @@ difficulty: 资深
 tags: [LocalFirst, CRDT, 离线, 同步, 追问]
 parent: local-first-sync-crdt
 generated: followup-script
+
+### 一句话
+
+先明确这道追问要解决的业务目标，再说明「Local-first 应用的同步引擎：离线、冲突与 CRDT 怎么设计」在当前约束下为什么成立。；围绕「Local-first 应用的同步引擎：离线、冲突与 CRDT 怎么设计」组织答案时。
 
 ### 题目
 
@@ -2742,6 +2842,10 @@ tags: [LocalFirst, CRDT, 离线, 同步, 追问]
 parent: local-first-sync-crdt
 generated: followup-script
 
+### 一句话
+
+先明确这道追问要解决的业务目标，再说明「Local-first 应用的同步引擎：离线、冲突与 CRDT 怎么设计」在当前约束下为什么成立。；围绕「Local-first 应用的同步引擎：离线、冲突与 CRDT 怎么设计」组织答案时。
+
 ### 题目
 
 如果面试官追问：从工程落地角度看，离线操作恢复联网后如何保证幂等和顺序？
@@ -2780,6 +2884,10 @@ difficulty: 资深
 tags: [LocalFirst, CRDT, 离线, 同步, 追问]
 parent: local-first-sync-crdt
 generated: followup-script
+
+### 一句话
+
+先把目标和约束说清楚，再展开实现：这能避免把「Local-first 应用的同步引擎：离线、冲突与 CRDT 怎么设计」讲成只在理想输入下可用。；回答结构可按「触发条件 -> LocalFirst 机制 -> 风险兜底」展开。
 
 ### 题目
 
@@ -2820,6 +2928,10 @@ tags: [OpenAPI, tRPC, GraphQL, 类型安全, 追问]
 parent: type-safe-api-contract
 generated: followup-script
 
+### 一句话
+
+先给可验证结论，再补证据链：面试官想确认你是否能把「OpenAPI / tRPC / GraphQL Codegen 如何把前后端契约类型化」落到真实交付，而不是停在概念层。。
+
 ### 题目
 
 如果面试官追问：在「OpenAPI / tRPC / GraphQL Codegen 如何把前后端契约类型化」场景下，OpenAPI schema 和后端实现如何防止漂移？
@@ -2858,6 +2970,10 @@ difficulty: 进阶
 tags: [OpenAPI, tRPC, GraphQL, 类型安全, 追问]
 parent: type-safe-api-contract
 generated: followup-script
+
+### 一句话
+
+先明确这道追问要解决的业务目标，再说明「OpenAPI / tRPC / GraphQL Codegen 如何把前后端契约类型化」在当前约束下为什么成立。；建议按「输入约束 -> OpenAPI 执行链路 -> 结果验证」展开。
 
 ### 题目
 
@@ -2898,6 +3014,10 @@ tags: [OpenAPI, tRPC, GraphQL, 类型安全, 追问]
 parent: type-safe-api-contract
 generated: followup-script
 
+### 一句话
+
+先给可验证结论，再补证据链：面试官想确认你是否能把「OpenAPI / tRPC / GraphQL Codegen 如何把前后端契约类型化」落到真实交付，而不是停在概念层。；可以按「问题背景 -> OpenAPI 机制 -> 取舍边界」回答。
+
 ### 题目
 
 如果面试官追问：在「OpenAPI / tRPC / GraphQL Codegen 如何把前后端契约类型化」场景下，类型化契约如何和契约测试、mock 服务、灰度发布结合？
@@ -2936,6 +3056,10 @@ difficulty: 进阶
 tags: [URL State, 路由, 状态同步, 追问]
 parent: url-state-sync
 generated: followup-script
+
+### 一句话
+
+先把目标和约束说清楚，再展开实现：这能避免把「URL State、搜索参数与浏览器历史怎么设计」讲成只在理想输入下可用。；回答结构可按「触发条件 -> URL State 机制 -> 风险兜底」展开。
 
 ### 题目
 
@@ -2976,6 +3100,10 @@ tags: [URL State, 路由, 状态同步, 追问]
 parent: url-state-sync
 generated: followup-script
 
+### 一句话
+
+先明确这道追问要解决的业务目标，再说明「URL State、搜索参数与浏览器历史怎么设计」在当前约束下为什么成立。；围绕「URL State、搜索参数与浏览器历史怎么设计」组织答案时。
+
 ### 题目
 
 如果面试官追问：结合真实业务约束，URL 状态和服务端数据缓存 key 有什么关系？
@@ -3014,6 +3142,10 @@ difficulty: 进阶
 tags: [URL State, 路由, 状态同步, 追问]
 parent: url-state-sync
 generated: followup-script
+
+### 一句话
+
+先把目标和约束说清楚，再展开实现：这能避免把「URL State、搜索参数与浏览器历史怎么设计」讲成只在理想输入下可用。；回答结构可按「触发条件 -> URL State 机制 -> 风险兜底」展开。
 
 ### 题目
 
@@ -3054,6 +3186,10 @@ tags: [WebComponents, ShadowDOM, 组件库, 微前端, 追问]
 parent: web-components-design-system
 generated: followup-script
 
+### 一句话
+
+先说判断标准，再说执行路径：回答「Web Components / Shadow DOM 在组件库和微前端里什么时候值得用」时要能同时解释收益、代价和失败信号。；可以按「问题背景 -> WebComponents 机制 -> 取舍边界」回答。
+
 ### 题目
 
 如果面试官追问：结合真实业务约束，Shadow DOM 的样式隔离和 CSS Modules / scoped CSS 有什么本质区别？
@@ -3092,6 +3228,10 @@ difficulty: 资深
 tags: [WebComponents, ShadowDOM, 组件库, 微前端, 追问]
 parent: web-components-design-system
 generated: followup-script
+
+### 一句话
+
+先说判断标准，再说执行路径：回答「Web Components / Shadow DOM 在组件库和微前端里什么时候值得用」时要能同时解释收益、代价和失败信号。；回答顺序可用「现状问题 -> WebComponents 方案动作 -> 验证结果」。
 
 ### 题目
 
@@ -3132,6 +3272,10 @@ tags: [WebComponents, ShadowDOM, 组件库, 微前端, 追问]
 parent: web-components-design-system
 generated: followup-script
 
+### 一句话
+
+先明确这道追问要解决的业务目标，再说明「Web Components / Shadow DOM 在组件库和微前端里什么时候值得用」在当前约束下为什么成立。。
+
 ### 题目
 
 如果面试官追问：以「Web Components / Shadow DOM 在组件库和微前端里什么时候值得用」为例，微前端里用 Web Components 做边界，能解决哪些问题，解决不了哪些问题？
@@ -3171,6 +3315,10 @@ tags: [DDD, CleanArchitecture, 追问]
 parent: clean-architecture
 generated: followup-script
 
+### 一句话
+
+验证要从可复现样例开始：准备正向、边界和失败用例，确认「Clean Architecture、DDD 思想在前端怎么落地」不是只在理想输入下成立。。
+
 ### 题目
 
 如果面试官追问：结合真实业务约束，你会如何围绕 DDD 定义「Clean Architecture、DDD 思想在前端怎么落地」生效的判据，并用测试与监控长期验证？
@@ -3197,6 +3345,10 @@ tags: [DDD, CleanArchitecture, 追问]
 parent: clean-architecture
 generated: followup-script
 
+### 一句话
+
+推动「Clean Architecture、DDD 思想在前端怎么落地」落地时先收敛改动面：选低风险页面或模块试点，保留旧路径作为对照。。
+
 ### 题目
 
 如果面试官追问：从工程落地角度看，当需求复杂度增长但团队产能有限时，你会如何围绕 DDD 拆分「Clean Architecture、DDD 思想在前端怎么落地」的落地路径？
@@ -3222,6 +3374,10 @@ difficulty: 资深
 tags: [低代码, Schema, 物料, 追问]
 parent: lowcode-platform
 generated: followup-script
+
+### 一句话
+
+先把目标和约束说清楚，再展开实现：这能避免把「低代码/搭建平台的核心模块」讲成只在理想输入下可用。；建议按「输入约束 -> 低代码 执行链路 -> 结果验证」展开，并结合「低代码/搭建平台的核心模块」给出一条可复核结果，能更快体现你对复杂场景的掌控力。。
 
 ### 题目
 
@@ -3261,6 +3417,10 @@ difficulty: 资深
 tags: [低代码, Schema, 物料, 追问]
 parent: lowcode-platform
 generated: followup-script
+
+### 一句话
+
+先说判断标准，再说执行路径：回答「低代码/搭建平台的核心模块」时要能同时解释收益、代价和失败信号。；可以按「问题背景 -> 低代码 机制 -> 取舍边界」回答，再用「低代码/搭建平台的核心模块」补一个反例，避免停在口号层。。
 
 ### 题目
 
@@ -3433,6 +3593,10 @@ tags: [ADR, 架构决策, 协作, 追问]
 parent: architecture-adr
 generated: followup-script
 
+### 一句话
+
+先把目标和约束说清楚，再展开实现：这能避免把「架构决策记录怎么写，怎么在团队里真正生效」讲成只在理想输入下可用。；围绕「架构决策记录怎么写，怎么在团队里真正生效」组织答案时，建议按「约束来源 -> ADR 关键决策 -> 验证闭环」展开。。
+
 ### 题目
 
 如果面试官追问：在当前团队与业务约束下，当「架构决策记录怎么写，怎么在团队里真正生效」进入复杂业务场景时，你会先确认哪些边界条件是否可控？
@@ -3472,6 +3636,10 @@ tags: [ADR, 架构决策, 协作, 追问]
 parent: architecture-adr
 generated: followup-script
 
+### 一句话
+
+推动「架构决策记录（ADR）怎么写，怎么在团队里真正生效」落地时先收敛改动面：选低风险页面或模块试点，保留旧路径作为对照。；「架构决策记录（ADR）怎么写，怎么在团队里真正生效」迁移计划要说明数据兼容、配置开关、监控指标和失败后的恢复路径。。
+
 ### 题目
 
 如果面试官追问：从工程落地角度看，老系统包袱重、牵一发而动全身时，你会怎么围绕 ADR 安排「架构决策记录（ADR）怎么写，怎么在团队里真正生效」的渐进改造路线？
@@ -3498,6 +3666,10 @@ tags: [ADR, 架构决策, 协作, 追问]
 parent: architecture-adr
 generated: followup-script
 
+### 一句话
+
+验证要从可复现样例开始：准备正向、边界和失败用例，确认「架构决策记录（ADR）怎么写，怎么在团队里真正生效」不是只在理想输入下成立。；再补可观测指标：围绕「架构决策记录（ADR）怎么写。
+
 ### 题目
 
 如果面试官追问：在「架构决策记录（ADR）怎么写，怎么在团队里真正生效」场景下，要判断「架构决策记录（ADR）怎么写，怎么在团队里真正生效」值不值得长期维护，你会先盯哪些和 ADR 相关的核心指标？
@@ -3523,6 +3695,10 @@ difficulty: 资深
 tags: [技术债, 治理, ROI, 追问]
 parent: technical-debt-governance
 generated: followup-script
+
+### 一句话
+
+先把目标和约束说清楚，再展开实现：这能避免把「技术债治理：如何量化优先级、排期节奏与业务共识」讲成只在理想输入下可用。；建议按「输入约束 -> 技术债 执行链路 -> 结果验证」展开。
 
 ### 题目
 
@@ -3563,6 +3739,10 @@ tags: [技术债, 治理, ROI, 追问]
 parent: technical-debt-governance
 generated: followup-script
 
+### 一句话
+
+先明确这道追问要解决的业务目标，再说明「技术债治理：如何量化优先级、排期节奏与业务共识」在当前约束下为什么成立。；建议按「输入约束 -> 技术债 执行链路 -> 结果验证」展开，并结合「技术债治理：如何量化优先级、排期节奏与业务共识」给出一条可复核结果。
+
 ### 题目
 
 如果面试官追问：从工程落地角度看，上线后你会盯哪些与 技术债 相关的日志与指标，来确认这套方案确实带来改进？
@@ -3601,6 +3781,10 @@ difficulty: 资深
 tags: [技术债, 治理, ROI, 追问]
 parent: technical-debt-governance
 generated: followup-script
+
+### 一句话
+
+规模变大后先重新评估「技术债治理：如何量化优先级、排期节奏与业务共识」瓶颈：数据量、并发、团队协作、浏览器兼容和维护成本哪个先触顶。；如果「技术债治理：如何量化优先级、排期节奏与业务共识」对应的工程可维护性收益被复杂度抵消。
 
 ### 题目
 
@@ -3774,6 +3958,10 @@ tags: [架构治理, Fitness Function, 发布闸门, 追问]
 parent: architecture-fitness-function-gate
 generated: followup-script
 
+### 一句话
+
+推动「架构 Fitness Function：把架构原则变成可执行发布闸门」落地时先收敛改动面：选低风险页面或模块试点，保留旧路径作为对照。。
+
 ### 题目
 
 如果面试官追问：结合真实业务约束，真要把「架构 Fitness Function：把架构原则变成可执行发布闸门」推到线上，你会如何围绕 架构治理 设计灰度节奏、回滚条件和迁移路径？
@@ -3799,6 +3987,10 @@ difficulty: 资深
 tags: [架构治理, Fitness Function, 发布闸门, 追问]
 parent: architecture-fitness-function-gate
 generated: followup-script
+
+### 一句话
+
+先说判断标准，再说执行路径：回答「架构 Fitness Function：把架构原则变成可执行发布闸门」时要能同时解释收益、代价和失败信号。；回答顺序可用「现状问题 -> 架构治理 方案动作 -> 验证结果」。
 
 ### 题目
 
@@ -3839,6 +4031,10 @@ tags: [架构治理, Fitness Function, 发布闸门, 追问]
 parent: architecture-fitness-function-gate
 generated: followup-script
 
+### 一句话
+
+规模变大后先重新评估「架构 Fitness Function：把架构原则变成可执行发布闸门」瓶颈：数据量、并发、团队协作、浏览器兼容和维护成本哪个先触顶。。
+
 ### 题目
 
 如果面试官追问：在「架构 Fitness Function：把架构原则变成可执行发布闸门」场景下，复盘「架构 Fitness Function：把架构原则变成可执行发布闸门」时，你会拿哪些数据判断这套方案该继续投入还是该止损？
@@ -3864,6 +4060,10 @@ difficulty: 资深
 tags: [架构迁移, 双轨运行, 回滚, 追问]
 parent: strangler-migration-playbook
 generated: followup-script
+
+### 一句话
+
+先明确这道追问要解决的业务目标，再说明「前端绞杀式迁移：旧架构双轨运行与安全下线」在当前约束下为什么成立。；回答结构可按「触发条件 -> 架构迁移 机制 -> 风险兜底」展开，并以「前端绞杀式迁移：旧架构双轨运行与安全下线」补一条失败场景。
 
 ### 题目
 
@@ -3904,6 +4104,10 @@ tags: [架构迁移, 双轨运行, 回滚, 追问]
 parent: strangler-migration-playbook
 generated: followup-script
 
+### 一句话
+
+验证要从可复现样例开始：准备正向、边界和失败用例，确认「前端绞杀式迁移：旧架构双轨运行与安全下线」不是只在理想输入下成立。。
+
 ### 题目
 
 如果面试官追问：结合真实业务约束，你会怎样验证「前端绞杀式迁移：旧架构双轨运行与安全下线」在真实攻击流量下仍能维持防护效果与可观测性？
@@ -3929,6 +4133,10 @@ difficulty: 资深
 tags: [架构迁移, 双轨运行, 回滚, 追问]
 parent: strangler-migration-playbook
 generated: followup-script
+
+### 一句话
+
+先给可验证结论，再补证据链：面试官想确认你是否能把「前端绞杀式迁移：旧架构双轨运行与安全下线」落到真实交付，而不是停在概念层。；讲「前端绞杀式迁移：旧架构双轨运行与安全下线」时先给 架构迁移 的判断口径，再补执行动作和回退条件，会更像真实评审发言。。
 
 ### 题目
 
@@ -4098,6 +4306,10 @@ tags: [架构治理, 契约测试, 发布闸门, 追问]
 parent: architecture-contract-acceptance-gate
 generated: followup-script
 
+### 一句话
+
+先给可验证结论，再补证据链：面试官想确认你是否能把「架构契约验收闸门：接口、事件与依赖变更如何跨团队落地」落到真实交付，而不是停在概念层。；讲「架构契约验收闸门：接口、事件与依赖变更如何跨团队落地」时先给 架构治理 的判断口径，再补执行动作和回退条件。
+
 ### 题目
 
 如果面试官追问：结合真实业务约束，你会如何识别「架构契约验收闸门：接口、事件与依赖变更如何跨团队落地」在真实流量下最容易失效的输入与环境约束？
@@ -4137,6 +4349,10 @@ tags: [架构治理, 契约测试, 发布闸门, 追问]
 parent: architecture-contract-acceptance-gate
 generated: followup-script
 
+### 一句话
+
+先说判断标准，再说执行路径：回答「架构契约验收闸门：接口、事件与依赖变更如何跨团队落地」时要能同时解释收益、代价和失败信号。；回答顺序可用「现状问题 -> 架构治理 方案动作 -> 验证结果」。
+
 ### 题目
 
 如果面试官追问：在当前团队与业务约束下，为了证明这个方案在 架构治理 维度有效，你会怎么设计测试闭环和线上观测指标？
@@ -4174,6 +4390,10 @@ difficulty: 资深
 tags: [架构治理, 契约测试, 发布闸门, 追问]
 parent: architecture-contract-acceptance-gate
 generated: followup-script
+
+### 一句话
+
+先把目标和约束说清楚，再展开实现：这能避免把「架构契约验收闸门：接口、事件与依赖变更如何跨团队落地」讲成只在理想输入下可用。；建议按「输入约束 -> 架构治理 执行链路 -> 结果验证」展开。
 
 ### 题目
 
@@ -4214,6 +4434,10 @@ tags: [架构治理, 灰度, 回滚, 追问]
 parent: architecture-blast-radius-rollback-matrix
 generated: followup-script
 
+### 一句话
+
+先把目标和约束说清楚，再展开实现：这能避免把「架构变更爆炸半径矩阵：分层灰度、隔离边界与回滚编排」讲成只在理想输入下可用。；建议按「输入约束 -> 架构治理 执行链路 -> 结果验证」展开。
+
 ### 题目
 
 如果面试官追问：如果要做「架构变更爆炸半径矩阵：分层灰度、隔离边界与回滚编排」的稳定性评审，你会先盘点哪些容易被忽视的边界因素？
@@ -4253,6 +4477,10 @@ tags: [架构治理, 灰度, 回滚, 追问]
 parent: architecture-blast-radius-rollback-matrix
 generated: followup-script
 
+### 一句话
+
+先给可验证结论，再补证据链：面试官想确认你是否能把「架构变更爆炸半径矩阵：分层灰度、隔离边界与回滚编排」落到真实交付，而不是停在概念层。；回答顺序可用「现状问题 -> 架构治理 方案动作 -> 验证结果」。
+
 ### 题目
 
 如果面试官追问：从工程落地角度看，上线后你会盯哪些与 架构治理 相关的日志与指标，来确认这套方案确实带来改进？
@@ -4289,6 +4517,10 @@ difficulty: 资深
 tags: [架构治理, 灰度, 回滚, 追问]
 parent: architecture-blast-radius-rollback-matrix
 generated: followup-script
+
+### 一句话
+
+先明确这道追问要解决的业务目标，再说明「架构变更爆炸半径矩阵：分层灰度、隔离边界与回滚编排」在当前约束下为什么成立。；回答结构可按「触发条件 -> 架构治理 机制 -> 风险兜底」展开。
 
 ### 题目
 

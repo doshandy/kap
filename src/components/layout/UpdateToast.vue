@@ -76,7 +76,7 @@ function onDismissOffline() {
           <div class="toast-title">离线就绪</div>
           <div class="toast-desc">资源已缓存，断网也能继续刷题。</div>
         </div>
-        <button class="btn btn-ghost" aria-label="关闭" @click="onDismissOffline">
+        <button class="btn btn-ghost btn-icon" aria-label="关闭" @click="onDismissOffline">
           <AppIcon name="close" />
         </button>
       </div>

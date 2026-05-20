@@ -21,7 +21,11 @@ const allTags = computed(() => props.tags || []);
   <div class="filter-bar">
     <div class="row">
       <span class="lbl">关键字：</span>
-      <input v-model="filter.state.keyword" class="kw" placeholder="标题/标签/答案 模糊搜索" />
+      <input
+        v-model="filter.state.keyword"
+        class="kw ui-input"
+        placeholder="标题/标签/答案 模糊搜索"
+      />
       <button v-if="filter.state.keyword" class="btn btn-ghost" @click="filter.state.keyword = ''">
         清除
       </button>
@@ -31,7 +35,7 @@ const allTags = computed(() => props.tags || []);
       <button
         v-for="d in difficulties"
         :key="d"
-        class="chip"
+        class="chip ui-chip"
         :class="{ active: filter.state.difficulties.includes(d) }"
         @click="filter.toggleDifficulty(d)"
       >
@@ -43,7 +47,7 @@ const allTags = computed(() => props.tags || []);
       <button
         v-for="s in statuses"
         :key="s.v"
-        class="chip"
+        class="chip ui-chip"
         :class="{ active: filter.state.statuses.includes(s.v) }"
         @click="filter.toggleStatus(s.v)"
       >
@@ -55,7 +59,7 @@ const allTags = computed(() => props.tags || []);
       <button
         v-for="t in allTags"
         :key="t"
-        class="chip"
+        class="chip ui-chip"
         :class="{ active: filter.state.tags.includes(t) }"
         @click="filter.toggleTag(t)"
       >
@@ -92,21 +96,7 @@ const allTags = computed(() => props.tags || []);
   flex: 1;
   min-width: 200px;
   padding: 6px 10px;
-  border: 1px solid var(--c-border);
-  border-radius: var(--radius);
-  background: var(--c-surface);
   outline: none;
-}
-.chip {
-  font-size: 12px;
-  padding: 3px 10px;
-  border-radius: 999px;
-  background: var(--c-bg-mute);
-  color: var(--c-text-soft);
-}
-.chip.active {
-  background: var(--c-primary);
-  color: #fff;
 }
 .tags {
   max-height: 80px;

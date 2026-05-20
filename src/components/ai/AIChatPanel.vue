@@ -82,7 +82,7 @@ onBeforeUnmount(() => abort());
         <button
           v-for="p in presetQueries"
           :key="p.label"
-          class="chip"
+          class="chip ui-chip"
           :disabled="loading"
           @click="startPreset(p.value)"
         >
@@ -93,6 +93,7 @@ onBeforeUnmount(() => abort());
       <div class="input-row">
         <textarea
           v-model="userQuery"
+          class="ui-textarea"
           rows="2"
           placeholder="也可以输入自己的提问，比如「这道题在 React 18 下的差异？」"
           @keydown.ctrl.enter="start"
@@ -159,22 +160,11 @@ onBeforeUnmount(() => abort());
   flex-wrap: wrap;
 }
 .chip {
-  padding: 3px 10px;
-  border-radius: 999px;
-  background: var(--c-bg-mute);
-  border: 1px solid var(--c-border);
-  font-size: 12px;
-  color: var(--c-text);
-  cursor: pointer;
+  --chip-accent: #6366f1;
 }
 .chip:disabled {
   opacity: 0.5;
   cursor: not-allowed;
-}
-.chip:hover:not(:disabled) {
-  background: var(--c-primary-soft);
-  border-color: var(--c-primary);
-  color: var(--c-primary);
 }
 
 .input-row {
@@ -182,13 +172,10 @@ onBeforeUnmount(() => abort());
   gap: 8px;
   align-items: stretch;
 }
-.input-row textarea {
+.input-row .ui-textarea {
   flex: 1;
   padding: 8px 10px;
-  border: 1px solid var(--c-border);
-  border-radius: var(--radius);
-  background: var(--c-bg);
-  color: var(--c-text);
+  border-radius: 10px;
   font-size: 13px;
   resize: vertical;
 }

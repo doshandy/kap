@@ -36,7 +36,7 @@ function close() {
       <div class="card panel">
         <header>
           <h3>快捷键</h3>
-          <button class="btn-ghost" aria-label="关闭" @click="close">
+          <button class="btn btn-ghost btn-icon" aria-label="关闭" @click="close">
             <AppIcon name="close" />
           </button>
         </header>

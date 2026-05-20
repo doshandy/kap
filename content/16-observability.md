@@ -2324,6 +2324,10 @@ tags: [错误监控, ErrorBoundary, 追问]
 parent: error-capture
 generated: followup-script
 
+### 一句话
+
+验证要从可复现样例开始：准备正向、边界和失败用例，确认「前端错误捕获链路应该怎么搭」不是只在理想输入下成立。；再补可观测指标：围绕「前端错误捕获链路应该怎么搭」的工程可维护性应该能通过日志、耗时、错误率、命中率、覆盖率或用户行为指标观察到变化。。
+
 ### 题目
 
 如果面试官追问：从工程落地角度看，老系统包袱重、牵一发而动全身时，你会怎么围绕 错误监控 安排「前端错误捕获链路应该怎么搭」的渐进改造路线？
@@ -2350,6 +2354,10 @@ tags: [错误监控, ErrorBoundary, 追问]
 parent: error-capture
 generated: followup-script
 
+### 一句话
+
+验证要从可复现样例开始：准备正向、边界和失败用例，确认「前端错误捕获链路应该怎么搭」不是只在理想输入下成立。；再补可观测指标：围绕「前端错误捕获链路应该怎么搭」的工程可维护性应该能通过日志、耗时、错误率、命中率、覆盖率或用户行为指标观察到变化。。
+
 ### 题目
 
 如果面试官追问：在当前团队与业务约束下，要判断「前端错误捕获链路应该怎么搭」值不值得长期维护，你会先盯哪些和 错误监控 相关的核心指标？
@@ -2375,6 +2383,10 @@ difficulty: 进阶
 tags: [埋点, 数据模型, 追问]
 parent: event-model
 generated: followup-script
+
+### 一句话
+
+先把目标和约束说清楚，再展开实现：这能避免把「埋点模型设计：事件、属性、上下文、会话」讲成只在理想输入下可用。；建议按「输入约束 -> 埋点 执行链路 -> 结果验证」展开，并结合「埋点模型设计：事件、属性、上下文、会话」给出一条可复核结果。
 
 ### 题目
 
@@ -2415,6 +2427,10 @@ tags: [埋点, 数据模型, 追问]
 parent: event-model
 generated: followup-script
 
+### 一句话
+
+验证要从可复现样例开始：准备正向、边界和失败用例，确认「埋点模型设计：事件、属性、上下文、会话」不是只在理想输入下成立。；再补可观测指标：围绕「埋点模型设计：事件、属性、上下文、会话」的工程可维护性应该能通过日志、耗时、错误率、命中率、覆盖率或用户行为指标。
+
 ### 题目
 
 如果面试官追问：当团队讨论「埋点模型设计：事件、属性、上下文、会话」去留时，你会给出哪几组关键指标作为决策依据？
@@ -2440,6 +2456,10 @@ difficulty: 进阶
 tags: [Beacon, keepalive, 上报, 追问]
 parent: reporting-channel
 generated: followup-script
+
+### 一句话
+
+先明确这道追问要解决的业务目标，再说明「Beacon、fetch keepalive 与监控上报通道怎么选」在当前约束下为什么成立。；建议按「输入约束 -> Beacon 执行链路 -> 结果验证」展开。
 
 ### 题目
 
@@ -2480,6 +2500,10 @@ tags: [Beacon, keepalive, 上报, 追问]
 parent: reporting-channel
 generated: followup-script
 
+### 一句话
+
+验证要从可复现样例开始：准备正向、边界和失败用例，确认「Beacon、fetch keepalive 与监控上报通道怎么选」不是只在理想输入下成立。。
+
 ### 题目
 
 如果面试官追问：结合真实业务约束，当团队讨论「Beacon、fetch keepalive 与监控上报通道怎么选」去留时，你会给出哪几组关键指标作为决策依据？
@@ -2506,6 +2530,10 @@ tags: [隐私合规, GDPR, 追问]
 parent: privacy-compliance
 generated: followup-script
 
+### 一句话
+
+推动「可观测性与隐私合规的平衡」落地时先收敛改动面：选低风险页面或模块试点，保留旧路径作为对照。；「可观测性与隐私合规的平衡」迁移计划要说明数据兼容、配置开关、监控指标和失败后的恢复路径。；团队推进重点不是一次性重写。
+
 ### 题目
 
 如果面试官追问：结合真实业务约束，面对团队能力差异，你会如何围绕 隐私合规 把「可观测性与隐私合规的平衡」拆成可并行推进的小阶段？
@@ -2531,6 +2559,10 @@ difficulty: 进阶
 tags: [隐私合规, GDPR, 追问]
 parent: privacy-compliance
 generated: followup-script
+
+### 一句话
+
+先说判断标准，再说执行路径：回答「可观测性与隐私合规的平衡」时要能同时解释收益、代价和失败信号。；可以按「问题背景 -> 隐私合规 机制 -> 取舍边界」回答，再用「可观测性与隐私合规的平衡」补一个反例，避免停在口号层。。
 
 ### 题目
 
@@ -2571,6 +2603,10 @@ tags: [Feature Flag, A/B, 追问]
 parent: frontend-feature-flag
 generated: followup-script
 
+### 一句话
+
+先明确这道追问要解决的业务目标，再说明「前端 A/B 测试与特性开关的工程实现」在当前约束下为什么成立。；回答结构可按「触发条件 -> Feature Flag 机制 -> 风险兜底」展开，并以「前端 A/B 测试与特性开关的工程实现」补一条失败场景。
+
 ### 题目
 
 如果面试官追问：结合真实业务约束，如果 CI 在「前端 A/B 测试与特性开关的工程实现」改造期频繁误报，你会怎么拆测试层次来降噪？
@@ -2609,6 +2645,10 @@ difficulty: 进阶
 tags: [Feature Flag, A/B, 追问]
 parent: frontend-feature-flag
 generated: followup-script
+
+### 一句话
+
+先把目标和约束说清楚，再展开实现：这能避免把「前端 A/B 测试与特性开关的工程实现」讲成只在理想输入下可用。；建议按「输入约束 -> Feature Flag 执行链路 -> 结果验证」展开。
 
 ### 题目
 
@@ -2649,6 +2689,10 @@ tags: [监控, 错误, 追问]
 parent: frontend-error-monitor
 generated: followup-script
 
+### 一句话
+
+验证要从可复现样例开始：准备正向、边界和失败用例，确认「前端如何全链路捕获错误并上报」不是只在理想输入下成立。；再补可观测指标：围绕「前端如何全链路捕获错误并上报」的工程可维护性应该能通过日志、耗时、错误率、命中率、覆盖率或用户行为指标观察到变化。。
+
 ### 题目
 
 如果面试官追问：以「前端如何全链路捕获错误并上报」为例，当团队成熟度不一致时，你会如何围绕 监控 定义「前端如何全链路捕获错误并上报」的先后改造顺序？
@@ -2674,6 +2718,10 @@ difficulty: 进阶
 tags: [监控, 错误, 追问]
 parent: frontend-error-monitor
 generated: followup-script
+
+### 一句话
+
+先说判断标准，再说执行路径：回答「前端如何全链路捕获错误并上报」时要能同时解释收益、代价和失败信号。；讲「前端如何全链路捕获错误并上报」时先给 观测指标 的判断口径，再补执行动作和回退条件，会更像真实评审发言。。
 
 ### 题目
 
@@ -2714,6 +2762,10 @@ tags: [可观测性, 监控, 高频, 追问]
 parent: white-screen-detection
 generated: followup-script
 
+### 一句话
+
+先说判断标准，再说执行路径：回答「前端白屏怎么检测」时要能同时解释收益、代价和失败信号。；回答顺序可用「现状问题 -> 可观测性 方案动作 -> 验证结果」，并用「前端白屏怎么检测」举一条主链路说明。；如果涉及「前端白屏怎么检测」的技术细节。
+
 ### 题目
 
 如果面试官追问：以「前端白屏怎么检测」为例，当团队成熟度不一致时，你会如何围绕 可观测性 定义「前端白屏怎么检测」的先后改造顺序？
@@ -2753,6 +2805,10 @@ tags: [可观测性, 监控, 高频, 追问]
 parent: white-screen-detection
 generated: followup-script
 
+### 一句话
+
+验证要从可复现样例开始：准备正向、边界和失败用例，确认「前端白屏怎么检测」不是只在理想输入下成立。；再补可观测指标：围绕「前端白屏怎么检测」的工程可维护性应该能通过日志、耗时、错误率、命中率、覆盖率或用户行为指标观察到变化。。
+
 ### 题目
 
 如果面试官追问：以「前端白屏怎么检测」为例，当团队讨论「前端白屏怎么检测」去留时，你会给出哪几组关键指标作为决策依据？
@@ -2779,6 +2835,10 @@ tags: [可观测性, 实验, 高频, 追问]
 parent: ab-experiment-frontend
 generated: followup-script
 
+### 一句话
+
+推动「前端怎么承接 A/B 实验」落地时先收敛改动面：选低风险页面或模块试点，保留旧路径作为对照。；「前端怎么承接 A/B 实验」迁移计划要说明数据兼容、配置开关、监控指标和失败后的恢复路径。；团队推进重点不是一次性重写。
+
 ### 题目
 
 如果面试官追问：以「前端怎么承接 A/B 实验」为例，当团队成熟度不一致时，你会如何围绕 可观测性 定义「前端怎么承接 A/B 实验」的先后改造顺序？
@@ -2804,6 +2864,10 @@ difficulty: 进阶
 tags: [可观测性, 实验, 高频, 追问]
 parent: ab-experiment-frontend
 generated: followup-script
+
+### 一句话
+
+先把目标和约束说清楚，再展开实现：这能避免把「前端怎么承接 A/B 实验」讲成只在理想输入下可用。；围绕「前端怎么承接 A/B 实验」组织答案时，建议按「约束来源 -> 可观测性 关键决策 -> 验证闭环」展开。；在「前端怎么承接 A/B 实验」回答里。
 
 ### 题目
 
@@ -2844,6 +2908,10 @@ tags: [错误, 监听, 基础, 追问]
 parent: js-error-types-basic
 generated: followup-script
 
+### 一句话
+
+先明确这道追问要解决的业务目标，再说明「JS 错误监听都有哪几个钩子？各管什么」在当前约束下为什么成立。；回答结构可按「触发条件 -> 错误 机制 -> 风险兜底」展开，并以「JS 错误监听都有哪几个钩子？各管什么」补一条失败场景，能体现工程拆解能力。。
+
 ### 题目
 
 如果面试官追问：以「JS 错误监听都有哪几个钩子？各管什么」为例，上报通道选 sendBeacon 还是 fetch keepalive？
@@ -2882,6 +2950,10 @@ difficulty: 基础
 tags: [错误, 监听, 基础, 追问]
 parent: js-error-types-basic
 generated: followup-script
+
+### 一句话
+
+先把目标和约束说清楚，再展开实现：这能避免把「JS 错误监听都有哪几个钩子？各管什么」讲成只在理想输入下可用。；回答结构可按「触发条件 -> 错误 机制 -> 风险兜底」展开，并以「JS 错误监听都有哪几个钩子？各管什么」补一条失败场景。
 
 ### 题目
 
@@ -2922,6 +2994,10 @@ tags: [TBT, Long Task, 上报, 高频, 追问]
 parent: tbt-and-long-task-collection
 generated: followup-script
 
+### 一句话
+
+先明确这道追问要解决的业务目标，再说明「TBT / Long Task 怎么采集？requestIdleCallback 上报权衡」在当前约束下为什么成立。。
+
 ### 题目
 
 如果面试官追问：结合真实业务约束，polyfill：`(cb) => setTimeout(cb, 1)` + 用 IdleDeadline 模拟，或直接用 `setTimeout` 退化？
@@ -2960,6 +3036,10 @@ difficulty: 资深
 tags: [TBT, Long Task, 上报, 高频, 追问]
 parent: tbt-and-long-task-collection
 generated: followup-script
+
+### 一句话
+
+先说判断标准，再说执行路径：回答「TBT / Long Task 怎么采集？requestIdleCallback 上报权衡」时要能同时解释收益、代价和失败信号。；可以按「问题背景 -> TBT 机制 -> 取舍边界」回答。
 
 ### 题目
 
@@ -3000,6 +3080,10 @@ tags: [SourceMap, 错误定位, 追问]
 parent: source-map-stack-trace
 generated: followup-script
 
+### 一句话
+
+先说判断标准，再说执行路径：回答「Source Map：栈解析定位到源码行列」时要能同时解释收益、代价和失败信号。；回答顺序可用「现状问题 -> SourceMap 方案动作 -> 验证结果」。
+
 ### 题目
 
 如果面试官追问：从工程落地角度看，6-bit 一组，最高位续位标志，最后位是符号位；连续段相对前一段做差值？
@@ -3037,6 +3121,10 @@ difficulty: 进阶
 tags: [SourceMap, 错误定位, 追问]
 parent: source-map-stack-trace
 generated: followup-script
+
+### 一句话
+
+先说判断标准，再说执行路径：回答「Source Map：栈解析定位到源码行列」时要能同时解释收益、代价和失败信号。；可以按「问题背景 -> SourceMap 机制 -> 取舍边界」回答，再用「Source Map：栈解析定位到源码行列」补一个反例。
 
 ### 题目
 
@@ -3077,6 +3165,10 @@ tags: [rrweb, 录屏, 大依赖, 高频, 追问]
 parent: rrweb-on-demand-recording
 generated: followup-script
 
+### 一句话
+
+先明确这道追问要解决的业务目标，再说明「大依赖按需下发：rrweb 百万级用户场景」在当前约束下为什么成立。；围绕「大依赖按需下发：rrweb 百万级用户场景」组织答案时，建议按「约束来源 -> rrweb 关键决策 -> 验证闭环」展开。。
+
 ### 题目
 
 如果面试官追问：异常发生 + 用户路径在风险页面 + 后台拉黑名单/灰名单？
@@ -3115,6 +3207,10 @@ difficulty: 资深
 tags: [rrweb, 录屏, 大依赖, 高频, 追问]
 parent: rrweb-on-demand-recording
 generated: followup-script
+
+### 一句话
+
+先把目标和约束说清楚，再展开实现：这能避免把「大依赖按需下发：rrweb 百万级用户场景」讲成只在理想输入下可用。；建议按「输入约束 -> rrweb 执行链路 -> 结果验证」展开，并结合「大依赖按需下发：rrweb 百万级用户场景」给出一条可复核结果。
 
 ### 题目
 
@@ -3155,6 +3251,10 @@ tags: [SourceMap, Sentry, 追问]
 parent: source-map-symbolicate
 generated: followup-script
 
+### 一句话
+
+验证要从可复现样例开始：准备正向、边界和失败用例，确认「Source Map 上传与错误还原」不是只在理想输入下成立。；再补可观测指标：围绕「Source Map 上传与错误还原」的核心机制应该能通过日志、耗时、错误率、命中率、覆盖率或用户行为指标观察到变。
+
 ### 题目
 
 如果面试官追问：以「Source Map 上传与错误还原」为例，你会如何围绕 SourceMap 定义「Source Map 上传与错误还原」生效的判据，并用测试与监控长期验证？
@@ -3181,6 +3281,10 @@ tags: [SourceMap, Sentry, 追问]
 parent: source-map-symbolicate
 generated: followup-script
 
+### 一句话
+
+规模变大后先重新评估「Source Map 上传与错误还原」瓶颈：数据量、并发、团队协作、浏览器兼容和维护成本哪个先触顶。；如果「Source Map 上传与错误还原」对应的核心机制收益被复杂度抵消，就要考虑分层、缓存、懒加载、批处理或更简单的替代方案。。
+
 ### 题目
 
 如果面试官追问：在当前团队与业务约束下，如果兼容性压力突然升高，你会如何围绕 SourceMap 重新划分「Source Map 上传与错误还原」的实施阶段？
@@ -3206,6 +3310,10 @@ difficulty: 进阶
 tags: [RUM, WebVitals, 追问]
 parent: rum-web-vitals
 generated: followup-script
+
+### 一句话
+
+先说判断标准，再说执行路径：回答「RUM 与 Web Vitals 才能告诉你真实用户体验」时要能同时解释收益、代价和失败信号。；回答顺序可用「现状问题 -> RUM 方案动作 -> 验证结果」。
 
 ### 题目
 
@@ -3246,6 +3354,10 @@ tags: [RUM, WebVitals, 追问]
 parent: rum-web-vitals
 generated: followup-script
 
+### 一句话
+
+先明确这道追问要解决的业务目标，再说明「RUM 与 Web Vitals 才能告诉你真实用户体验」在当前约束下为什么成立。；建议按「输入约束 -> RUM 执行链路 -> 结果验证」展开。
+
 ### 题目
 
 如果面试官追问：在「RUM 与 Web Vitals 才能告诉你真实用户体验」场景下，遇到约束变化时，你会如何围绕 RUM 拆分方案演进路径，而不是一次性推翻重来？
@@ -3284,6 +3396,10 @@ difficulty: 进阶
 tags: [SessionReplay, 告警, 追问]
 parent: session-replay-alert
 generated: followup-script
+
+### 一句话
+
+先说判断标准，再说执行路径：回答「会话回放、采样与告警阈值」时要能同时解释收益、代价和失败信号。；讲「会话回放、采样与告警阈值」时先给 SessionReplay 的判断口径，再补执行动作和回退条件，会更像真实评审发言。。
 
 ### 题目
 
@@ -3324,6 +3440,10 @@ tags: [SessionReplay, 告警, 追问]
 parent: session-replay-alert
 generated: followup-script
 
+### 一句话
+
+规模变大后先重新评估「会话回放、采样与告警阈值」瓶颈：数据量、并发、团队协作、浏览器兼容和维护成本哪个先触顶。；如果「会话回放、采样与告警阈值」对应的核心机制收益被复杂度抵消，就要考虑分层、缓存、懒加载、批处理或更简单的替代方案。。
+
 ### 题目
 
 如果面试官追问：在当前团队与业务约束下，如果兼容性压力突然升高，你会如何围绕 SessionReplay 重新划分「会话回放、采样与告警阈值」的实施阶段？
@@ -3349,6 +3469,10 @@ difficulty: 资深
 tags: [OpenTelemetry, Trace, 追问]
 parent: opentelemetry-frontend
 generated: followup-script
+
+### 一句话
+
+先给可验证结论，再补证据链：面试官想确认你是否能把「OpenTelemetry 在前端的接入」落到真实交付，而不是停在概念层。；回答顺序可用「现状问题 -> OpenTelemetry 方案动作 -> 验证结果」。
 
 ### 题目
 
@@ -3388,6 +3512,10 @@ difficulty: 资深
 tags: [OpenTelemetry, Trace, 追问]
 parent: opentelemetry-frontend
 generated: followup-script
+
+### 一句话
+
+规模变大后先重新评估「OpenTelemetry 在前端的接入」瓶颈：数据量、并发、团队协作、浏览器兼容和维护成本哪个先触顶。；如果「OpenTelemetry 在前端的接入」对应的核心机制收益被复杂度抵消。
 
 ### 题目
 
@@ -3550,6 +3678,10 @@ tags: [SLO, 错误预算, 发布治理, 追问]
 parent: frontend-slo-error-budget
 generated: followup-script
 
+### 一句话
+
+先说判断标准，再说执行路径：回答「前端 SLO 与错误预算：把可观测性接到发布闸门」时要能同时解释收益、代价和失败信号。；讲「前端 SLO 与错误预算：把可观测性接到发布闸门」时先给 SLO 的判断口径，再补执行动作和回退条件，会更像真实评审发言。。
+
 ### 题目
 
 如果面试官追问：以「前端 SLO 与错误预算：把可观测性接到发布闸门」为例，你会如何识别「前端 SLO 与错误预算：把可观测性接到发布闸门」在真实流量下最容易失效的输入与环境约束？
@@ -3588,6 +3720,10 @@ difficulty: 资深
 tags: [SLO, 错误预算, 发布治理, 追问]
 parent: frontend-slo-error-budget
 generated: followup-script
+
+### 一句话
+
+先明确这道追问要解决的业务目标，再说明「前端 SLO 与错误预算：把可观测性接到发布闸门」在当前约束下为什么成立。；建议按「输入约束 -> SLO 执行链路 -> 结果验证」展开。
 
 ### 题目
 
@@ -3628,6 +3764,10 @@ tags: [SLO, 错误预算, 发布治理, 追问]
 parent: frontend-slo-error-budget
 generated: followup-script
 
+### 一句话
+
+先给可验证结论，再补证据链：面试官想确认你是否能把「前端 SLO 与错误预算：把可观测性接到发布闸门」落到真实交付，而不是停在概念层。；回答顺序可用「现状问题 -> SLO 方案动作 -> 验证结果」。
+
 ### 题目
 
 如果面试官追问：结合真实业务约束，当兼容性要求提升或预算收紧时，你会如何围绕 SLO 调整方案边界与实施节奏？
@@ -3667,6 +3807,10 @@ tags: [事故响应, Runbook, 复盘, 追问]
 parent: incident-command-runbook
 generated: followup-script
 
+### 一句话
+
+先界定「前端事故响应闭环：告警分级、指挥机制与复盘回放」的适用条件，再说明哪些输入、运行环境或团队约束会让默认方案失效。；围绕「前端事故响应闭环：告警分级、指挥机制与复盘回放」的核心机制展开：正常路径要能讲清楚。
+
 ### 题目
 
 如果面试官追问：结合真实业务约束，围绕「前端事故响应闭环：告警分级、指挥机制与复盘回放」做方案评审时，哪些 事故响应 边界输入最容易导致结论失真？
@@ -3692,6 +3836,10 @@ difficulty: 资深
 tags: [事故响应, Runbook, 复盘, 追问]
 parent: incident-command-runbook
 generated: followup-script
+
+### 一句话
+
+先给可验证结论，再补证据链：面试官想确认你是否能把「前端事故响应闭环：告警分级、指挥机制与复盘回放」落到真实交付，而不是停在概念层。；回答顺序可用「现状问题 -> 事故响应 方案动作 -> 验证结果」。
 
 ### 题目
 
@@ -3731,6 +3879,10 @@ difficulty: 资深
 tags: [事故响应, Runbook, 复盘, 追问]
 parent: incident-command-runbook
 generated: followup-script
+
+### 一句话
+
+规模变大后先重新评估「前端事故响应闭环：告警分级、指挥机制与复盘回放」瓶颈：数据量、并发、团队协作、浏览器兼容和维护成本哪个先触顶。；如果「前端事故响应闭环：告警分级、指挥机制与复盘回放」对应的核心机制收益被复杂度抵消。
 
 ### 题目
 
@@ -3896,6 +4048,10 @@ tags: [可观测性, 发布闸门, 质量治理, 追问]
 parent: observability-release-readiness-gate
 generated: followup-script
 
+### 一句话
+
+先明确这道追问要解决的业务目标，再说明「可观测性发布就绪闸门：覆盖率、质量与恢复能力联合验收」在当前约束下为什么成立。；围绕「可观测性发布就绪闸门：覆盖率、质量与恢复能力联合验收」组织答案时。
+
 ### 题目
 
 如果面试官追问：结合真实业务约束，如果要做「可观测性发布就绪闸门：覆盖率、质量与恢复能力联合验收」的稳定性评审，你会先盘点哪些容易被忽视的边界因素？
@@ -3934,6 +4090,10 @@ difficulty: 资深
 tags: [可观测性, 发布闸门, 质量治理, 追问]
 parent: observability-release-readiness-gate
 generated: followup-script
+
+### 一句话
+
+先明确这道追问要解决的业务目标，再说明「可观测性发布就绪闸门：覆盖率、质量与恢复能力联合验收」在当前约束下为什么成立。；回答结构可按「触发条件 -> 可观测性 机制 -> 风险兜底」展开。
 
 ### 题目
 
@@ -3974,6 +4134,10 @@ tags: [可观测性, 发布闸门, 质量治理, 追问]
 parent: observability-release-readiness-gate
 generated: followup-script
 
+### 一句话
+
+规模变大后先重新评估「可观测性发布就绪闸门：覆盖率、质量与恢复能力联合验收」瓶颈：数据量、并发、团队协作、浏览器兼容和维护成本哪个先触顶。；如果「可观测性发布就绪闸门：覆盖率、质量与恢复能力联合验收」对应的工程可维护性收益被复杂度抵消。
+
 ### 题目
 
 如果面试官追问：这套「可观测性发布就绪闸门：覆盖率、质量与恢复能力联合验收」要不要继续投人投钱，你会盯哪几组和 可观测性 相关的数据先说话？
@@ -3999,6 +4163,10 @@ difficulty: 资深
 tags: [SLO, BurnRate, 事故响应, 追问]
 parent: burn-rate-auto-mitigation-orchestration
 generated: followup-script
+
+### 一句话
+
+先把目标和约束说清楚，再展开实现：这能避免把「Burn Rate 自动止损编排：多窗口告警、分级动作与闭环恢复」讲成只在理想输入下可用。；围绕「Burn Rate 自动止损编排：多窗口告警、分级动作与闭环恢复」组织答案时。
 
 ### 题目
 
@@ -4039,6 +4207,10 @@ tags: [SLO, BurnRate, 事故响应, 追问]
 parent: burn-rate-auto-mitigation-orchestration
 generated: followup-script
 
+### 一句话
+
+先明确这道追问要解决的业务目标，再说明「Burn Rate 自动止损编排：多窗口告警、分级动作与闭环恢复」在当前约束下为什么成立。；建议按「输入约束 -> SLO 执行链路 -> 结果验证」展开。
+
 ### 题目
 
 如果面试官追问：在「Burn Rate 自动止损编排：多窗口告警、分级动作与闭环恢复」场景下，上线后你会盯哪些与 SLO 相关的日志与指标，来确认这套方案确实带来改进？
@@ -4077,6 +4249,10 @@ difficulty: 资深
 tags: [SLO, BurnRate, 事故响应, 追问]
 parent: burn-rate-auto-mitigation-orchestration
 generated: followup-script
+
+### 一句话
+
+规模变大后先重新评估「Burn Rate 自动止损编排：多窗口告警、分级动作与闭环恢复」瓶颈：数据量、并发、团队协作、浏览器兼容和维护成本哪个先触顶。；如果「Burn Rate 自动止损编排：多窗口告警、分级动作与闭环恢复」对应的核心机制收益被复杂度抵消。
 
 ### 题目
 
@@ -4241,6 +4417,10 @@ tags: [告警治理, oncall, 事故响应, 追问]
 parent: alert-fatigue-budget-governance
 generated: followup-script
 
+### 一句话
+
+我会先验三点：告警分级是否和动作匹配、静默策略是否可追溯、误报治理 SLA 是否可执行。；重点检查夜间高频规则，先处理最容易制造疲劳的噪音源。；若边界不清，宁可先小范围试点，也不全量上线新规则。
+
 ### 题目
 
 如果面试官追问：告警预算机制上线前，你会先验哪些关键假设，避免“降噪做了但值班更乱”？
@@ -4266,6 +4446,10 @@ difficulty: 资深
 tags: [告警治理, oncall, 事故响应, 追问]
 parent: alert-fatigue-budget-governance
 generated: followup-script
+
+### 一句话
+
+我会同时看信噪比和漏报率，避免只追求告警数量下降。；指标至少覆盖：夜间 page 次数、命中后行动率、关键事故漏报数。；每次降噪规则调整都做回放验证，确认不会削弱故障发现能力。
 
 ### 题目
 
@@ -4293,6 +4477,10 @@ tags: [告警治理, oncall, 事故响应, 追问]
 parent: alert-fatigue-budget-governance
 generated: followup-script
 
+### 一句话
+
+我会按阶段调整：先收敛噪音规则，再重排升级路径，最后优化自动化动作。；高风险告警保持强敏感，低价值告警优先聚合或改为日报。；每月复盘前十高噪音规则，持续小步迭代比一次性重构更稳。
+
 ### 题目
 
 如果面试官追问：业务量增长或值班人手收紧时，你会怎么渐进调整告警治理，而不是推翻重来？
@@ -4318,6 +4506,10 @@ difficulty: 资深
 tags: [事故闭环, 证据链, 可观测性治理, 追问]
 parent: incident-evidence-closure-protocol
 generated: followup-script
+
+### 一句话
+
+最容易出错的是只看告警回落，不看关键业务链路和用户侧恢复。；观测窗口过短也会导致误恢复，必须覆盖一个完整业务周期。；对高风险事故要做二次确认：技术指标回稳后再看业务指标。
 
 ### 题目
 
@@ -4345,6 +4537,10 @@ tags: [事故闭环, 证据链, 可观测性治理, 追问]
 parent: incident-evidence-closure-protocol
 generated: followup-script
 
+### 一句话
+
+我会拆三段：证据采集、恢复确认、关单复核，每段都有固定模板和验收标准。；新手先执行模板化动作，资深同学负责关键判断和最终拍板。；每段都保留复核记录，确保交接时不丢上下文。
+
 ### 题目
 
 如果面试官追问：团队里有新手也有老手，你会如何把事故证据闭环拆成可分段执行且可独立验收的流程？
@@ -4370,6 +4566,10 @@ difficulty: 资深
 tags: [事故闭环, 证据链, 可观测性治理, 追问]
 parent: incident-evidence-closure-protocol
 generated: followup-script
+
+### 一句话
+
+我会先保留关键证据链路，再压缩低价值采集与重复复核步骤。；对高风险事故维持完整闭环，对低风险事故采用轻量流程加抽检。；每次收敛都要验证“恢复质量是否下降”，不能只看人力节省。
 
 ### 题目
 

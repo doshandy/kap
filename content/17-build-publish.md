@@ -1390,6 +1390,10 @@ tags: [缓存, 发布, 追问]
 parent: hashing-cache
 generated: followup-script
 
+### 一句话
+
+验证要从可复现样例开始：准备正向、边界和失败用例，确认「hash 命名、长效缓存与 HTML 短缓存是发布基础功」不是只在理想输入下成立。。
+
 ### 题目
 
 如果面试官追问：以「hash 命名、长效缓存与 HTML 短缓存是发布基础功」为例，你会怎样验证「hash 命名、长效缓存与 HTML 短缓存是发布基础功」在 缓存 维度上的优化收益在真实设备和真实网络下也成立？
@@ -1415,6 +1419,10 @@ difficulty: 基础
 tags: [缓存, 发布, 追问]
 parent: hashing-cache
 generated: followup-script
+
+### 一句话
+
+推动「hash 命名、长效缓存与 HTML 短缓存是发布基础功」落地时先收敛改动面：选低风险页面或模块试点，保留旧路径作为对照。；「hash 命名、长效缓存与 HTML 短缓存是发布基础功」迁移计划要说明数据兼容、配置开关、监控指标和失败后的恢复路径。。
 
 ### 题目
 
@@ -1442,6 +1450,10 @@ tags: [灰度, 回滚, 追问]
 parent: gray-release
 generated: followup-script
 
+### 一句话
+
+推动「灰度发布、回滚与零停机切换」落地时先收敛改动面：选低风险页面或模块试点，保留旧路径作为对照。；「灰度发布、回滚与零停机切换」迁移计划要说明数据兼容、配置开关、监控指标和失败后的恢复路径。；团队推进重点不是一次性重写。
+
 ### 题目
 
 如果面试官追问：在「灰度发布、回滚与零停机切换」场景下，老系统包袱重、牵一发而动全身时，你会怎么围绕 灰度 安排「灰度发布、回滚与零停机切换」的渐进改造路线？
@@ -1468,6 +1480,10 @@ tags: [灰度, 回滚, 追问]
 parent: gray-release
 generated: followup-script
 
+### 一句话
+
+验证要从可复现样例开始：准备正向、边界和失败用例，确认「灰度发布、回滚与零停机切换」不是只在理想输入下成立。；再补可观测指标：围绕「灰度发布、回滚与零停机切换」的工程可维护性应该能通过日志、耗时、错误率、命中率、覆盖率或用户行为指标观察到变化。。
+
 ### 题目
 
 如果面试官追问：在「灰度发布、回滚与零停机切换」场景下，要判断「灰度发布、回滚与零停机切换」值不值得长期维护，你会先盯哪些和 灰度 相关的核心指标？
@@ -1493,6 +1509,10 @@ difficulty: 进阶
 tags: [包体治理, 分析, 追问]
 parent: bundle-governance
 generated: followup-script
+
+### 一句话
+
+先明确这道追问要解决的业务目标，再说明「包体分析与发布前治理」在当前约束下为什么成立。；回答结构可按「触发条件 -> 包体治理 机制 -> 风险兜底」展开，并以「包体分析与发布前治理」补一条失败场景，能体现工程拆解能力。；不要只罗列工具名或 API。
 
 ### 题目
 
@@ -1533,6 +1553,10 @@ tags: [包体治理, 分析, 追问]
 parent: bundle-governance
 generated: followup-script
 
+### 一句话
+
+先说判断标准，再说执行路径：回答「包体分析与发布前治理」时要能同时解释收益、代价和失败信号。；回答顺序可用「现状问题 -> 包体治理 方案动作 -> 验证结果」，并用「包体分析与发布前治理」举一条主链路说明。；如果涉及「包体分析与发布前治理」的技术细节。
+
 ### 题目
 
 如果面试官追问：在当前团队与业务约束下，为了确认「包体分析与发布前治理」在 包体治理 上能持续跑稳，你会长期追哪些稳定性和效率信号？
@@ -1572,6 +1596,10 @@ tags: [发布, 工程化, 追问]
 parent: semver-release
 generated: followup-script
 
+### 一句话
+
+推动「SemVer 与自动化发版（changeset / semantic-release）」落地时先收敛改动面：选低风险页面或模块试点，保留旧路径作为对照。。
+
 ### 题目
 
 如果面试官追问：结合真实业务约束，当团队成熟度不一致时，你会如何围绕 发布 定义「SemVer 与自动化发版（changeset / semantic-release）」的先后改造顺序？
@@ -1597,6 +1625,10 @@ difficulty: 进阶
 tags: [发布, 工程化, 追问]
 parent: semver-release
 generated: followup-script
+
+### 一句话
+
+先给可验证结论，再补证据链：面试官想确认你是否能把「SemVer 与自动化发版」落到真实交付，而不是停在概念层。；讲「SemVer 与自动化发版」时先给 发布链路 的判断口径，再补执行动作和回退条件，会更像真实评审发言。。
 
 ### 题目
 
@@ -1637,6 +1669,10 @@ tags: [CI/CD, 工程化, 高频, 追问]
 parent: ci-cd-frontend-pipeline
 generated: followup-script
 
+### 一句话
+
+先把目标和约束说清楚，再展开实现：这能避免把「前端 CI/CD 流水线怎么设计」讲成只在理想输入下可用。；围绕「前端 CI/CD 流水线怎么设计」组织答案时，建议按「约束来源 -> CI/CD 关键决策 -> 验证闭环」展开。。
+
 ### 题目
 
 如果面试官追问：结合真实业务约束，当团队成熟度不一致时，你会如何围绕 CI/CD 定义「前端 CI/CD 流水线怎么设计」的先后改造顺序？
@@ -1675,6 +1711,10 @@ tags: [CI/CD, 工程化, 高频, 追问]
 parent: ci-cd-frontend-pipeline
 generated: followup-script
 
+### 一句话
+
+验证要从可复现样例开始：准备正向、边界和失败用例，确认「前端 CI/CD 流水线怎么设计」不是只在理想输入下成立。；再补可观测指标：围绕「前端 CI/CD 流水线怎么设计」的工程可维护性应该能通过日志、耗时、错误率、命中率、覆盖率或用户行为指标观察到变化。。
+
 ### 题目
 
 如果面试官追问：以「前端 CI/CD 流水线怎么设计」为例，当团队讨论「前端 CI/CD 流水线怎么设计」去留时，你会给出哪几组关键指标作为决策依据？
@@ -1700,6 +1740,10 @@ difficulty: 资深
 tags: [构建, 性能, 高频, 追问]
 parent: bundle-optimization-tactics
 generated: followup-script
+
+### 一句话
+
+先说判断标准，再说执行路径：回答「一道题打包优化全部场景」时要能同时解释收益、代价和失败信号。；讲「一道题打包优化全部场景」时先给 构建 的判断口径，再补执行动作和回退条件，会更像真实评审发言。；如果涉及「一道题打包优化全部场景」的技术细节。
 
 ### 题目
 
@@ -1738,6 +1782,10 @@ difficulty: 资深
 tags: [构建, 性能, 高频, 追问]
 parent: bundle-optimization-tactics
 generated: followup-script
+
+### 一句话
+
+先给可验证结论，再补证据链：面试官想确认你是否能把「一道题打包优化全部场景」落到真实交付，而不是停在概念层。；回答顺序可用「现状问题 -> 构建 方案动作 -> 验证结果」，并用「一道题打包优化全部场景」举一条主链路说明。。
 
 ### 题目
 
@@ -1778,6 +1826,10 @@ tags: [Baseline, Browserslist, Polyfill, 兼容性, 追问]
 parent: web-platform-baseline-governance
 generated: followup-script
 
+### 一句话
+
+先明确这道追问要解决的业务目标，再说明「Baseline、Browserslist 与现代浏览器兼容策略怎么治理」在当前约束下为什么成立。；建议按「输入约束 -> Baseline 执行链路 -> 结果验证」展开。
+
 ### 题目
 
 如果面试官追问：以「Baseline、Browserslist 与现代浏览器兼容策略怎么治理」为例，如何判断一个 polyfill 该保留、按需加载还是删除？
@@ -1816,6 +1868,10 @@ difficulty: 进阶
 tags: [Baseline, Browserslist, Polyfill, 兼容性, 追问]
 parent: web-platform-baseline-governance
 generated: followup-script
+
+### 一句话
+
+先给可验证结论，再补证据链：面试官想确认你是否能把「Baseline、Browserslist 与现代浏览器兼容策略怎么治理」落到真实交付，而不是停在概念层。；可以按「问题背景 -> Baseline 机制 -> 取舍边界」回答。
 
 ### 题目
 
@@ -1856,6 +1912,10 @@ tags: [Baseline, Browserslist, Polyfill, 兼容性, 追问]
 parent: web-platform-baseline-governance
 generated: followup-script
 
+### 一句话
+
+先明确这道追问要解决的业务目标，再说明「Baseline、Browserslist 与现代浏览器兼容策略怎么治理」在当前约束下为什么成立。；建议按「输入约束 -> Baseline 执行链路 -> 结果验证」展开。
+
 ### 题目
 
 如果面试官追问：从工程落地角度看，Baseline 能解决哪些共识问题，不能替代哪些业务决策？
@@ -1894,6 +1954,10 @@ difficulty: 进阶
 tags: [动态加载, 容错, 追问]
 parent: chunk-failure
 generated: followup-script
+
+### 一句话
+
+先明确这道追问要解决的业务目标，再说明「动态 import 失败与旧版本 chunk 被清理怎么处理」在当前约束下为什么成立。；建议按「输入约束 -> 动态加载 执行链路 -> 结果验证」展开。
 
 ### 题目
 
@@ -1934,6 +1998,10 @@ tags: [动态加载, 容错, 追问]
 parent: chunk-failure
 generated: followup-script
 
+### 一句话
+
+先给可验证结论，再补证据链：面试官想确认你是否能把「动态 import 失败与旧版本 chunk 被清理怎么处理」落到真实交付，而不是停在概念层。；讲「动态 import 失败与旧版本 chunk 被清理怎么处理」时先给 动态加载 的判断口径。
+
 ### 题目
 
 如果面试官追问：以「动态 import 失败与旧版本 chunk 被清理怎么处理」为例，当兼容性要求提升或预算收紧时，你会如何围绕 动态加载 调整方案边界与实施节奏？
@@ -1972,6 +2040,10 @@ difficulty: 进阶
 tags: [ServiceWorker, PWA, 追问]
 parent: service-worker-update
 generated: followup-script
+
+### 一句话
+
+先把目标和约束说清楚，再展开实现：这能避免把「Service Worker 更新策略的取舍」讲成只在理想输入下可用。；建议按「输入约束 -> ServiceWorker 执行链路 -> 结果验证」展开。
 
 ### 题目
 
@@ -2012,6 +2084,10 @@ tags: [ServiceWorker, PWA, 追问]
 parent: service-worker-update
 generated: followup-script
 
+### 一句话
+
+规模变大后先重新评估「Service Worker 更新策略的取舍」瓶颈：数据量、并发、团队协作、浏览器兼容和维护成本哪个先触顶。；如果「Service Worker 更新策略的取舍」对应的核心机制收益被复杂度抵消。
+
 ### 题目
 
 如果面试官追问：以「Service Worker 更新策略的取舍」为例，如果目标不变但约束更严，你会如何围绕 ServiceWorker 调整「Service Worker 更新策略的取舍」方案的边界和节奏？
@@ -2037,6 +2113,10 @@ difficulty: 基础
 tags: [路由, 静态部署, 追问]
 parent: spa-fallback
 generated: followup-script
+
+### 一句话
+
+验证要从可复现样例开始：准备正向、边界和失败用例，确认「history 路由、404 fallback 与静态托管适配」不是只在理想输入下成立。。
 
 ### 题目
 
@@ -2064,6 +2144,10 @@ tags: [路由, 静态部署, 追问]
 parent: spa-fallback
 generated: followup-script
 
+### 一句话
+
+推动「history 路由、404 fallback 与静态托管适配」落地时先收敛改动面：选低风险页面或模块试点，保留旧路径作为对照。。
+
 ### 题目
 
 如果面试官追问：在「history 路由、404 fallback 与静态托管适配」场景下，当需求复杂度增长但团队产能有限时，你会如何围绕 路由 拆分「history 路由、404 fallback 与静态托管适配」的落地路径？
@@ -2089,6 +2173,10 @@ difficulty: 进阶
 tags: [Tree-shaking, sideEffects, 追问]
 parent: tree-shaking-deep
 generated: followup-script
+
+### 一句话
+
+先说判断标准，再说执行路径：回答「Tree-shaking 失效的常见原因」时要能同时解释收益、代价和失败信号。；可以按「问题背景 -> Tree-shaking 机制 -> 取舍边界」回答，再用「Tree-shaking 失效的常见原因」补一个反例。
 
 ### 题目
 
@@ -2128,6 +2216,10 @@ tags: [Tree-shaking, sideEffects, 追问]
 parent: tree-shaking-deep
 generated: followup-script
 
+### 一句话
+
+规模变大后先重新评估「Tree-shaking 失效的常见原因」瓶颈：数据量、并发、团队协作、浏览器兼容和维护成本哪个先触顶。；如果「Tree-shaking 失效的常见原因」对应的核心机制收益被复杂度抵消。
+
 ### 题目
 
 如果面试官追问：在当前团队与业务约束下，如果兼容性压力突然升高，你会如何围绕 Tree-shaking 重新划分「Tree-shaking 失效的常见原因」的实施阶段？
@@ -2153,6 +2245,10 @@ difficulty: 资深
 tags: [PWA, Service Worker, 追问]
 parent: sw-update-strategies
 generated: followup-script
+
+### 一句话
+
+先说判断标准，再说执行路径：回答「PWA Service Worker 升级策略」时要能同时解释收益、代价和失败信号。；讲「PWA Service Worker 升级策略」时先给 PWA 的判断口径，再补执行动作和回退条件，会更像真实评审发言。。
 
 ### 题目
 
@@ -2192,6 +2288,10 @@ difficulty: 资深
 tags: [PWA, Service Worker, 追问]
 parent: sw-update-strategies
 generated: followup-script
+
+### 一句话
+
+规模变大后先重新评估「PWA Service Worker 升级策略」瓶颈：数据量、并发、团队协作、浏览器兼容和维护成本哪个先触顶。；如果「PWA Service Worker 升级策略」对应的核心机制收益被复杂度抵消。
 
 ### 题目
 
@@ -2355,6 +2455,10 @@ tags: [发布治理, 风险分级, 闸门, 追问]
 parent: release-risk-gate-policy
 generated: followup-script
 
+### 一句话
+
+推动「发布风险分级与闸门策略：高风险变更如何安全上线」落地时先收敛改动面：选低风险页面或模块试点，保留旧路径作为对照。；「发布风险分级与闸门策略：高风险变更如何安全上线」迁移计划要说明数据兼容、配置开关、监控指标和失败后的恢复路径。。
+
 ### 题目
 
 如果面试官追问：从工程落地角度看，真把「发布风险分级与闸门策略：高风险变更如何安全上线」放到生产环境后，你会如何围绕 发布治理 划清信任边界并安排服务端兜底？
@@ -2380,6 +2484,10 @@ difficulty: 资深
 tags: [发布治理, 风险分级, 闸门, 追问]
 parent: release-risk-gate-policy
 generated: followup-script
+
+### 一句话
+
+先给可验证结论，再补证据链：面试官想确认你是否能把「发布风险分级与闸门策略：高风险变更如何安全上线」落到真实交付，而不是停在概念层。；回答顺序可用「现状问题 -> 发布治理 方案动作 -> 验证结果」。
 
 ### 题目
 
@@ -2420,6 +2528,10 @@ tags: [发布治理, 风险分级, 闸门, 追问]
 parent: release-risk-gate-policy
 generated: followup-script
 
+### 一句话
+
+推动「发布风险分级与闸门策略：高风险变更如何安全上线」落地时先收敛改动面：选低风险页面或模块试点，保留旧路径作为对照。；「发布风险分级与闸门策略：高风险变更如何安全上线」迁移计划要说明数据兼容、配置开关、监控指标和失败后的恢复路径。。
+
 ### 题目
 
 如果面试官追问：从工程落地角度看，当「发布风险分级与闸门策略：高风险变更如何安全上线」需要在安全与交付速度之间权衡时，你会优先守住哪些底线？
@@ -2445,6 +2557,10 @@ difficulty: 资深
 tags: [回滚演练, 应急, 发布, 追问]
 parent: rollback-drill-mechanism
 generated: followup-script
+
+### 一句话
+
+先明确这道追问要解决的业务目标，再说明「回滚演练机制：把“能回滚”从口头承诺变成可验证能力」在当前约束下为什么成立。；回答结构可按「触发条件 -> 回滚演练 机制 -> 风险兜底」展开。
 
 ### 题目
 
@@ -2485,6 +2601,10 @@ tags: [回滚演练, 应急, 发布, 追问]
 parent: rollback-drill-mechanism
 generated: followup-script
 
+### 一句话
+
+先说判断标准，再说执行路径：回答「回滚演练机制：把“能回滚”从口头承诺变成可验证能力」时要能同时解释收益、代价和失败信号。；讲「回滚演练机制：把“能回滚”从口头承诺变成可验证能力」时先给 回滚演练 的判断口径，再补执行动作和回退条件，会更像真实评审发言。。
+
 ### 题目
 
 如果面试官追问：在当前团队与业务约束下，上线后你会盯哪些与 回滚演练 相关的日志与指标，来确认这套方案确实带来改进？
@@ -2523,6 +2643,10 @@ difficulty: 资深
 tags: [回滚演练, 应急, 发布, 追问]
 parent: rollback-drill-mechanism
 generated: followup-script
+
+### 一句话
+
+验证要从可复现样例开始：准备正向、边界和失败用例，确认「回滚演练机制：把“能回滚”从口头承诺变成可验证能力」不是只在理想输入下成立。。
 
 ### 题目
 
@@ -2683,6 +2807,10 @@ tags: [供应链安全, 发布闸门, SBOM, 追问]
 parent: build-provenance-attestation-gate
 generated: followup-script
 
+### 一句话
+
+先把目标和约束说清楚，再展开实现：这能避免把「构建产物可追溯闸门：SBOM、签名与 provenance 如何接入发布」讲成只在理想输入下可用。；回答结构可按「触发条件 -> 供应链安全 机制 -> 风险兜底」展开。
+
 ### 题目
 
 如果面试官追问：在当前团队与业务约束下，当「构建产物可追溯闸门：SBOM、签名与 provenance 如何接入发布」进入复杂业务场景时，你会先确认哪些边界条件是否可控？
@@ -2722,6 +2850,10 @@ tags: [供应链安全, 发布闸门, SBOM, 追问]
 parent: build-provenance-attestation-gate
 generated: followup-script
 
+### 一句话
+
+验证要从可复现样例开始：准备正向、边界和失败用例，确认「构建产物可追溯闸门：SBOM、签名与 provenance 如何接入发布」不是只在理想输入下成立。。
+
 ### 题目
 
 如果面试官追问：以「构建产物可追溯闸门：SBOM、签名与 provenance 如何接入发布」为例，你会怎样验证「构建产物可追溯闸门：SBOM、签名与 provenance 如何接入发布」在真实攻击流量下仍能维持防护效果与可观测性？
@@ -2748,6 +2880,10 @@ tags: [供应链安全, 发布闸门, SBOM, 追问]
 parent: build-provenance-attestation-gate
 generated: followup-script
 
+### 一句话
+
+规模变大后先重新评估「构建产物可追溯闸门：SBOM、签名与 provenance 如何接入发布」瓶颈：数据量、并发、团队协作、浏览器兼容和维护成本哪个先触顶。。
+
 ### 题目
 
 如果面试官追问：结合真实业务约束，你会怎样给「构建产物可追溯闸门：SBOM、签名与 provenance 如何接入发布」定义分层策略，让高风险场景更严格、低风险场景更顺滑？
@@ -2773,6 +2909,10 @@ difficulty: 资深
 tags: [发布编排, 灰度, 回滚, 追问]
 parent: progressive-release-checkpoint-orchestration
 generated: followup-script
+
+### 一句话
+
+先把目标和约束说清楚，再展开实现：这能避免把「发布编排检查点：分阶段放量、自动判停与有序回退」讲成只在理想输入下可用。；建议按「输入约束 -> 发布编排 执行链路 -> 结果验证」展开。
 
 ### 题目
 
@@ -2813,6 +2953,10 @@ tags: [发布编排, 灰度, 回滚, 追问]
 parent: progressive-release-checkpoint-orchestration
 generated: followup-script
 
+### 一句话
+
+先明确这道追问要解决的业务目标，再说明「发布编排检查点：分阶段放量、自动判停与有序回退」在当前约束下为什么成立。；回答结构可按「触发条件 -> 发布编排 机制 -> 风险兜底」展开，并以「发布编排检查点：分阶段放量、自动判停与有序回退」补一条失败场景。
+
 ### 题目
 
 如果面试官追问：从工程落地角度看，上线后你会盯哪些与 发布编排 相关的日志与指标，来确认这套方案确实带来改进？
@@ -2851,6 +2995,10 @@ difficulty: 资深
 tags: [发布编排, 灰度, 回滚, 追问]
 parent: progressive-release-checkpoint-orchestration
 generated: followup-script
+
+### 一句话
+
+规模变大后先重新评估「发布编排检查点：分阶段放量、自动判停与有序回退」瓶颈：数据量、并发、团队协作、浏览器兼容和维护成本哪个先触顶。；如果「发布编排检查点：分阶段放量、自动判停与有序回退」对应的工程可维护性收益被复杂度抵消。
 
 ### 题目
 
@@ -3017,6 +3165,10 @@ tags: [发布编排, 多环境一致性, 决策沟通, 追问]
 parent: release-orchestration-control-tower
 generated: followup-script
 
+### 一句话
+
+我会先验三件事：多环境状态是否一致、卡点失败后能否快速恢复、回退链路是否真实可跑。；每个卡点都要有清晰责任人和下一动作，不允许出现“有人发现、没人拍板”。；对高风险卡点先做演练，把恢复时间和误判率压到可接受范围再放量。
+
 ### 题目
 
 如果面试官追问：发布指挥台真正上线前，你会先验哪些关键卡点，避免“流程很全但现场失灵”？
@@ -3042,6 +3194,10 @@ difficulty: 资深
 tags: [发布编排, 多环境一致性, 决策沟通, 追问]
 parent: release-orchestration-control-tower
 generated: followup-script
+
+### 一句话
+
+验证分两层：离线压测验证卡点逻辑，线上灰度验证决策效果。；指标要成组看：技术侧看错误率与白屏，业务侧看转化与关键流程成功率。；关键在“动作可追溯”：每次判停或放量都能回溯到证据和责任人。
 
 ### 题目
 
@@ -3069,6 +3225,10 @@ tags: [发布编排, 多环境一致性, 决策沟通, 追问]
 parent: release-orchestration-control-tower
 generated: followup-script
 
+### 一句话
+
+我会看稳定性：发布事故率、回退成功率、同类卡点复发率是否持续下降。；我会看效率：从发现异常到完成止损的时长是否明显缩短。；我会看成本：维护复杂度是否超过收益，若超过就要收敛流程而非继续叠加规则。
+
 ### 题目
 
 如果面试官追问：半年后评估这套发布指挥台是否继续投入，你会先看哪几组关键数据？
@@ -3094,6 +3254,10 @@ difficulty: 资深
 tags: [发布治理, 风险承诺, 例外机制, 追问]
 parent: release-freeze-exception-governance
 generated: followup-script
+
+### 一句话
+
+我先看三条底线：业务收益是否可量化、回退是否可执行、观测窗口是否足够。；没有明确责任人和风险承诺的申请，不进入放行流程。；高风险例外只能走更小流量和更密观测，不允许直接全量。
 
 ### 题目
 
@@ -3121,6 +3285,10 @@ tags: [发布治理, 风险承诺, 例外机制, 追问]
 parent: release-freeze-exception-governance
 generated: followup-script
 
+### 一句话
+
+我会看三组指标：例外发布成功率、例外触发事故率、例外回退平均时长。；再看治理质量：到期回收完成率和临时策略残留量是否持续下降。；如果指标“看起来成功”但复发率上升，说明机制在透支未来稳定性。
+
 ### 题目
 
 如果面试官追问：例外机制上了之后，你会看哪些日志和指标来判断它是在帮团队而不是制造新风险？
@@ -3146,6 +3314,10 @@ difficulty: 资深
 tags: [发布治理, 风险承诺, 例外机制, 追问]
 parent: release-freeze-exception-governance
 generated: followup-script
+
+### 一句话
+
+先做例外分级：仅保留“必须放行”的动作，其他需求顺延到冻结后。；同步给出债务回补计划：临时开关、绕过校验、补丁代码都要写到期清单。；对未回补项设硬截止日期和责任人，避免“临时方案永久化”。
 
 ### 题目
 

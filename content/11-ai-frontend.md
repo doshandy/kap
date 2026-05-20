@@ -6937,6 +6937,10 @@ tags: [流式输出, SSE, 追问]
 parent: streaming-ui
 generated: followup-script
 
+### 一句话
+
+先明确这道追问要解决的业务目标，再说明「AI 流式输出前端为什么不能只靠“边收边 append”」在当前约束下为什么成立。；围绕「AI 流式输出前端为什么不能只靠“边收边 append”」组织答案时。
+
 ### 题目
 
 如果面试官追问：从工程落地角度看，在「AI 流式输出前端为什么不能只靠“边收边 append”」里你会怎样划分可重试与不可重试场景，防止误重试放大故障？
@@ -6975,6 +6979,10 @@ difficulty: 进阶
 tags: [流式输出, SSE, 追问]
 parent: streaming-ui
 generated: followup-script
+
+### 一句话
+
+先明确这道追问要解决的业务目标，再说明「AI 流式输出前端为什么不能只靠“边收边 append”」在当前约束下为什么成立。；围绕「AI 流式输出前端为什么不能只靠“边收边 append”」组织答案时。
 
 ### 题目
 
@@ -7015,6 +7023,10 @@ tags: [SSE, Stream, 追问]
 parent: sse-fetch-stream
 generated: followup-script
 
+### 一句话
+
+先明确这道追问要解决的业务目标，再说明「SSE、fetch ReadableStream、WebSocket 在 AI 场景中的取舍」在当前约束下为什么成立。；回答结构可按「触发条件 -> SSE 机制 -> 风险兜底」展开。
+
 ### 题目
 
 如果面试官追问：在「SSE、fetch ReadableStream、WebSocket 在 AI 场景中的取舍」场景下，在「SSE、fetch ReadableStream、WebSocket 在 AI 场景中的取舍」里你会怎样划分可重试与不可重试场景，防止误重试放大故障？
@@ -7053,6 +7065,10 @@ difficulty: 进阶
 tags: [SSE, Stream, 追问]
 parent: sse-fetch-stream
 generated: followup-script
+
+### 一句话
+
+先把目标和约束说清楚，再展开实现：这能避免把「SSE、fetch ReadableStream、WebSocket 在 AI 场景中的取舍」讲成只在理想输入下可用。。
 
 ### 题目
 
@@ -7093,6 +7109,10 @@ tags: [Prompt, JSONSchema, 追问]
 parent: prompt-schema
 generated: followup-script
 
+### 一句话
+
+先明确这道追问要解决的业务目标，再说明「Prompt 工程在前端里最重要的不是“会写提示词”，而是可控输出」在当前约束下为什么成立。；围绕「Prompt 工程在前端里最重要的不是“会写提示词”，而是可控输出」组织答案时。
+
 ### 题目
 
 如果面试官追问：在「Prompt 工程在前端里最重要的不是“会写提示词”，而是可控输出」场景下，围绕「Prompt 工程在前端里最重要的不是“会写提示词”，而是可控输出」上线后幻觉风险，你会怎样设计产品侧与工程侧双重兜底？
@@ -7131,6 +7151,10 @@ difficulty: 进阶
 tags: [Prompt, JSONSchema, 追问]
 parent: prompt-schema
 generated: followup-script
+
+### 一句话
+
+先说判断标准，再说执行路径：回答「Prompt 工程在前端里最重要的不是“会写提示词”，而是可控输出」时要能同时解释收益、代价和失败信号。；回答顺序可用「现状问题 -> Prompt 方案动作 -> 验证结果」。
 
 ### 题目
 
@@ -7171,6 +7195,10 @@ tags: [ToolUse, Agent, 追问]
 parent: tools-agents
 generated: followup-script
 
+### 一句话
+
+先把目标和约束说清楚，再展开实现：这能避免把「Function Calling、Tool Use、Agent 前端需要关心什么」讲成只在理想输入下可用。；建议按「输入约束 -> ToolUse 执行链路 -> 结果验证」展开。
+
 ### 题目
 
 如果面试官追问：在「Function Calling、Tool Use、Agent 前端需要关心什么」场景下，围绕「Function Calling、Tool Use、Agent 前端需要关心什么」上线后幻觉风险，你会怎样设计产品侧与工程侧双重兜底？
@@ -7209,6 +7237,10 @@ difficulty: 资深
 tags: [ToolUse, Agent, 追问]
 parent: tools-agents
 generated: followup-script
+
+### 一句话
+
+先给可验证结论，再补证据链：面试官想确认你是否能把「Function Calling、Tool Use、Agent 前端需要关心什么」落到真实交付，而不是停在概念层。；回答顺序可用「现状问题 -> ToolUse 方案动作 -> 验证结果」。
 
 ### 题目
 
@@ -7249,6 +7281,10 @@ tags: [安全, PromptInjection, 追问]
 parent: prompt-injection
 generated: followup-script
 
+### 一句话
+
+验证要从可复现样例开始：准备正向、边界和失败用例，确认「AI 前端的提示注入与数据脱敏防御」不是只在理想输入下成立。；再补可观测指标：围绕「AI 前端的提示注入与数据脱敏防御」的安全边界应该能通过日志、耗时、错误率、命中率、覆盖率或用户行为指标观察到变化。。
+
 ### 题目
 
 如果面试官追问：在「AI 前端的提示注入与数据脱敏防御」场景下，如果要审计「AI 前端的提示注入与数据脱敏防御」在 安全 维度的安全性，你会用哪些证据证明方案不可轻易绕过？
@@ -7274,6 +7310,10 @@ difficulty: 进阶
 tags: [安全, PromptInjection, 追问]
 parent: prompt-injection
 generated: followup-script
+
+### 一句话
+
+先明确这道追问要解决的业务目标，再说明「AI 前端的提示注入与数据脱敏防御」在当前约束下为什么成立。；围绕「AI 前端的提示注入与数据脱敏防御」组织答案时，建议按「约束来源 -> 安全边界 关键决策 -> 验证闭环」展开。；不要只罗列工具名或 API。
 
 ### 题目
 
@@ -7314,6 +7354,10 @@ tags: [tool-call, agent, 流式, 追问]
 parent: function-calling-ui
 generated: followup-script
 
+### 一句话
+
+先说判断标准，再说执行路径：回答「Function Calling / Tool Use 在前端要怎么落地」时要能同时解释收益、代价和失败信号。。
+
 ### 题目
 
 如果面试官追问：在「Function Calling / Tool Use 在前端要怎么落地」场景下，你会怎样给「Function Calling / Tool Use 在前端要怎么落地」建立“输出异常 -> 降级策略 -> 人工介入”闭环？
@@ -7352,6 +7396,10 @@ difficulty: 资深
 tags: [tool-call, agent, 流式, 追问]
 parent: function-calling-ui
 generated: followup-script
+
+### 一句话
+
+先说判断标准，再说执行路径：回答「Function Calling / Tool Use 在前端要怎么落地」时要能同时解释收益、代价和失败信号。；可以按「问题背景 -> tool-call 机制 -> 取舍边界」回答。
 
 ### 题目
 
@@ -7392,6 +7440,10 @@ tags: [RAG, 向量, 检索, 追问]
 parent: rag-ui
 generated: followup-script
 
+### 一句话
+
+先把目标和约束说清楚，再展开实现：这能避免把「RAG 检索增强在前端的实现要点」讲成只在理想输入下可用。；围绕「RAG 检索增强在前端的实现要点」组织答案时，建议按「约束来源 -> RAG 关键决策 -> 验证闭环」展开。。
+
 ### 题目
 
 如果面试官追问：从工程落地角度看，在当前团队与业务约束下，模型输出不稳定或出现幻觉时，产品和工程上你会如何为「RAG 检索增强在前端的实现要点」分别兜底？
@@ -7431,6 +7483,10 @@ tags: [RAG, 向量, 检索, 追问]
 parent: rag-ui
 generated: followup-script
 
+### 一句话
+
+规模变大后先重新评估「RAG 检索增强在前端的实现要点」瓶颈：数据量、并发、团队协作、浏览器兼容和维护成本哪个先触顶。；如果「RAG 检索增强在前端的实现要点」对应的效果与风险收益被复杂度抵消，就要考虑分层、缓存、懒加载、批处理或更简单的替代方案。。
+
 ### 题目
 
 如果面试官追问：在「RAG 检索增强在前端的实现要点」场景里，你会如何围绕 RAG 定义“优先保准确”与“优先保时延”的切换条件？
@@ -7456,6 +7512,10 @@ difficulty: 资深
 tags: [多模态, 视觉, 语音, 追问]
 parent: multi-modal-ui
 generated: followup-script
+
+### 一句话
+
+规模变大后先重新评估「多模态交互（图像 / 音频 / 视频）前端怎么实现」瓶颈：数据量、并发、团队协作、浏览器兼容和维护成本哪个先触顶。；如果「多模态交互（图像 / 音频 / 视频）前端怎么实现」对应的复杂度和正确性收益被复杂度抵消。
 
 ### 题目
 
@@ -7483,6 +7543,10 @@ tags: [多模态, 视觉, 语音, 追问]
 parent: multi-modal-ui
 generated: followup-script
 
+### 一句话
+
+验证要从可复现样例开始：准备正向、边界和失败用例，确认「多模态交互（图像 / 音频 / 视频）前端怎么实现」不是只在理想输入下成立。。
+
 ### 题目
 
 如果面试官追问：结合真实业务约束，如果要让「多模态交互（图像 / 音频 / 视频）前端怎么实现」的正确性可复核，你会围绕 多模态 设计哪些验证步骤？
@@ -7509,6 +7573,10 @@ tags: [成本, 延迟, 缓存, 追问]
 parent: cost-latency-budget
 generated: followup-script
 
+### 一句话
+
+验证要从可复现样例开始：准备正向、边界和失败用例，确认「AI 应用前端怎么控制成本和首字延迟」不是只在理想输入下成立。；再补可观测指标：围绕「AI 应用前端怎么控制成本和首字延迟」的性能收益应该能通过日志、耗时、错误率、命中率、覆盖率或用户行为指标观察到变。
+
 ### 题目
 
 如果面试官追问：在当前团队与业务约束下，优化上线后，你会怎么用 成本 相关的真实用户信号，证明「AI 应用前端怎么控制成本和首字延迟」确实让体验变好了，而不只是实验室分数提升？
@@ -7534,6 +7602,10 @@ difficulty: 进阶
 tags: [成本, 延迟, 缓存, 追问]
 parent: cost-latency-budget
 generated: followup-script
+
+### 一句话
+
+先说判断标准，再说执行路径：回答「AI 应用前端怎么控制成本和首字延迟」时要能同时解释收益、代价和失败信号。；回答顺序可用「现状问题 -> 成本 方案动作 -> 验证结果」，并用「AI 应用前端怎么控制成本和首字延迟」举一条主链路说明。。
 
 ### 题目
 
@@ -7574,6 +7646,10 @@ tags: [评测, A/B, LLM-as-Judge, 追问]
 parent: ai-evaluation
 generated: followup-script
 
+### 一句话
+
+先把目标和约束说清楚，再展开实现：这能避免把「怎么评测一个 AI 前端功能的好坏」讲成只在理想输入下可用。；建议按「输入约束 -> 评测 执行链路 -> 结果验证」展开，并结合「怎么评测一个 AI 前端功能的好坏」给出一条可复核结果。
+
 ### 题目
 
 如果面试官追问：在当前团队与业务约束下，在当前团队与业务约束下，模型输出不稳定或出现幻觉时，产品和工程上你会如何为「怎么评测一个 AI 前端功能的好坏」分别兜底？
@@ -7612,6 +7688,10 @@ difficulty: 资深
 tags: [评测, A/B, LLM-as-Judge, 追问]
 parent: ai-evaluation
 generated: followup-script
+
+### 一句话
+
+先把目标和约束说清楚，再展开实现：这能避免把「怎么评测一个 AI 前端功能的好坏」讲成只在理想输入下可用。；建议按「输入约束 -> 评测 执行链路 -> 结果验证」展开，并结合「怎么评测一个 AI 前端功能的好坏」给出一条可复核结果。
 
 ### 题目
 
@@ -7652,6 +7732,10 @@ tags: [安全, 合规, 审核, 追问]
 parent: ai-moderation
 generated: followup-script
 
+### 一句话
+
+先给可验证结论，再补证据链：面试官想确认你是否能把「模型输出内容审核与合规怎么做」落到真实交付，而不是停在概念层。；回答顺序可用「现状问题 -> 安全边界 方案动作 -> 验证结果」，并用「模型输出内容审核与合规怎么做」举一条主链路说明。。
+
 ### 题目
 
 如果面试官追问：结合真实业务约束，在当前团队与业务约束下，当「模型输出内容审核与合规怎么做」出现高幻觉率时，你会如何同步调整产品策略和工程防护措施？
@@ -7691,6 +7775,10 @@ tags: [安全, 合规, 审核, 追问]
 parent: ai-moderation
 generated: followup-script
 
+### 一句话
+
+先画清「模型输出内容审核与合规怎么做」信任边界：哪些输入来自用户、第三方或模型，哪些校验必须在服务端完成。；证明「模型输出内容审核与合规怎么做」没有被绕过要靠攻击样例、审计日志、告警阈值和最小权限，而不是只说前端做了过滤。。
+
 ### 题目
 
 如果面试官追问：以「模型输出内容审核与合规怎么做」为例，在「模型输出内容审核与合规怎么做」场景里，你会如何围绕 安全 定义“优先保准确”与“优先保时延”的切换条件？
@@ -7716,6 +7804,10 @@ difficulty: 进阶
 tags: [Copilot, 编辑器, UX, 追问]
 parent: ai-form-copilot
 generated: followup-script
+
+### 一句话
+
+先给可验证结论，再补证据链：面试官想确认你是否能把「AI Copilot 嵌入表单 / 编辑器的体验设计」落到真实交付，而不是停在概念层。；讲「AI Copilot 嵌入表单 / 编辑器的体验设计」时先给 Copilot 的判断口径。
 
 ### 题目
 
@@ -7756,6 +7848,10 @@ tags: [Copilot, 编辑器, UX, 追问]
 parent: ai-form-copilot
 generated: followup-script
 
+### 一句话
+
+先把目标和约束说清楚，再展开实现：这能避免把「AI Copilot 嵌入表单 / 编辑器的体验设计」讲成只在理想输入下可用。；回答结构可按「触发条件 -> Copilot 机制 -> 风险兜底」展开。
+
 ### 题目
 
 如果面试官追问：在当前团队与业务约束下，从工程落地角度看，如果延迟、成本和准确率不能同时满足，你会如何为「AI Copilot 嵌入表单 / 编辑器的体验设计」设计路由或降级？
@@ -7795,6 +7891,10 @@ tags: [可观测, trace, 成本, 追问]
 parent: ai-observability
 generated: followup-script
 
+### 一句话
+
+推动「AI 应用的可观测性怎么做？要采哪些字段」落地时先收敛改动面：选低风险页面或模块试点，保留旧路径作为对照。；「AI 应用的可观测性怎么做？要采哪些字段」迁移计划要说明数据兼容、配置开关、监控指标和失败后的恢复路径。；团队推进重点不是一次性重写。
+
 ### 题目
 
 如果面试官追问：以「AI 应用的可观测性怎么做？要采哪些字段」为例，面对团队能力差异，你会如何围绕 可观测 把「AI 应用的可观测性怎么做？要采哪些字段」拆成可并行推进的小阶段？
@@ -7821,6 +7921,10 @@ tags: [可观测, trace, 成本, 追问]
 parent: ai-observability
 generated: followup-script
 
+### 一句话
+
+规模变大后先重新评估「AI 应用的可观测性怎么做？要采哪些字段」瓶颈：数据量、并发、团队协作、浏览器兼容和维护成本哪个先触顶。；如果「AI 应用的可观测性怎么做？要采哪些字段」对应的工程可维护性收益被复杂度抵消。
+
 ### 题目
 
 如果面试官追问：以「AI 应用的可观测性怎么做？要采哪些字段」为例，半年后要做去留决策时，你会拿哪些数据判断「AI 应用的可观测性怎么做？要采哪些字段」还值不值得继续维护？
@@ -7846,6 +7950,10 @@ difficulty: 进阶
 tags: [AI, Prompt, 追问]
 parent: ai-prompt-engineering-front
 generated: followup-script
+
+### 一句话
+
+先把目标和约束说清楚，再展开实现：这能避免把「前端开发者怎么用 Prompt Engineering 提升 AI 协作效果」讲成只在理想输入下可用。；回答结构可按「触发条件 -> AI 应用链路 机制 -> 风险兜底」展开。
 
 ### 题目
 
@@ -7886,6 +7994,10 @@ tags: [AI, Prompt, 追问]
 parent: ai-prompt-engineering-front
 generated: followup-script
 
+### 一句话
+
+先说判断标准，再说执行路径：回答「前端开发者怎么用 Prompt Engineering 提升 AI 协作效果」时要能同时解释收益、代价和失败信号。。
+
 ### 题目
 
 如果面试官追问：以「前端开发者怎么用 Prompt Engineering 提升 AI 协作效果」为例，在「前端开发者怎么用 Prompt Engineering 提升 AI 协作效果」场景里，你会如何定义“优先保准确”与“优先保时延”的切换条件？
@@ -7924,6 +8036,10 @@ difficulty: 基础
 tags: [Token, 计费, 追问]
 parent: llm-token-and-pricing
 generated: followup-script
+
+### 一句话
+
+先把目标和约束说清楚，再展开实现：这能避免把「Token 是什么？前端为什么必须懂 token 计费」讲成只在理想输入下可用。；回答结构可按「触发条件 -> Token 机制 -> 风险兜底」展开。
 
 ### 题目
 
@@ -7964,6 +8080,10 @@ tags: [Token, 计费, 追问]
 parent: llm-token-and-pricing
 generated: followup-script
 
+### 一句话
+
+先把目标和约束说清楚，再展开实现：这能避免把「Token 是什么？前端为什么必须懂 token 计费」讲成只在理想输入下可用。；围绕「Token 是什么？前端为什么必须懂 token 计费」组织答案时。
+
 ### 题目
 
 如果面试官追问：从工程落地角度看，长上下文模型为什么收费比短上下文还贵？
@@ -8001,6 +8121,10 @@ difficulty: 基础
 tags: [Sampling, 参数, 追问]
 parent: llm-temperature-topp-sampling
 generated: followup-script
+
+### 一句话
+
+先明确这道追问要解决的业务目标，再说明「Temperature、Top-p、Stop sequence 这些采样参数到底改的」在当前约束下为什么成立。；围绕「Temperature、Top-p、Stop sequence 这些采样参数到底改的」组织答案时。
 
 ### 题目
 
@@ -8041,6 +8165,10 @@ tags: [Sampling, 参数, 追问]
 parent: llm-temperature-topp-sampling
 generated: followup-script
 
+### 一句话
+
+先明确这道追问要解决的业务目标，再说明「Temperature、Top-p、Stop sequence 这些采样参数到底改的」在当前约束下为什么成立。；围绕「Temperature、Top-p、Stop sequence 这些采样参数到底改的」组织答案时。
+
 ### 题目
 
 如果面试官追问：结合真实业务约束，temperature 高时如何防止跑偏？
@@ -8080,6 +8208,10 @@ tags: [上下文, 窗口, 追问]
 parent: llm-context-window-and-truncation
 generated: followup-script
 
+### 一句话
+
+先说判断标准，再说执行路径：回答「上下文窗口与截断策略」时要能同时解释收益、代价和失败信号。；可以按「问题背景 -> 上下文 机制 -> 取舍边界」回答，再用「上下文窗口与截断策略」补一个反例，避免停在口号层。；如果涉及「上下文窗口与截断策略」的技术细节。
+
 ### 题目
 
 如果面试官追问：在「上下文窗口与截断策略」场景下，怎么权衡历史与最新一句话的权重？
@@ -8118,6 +8250,10 @@ tags: [上下文, 窗口, 追问]
 parent: llm-context-window-and-truncation
 generated: followup-script
 
+### 一句话
+
+先明确这道追问要解决的业务目标，再说明「上下文窗口与截断策略」在当前约束下为什么成立。；回答结构可按「触发条件 -> 上下文 机制 -> 风险兜底」展开，并以「上下文窗口与截断策略」补一条失败场景，能体现工程拆解能力。；不要只罗列工具名或 API。
+
 ### 题目
 
 如果面试官追问：从工程落地角度看，何时该把对话切成多个独立 session？
@@ -8154,6 +8290,10 @@ difficulty: 基础
 tags: [模型形态, 追问]
 parent: llm-modes-chat-vs-completion-vs-reasoning
 generated: followup-script
+
+### 一句话
+
+先明确这道追问要解决的业务目标，再说明「Chat / Completion / Reasoning 三种模型形态」在当前约束下为什么成立。；建议按「输入约束 -> 模型形态 执行链路 -> 结果验证」展开。
 
 ### 题目
 
@@ -8194,6 +8334,10 @@ tags: [模型形态, 追问]
 parent: llm-modes-chat-vs-completion-vs-reasoning
 generated: followup-script
 
+### 一句话
+
+先明确这道追问要解决的业务目标，再说明「Chat / Completion / Reasoning 三种模型形态」在当前约束下为什么成立。；建议按「输入约束 -> 模型形态 执行链路 -> 结果验证」展开。
+
 ### 题目
 
 如果面试官追问：怎么判断当前任务该不该用 reasoning？
@@ -8232,6 +8376,10 @@ difficulty: 进阶
 tags: [可靠性, 重试, 追问]
 parent: llm-retry-and-backoff
 generated: followup-script
+
+### 一句话
+
+先说判断标准，再说执行路径：回答「调用失败的重试与退避策略」时要能同时解释收益、代价和失败信号。；可以按「问题背景 -> 可靠性 机制 -> 取舍边界」回答，再用「调用失败的重试与退避策略」补一个反例，避免停在口号层。。
 
 ### 题目
 
@@ -8272,6 +8420,10 @@ tags: [可靠性, 重试, 追问]
 parent: llm-retry-and-backoff
 generated: followup-script
 
+### 一句话
+
+先说判断标准，再说执行路径：回答「调用失败的重试与退避策略」时要能同时解释收益、代价和失败信号。；讲「调用失败的重试与退避策略」时先给 可靠性 的判断口径，再补执行动作和回退条件，会更像真实评审发言。；如果涉及「调用失败的重试与退避策略」的技术细节。
+
 ### 题目
 
 如果面试官追问：在「调用失败的重试与退避策略」场景下，怎么区分"模型超时"和"用户网络慢"？
@@ -8311,6 +8463,10 @@ tags: [限流, 配额, 追问]
 parent: llm-rate-limit-and-quota
 generated: followup-script
 
+### 一句话
+
+先给可验证结论，再补证据链：面试官想确认你是否能把「客户端怎么处理限流和配额」落到真实交付，而不是停在概念层。；回答顺序可用「现状问题 -> 限流 方案动作 -> 验证结果」，并用「客户端怎么处理限流和配额」举一条主链路说明。。
+
 ### 题目
 
 如果面试官追问：从工程落地角度看，怎么把"配额"做成产品功能（免费 vs 订阅）？
@@ -8347,6 +8503,10 @@ difficulty: 进阶
 tags: [限流, 配额, 追问]
 parent: llm-rate-limit-and-quota
 generated: followup-script
+
+### 一句话
+
+先说判断标准，再说执行路径：回答「客户端怎么处理限流和配额」时要能同时解释收益、代价和失败信号。；讲「客户端怎么处理限流和配额」时先给 限流 的判断口径，再补执行动作和回退条件，会更像真实评审发言。；如果涉及「客户端怎么处理限流和配额」的技术细节。
 
 ### 题目
 
@@ -8385,6 +8545,10 @@ difficulty: 进阶
 tags: [流式, 中断, 追问]
 parent: llm-streaming-cancel-and-resume
 generated: followup-script
+
+### 一句话
+
+先说判断标准，再说执行路径：回答「流式输出的中断与续写」时要能同时解释收益、代价和失败信号。；可以按「问题背景 -> 流式 机制 -> 取舍边界」回答，再用「流式输出的中断与续写」补一个反例，避免停在口号层。；如果涉及「流式输出的中断与续写」的技术细节。
 
 ### 题目
 
@@ -8425,6 +8589,10 @@ tags: [流式, 中断, 追问]
 parent: llm-streaming-cancel-and-resume
 generated: followup-script
 
+### 一句话
+
+先说判断标准，再说执行路径：回答「流式输出的中断与续写」时要能同时解释收益、代价和失败信号。；讲「流式输出的中断与续写」时先给 流式 的判断口径，再补执行动作和回退条件，会更像真实评审发言。；如果涉及「流式输出的中断与续写」的技术细节。
+
 ### 题目
 
 如果面试官追问：在「流式输出的中断与续写」场景下，续写时怎么避免和原文风格不一致？
@@ -8464,6 +8632,10 @@ tags: [记忆, 多轮, 追问]
 parent: llm-multi-turn-memory-pattern
 generated: followup-script
 
+### 一句话
+
+先说判断标准，再说执行路径：回答「多轮对话的记忆模式：滑窗 / 摘要 / Memory Bank」时要能同时解释收益、代价和失败信号。；讲「多轮对话的记忆模式：滑窗 / 摘要 / Memory Bank」时先给 记忆 的判断口径，再补执行动作和回退条件。
+
 ### 题目
 
 如果面试官追问：结合真实业务约束，摘要本身会丢信息，怎么取舍？
@@ -8501,6 +8673,10 @@ difficulty: 进阶
 tags: [记忆, 多轮, 追问]
 parent: llm-multi-turn-memory-pattern
 generated: followup-script
+
+### 一句话
+
+先说判断标准，再说执行路径：回答「多轮对话的记忆模式：滑窗 / 摘要 / Memory Bank」时要能同时解释收益、代价和失败信号。；讲「多轮对话的记忆模式：滑窗 / 摘要 / Memory Bank」时先给 记忆 的判断口径，再补执行动作和回退条件。
 
 ### 题目
 
@@ -8541,6 +8717,10 @@ tags: [流式, Tool, 追问]
 parent: llm-output-streaming-with-tools
 generated: followup-script
 
+### 一句话
+
+先把目标和约束说清楚，再展开实现：这能避免把「流式 + 工具调用怎么协同：边讲边查、边查边讲」讲成只在理想输入下可用。；回答结构可按「触发条件 -> 流式 机制 -> 风险兜底」展开，并以「流式 + 工具调用怎么协同：边讲边查、边查边讲」补一条失败场景。
+
 ### 题目
 
 如果面试官追问：从工程落地角度看，工具执行很慢，怎么让用户看到进度？
@@ -8579,6 +8759,10 @@ difficulty: 资深
 tags: [流式, Tool, 追问]
 parent: llm-output-streaming-with-tools
 generated: followup-script
+
+### 一句话
+
+先给可验证结论，再补证据链：面试官想确认你是否能把「流式 + 工具调用怎么协同：边讲边查、边查边讲」落到真实交付，而不是停在概念层。；可以按「问题背景 -> 流式 机制 -> 取舍边界」回答。
 
 ### 题目
 
@@ -8619,6 +8803,10 @@ tags: [UI, 状态机, 追问]
 parent: llm-streaming-ui-state-machine
 generated: followup-script
 
+### 一句话
+
+先明确这道追问要解决的业务目标，再说明「流式聊天的 UI 状态机」在当前约束下为什么成立。；建议按「输入约束 -> UI 执行链路 -> 结果验证」展开，并结合「流式聊天的 UI 状态机」给出一条可复核结果，能更快体现你对复杂场景的掌控力。。
+
 ### 题目
 
 如果面试官追问：在当前团队与业务约束下，多 tab 共享同一个对话 stream 怎么协调？
@@ -8657,6 +8845,10 @@ difficulty: 资深
 tags: [UI, 状态机, 追问]
 parent: llm-streaming-ui-state-machine
 generated: followup-script
+
+### 一句话
+
+先给可验证结论，再补证据链：面试官想确认你是否能把「流式聊天的 UI 状态机」落到真实交付，而不是停在概念层。；回答顺序可用「现状问题 -> UI 方案动作 -> 验证结果」，并用「流式聊天的 UI 状态机」举一条主链路说明。。
 
 ### 题目
 
@@ -8697,6 +8889,10 @@ tags: [AI, MCP, ToolUse, Agent, 追问]
 parent: mcp-ai-tool-protocol
 generated: followup-script
 
+### 一句话
+
+先给可验证结论，再补证据链：面试官想确认你是否能把「MCP 这类工具协议对 AI 前端架构意味着什么」落到真实交付，而不是停在概念层。；回答顺序可用「现状问题 -> AI 应用链路 方案动作 -> 验证结果」。
+
 ### 题目
 
 如果面试官追问：结合真实业务约束，MCP Server、工具调用和资源读取在权限上应如何分层？
@@ -8735,6 +8931,10 @@ difficulty: 资深
 tags: [AI, MCP, ToolUse, Agent, 追问]
 parent: mcp-ai-tool-protocol
 generated: followup-script
+
+### 一句话
+
+先把目标和约束说清楚，再展开实现：这能避免把「MCP 这类工具协议对 AI 前端架构意味着什么」讲成只在理想输入下可用。；建议按「输入约束 -> AI 应用链路 执行链路 -> 结果验证」展开。
 
 ### 题目
 
@@ -8775,6 +8975,10 @@ tags: [AI, MCP, ToolUse, Agent, 追问]
 parent: mcp-ai-tool-protocol
 generated: followup-script
 
+### 一句话
+
+先说判断标准，再说执行路径：回答「MCP 这类工具协议对 AI 前端架构意味着什么」时要能同时解释收益、代价和失败信号。；可以按「问题背景 -> AI 应用链路 机制 -> 取舍边界」回答。
+
 ### 题目
 
 如果面试官追问：高危工具调用失败一半时，产品和工程分别怎么兜底？
@@ -8813,6 +9017,10 @@ difficulty: 资深
 tags: [AI, WebNN, WebGPU, WASM, 追问]
 parent: browser-side-ai-webnn-webgpu
 generated: followup-script
+
+### 一句话
+
+先说判断标准，再说执行路径：回答「浏览器端 AI 推理：WebNN、WebGPU、WASM 怎么选」时要能同时解释收益、代价和失败信号。；回答顺序可用「现状问题 -> AI 应用链路 方案动作 -> 验证结果」。
 
 ### 题目
 
@@ -8853,6 +9061,10 @@ tags: [AI, WebNN, WebGPU, WASM, 追问]
 parent: browser-side-ai-webnn-webgpu
 generated: followup-script
 
+### 一句话
+
+先给可验证结论，再补证据链：面试官想确认你是否能把「浏览器端 AI 推理：WebNN、WebGPU、WASM 怎么选」落到真实交付，而不是停在概念层。；回答顺序可用「现状问题 -> AI 应用链路 方案动作 -> 验证结果」。
+
 ### 题目
 
 如果面试官追问：从工程落地角度看，WebNN 和 WebGPU 的抽象层级差异会怎样影响调试和兼容？
@@ -8891,6 +9103,10 @@ difficulty: 资深
 tags: [AI, WebNN, WebGPU, WASM, 追问]
 parent: browser-side-ai-webnn-webgpu
 generated: followup-script
+
+### 一句话
+
+先把目标和约束说清楚，再展开实现：这能避免把「浏览器端 AI 推理：WebNN、WebGPU、WASM 怎么选」讲成只在理想输入下可用。；建议按「输入约束 -> AI 应用链路 执行链路 -> 结果验证」展开。
 
 ### 题目
 
@@ -8931,6 +9147,10 @@ tags: [本地模型, 隐私, 追问]
 parent: local-model-privacy
 generated: followup-script
 
+### 一句话
+
+先给可验证结论，再补证据链：面试官想确认你是否能把「本地模型、Worker 推理与隐私边界」落到真实交付，而不是停在概念层。；回答顺序可用「现状问题 -> 本地模型 方案动作 -> 验证结果」。
+
 ### 题目
 
 如果面试官追问：在「本地模型、Worker 推理与隐私边界」场景下，如果要向团队复盘 本地模型 相关优化，你会展示哪些关键日志和指标来支撑结论？
@@ -8970,6 +9190,10 @@ tags: [本地模型, 隐私, 追问]
 parent: local-model-privacy
 generated: followup-script
 
+### 一句话
+
+规模变大后先重新评估「本地模型、Worker 推理与隐私边界」瓶颈：数据量、并发、团队协作、浏览器兼容和维护成本哪个先触顶。；如果「本地模型、Worker 推理与隐私边界」对应的核心机制收益被复杂度抵消。
+
 ### 题目
 
 如果面试官追问：以「本地模型、Worker 推理与隐私边界」为例，面对规模与资源变化并存时，你会如何围绕 本地模型 调整「本地模型、Worker 推理与隐私边界」的推进顺序？
@@ -8995,6 +9219,10 @@ difficulty: 进阶
 tags: [上下文, token, 对话, 追问]
 parent: chat-history-context
 generated: followup-script
+
+### 一句话
+
+先明确这道追问要解决的业务目标，再说明「多轮对话上下文窗口怎么管理？为什么不能一直堆历史」在当前约束下为什么成立。；回答结构可按「触发条件 -> 上下文 机制 -> 风险兜底」展开，并以「多轮对话上下文窗口怎么管理？为什么不能一直堆历史」补一条失败场景。
 
 ### 题目
 
@@ -9034,6 +9262,10 @@ difficulty: 进阶
 tags: [上下文, token, 对话, 追问]
 parent: chat-history-context
 generated: followup-script
+
+### 一句话
+
+规模变大后先重新评估「多轮对话上下文窗口怎么管理？为什么不能一直堆历史」瓶颈：数据量、并发、团队协作、浏览器兼容和维护成本哪个先触顶。；如果「多轮对话上下文窗口怎么管理？为什么不能一直堆历史」对应的核心机制收益被复杂度抵消。
 
 ### 题目
 
@@ -9199,6 +9431,10 @@ tags: [事故响应, 回滚, 护栏, 追问]
 parent: llm-kill-switch-safe-mode
 generated: followup-script
 
+### 一句话
+
+推动「AI 功能事故止损：Kill Switch 与 Safe Mode 如何设计」落地时先收敛改动面：选低风险页面或模块试点，保留旧路径作为对照。。
+
 ### 题目
 
 如果面试官追问：结合真实业务约束，真要把「AI 功能事故止损：Kill Switch 与 Safe Mode 如何设计」推到线上，你会如何围绕 事故响应 设计灰度节奏、回滚条件和迁移路径？
@@ -9224,6 +9460,10 @@ difficulty: 资深
 tags: [事故响应, 回滚, 护栏, 追问]
 parent: llm-kill-switch-safe-mode
 generated: followup-script
+
+### 一句话
+
+先把目标和约束说清楚，再展开实现：这能避免把「AI 功能事故止损：Kill Switch 与 Safe Mode 如何设计」讲成只在理想输入下可用。；建议按「输入约束 -> 事故响应 执行链路 -> 结果验证」展开。
 
 ### 题目
 
@@ -9264,6 +9504,10 @@ tags: [事故响应, 回滚, 护栏, 追问]
 parent: llm-kill-switch-safe-mode
 generated: followup-script
 
+### 一句话
+
+验证要从可复现样例开始：准备正向、边界和失败用例，确认「AI 功能事故止损：Kill Switch 与 Safe Mode 如何设计」不是只在理想输入下成立。。
+
 ### 题目
 
 如果面试官追问：在「AI 功能事故止损：Kill Switch 与 Safe Mode 如何设计」场景下，如果团队要评估「AI 功能事故止损：Kill Switch 与 Safe Mode 如何设计」的长期维护价值，你会优先看哪些指标再下结论？
@@ -9289,6 +9533,10 @@ difficulty: 资深
 tags: [人工兜底, 运营策略, 体验, 追问]
 parent: llm-human-handoff-policy
 generated: followup-script
+
+### 一句话
+
+先给可验证结论，再补证据链：面试官想确认你是否能把「AI 人工接管策略：何时转人工、如何保证体验连续」落到真实交付，而不是停在概念层。；讲「AI 人工接管策略：何时转人工、如何保证体验连续」时先给 人工兜底 的判断口径，再补执行动作和回退条件。
 
 ### 题目
 
@@ -9329,6 +9577,10 @@ tags: [人工兜底, 运营策略, 体验, 追问]
 parent: llm-human-handoff-policy
 generated: followup-script
 
+### 一句话
+
+先明确这道追问要解决的业务目标，再说明「AI 人工接管策略：何时转人工、如何保证体验连续」在当前约束下为什么成立。；围绕「AI 人工接管策略：何时转人工、如何保证体验连续」组织答案时，建议按「约束来源 -> 人工兜底 关键决策 -> 验证闭环」展开。。
+
 ### 题目
 
 如果面试官追问：如果要让结论在 人工兜底 上可复核，你会怎样安排测试、日志和指标的组合验证？
@@ -9367,6 +9619,10 @@ difficulty: 资深
 tags: [人工兜底, 运营策略, 体验, 追问]
 parent: llm-human-handoff-policy
 generated: followup-script
+
+### 一句话
+
+规模变大后先重新评估「AI 人工接管策略：何时转人工、如何保证体验连续」瓶颈：数据量、并发、团队协作、浏览器兼容和维护成本哪个先触顶。；如果「AI 人工接管策略：何时转人工、如何保证体验连续」对应的核心机制收益被复杂度抵消。
 
 ### 题目
 
@@ -9538,6 +9794,10 @@ tags: [AI上线, 评测, 风险治理, 追问]
 parent: llm-launch-readiness-gate
 generated: followup-script
 
+### 一句话
+
+先给可验证结论，再补证据链：面试官想确认你是否能把「AI 上线就绪闸门：效果、成本、安全三线联合准入」落到真实交付，而不是停在概念层。；回答顺序可用「现状问题 -> AI上线 方案动作 -> 验证结果」。
+
 ### 题目
 
 如果面试官追问：结合真实业务约束，你会如何识别「AI 上线就绪闸门：效果、成本、安全三线联合准入」在真实流量下最容易失效的输入与环境约束？
@@ -9576,6 +9836,10 @@ difficulty: 资深
 tags: [AI上线, 评测, 风险治理, 追问]
 parent: llm-launch-readiness-gate
 generated: followup-script
+
+### 一句话
+
+先明确这道追问要解决的业务目标，再说明「AI 上线就绪闸门：效果、成本、安全三线联合准入」在当前约束下为什么成立。；围绕「AI 上线就绪闸门：效果、成本、安全三线联合准入」组织答案时，建议按「约束来源 -> AI上线 关键决策 -> 验证闭环」展开。。
 
 ### 题目
 
@@ -9616,6 +9880,10 @@ tags: [AI上线, 评测, 风险治理, 追问]
 parent: llm-launch-readiness-gate
 generated: followup-script
 
+### 一句话
+
+先明确这道追问要解决的业务目标，再说明「AI 上线就绪闸门：效果、成本、安全三线联合准入」在当前约束下为什么成立。；回答结构可按「触发条件 -> AI上线 机制 -> 风险兜底」展开，并以「AI 上线就绪闸门：效果、成本、安全三线联合准入」补一条失败场景。
+
 ### 题目
 
 如果面试官追问：以「AI 上线就绪闸门：效果、成本、安全三线联合准入」为例，遇到约束变化时，你会如何围绕 AI上线 拆分方案演进路径，而不是一次性推翻重来？
@@ -9655,6 +9923,10 @@ tags: [在线评测, 漂移, 止损, 追问]
 parent: llm-online-drift-stoploss
 generated: followup-script
 
+### 一句话
+
+先界定「AI 在线漂移止损编排：异常检测、降级策略与恢复判据」的适用条件，再说明哪些输入、运行环境或团队约束会让默认方案失效。；围绕「AI 在线漂移止损编排：异常检测、降级策略与恢复判据」的核心机制展开：正常路径要能讲清楚。
+
 ### 题目
 
 如果面试官追问：以「AI 在线漂移止损编排：异常检测、降级策略与恢复判据」为例，面对真实流量和复杂依赖时，「AI 在线漂移止损编排：异常检测、降级策略与恢复判据」最可能被哪些 在线评测 边界条件击穿？
@@ -9680,6 +9952,10 @@ difficulty: 资深
 tags: [在线评测, 漂移, 止损, 追问]
 parent: llm-online-drift-stoploss
 generated: followup-script
+
+### 一句话
+
+先说判断标准，再说执行路径：回答「AI 在线漂移止损编排：异常检测、降级策略与恢复判据」时要能同时解释收益、代价和失败信号。；讲「AI 在线漂移止损编排：异常检测、降级策略与恢复判据」时先给 在线评测 的判断口径，再补执行动作和回退条件。
 
 ### 题目
 
@@ -9719,6 +9995,10 @@ difficulty: 资深
 tags: [在线评测, 漂移, 止损, 追问]
 parent: llm-online-drift-stoploss
 generated: followup-script
+
+### 一句话
+
+先明确这道追问要解决的业务目标，再说明「AI 在线漂移止损编排：异常检测、降级策略与恢复判据」在当前约束下为什么成立。；回答结构可按「触发条件 -> 在线评测 机制 -> 风险兜底」展开。
 
 ### 题目
 

@@ -26,7 +26,11 @@ const isDark = computed(() => {
 <template>
   <header class="hdr">
     <div class="left">
-      <button class="btn-ghost menu-btn" aria-label="菜单" @click="$emit('toggle-sidebar')">
+      <button
+        class="btn btn-ghost btn-icon menu-btn"
+        aria-label="菜单"
+        @click="$emit('toggle-sidebar')"
+      >
         <AppIcon name="list" />
       </button>
       <button class="brand" @click="router.push('/')">
@@ -74,7 +78,7 @@ const isDark = computed(() => {
         <AppIcon name="star" /><span class="lbl">收藏</span>
       </button>
       <button
-        class="btn btn-ghost compact-hide"
+        class="btn btn-ghost btn-icon compact-hide"
         title="路线图"
         aria-label="路线图"
         @click="router.push('/roadmap')"
@@ -82,7 +86,7 @@ const isDark = computed(() => {
         <AppIcon name="compass" />
       </button>
       <button
-        class="btn btn-ghost compact-hide"
+        class="btn btn-ghost btn-icon compact-hide"
         title="面试技巧"
         aria-label="面试技巧"
         @click="router.push('/interview-guide')"
@@ -90,7 +94,7 @@ const isDark = computed(() => {
         <AppIcon name="fileText" />
       </button>
       <button
-        class="btn btn-ghost compact-hide"
+        class="btn btn-ghost btn-icon compact-hide"
         title="题目关系图谱"
         aria-label="题目关系图谱"
         @click="router.push('/graph')"
@@ -98,7 +102,7 @@ const isDark = computed(() => {
         <AppIcon name="deployment" />
       </button>
       <button
-        class="btn btn-ghost"
+        class="btn btn-ghost btn-icon"
         title="切换主题"
         aria-label="切换主题"
         @click="settings.toggleTheme()"
@@ -106,7 +110,7 @@ const isDark = computed(() => {
         <AppIcon :name="isDark ? 'moon' : 'sun'" />
       </button>
       <button
-        class="btn btn-ghost"
+        class="btn btn-ghost btn-icon"
         title="设置"
         aria-label="设置"
         @click="router.push('/settings')"
@@ -114,7 +118,7 @@ const isDark = computed(() => {
         <AppIcon name="setting" />
       </button>
       <button
-        class="btn btn-ghost compact-hide"
+        class="btn btn-ghost btn-icon compact-hide"
         title="快捷键 (?)"
         aria-label="快捷键"
         @click="$emit('open-help')"

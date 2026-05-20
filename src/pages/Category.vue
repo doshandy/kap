@@ -89,7 +89,7 @@ const filtered = computed(() => {
 
 <template>
   <div v-if="cat" class="cat-page">
-    <header class="hd">
+    <header class="hd card">
       <h1>
         <span class="icon">{{ cat.icon }}</span>
         {{ cat.title }}
@@ -119,24 +119,47 @@ const filtered = computed(() => {
   max-width: 980px;
   margin: 0 auto;
 }
+.hd {
+  padding: 16px 18px;
+  margin-bottom: 12px;
+  border: 1px solid var(--c-border);
+  background:
+    linear-gradient(180deg, color-mix(in srgb, var(--c-primary) 10%, transparent), transparent 64%),
+    var(--c-surface);
+  box-shadow: var(--c-shadow-sm);
+}
 .hd h1 {
   font-size: 22px;
   display: flex;
   align-items: center;
   gap: 10px;
+  margin: 0;
 }
 .icon {
   font-size: 24px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  background: color-mix(in srgb, var(--c-primary) 14%, transparent);
 }
 .count {
-  font-size: 13px;
-  color: var(--c-text-mute);
-  font-weight: 400;
+  margin-left: auto;
+  padding: 4px 10px;
+  border-radius: 999px;
+  border: 1px solid color-mix(in srgb, var(--c-primary) 35%, var(--c-border));
+  background: color-mix(in srgb, var(--c-primary) 10%, transparent);
+  font-size: 12px;
+  color: var(--c-primary);
+  font-weight: 700;
 }
 .desc {
-  margin: 6px 0;
+  margin: 8px 0 6px;
   color: var(--c-text-soft);
   font-size: 13px;
+  line-height: 1.65;
 }
 .muted {
   margin: 0;
@@ -144,9 +167,13 @@ const filtered = computed(() => {
   font-size: 12px;
 }
 .empty {
-  padding: 40px;
+  padding: 28px 18px;
   text-align: center;
   color: var(--c-text-mute);
+  border: 1px dashed var(--c-border);
+  border-radius: var(--radius);
+  background: var(--c-bg-soft);
+  margin-top: 10px;
 }
 .empty p {
   margin: 0;

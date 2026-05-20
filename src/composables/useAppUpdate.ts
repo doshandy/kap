@@ -41,6 +41,9 @@ export function scopeMatchesAppBase(scope: string, appBase = APP_BASE): boolean 
 
 async function ensureRegistered() {
   if (registered) return;
+  // dev 下 vite-plugin-pwa 不一定提供 virtual:pwa-register，
+  // 强行 import 会产生 500 噪音日志；仅在生产环境注册即可。
+  if (import.meta.env.DEV) return;
   registered = true;
   try {
     const mod = await import('virtual:pwa-register');

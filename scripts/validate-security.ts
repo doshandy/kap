@@ -5,6 +5,7 @@ import {
   extractMetaHttpEquiv,
   extractMetaName,
   extractNetlifyHeader,
+  normalizeCspForMetaComparison,
   REQUIRED_KEYS,
   type SecurityKey,
   validateCspPolicy,
@@ -18,6 +19,11 @@ const NETLIFY_TOML = join(ROOT, 'netlify.toml');
 
 const errors: string[] = [];
 const warnings: string[] = [];
+
+function valuesMatch(key: SecurityKey, headerValue: string, metaValue: string): boolean {
+  if (key !== 'Content-Security-Policy') return headerValue === metaValue;
+  return normalizeCspForMetaComparison(headerValue) === normalizeCspForMetaComparison(metaValue);
+}
 
 if (!existsSync(HEADER_FILE)) {
   errors.push('缺少 public/_headers，无法校验响应头级安全策略。');
@@ -44,7 +50,7 @@ if (!existsSync(HEADER_FILE)) {
         errors.push(`index.html 缺少 ${key} 的 meta 兜底配置`);
         continue;
       }
-      if (headerMap[key] !== expected[key]) {
+      if (!valuesMatch(key, headerMap[key], expected[key])) {
         errors.push(`index.html 的 ${key} 与 public/_headers 不一致`);
       }
     }
@@ -73,7 +79,7 @@ if (!existsSync(HEADER_FILE)) {
         errors.push(`public/404.html 缺少 ${key} 的 meta 兜底配置`);
         continue;
       }
-      if (headerMap[key] !== expected[key]) {
+      if (!valuesMatch(key, headerMap[key], expected[key])) {
         errors.push(`public/404.html 的 ${key} 与 public/_headers 不一致`);
       }
     }

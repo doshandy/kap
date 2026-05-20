@@ -1995,6 +1995,10 @@ tags: [React, Vue, 框架, 追问]
 parent: react-vs-vue-mental-model
 generated: followup-script
 
+### 一句话
+
+先说判断标准，再说执行路径：回答「React 和 Vue 的心智模型本质差异」时要能同时解释收益、代价和失败信号。；可以按「问题背景 -> React 机制 -> 取舍边界」回答，再用「React 和 Vue 的心智模型本质差异」补一个反例。
+
 ### 题目
 
 如果面试官追问：在当前团队与业务约束下，你会如何把「React 和 Vue 的心智模型本质差异」拆成可观测、可回滚的小单元，避免一次性大改？
@@ -2033,6 +2037,10 @@ difficulty: 进阶
 tags: [React, Vue, 框架, 追问]
 parent: react-vs-vue-mental-model
 generated: followup-script
+
+### 一句话
+
+先给可验证结论，再补证据链：面试官想确认你是否能把「React 和 Vue 的心智模型本质差异」落到真实交付，而不是停在概念层。；可以按「问题背景 -> React 机制 -> 取舍边界」回答，再用「React 和 Vue 的心智模型本质差异」补一个反例。
 
 ### 题目
 
@@ -2073,6 +2081,10 @@ tags: [Hooks, 原理, 追问]
 parent: react-hooks-rules
 generated: followup-script
 
+### 一句话
+
+先明确这道追问要解决的业务目标，再说明「Hooks 的核心规则与原理」在当前约束下为什么成立。；围绕「Hooks 的核心规则与原理」组织答案时，建议按「约束来源 -> Hooks 关键决策 -> 验证闭环」展开。；不要只罗列工具名或 API。
+
 ### 题目
 
 如果面试官追问：在「Hooks 的核心规则与原理」场景下，为了证明这个方案在 Hooks 维度有效，你会怎么设计测试闭环和线上观测指标？
@@ -2111,6 +2123,10 @@ difficulty: 进阶
 tags: [Hooks, 原理, 追问]
 parent: react-hooks-rules
 generated: followup-script
+
+### 一句话
+
+先把目标和约束说清楚，再展开实现：这能避免把「Hooks 的核心规则与原理」讲成只在理想输入下可用。；围绕「Hooks 的核心规则与原理」组织答案时，建议按「约束来源 -> Hooks 关键决策 -> 验证闭环」展开。。
 
 ### 题目
 
@@ -2151,6 +2167,10 @@ tags: [useEffect, 陷阱, 追问]
 parent: use-effect-pitfalls
 generated: followup-script
 
+### 一句话
+
+先给可验证结论，再补证据链：面试官想确认你是否能把「useEffect 常见陷阱与依赖管理」落到真实交付，而不是停在概念层。；讲「useEffect 常见陷阱与依赖管理」时先给 useEffect 的判断口径，再补执行动作和回退条件，会更像真实评审发言。。
+
 ### 题目
 
 如果面试官追问：从工程落地角度看，React 18 自动批处理对 effect 的影响？
@@ -2190,6 +2210,10 @@ tags: [useEffect, 陷阱, 追问]
 parent: use-effect-pitfalls
 generated: followup-script
 
+### 一句话
+
+先说判断标准，再说执行路径：回答「useEffect 常见陷阱与依赖管理」时要能同时解释收益、代价和失败信号。；可以按「问题背景 -> useEffect 机制 -> 取舍边界」回答，再用「useEffect 常见陷阱与依赖管理」补一个反例。
+
 ### 题目
 
 如果面试官追问：useRef + useEffect 模拟「上一次值」的写法？
@@ -2227,6 +2251,10 @@ tags: [Fiber, Concurrent, 追问]
 parent: react-reconciler-fiber
 generated: followup-script
 
+### 一句话
+
+验证要从可复现样例开始：准备正向、边界和失败用例，确认「Fiber 架构与并发渲染」不是只在理想输入下成立。；再补可观测指标：围绕「Fiber 架构与并发渲染」的性能收益应该能通过日志、耗时、错误率、命中率、覆盖率或用户行为指标观察到变化。。
+
 ### 题目
 
 如果面试官追问：围绕「Fiber 架构与并发渲染」上线效果，你会优先看哪些和 Fiber 相关的真实用户指标来佐证体验提升？
@@ -2252,6 +2280,10 @@ difficulty: 资深
 tags: [Fiber, Concurrent, 追问]
 parent: react-reconciler-fiber
 generated: followup-script
+
+### 一句话
+
+先明确这道追问要解决的业务目标，再说明「Fiber 架构与并发渲染」在当前约束下为什么成立。；围绕「Fiber 架构与并发渲染」组织答案时，建议按「约束来源 -> Fiber 关键决策 -> 验证闭环」展开。；不要只罗列工具名或 API。
 
 ### 题目
 
@@ -2292,6 +2324,10 @@ tags: [状态管理, Redux, Zustand, 追问]
 parent: state-management-react
 generated: followup-script
 
+### 一句话
+
+先说判断标准，再说执行路径：回答「React 状态管理选型」时要能同时解释收益、代价和失败信号。；回答顺序可用「现状问题 -> 状态管理 方案动作 -> 验证结果」，并用「React 状态管理选型」举一条主链路说明。。
+
 ### 题目
 
 如果面试官追问：结合真实业务约束，你会如何围绕 状态管理 定义“方案生效”的判据，并通过测试与观测数据持续验证？
@@ -2331,6 +2367,10 @@ tags: [状态管理, Redux, Zustand, 追问]
 parent: state-management-react
 generated: followup-script
 
+### 一句话
+
+推动「React 状态管理选型」落地时先收敛改动面：选低风险页面或模块试点，保留旧路径作为对照。；「React 状态管理选型」迁移计划要说明数据兼容、配置开关、监控指标和失败后的恢复路径。；团队推进重点不是一次性重写。
+
 ### 题目
 
 如果面试官追问：在当前团队与业务约束下，围绕「React 状态管理选型」选型时，你会怎样按 状态管理 与业务复杂度给出分层推荐？
@@ -2356,6 +2396,10 @@ difficulty: 进阶
 tags: [Router, 数据加载, 追问]
 parent: react-router-data-loaders
 generated: followup-script
+
+### 一句话
+
+先给可验证结论，再补证据链：面试官想确认你是否能把「React Router v6.4+ 的 Data Router 与 loaders」落到真实交付，而不是停在概念层。；可以按「问题背景 -> Router 机制 -> 取舍边界」回答。
 
 ### 题目
 
@@ -2396,6 +2440,10 @@ tags: [Router, 数据加载, 追问]
 parent: react-router-data-loaders
 generated: followup-script
 
+### 一句话
+
+规模变大后先重新评估「React Router v6.4+ 的 Data Router 与 loaders」瓶颈：数据量、并发、团队协作、浏览器兼容和维护成本哪个先触顶。。
+
 ### 题目
 
 如果面试官追问：在「React Router v6.4+ 的 Data Router 与 loaders」场景下，围绕「React Router v6.4+ 的 Data Router 与 loaders」选型时，你会怎样按 Router 与业务复杂度给出分层推荐？
@@ -2421,6 +2469,10 @@ difficulty: 进阶
 tags: [性能, memo, 虚拟化, 追问]
 parent: react-perf
 generated: followup-script
+
+### 一句话
+
+验证要从可复现样例开始：准备正向、边界和失败用例，确认「React 性能优化清单」不是只在理想输入下成立。；再补可观测指标：围绕「React 性能优化清单」的性能收益应该能通过日志、耗时、错误率、命中率、覆盖率或用户行为指标观察到变化。。
 
 ### 题目
 
@@ -2448,6 +2500,10 @@ tags: [性能, memo, 虚拟化, 追问]
 parent: react-perf
 generated: followup-script
 
+### 一句话
+
+规模变大后先重新评估「React 性能优化清单」瓶颈：数据量、并发、团队协作、浏览器兼容和维护成本哪个先触顶。；如果「React 性能优化清单」对应的性能收益被复杂度抵消，就要考虑分层、缓存、懒加载、批处理或更简单的替代方案。。
+
 ### 题目
 
 如果面试官追问：结合真实业务约束，围绕「React 性能优化清单」在 性能 上的优化决策，你会如何量化收益、风险和长期维护成本？
@@ -2473,6 +2529,10 @@ difficulty: 资深
 tags: [React 19, Actions, 追问]
 parent: react-19-features
 generated: followup-script
+
+### 一句话
+
+先给可验证结论，再补证据链：面试官想确认你是否能把「React 19 关键特性速览」落到真实交付，而不是停在概念层。；回答顺序可用「现状问题 -> React 19 方案动作 -> 验证结果」，并用「React 19 关键特性速览」举一条主链路说明。。
 
 ### 题目
 
@@ -2513,6 +2573,10 @@ tags: [React 19, Actions, 追问]
 parent: react-19-features
 generated: followup-script
 
+### 一句话
+
+先说判断标准，再说执行路径：回答「React 19 关键特性速览」时要能同时解释收益、代价和失败信号。；回答顺序可用「现状问题 -> React 19 方案动作 -> 验证结果」，并用「React 19 关键特性速览」举一条主链路说明。。
+
 ### 题目
 
 如果面试官追问：在评审「React 19 关键特性速览」时，你会如何围绕 React 19 向团队解释“什么时候值得用，什么时候别硬上”？
@@ -2551,6 +2615,10 @@ difficulty: 进阶
 tags: [TypeScript, 泛型, 追问]
 parent: react-typescript-patterns
 generated: followup-script
+
+### 一句话
+
+先明确这道追问要解决的业务目标，再说明「React + TypeScript 常用类型模式」在当前约束下为什么成立。；回答结构可按「触发条件 -> TypeScript 机制 -> 风险兜底」展开。
 
 ### 题目
 
@@ -2591,6 +2659,10 @@ tags: [TypeScript, 泛型, 追问]
 parent: react-typescript-patterns
 generated: followup-script
 
+### 一句话
+
+规模变大后先重新评估「React + TypeScript 常用类型模式」瓶颈：数据量、并发、团队协作、浏览器兼容和维护成本哪个先触顶。；如果「React + TypeScript 常用类型模式」对应的渲染与状态边界收益被复杂度抵消。
+
 ### 题目
 
 如果面试官追问：从工程落地角度看，和常见替代方案相比，「React + TypeScript 常用类型模式」在 TypeScript 这个维度更适合什么团队规模与业务复杂度？
@@ -2616,6 +2688,10 @@ difficulty: 进阶
 tags: [测试, RTL, 追问]
 parent: react-testing
 generated: followup-script
+
+### 一句话
+
+先说判断标准，再说执行路径：回答「React 组件测试要测什么、怎么测」时要能同时解释收益、代价和失败信号。；讲「React 组件测试要测什么、怎么测」时先给 测试链路 的判断口径，再补执行动作和回退条件，会更像真实评审发言。。
 
 ### 题目
 
@@ -2656,6 +2732,10 @@ tags: [测试, RTL, 追问]
 parent: react-testing
 generated: followup-script
 
+### 一句话
+
+先明确这道追问要解决的业务目标，再说明「React 组件测试要测什么、怎么测」在当前约束下为什么成立。；建议按「输入约束 -> 测试链路 执行链路 -> 结果验证」展开，并结合「React 组件测试要测什么、怎么测」给出一条可复核结果。
+
 ### 题目
 
 如果面试官追问：以「React 组件测试要测什么、怎么测」为例，当业务复杂度升级时，你会如何判断「React 组件测试要测什么、怎么测」在 测试链路 上还能不能继续扛住？
@@ -2695,6 +2775,10 @@ tags: [Diff, key, 追问]
 parent: react-key-warning
 generated: followup-script
 
+### 一句话
+
+验证要从可复现样例开始：准备正向、边界和失败用例，确认「列表渲染中 key 的作用与使用陷阱」不是只在理想输入下成立。；再补可观测指标：围绕「列表渲染中 key 的作用与使用陷阱」的性能收益应该能通过日志、耗时、错误率、命中率、覆盖率或用户行为指标观察到变。
+
 ### 题目
 
 如果面试官追问：在当前团队与业务约束下，如果实验室分数变好但线上反馈一般，你会如何围绕 Diff 重新评估「列表渲染中 key 的作用与使用陷阱」优化效果？
@@ -2720,6 +2804,10 @@ difficulty: 基础
 tags: [Diff, key, 追问]
 parent: react-key-warning
 generated: followup-script
+
+### 一句话
+
+先给可验证结论，再补证据链：面试官想确认你是否能把「列表渲染中 key 的作用与使用陷阱」落到真实交付，而不是停在概念层。；回答顺序可用「现状问题 -> Diff 方案动作 -> 验证结果」，并用「列表渲染中 key 的作用与使用陷阱」举一条主链路说明。。
 
 ### 题目
 
@@ -2760,6 +2848,10 @@ tags: [表单, 性能, 追问]
 parent: react-controlled-vs-uncontrolled
 generated: followup-script
 
+### 一句话
+
+验证要从可复现样例开始：准备正向、边界和失败用例，确认「受控组件 vs 非受控组件，性能边界在哪」不是只在理想输入下成立。；再补可观测指标：围绕「受控组件 vs 非受控组件。
+
 ### 题目
 
 如果面试官追问：在当前团队与业务约束下，你会如何结合 表单 指标，避免把「受控组件 vs 非受控组件，性能边界在哪」的实验室提升误判为真实用户体验改善？
@@ -2785,6 +2877,10 @@ difficulty: 进阶
 tags: [表单, 性能, 追问]
 parent: react-controlled-vs-uncontrolled
 generated: followup-script
+
+### 一句话
+
+先给可验证结论，再补证据链：面试官想确认你是否能把「受控组件 vs 非受控组件，性能边界在哪」落到真实交付，而不是停在概念层。；讲「受控组件 vs 非受控组件，性能边界在哪」时先给 表单 的判断口径，再补执行动作和回退条件，会更像真实评审发言。。
 
 ### 题目
 
@@ -2825,6 +2921,10 @@ tags: [架构, 错误处理, 追问]
 parent: react-portal-error-boundary
 generated: followup-script
 
+### 一句话
+
+推动「Portal、Error Boundary、Suspense 的协作方式」落地时先收敛改动面：选低风险页面或模块试点，保留旧路径作为对照。。
+
 ### 题目
 
 如果面试官追问：以「Portal、Error Boundary、Suspense 的协作方式」为例，面对团队能力差异，你会如何围绕 架构 把「Portal、Error Boundary、Suspense 的协作方式」拆成可并行推进的小阶段？
@@ -2851,6 +2951,10 @@ tags: [架构, 错误处理, 追问]
 parent: react-portal-error-boundary
 generated: followup-script
 
+### 一句话
+
+规模变大后先重新评估「Portal、Error Boundary、Suspense 的协作方式」瓶颈：数据量、并发、团队协作、浏览器兼容和维护成本哪个先触顶。。
+
 ### 题目
 
 如果面试官追问：结合真实业务约束，半年后要做去留决策时，你会拿哪些数据判断「Portal、Error Boundary、Suspense 的协作方式」还值不值得继续维护？
@@ -2876,6 +2980,10 @@ difficulty: 资深
 tags: [React Compiler, 性能, 编译优化, 追问]
 parent: react-compiler-boundaries
 generated: followup-script
+
+### 一句话
+
+先给可验证结论，再补证据链：面试官想确认你是否能把「React Compiler 自动 memo 的原理、限制与落地边界」落到真实交付，而不是停在概念层。；回答顺序可用「现状问题 -> React Compiler 方案动作 -> 验证结果」。
 
 ### 题目
 
@@ -2916,6 +3024,10 @@ tags: [React Compiler, 性能, 编译优化, 追问]
 parent: react-compiler-boundaries
 generated: followup-script
 
+### 一句话
+
+先明确这道追问要解决的业务目标，再说明「React Compiler 自动 memo 的原理、限制与落地边界」在当前约束下为什么成立。；围绕「React Compiler 自动 memo 的原理、限制与落地边界」组织答案时。
+
 ### 题目
 
 如果面试官追问：以「React Compiler 自动 memo 的原理、限制与落地边界」为例，它和 React.memo、useMemo、useCallback 的迁移顺序怎么安排？
@@ -2954,6 +3066,10 @@ difficulty: 资深
 tags: [React Compiler, 性能, 编译优化, 追问]
 parent: react-compiler-boundaries
 generated: followup-script
+
+### 一句话
+
+先明确这道追问要解决的业务目标，再说明「React Compiler 自动 memo 的原理、限制与落地边界」在当前约束下为什么成立。；围绕「React Compiler 自动 memo 的原理、限制与落地边界」组织答案时。
 
 ### 题目
 
@@ -2994,6 +3110,10 @@ tags: [React, TanStack Query, Server State, 缓存, 追问]
 parent: react-server-state-query-cache
 generated: followup-script
 
+### 一句话
+
+先把目标和约束说清楚，再展开实现：这能避免把「React 服务端状态管理：TanStack Query / SWR 缓存失效怎么设计」讲成只在理想输入下可用。；建议按「输入约束 -> React 执行链路 -> 结果验证」展开。
+
 ### 题目
 
 如果面试官追问：结合真实业务约束，`staleTime` 和 `gcTime` 分别解决什么问题？
@@ -3031,6 +3151,10 @@ difficulty: 资深
 tags: [React, TanStack Query, Server State, 缓存, 追问]
 parent: react-server-state-query-cache
 generated: followup-script
+
+### 一句话
+
+先明确这道追问要解决的业务目标，再说明「React 服务端状态管理：TanStack Query / SWR 缓存失效怎么设计」在当前约束下为什么成立。。
 
 ### 题目
 
@@ -3071,6 +3195,10 @@ tags: [React, TanStack Query, Server State, 缓存, 追问]
 parent: react-server-state-query-cache
 generated: followup-script
 
+### 一句话
+
+先给可验证结论，再补证据链：面试官想确认你是否能把「React 服务端状态管理：TanStack Query / SWR 缓存失效怎么设计」落到真实交付，而不是停在概念层。；可以按「问题背景 -> React 机制 -> 取舍边界」回答。
+
 ### 题目
 
 如果面试官追问：在「React 服务端状态管理：TanStack Query / SWR 缓存失效怎么设计」场景下，SSR 预取后，如何避免客户端 hydration 又请求一遍？
@@ -3109,6 +3237,10 @@ difficulty: 资深
 tags: [React, 并发渲染, Store, 追问]
 parent: react-use-sync-external-store
 generated: followup-script
+
+### 一句话
+
+先把目标和约束说清楚，再展开实现：这能避免把「useSyncExternalStore 如何保证外部 Store 与并发渲染一致性」讲成只在理想输入下可用。；回答结构可按「触发条件 -> React 机制 -> 风险兜底」展开。
 
 ### 题目
 
@@ -3149,6 +3281,10 @@ tags: [React, 并发渲染, Store, 追问]
 parent: react-use-sync-external-store
 generated: followup-script
 
+### 一句话
+
+先说判断标准，再说执行路径：回答「useSyncExternalStore 如何保证外部 Store 与并发渲染一致性」时要能同时解释收益、代价和失败信号。。
+
 ### 题目
 
 如果面试官追问：在当前团队与业务约束下，`getSnapshot` 的返回值为什么需要引用稳定？
@@ -3187,6 +3323,10 @@ difficulty: 资深
 tags: [React, 并发渲染, Store, 追问]
 parent: react-use-sync-external-store
 generated: followup-script
+
+### 一句话
+
+先明确这道追问要解决的业务目标，再说明「useSyncExternalStore 如何保证外部 Store 与并发渲染一致性」在当前约束下为什么成立。；围绕「useSyncExternalStore 如何保证外部 Store 与并发渲染一致性」组织答案时。
 
 ### 题目
 
@@ -3227,6 +3367,10 @@ tags: [React, 表单, React Hook Form, Zod, 追问]
 parent: react-complex-form-architecture
 generated: followup-script
 
+### 一句话
+
+先说判断标准，再说执行路径：回答「React 复杂表单：校验、异步默认值、联动和提交状态怎么设计」时要能同时解释收益、代价和失败信号。；可以按「问题背景 -> React 机制 -> 取舍边界」回答。
+
 ### 题目
 
 如果面试官追问：在当前团队与业务约束下，React Hook Form 为什么在大表单里通常比全受控 state 更省渲染？
@@ -3265,6 +3409,10 @@ difficulty: 进阶
 tags: [React, 表单, React Hook Form, Zod, 追问]
 parent: react-complex-form-architecture
 generated: followup-script
+
+### 一句话
+
+先明确这道追问要解决的业务目标，再说明「React 复杂表单：校验、异步默认值、联动和提交状态怎么设计」在当前约束下为什么成立。；建议按「输入约束 -> React 执行链路 -> 结果验证」展开。
 
 ### 题目
 
@@ -3305,6 +3453,10 @@ tags: [React, 表单, React Hook Form, Zod, 追问]
 parent: react-complex-form-architecture
 generated: followup-script
 
+### 一句话
+
+先说判断标准，再说执行路径：回答「React 复杂表单：校验、异步默认值、联动和提交状态怎么设计」时要能同时解释收益、代价和失败信号。；可以按「问题背景 -> React 机制 -> 取舍边界」回答。
+
 ### 题目
 
 如果面试官追问：在当前团队与业务约束下，分步表单里，草稿保存和最终提交校验如何协调？
@@ -3344,6 +3496,10 @@ tags: [Suspense, 数据加载, 追问]
 parent: react-suspense-data
 generated: followup-script
 
+### 一句话
+
+先明确这道追问要解决的业务目标，再说明「Suspense 与异步数据加载」在当前约束下为什么成立。；回答结构可按「触发条件 -> Suspense 机制 -> 风险兜底」展开，并以「Suspense 与异步数据加载」补一条失败场景，能体现工程拆解能力。。
+
 ### 题目
 
 如果面试官追问：为了避免主观判断，你会怎样用测试证据和线上指标共同证明 Suspense 方案有效？
@@ -3382,6 +3538,10 @@ difficulty: 资深
 tags: [Suspense, 数据加载, 追问]
 parent: react-suspense-data
 generated: followup-script
+
+### 一句话
+
+规模变大后先重新评估「Suspense 与异步数据加载」瓶颈：数据量、并发、团队协作、浏览器兼容和维护成本哪个先触顶。；如果「Suspense 与异步数据加载」对应的核心机制收益被复杂度抵消，就要考虑分层、缓存、懒加载、批处理或更简单的替代方案。。
 
 ### 题目
 
@@ -3542,6 +3702,10 @@ tags: [React, 性能预算, 渲染治理, 追问]
 parent: react-render-budget-gate
 generated: followup-script
 
+### 一句话
+
+先明确这道追问要解决的业务目标，再说明「React 渲染预算治理：把重渲染风险前置到发布闸门」在当前约束下为什么成立。；回答结构可按「触发条件 -> React 机制 -> 风险兜底」展开。
+
 ### 题目
 
 如果面试官追问：结合真实业务约束，如果要做「React 渲染预算治理：把重渲染风险前置到发布闸门」的稳定性评审，你会先盘点哪些容易被忽视的边界因素？
@@ -3581,6 +3745,10 @@ tags: [React, 性能预算, 渲染治理, 追问]
 parent: react-render-budget-gate
 generated: followup-script
 
+### 一句话
+
+先明确这道追问要解决的业务目标，再说明「React 渲染预算治理：把重渲染风险前置到发布闸门」在当前约束下为什么成立。；围绕「React 渲染预算治理：把重渲染风险前置到发布闸门」组织答案时。
+
 ### 题目
 
 如果面试官追问：从工程落地角度看，上线后你会盯哪些与 React 相关的日志与指标，来确认这套方案确实带来改进？
@@ -3619,6 +3787,10 @@ tags: [React, 性能预算, 渲染治理, 追问]
 parent: react-render-budget-gate
 generated: followup-script
 
+### 一句话
+
+规模变大后先重新评估「React 渲染预算治理：把重渲染风险前置到发布闸门」瓶颈：数据量、并发、团队协作、浏览器兼容和维护成本哪个先触顶。；如果「React 渲染预算治理：把重渲染风险前置到发布闸门」对应的性能收益被复杂度抵消。
+
 ### 题目
 
 如果面试官追问：在「React 渲染预算治理：把重渲染风险前置到发布闸门」场景下，如果「React 渲染预算治理：把重渲染风险前置到发布闸门」在 React 上的收益和维护成本打架，你会怎么做取舍判断？
@@ -3645,6 +3817,10 @@ tags: [React, Hydration, SSR, 追问]
 parent: react-hydration-mismatch-playbook
 generated: followup-script
 
+### 一句话
+
+推动「React 水合不一致排障手册：从告警定位到稳定回退」落地时先收敛改动面：选低风险页面或模块试点，保留旧路径作为对照。；「React 水合不一致排障手册：从告警定位到稳定回退」迁移计划要说明数据兼容、配置开关、监控指标和失败后的恢复路径。。
+
 ### 题目
 
 如果面试官追问：从工程落地角度看，在 React 项目里应用「React 水合不一致排障手册：从告警定位到稳定回退」时，哪些 state 或渲染边界最容易出问题？
@@ -3670,6 +3846,10 @@ difficulty: 资深
 tags: [React, Hydration, SSR, 追问]
 parent: react-hydration-mismatch-playbook
 generated: followup-script
+
+### 一句话
+
+先把目标和约束说清楚，再展开实现：这能避免把「React 水合不一致排障手册：从告警定位到稳定回退」讲成只在理想输入下可用。；建议按「输入约束 -> React 执行链路 -> 结果验证」展开。
 
 ### 题目
 
@@ -3707,6 +3887,10 @@ difficulty: 资深
 tags: [React, Hydration, SSR, 追问]
 parent: react-hydration-mismatch-playbook
 generated: followup-script
+
+### 一句话
+
+推动「React 水合不一致排障手册：从告警定位到稳定回退」落地时先收敛改动面：选低风险页面或模块试点，保留旧路径作为对照。；「React 水合不一致排障手册：从告警定位到稳定回退」迁移计划要说明数据兼容、配置开关、监控指标和失败后的恢复路径。。
 
 ### 题目
 
@@ -3872,6 +4056,10 @@ tags: [React Compiler, 发布治理, 决策沟通, 追问]
 parent: react-compiler-rollout-command-bridge
 generated: followup-script
 
+### 一句话
+
+先验三类边界：高频交互组件、重依赖闭包状态组件、历史上有渲染事故的页面。；把“可编译但不稳定”的模块先列入观察名单，默认小流量并保留单路由回退。；每个试点页面都要有基线数据和降级开关，确保问题出现时 10 分钟内止损。
+
 ### 题目
 
 如果面试官追问：React Compiler 真正上线前，你会先验哪些高风险边界，避免“测得好、线上抖”？
@@ -3897,6 +4085,10 @@ difficulty: 资深
 tags: [React Compiler, 发布治理, 决策沟通, 追问]
 parent: react-compiler-rollout-command-bridge
 generated: followup-script
+
+### 一句话
+
+先定生效判据：交互时延下降、重渲染次数下降、运行时错误不升是最小三指标。；再定观测窗口：小流量阶段看日内波动，扩大流量后看周趋势，避免单天噪声误判。；最后定动作规则：指标触线立刻暂停扩量并切回旧产物，避免“带病推进”。
 
 ### 题目
 
@@ -3924,6 +4116,10 @@ tags: [React Compiler, 发布治理, 决策沟通, 追问]
 parent: react-compiler-rollout-command-bridge
 generated: followup-script
 
+### 一句话
+
+低风险页面可先全开验证收益，中风险页面按路由灰度，高风险页面仅做影子验证。；对强动态渲染或历史回归高发模块，先保守策略，待规则稳定再纳入升级计划。；每月复盘一次分层策略：收益持续稳定再扩面，收益不稳就缩面并回收配置。
+
 ### 题目
 
 如果面试官追问：业务复杂度差异很大时，你会怎么分层启用 React Compiler，而不是全站一把梭？
@@ -3949,6 +4145,10 @@ difficulty: 资深
 tags: [React 19, 乐观更新, 事故处置, 追问]
 parent: react-optimistic-ui-stoploss-playbook
 generated: followup-script
+
+### 一句话
+
+最容易失效的是跨端并发写入、弱网重试、外部系统异步回执这三类场景。；出现“前端成功、后端失败”时要优先排查幂等键、重试策略和状态对账链路。；对高风险动作先降级为保守提交流程，待一致性校验稳定后再恢复乐观路径。
 
 ### 题目
 
@@ -3976,6 +4176,10 @@ tags: [React 19, 乐观更新, 事故处置, 追问]
 parent: react-optimistic-ui-stoploss-playbook
 generated: followup-script
 
+### 一句话
+
+测试侧至少覆盖三类：重复提交、服务端失败、回滚中断，确保关键异常都能复现。；线上侧盯三组指标：误成功率、重复提交率、自动修复完成率，并设告警阈值。；每次变更都做小范围演练，验证“告警 -> 止损 -> 修复 -> 对外同步”链路可执行。
+
 ### 题目
 
 如果面试官追问：你这套乐观更新止损策略不是纸面方案，你会怎样用测试和线上数据证明它有效？
@@ -4001,6 +4205,10 @@ difficulty: 资深
 tags: [React 19, 乐观更新, 事故处置, 追问]
 parent: react-optimistic-ui-stoploss-playbook
 generated: followup-script
+
+### 一句话
+
+小团队阶段优先少量关键场景，规则简单但必须有止损开关和人工兜底。；多团队阶段要平台化：统一幂等规范、回滚组件、风险分级和对外沟通模板。；当治理成本高于收益时，要主动缩减乐观覆盖面，把高风险动作改为保守流程。
 
 ### 题目
 

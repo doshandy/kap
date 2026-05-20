@@ -202,12 +202,12 @@ const fmt = (s: number) => `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '
     <section v-if="!queue.length" class="card config">
       <div class="row">
         <label>题数：</label>
-        <input v-model.number="count" type="number" min="1" max="50" />
+        <input v-model.number="count" class="ui-input" type="number" min="1" max="50" />
         <span class="hint">建议：5/10/15/20</span>
       </div>
       <div class="row">
         <label>难度：</label>
-        <select v-model="difficulty">
+        <select v-model="difficulty" class="ui-select">
           <option value="all">全部</option>
           <option value="基础">基础</option>
           <option value="进阶">进阶</option>
@@ -216,7 +216,7 @@ const fmt = (s: number) => `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '
       </div>
       <div class="row">
         <label>题源：</label>
-        <select v-model="sourceFilter">
+        <select v-model="sourceFilter" class="ui-select">
           <option value="all">全部题目</option>
           <option value="todo">未做过</option>
           <option value="starred">仅收藏</option>
@@ -226,7 +226,7 @@ const fmt = (s: number) => `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '
       </div>
       <div class="row">
         <label>每题限时：</label>
-        <select v-model.number="timeLimitPerQ">
+        <select v-model.number="timeLimitPerQ" class="ui-select">
           <option :value="0">不限时</option>
           <option :value="30">30 秒</option>
           <option :value="60">60 秒（推荐）</option>
@@ -240,7 +240,7 @@ const fmt = (s: number) => `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '
           <button
             v-for="c in categories"
             :key="c.id"
-            class="chip"
+            class="chip ui-chip"
             :class="{ active: selectedCats.includes(c.id) }"
             @click="
               selectedCats.includes(c.id)
@@ -370,10 +370,10 @@ const fmt = (s: number) => `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '
 .row input,
 .row select {
   padding: 6px 10px;
-  border: 1px solid var(--c-border);
-  border-radius: var(--radius);
-  background: var(--c-surface);
-  color: var(--c-text);
+  border-radius: 10px;
+}
+.row .ui-select {
+  padding-right: 30px;
 }
 .row.cats {
   align-items: flex-start;
@@ -397,14 +397,12 @@ const fmt = (s: number) => `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '
   flex: 1;
 }
 .chip {
+  --chip-accent: var(--c-primary);
+
   font-size: 12px;
-  padding: 3px 10px;
-  border-radius: 999px;
-  background: var(--c-bg-mute);
 }
 .chip.active {
-  background: var(--c-primary);
-  color: #fff;
+  --chip-accent: var(--c-primary);
 }
 .hud {
   display: flex;

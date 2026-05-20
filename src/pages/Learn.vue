@@ -165,7 +165,7 @@ onUnmounted(() => window.removeEventListener('keydown', onKey));
         <AppIcon name="arrowLeft" /> 上一题
       </button>
       <button
-        class="btn primary"
+        class="btn btn-primary"
         title="下一题（快捷键 j / →）"
         :disabled="!hasActiveQuestions || indexParam >= total"
         @click="go(1)"
@@ -178,6 +178,7 @@ onUnmounted(() => window.removeEventListener('keydown', onKey));
       <label class="jump">
         跳转到第
         <input
+          class="ui-input"
           type="number"
           min="1"
           :max="Math.max(1, total)"
@@ -210,7 +211,7 @@ onUnmounted(() => window.removeEventListener('keydown', onKey));
       <RouterLink v-if="current" :to="`/c/${current.categoryId}`" class="btn">
         <AppIcon name="folderOpen" /> 在分类中查看：{{ currentCategory?.title }}
       </RouterLink>
-      <button class="btn primary" :disabled="indexParam >= total" @click="go(1)">
+      <button class="btn btn-primary" :disabled="indexParam >= total" @click="go(1)">
         下一题 <AppIcon name="arrowRight" />
       </button>
     </footer>
@@ -221,7 +222,7 @@ onUnmounted(() => window.removeEventListener('keydown', onKey));
         <span v-if="currentCategory" class="muted">当前：{{ currentCategory.title }}</span>
       </div>
       <select
-        class="cat-select"
+        class="cat-select ui-select"
         :value="current?.categoryId || ''"
         :disabled="!hasActiveQuestions"
         aria-label="选择分类快速跳转"
@@ -229,9 +230,7 @@ onUnmounted(() => window.removeEventListener('keydown', onKey));
       >
         <option disabled value="">选择分类...</option>
         <option v-for="c in categories" :key="c.id" :value="c.id">
-          {{ c.icon }} {{ c.title }}（{{
-            c.questions.filter((q) => !marks.isSkipped(q.id)).length
-          }}
+          {{ c.icon }} {{ c.title }}（{{ c.questions.filter((q) => !marks.isSkipped(q.id)).length }}
           题）
         </option>
       </select>
@@ -305,30 +304,6 @@ onUnmounted(() => window.removeEventListener('keydown', onKey));
   background: linear-gradient(90deg, var(--c-primary), #6366f1);
   transition: width 0.3s;
 }
-.btn {
-  padding: 8px 14px;
-  border-radius: var(--radius);
-  background: var(--c-bg-mute);
-  font-size: 13px;
-  cursor: pointer;
-  border: 1px solid transparent;
-  text-decoration: none;
-  color: var(--c-text);
-}
-.btn:hover {
-  background: var(--c-bg-soft);
-}
-.btn:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-.btn.primary {
-  background: var(--c-primary);
-  color: #fff;
-}
-.btn.primary:hover {
-  filter: brightness(1.05);
-}
 .actions {
   display: flex;
   gap: 8px;
@@ -348,13 +323,9 @@ onUnmounted(() => window.removeEventListener('keydown', onKey));
   font-size: 13px;
   color: var(--c-text-soft);
 }
-.jump input {
+.jump .ui-input {
   width: 70px;
   padding: 6px 8px;
-  border-radius: var(--radius);
-  border: 1px solid var(--c-border);
-  background: var(--c-surface);
-  color: var(--c-text);
 }
 .empty {
   display: grid;
@@ -394,10 +365,6 @@ onUnmounted(() => window.removeEventListener('keydown', onKey));
   display: none;
   width: 100%;
   padding: 10px 12px;
-  border: 1px solid var(--c-border);
-  border-radius: var(--radius);
-  background: var(--c-surface);
-  color: var(--c-text);
 }
 .cat-list {
   list-style: none;

@@ -39,7 +39,7 @@ function close() {
       <div class="card panel">
         <header>
           <h3><AppIcon name="share" /> 分享题目</h3>
-          <button class="btn-ghost close" aria-label="关闭" @click="close">
+          <button class="btn btn-ghost btn-icon close" aria-label="关闭" @click="close">
             <AppIcon name="close" />
           </button>
         </header>

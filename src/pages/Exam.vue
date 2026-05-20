@@ -153,21 +153,21 @@ onUnmounted(() => {
     <section v-if="!queue.length" class="card config">
       <label>
         题数
-        <select v-model.number="count">
+        <select v-model.number="count" class="ui-select">
           <option :value="10">10 题</option>
           <option :value="20">20 题</option>
         </select>
       </label>
       <label>
         总限时
-        <select v-model.number="minutes">
+        <select v-model.number="minutes" class="ui-select">
           <option :value="20">20 分钟</option>
           <option :value="30">30 分钟</option>
           <option :value="45">45 分钟</option>
         </select>
       </label>
       <label class="check">
-        <input v-model="highFrequencyOnly" type="checkbox" />
+        <input v-model="highFrequencyOnly" class="ui-checkbox" type="checkbox" />
         优先高频 / 进阶 / 资深题
       </label>
       <button class="btn btn-primary" :disabled="!candidates.length" @click="start">
@@ -190,6 +190,7 @@ onUnmounted(() => {
         <div class="markdown-body" v-html="currentQuestion.question" />
         <textarea
           v-model="answers[currentQuestion.id]"
+          class="ui-textarea"
           rows="9"
           placeholder="像面试现场一样组织答案：先结论，再原理、场景、误区和取舍..."
         />
@@ -238,7 +239,7 @@ onUnmounted(() => {
           <button
             v-for="reason in WRONG_REASON_OPTIONS"
             :key="reason"
-            class="chip"
+            class="chip ui-chip"
             :class="{ active: marks.hasWrongReason(item.question.id, reason) }"
             @click="setReason(item.question.id, reason)"
           >
@@ -290,14 +291,11 @@ onUnmounted(() => {
   display: grid;
   gap: 6px;
 }
-.config select,
-.question-box textarea {
-  border: 1px solid var(--c-border);
-  border-radius: var(--radius);
-  background: var(--c-surface);
-  color: var(--c-text);
+.config .ui-select,
+.question-box .ui-textarea {
+  border-radius: 10px;
 }
-.config select {
+.config .ui-select {
   padding: 8px 10px;
 }
 .check {
@@ -318,7 +316,7 @@ onUnmounted(() => {
 .review-item h3 {
   margin-top: 0;
 }
-.question-box textarea {
+.question-box .ui-textarea {
   width: 100%;
   padding: 12px;
   resize: vertical;
@@ -355,16 +353,10 @@ pre {
   margin-top: 12px;
 }
 .chip {
-  border: 1px solid var(--c-border);
-  border-radius: 999px;
-  padding: 6px 10px;
-  background: var(--c-surface);
-  color: var(--c-text-soft);
+  --chip-accent: var(--c-primary);
 }
 .chip.active {
-  border-color: var(--c-primary);
-  color: var(--c-primary);
-  background: color-mix(in srgb, var(--c-primary) 10%, transparent);
+  --chip-accent: var(--c-primary);
 }
 @media (max-width: 640px) {
   .hud,

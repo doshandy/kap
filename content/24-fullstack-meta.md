@@ -1748,6 +1748,10 @@ tags: [Next.js, App Router, 追问]
 parent: next-app-router
 generated: followup-script
 
+### 一句话
+
+先给可验证结论，再补证据链：面试官想确认你是否能把「Next.js App Router 与 Pages Router 的核心差异」落到真实交付，而不是停在概念层。；可以按「问题背景 -> Next.js 机制 -> 取舍边界」回答。
+
 ### 题目
 
 如果面试官追问：在「Next.js App Router 与 Pages Router 的核心差异」场景下，Server Action 和 Route Handler 区别？
@@ -1786,6 +1790,10 @@ difficulty: 进阶
 tags: [Next.js, App Router, 追问]
 parent: next-app-router
 generated: followup-script
+
+### 一句话
+
+先明确这道追问要解决的业务目标，再说明「Next.js App Router 与 Pages Router 的核心差异」在当前约束下为什么成立。；围绕「Next.js App Router 与 Pages Router 的核心差异」组织答案时。
 
 ### 题目
 
@@ -1826,6 +1834,10 @@ tags: [缓存, Next.js, 追问]
 parent: next-cache-layers
 generated: followup-script
 
+### 一句话
+
+验证要从可复现样例开始：准备正向、边界和失败用例，确认「Next App Router 的四层缓存模型」不是只在理想输入下成立。。
+
 ### 题目
 
 如果面试官追问：以「Next App Router 的四层缓存模型」为例，要证明「Next App Router 的四层缓存模型」确实改善体验，你会如何围绕 缓存 设计线上观测与对照验证？
@@ -1852,6 +1864,10 @@ tags: [缓存, Next.js, 追问]
 parent: next-cache-layers
 generated: followup-script
 
+### 一句话
+
+推动「Next App Router 的四层缓存模型」落地时先收敛改动面：选低风险页面或模块试点，保留旧路径作为对照。；「Next App Router 的四层缓存模型」迁移计划要说明数据兼容、配置开关、监控指标和失败后的恢复路径。。
+
 ### 题目
 
 如果面试官追问：如果「Next App Router 的四层缓存模型」在 缓存 相关优化中让代码复杂度上升，你会如何判断继续推进还是止损？
@@ -1877,6 +1893,10 @@ difficulty: 进阶
 tags: [Nuxt, Vue, 追问]
 parent: nuxt3-overview
 generated: followup-script
+
+### 一句话
+
+先把目标和约束说清楚，再展开实现：这能避免把「Nuxt 3 的核心特性与目录约定」讲成只在理想输入下可用。；围绕「Nuxt 3 的核心特性与目录约定」组织答案时，建议按「约束来源 -> Nuxt 关键决策 -> 验证闭环」展开。。
 
 ### 题目
 
@@ -1917,6 +1937,10 @@ tags: [Nuxt, Vue, 追问]
 parent: nuxt3-overview
 generated: followup-script
 
+### 一句话
+
+先给可验证结论，再补证据链：面试官想确认你是否能把「Nuxt 3 的核心特性与目录约定」落到真实交付，而不是停在概念层。；回答顺序可用「现状问题 -> Nuxt 方案动作 -> 验证结果」，并用「Nuxt 3 的核心特性与目录约定」举一条主链路说明。。
+
 ### 题目
 
 如果面试官追问：结合真实业务约束，如果团队人数、交付节奏和业务复杂度不同，你会怎么基于 Nuxt 判断该不该选「Nuxt 3 的核心特性与目录约定」？
@@ -1955,6 +1979,10 @@ difficulty: 资深
 tags: [Next, RSC, 数据获取, 高频, 追问]
 parent: next-data-fetching-patterns
 generated: followup-script
+
+### 一句话
+
+先给可验证结论，再补证据链：面试官想确认你是否能把「Next App Router 下数据获取的 4 种姿势」落到真实交付，而不是停在概念层。；回答顺序可用「现状问题 -> Next 方案动作 -> 验证结果」。
 
 ### 题目
 
@@ -1995,6 +2023,10 @@ tags: [Next, RSC, 数据获取, 高频, 追问]
 parent: next-data-fetching-patterns
 generated: followup-script
 
+### 一句话
+
+推动「Next App Router 下数据获取的 4 种姿势」落地时先收敛改动面：选低风险页面或模块试点，保留旧路径作为对照。；「Next App Router 下数据获取的 4 种姿势」迁移计划要说明数据兼容、配置开关、监控指标和失败后的恢复路径。。
+
 ### 题目
 
 如果面试官追问：在当前团队与业务约束下，如果比较「Next App Router 下数据获取的 4 种姿势」与替代方案，你会如何基于 Next 判断不同团队阶段的最佳选择？
@@ -2020,6 +2052,10 @@ difficulty: 进阶
 tags: [Remix, React Router, 数据获取, 追问]
 parent: remix-react-router-loaders
 generated: followup-script
+
+### 一句话
+
+先说判断标准，再说执行路径：回答「Remix / React Router v6.4+ 的 loader / action 模型」时要能同时解释收益、代价和失败信号。；可以按「问题背景 -> Remix 机制 -> 取舍边界」回答。
 
 ### 题目
 
@@ -2060,6 +2096,10 @@ tags: [Remix, React Router, 数据获取, 追问]
 parent: remix-react-router-loaders
 generated: followup-script
 
+### 一句话
+
+先给可验证结论，再补证据链：面试官想确认你是否能把「Remix / React Router v6.4+ 的 loader / action 模型」落到真实交付，而不是停在概念层。。
+
 ### 题目
 
 如果面试官追问：以「Remix / React Router v6.4+ 的 loader / action 模型」为例，如果团队人数、交付节奏和业务复杂度不同，你会怎么基于 Remix 判断该不该选「Remix / React Router v6.4+ 的 loader / action 模型」？
@@ -2099,6 +2139,10 @@ tags: [鉴权, Next, 全栈, 高频, 追问]
 parent: fullstack-auth-strategy
 generated: followup-script
 
+### 一句话
+
+推动「SSR 应用的鉴权怎么设计」落地时先收敛改动面：选低风险页面或模块试点，保留旧路径作为对照。；「SSR 应用的鉴权怎么设计」迁移计划要说明数据兼容、配置开关、监控指标和失败后的恢复路径。；团队推进重点不是一次性重写。
+
 ### 题目
 
 如果面试官追问：以「SSR 应用的鉴权怎么设计」为例，面对团队能力差异，你会如何围绕 鉴权 把「SSR 应用的鉴权怎么设计」拆成可并行推进的小阶段？
@@ -2124,6 +2168,10 @@ difficulty: 资深
 tags: [鉴权, Next, 全栈, 高频, 追问]
 parent: fullstack-auth-strategy
 generated: followup-script
+
+### 一句话
+
+先给可验证结论，再补证据链：面试官想确认你是否能把「SSR 应用的鉴权怎么设计」落到真实交付，而不是停在概念层。；回答顺序可用「现状问题 -> 鉴权 方案动作 -> 验证结果」，并用「SSR 应用的鉴权怎么设计」举一条主链路说明。。
 
 ### 题目
 
@@ -2164,6 +2212,10 @@ tags: [SSR, Hydration, React, 高频, 追问]
 parent: hydration-mismatch-debug
 generated: followup-script
 
+### 一句话
+
+先说判断标准，再说执行路径：回答「Hydration mismatch 怎么排查 / 修复」时要能同时解释收益、代价和失败信号。；回答顺序可用「现状问题 -> SSR 方案动作 -> 验证结果」。
+
 ### 题目
 
 如果面试官追问：结合真实业务约束，为了避免主观判断，你会怎样用测试证据和线上指标共同证明 SSR 方案有效？
@@ -2203,6 +2255,10 @@ tags: [SSR, Hydration, React, 高频, 追问]
 parent: hydration-mismatch-debug
 generated: followup-script
 
+### 一句话
+
+推动「Hydration mismatch 怎么排查 / 修复」落地时先收敛改动面：选低风险页面或模块试点，保留旧路径作为对照。；「Hydration mismatch 怎么排查 / 修复」迁移计划要说明数据兼容、配置开关、监控指标和失败后的恢复路径。。
+
 ### 题目
 
 如果面试官追问：从工程落地角度看，如果比较「Hydration mismatch 怎么排查 / 修复」与替代方案，你会如何基于 SSR 判断不同团队阶段的最佳选择？
@@ -2228,6 +2284,10 @@ difficulty: 基础
 tags: [SSR, CSR, SSG, ISR, 追问]
 parent: ssr-csr-spa-mpa-basic
 generated: followup-script
+
+### 一句话
+
+先说判断标准，再说执行路径：回答「SSR / CSR / SPA / MPA / SSG / ISR 这堆词到底是什么关系」时要能同时解释收益、代价和失败信号。；可以按「问题背景 -> SSR 机制 -> 取舍边界」回答。
 
 ### 题目
 
@@ -2268,6 +2328,10 @@ tags: [SSR, CSR, SSG, ISR, 追问]
 parent: ssr-csr-spa-mpa-basic
 generated: followup-script
 
+### 一句话
+
+先说判断标准，再说执行路径：回答「SSR / CSR / SPA / MPA / SSG / ISR 这堆词到底是什么关系」时要能同时解释收益、代价和失败信号。；可以按「问题背景 -> SSR 机制 -> 取舍边界」回答。
+
 ### 题目
 
 如果面试官追问：在「SSR / CSR / SPA / MPA / SSG / ISR 这堆词到底是什么关系」场景下，边缘渲染（Edge SSR）和传统 Node SSR 的差别？
@@ -2307,6 +2371,10 @@ tags: [Next.js, PPR, 缓存, Streaming, 追问]
 parent: next-ppr-use-cache
 generated: followup-script
 
+### 一句话
+
+先明确这道追问要解决的业务目标，再说明「Next.js Partial Prerendering 与 use cache 如何改变 SSR / ISR 取舍」在当前约束下为什么成立。。
+
 ### 题目
 
 如果面试官追问：什么信号会让一个 Next.js 路由从静态渲染退回动态渲染？
@@ -2344,6 +2412,10 @@ difficulty: 资深
 tags: [Next.js, PPR, 缓存, Streaming, 追问]
 parent: next-ppr-use-cache
 generated: followup-script
+
+### 一句话
+
+先给可验证结论，再补证据链：面试官想确认你是否能把「Next.js Partial Prerendering 与 use cache 如何改变 SSR / ISR 取舍」落到真实交付，而不是停在概念层。。
 
 ### 题目
 
@@ -2384,6 +2456,10 @@ tags: [Next.js, PPR, 缓存, Streaming, 追问]
 parent: next-ppr-use-cache
 generated: followup-script
 
+### 一句话
+
+先给可验证结论，再补证据链：面试官想确认你是否能把「Next.js Partial Prerendering 与 use cache 如何改变 SSR / ISR 取舍」落到真实交付，而不是停在概念层。。
+
 ### 题目
 
 如果面试官追问：在当前团队与业务约束下，你会如何验证 PPR 改善的是 TTFB、FCP、LCP 还是交互完成时间？
@@ -2422,6 +2498,10 @@ difficulty: 资深
 tags: [RSC, Next.js, 边界, 性能, 追问]
 parent: rsc-client-boundary-serialization
 generated: followup-script
+
+### 一句话
+
+先说判断标准，再说执行路径：回答「RSC 与 use client 边界：序列化、第三方库和 bundle 膨胀怎么处理」时要能同时解释收益、代价和失败信号。；回答顺序可用「现状问题 -> RSC 方案动作 -> 验证结果」。
 
 ### 题目
 
@@ -2462,6 +2542,10 @@ tags: [RSC, Next.js, 边界, 性能, 追问]
 parent: rsc-client-boundary-serialization
 generated: followup-script
 
+### 一句话
+
+先把目标和约束说清楚，再展开实现：这能避免把「RSC 与 use client 边界：序列化、第三方库和 bundle 膨胀怎么处理」讲成只在理想输入下可用。。
+
 ### 题目
 
 如果面试官追问：Date、Map、Set、class 实例、函数跨 RSC 边界分别有什么问题？哪些取决于 React / Next 版本？
@@ -2500,6 +2584,10 @@ difficulty: 资深
 tags: [RSC, Next.js, 边界, 性能, 追问]
 parent: rsc-client-boundary-serialization
 generated: followup-script
+
+### 一句话
+
+先明确这道追问要解决的业务目标，再说明「RSC 与 use client 边界：序列化、第三方库和 bundle 膨胀怎么处理」在当前约束下为什么成立。；回答结构可按「触发条件 -> RSC 机制 -> 风险兜底」展开。
 
 ### 题目
 
@@ -2540,6 +2628,10 @@ tags: [Server Actions, 表单, 追问]
 parent: next-server-actions
 generated: followup-script
 
+### 一句话
+
+验证要从可复现样例开始：准备正向、边界和失败用例，确认「Server Actions 是什么？什么时候该用」不是只在理想输入下成立。。
+
 ### 题目
 
 如果面试官追问：以「Server Actions 是什么？什么时候该用」为例，为了确认「Server Actions 是什么？什么时候该用」不是“看起来有效”，你会如何安排测试证据和观测指标？
@@ -2566,6 +2658,10 @@ tags: [Server Actions, 表单, 追问]
 parent: next-server-actions
 generated: followup-script
 
+### 一句话
+
+规模变大后先重新评估「Server Actions 是什么？什么时候该用」瓶颈：数据量、并发、团队协作、浏览器兼容和维护成本哪个先触顶。；如果「Server Actions 是什么？什么时候该用」对应的核心机制收益被复杂度抵消。
+
 ### 题目
 
 如果面试官追问：在当前团队与业务约束下，如果兼容性压力突然升高，你会如何围绕 Server Actions 重新划分「Server Actions 是什么？什么时候该用」的实施阶段？
@@ -2591,6 +2687,10 @@ difficulty: 资深
 tags: [Edge, Cloudflare, Vercel, 追问]
 parent: edge-runtime
 generated: followup-script
+
+### 一句话
+
+先把目标和约束说清楚，再展开实现：这能避免把「Edge Runtime 与 Node Runtime 的差异」讲成只在理想输入下可用。；回答结构可按「触发条件 -> Edge 机制 -> 风险兜底」展开。
 
 ### 题目
 
@@ -2631,6 +2731,10 @@ tags: [Edge, Cloudflare, Vercel, 追问]
 parent: edge-runtime
 generated: followup-script
 
+### 一句话
+
+规模变大后先重新评估「Edge Runtime 与 Node Runtime 的差异」瓶颈：数据量、并发、团队协作、浏览器兼容和维护成本哪个先触顶。；如果「Edge Runtime 与 Node Runtime 的差异」对应的核心机制收益被复杂度抵消。
+
 ### 题目
 
 如果面试官追问：以「Edge Runtime 与 Node Runtime 的差异」为例，当约束变化导致成本上升时，你会先优化「Edge Runtime 与 Node Runtime 的差异」里和 Edge 相关的哪些环节？
@@ -2656,6 +2760,10 @@ difficulty: 进阶
 tags: [SEO, meta, 追问]
 parent: seo-and-meta
 generated: followup-script
+
+### 一句话
+
+先给可验证结论，再补证据链：面试官想确认你是否能把「现代框架做 SEO 的关键点」落到真实交付，而不是停在概念层。；回答顺序可用「现状问题 -> SEO 方案动作 -> 验证结果」，并用「现代框架做 SEO 的关键点」举一条主链路说明。。
 
 ### 题目
 
@@ -2696,6 +2804,10 @@ tags: [SEO, meta, 追问]
 parent: seo-and-meta
 generated: followup-script
 
+### 一句话
+
+先把目标和约束说清楚，再展开实现：这能避免把「现代框架做 SEO 的关键点」讲成只在理想输入下可用。；围绕「现代框架做 SEO 的关键点」组织答案时，建议按「约束来源 -> SEO 关键决策 -> 验证闭环」展开。。
+
 ### 题目
 
 如果面试官追问：在当前团队与业务约束下，遇到约束变化时，你会如何围绕 SEO 拆分方案演进路径，而不是一次性推翻重来？
@@ -2734,6 +2846,10 @@ difficulty: 进阶
 tags: [SSR, SSG, ISR, 追问]
 parent: ssr-csr-ssg-isr
 generated: followup-script
+
+### 一句话
+
+先把目标和约束说清楚，再展开实现：这能避免把「SSR / CSR / SSG / ISR 怎么选」讲成只在理想输入下可用。；回答结构可按「触发条件 -> SSR 机制 -> 风险兜底」展开。
 
 ### 题目
 
@@ -2774,6 +2890,10 @@ tags: [SSR, SSG, ISR, 追问]
 parent: ssr-csr-ssg-isr
 generated: followup-script
 
+### 一句话
+
+规模变大后先重新评估「SSR / CSR / SSG / ISR 怎么选」瓶颈：数据量、并发、团队协作、浏览器兼容和维护成本哪个先触顶。；如果「SSR / CSR / SSG / ISR 怎么选」对应的核心机制收益被复杂度抵消。
+
 ### 题目
 
 如果面试官追问：当约束变化导致成本上升时，你会先优化「SSR / CSR / SSG / ISR 怎么选」里和 SSR 相关的哪些环节？
@@ -2799,6 +2919,10 @@ difficulty: 资深
 tags: [SSR, 数据获取, 高频, 追问]
 parent: ssr-data-fetching-consistency
 generated: followup-script
+
+### 一句话
+
+先明确这道追问要解决的业务目标，再说明「SSR 数据如何无缝传递到 Client，避免重复请求」在当前约束下为什么成立。；回答结构可按「触发条件 -> SSR 机制 -> 风险兜底」展开，并以「SSR 数据如何无缝传递到 Client。
 
 ### 题目
 
@@ -2838,6 +2962,10 @@ difficulty: 资深
 tags: [SSR, 数据获取, 高频, 追问]
 parent: ssr-data-fetching-consistency
 generated: followup-script
+
+### 一句话
+
+规模变大后先重新评估「SSR 数据如何无缝传递到 Client，避免重复请求」瓶颈：数据量、并发、团队协作、浏览器兼容和维护成本哪个先触顶。；如果「SSR 数据如何无缝传递到 Client，避免重复请求」对应的核心机制收益被复杂度抵消。
 
 ### 题目
 
@@ -3010,6 +3138,10 @@ tags: [Next.js, 缓存, 一致性, 追问]
 parent: next-cache-invalidation-playbook
 generated: followup-script
 
+### 一句话
+
+先明确这道追问要解决的业务目标，再说明「Next.js 缓存失效实战：revalidatePath / revalidateTag 怎么选」在当前约束下为什么成立。；建议按「输入约束 -> Next.js 执行链路 -> 结果验证」展开。
+
 ### 题目
 
 如果面试官追问：在「Next.js 缓存失效实战：revalidatePath / revalidateTag 怎么选」场景下，当「Next.js 缓存失效实战：revalidatePath / revalidateTag 怎么选」进入复杂业务场景时，你会先确认哪些边界条件是否可控？
@@ -3049,6 +3181,10 @@ tags: [Next.js, 缓存, 一致性, 追问]
 parent: next-cache-invalidation-playbook
 generated: followup-script
 
+### 一句话
+
+验证要从可复现样例开始：准备正向、边界和失败用例，确认「Next.js 缓存失效实战：revalidatePath / revalidateTag 怎么选」不是只在理想输入下成立。。
+
 ### 题目
 
 如果面试官追问：你会怎样验证「Next.js 缓存失效实战：revalidatePath / revalidateTag 怎么选」在 Next.js 维度上的优化收益在真实设备和真实网络下也成立？
@@ -3074,6 +3210,10 @@ difficulty: 资深
 tags: [Next.js, 缓存, 一致性, 追问]
 parent: next-cache-invalidation-playbook
 generated: followup-script
+
+### 一句话
+
+推动「Next.js 缓存失效实战：revalidatePath / revalidateTag 怎么选」落地时先收敛改动面：选低风险页面或模块试点，保留旧路径作为对照。。
 
 ### 题目
 
@@ -3101,6 +3241,10 @@ tags: [发布, 灰度, 回滚, 追问]
 parent: fullstack-rollout-guardrail
 generated: followup-script
 
+### 一句话
+
+推动「全栈发布护栏：灰度、观测与自动回滚策略」落地时先收敛改动面：选低风险页面或模块试点，保留旧路径作为对照。；「全栈发布护栏：灰度、观测与自动回滚策略」迁移计划要说明数据兼容、配置开关、监控指标和失败后的恢复路径。；团队推进重点不是一次性重写。
+
 ### 题目
 
 如果面试官追问：从工程落地角度看，真要把「全栈发布护栏：灰度、观测与自动回滚策略」推到线上，你会如何围绕 发布 设计灰度节奏、回滚条件和迁移路径？
@@ -3126,6 +3270,10 @@ difficulty: 资深
 tags: [发布, 灰度, 回滚, 追问]
 parent: fullstack-rollout-guardrail
 generated: followup-script
+
+### 一句话
+
+先把目标和约束说清楚，再展开实现：这能避免把「全栈发布护栏：灰度、观测与自动回滚策略」讲成只在理想输入下可用。；建议按「输入约束 -> 发布链路 执行链路 -> 结果验证」展开，并结合「全栈发布护栏：灰度、观测与自动回滚策略」给出一条可复核结果。
 
 ### 题目
 
@@ -3165,6 +3313,10 @@ difficulty: 资深
 tags: [发布, 灰度, 回滚, 追问]
 parent: fullstack-rollout-guardrail
 generated: followup-script
+
+### 一句话
+
+验证要从可复现样例开始：准备正向、边界和失败用例，确认「全栈发布护栏：灰度、观测与自动回滚策略」不是只在理想输入下成立。；再补可观测指标：围绕「全栈发布护栏：灰度、观测与自动回滚策略」的工程可维护性应该能通过日志、耗时、错误率、命中率、覆盖率或用户行为指标。
 
 ### 题目
 
@@ -3317,6 +3469,10 @@ tags: [全栈, 契约, 兼容, 追问]
 parent: fullstack-contract-version-governance
 generated: followup-script
 
+### 一句话
+
+规模变大后先重新评估「全栈契约版本治理：前后端错峰发布如何保持兼容」瓶颈：数据量、并发、团队协作、浏览器兼容和维护成本哪个先触顶。；如果「全栈契约版本治理：前后端错峰发布如何保持兼容」对应的工程可维护性收益被复杂度抵消。
+
 ### 题目
 
 如果面试官追问：结合真实业务约束，真要把「全栈契约版本治理：前后端错峰发布如何保持兼容」推到线上，你会如何围绕 全栈 设计灰度节奏、回滚条件和迁移路径？
@@ -3342,6 +3498,10 @@ difficulty: 资深
 tags: [全栈, 契约, 兼容, 追问]
 parent: fullstack-contract-version-governance
 generated: followup-script
+
+### 一句话
+
+先把目标和约束说清楚，再展开实现：这能避免把「全栈契约版本治理：前后端错峰发布如何保持兼容」讲成只在理想输入下可用。；围绕「全栈契约版本治理：前后端错峰发布如何保持兼容」组织答案时，建议按「约束来源 -> 全栈 关键决策 -> 验证闭环」展开。。
 
 ### 题目
 
@@ -3380,6 +3540,10 @@ difficulty: 资深
 tags: [全栈, 契约, 兼容, 追问]
 parent: fullstack-contract-version-governance
 generated: followup-script
+
+### 一句话
+
+先明确这道追问要解决的业务目标，再说明「全栈契约版本治理：前后端错峰发布如何保持兼容」在当前约束下为什么成立。；建议按「输入约束 -> 全栈 执行链路 -> 结果验证」展开，并结合「全栈契约版本治理：前后端错峰发布如何保持兼容」给出一条可复核结果。
 
 ### 题目
 
@@ -3420,6 +3584,10 @@ tags: [全栈, 数据迁移, 回滚, 追问]
 parent: fullstack-schema-expand-contract
 generated: followup-script
 
+### 一句话
+
+先说判断标准，再说执行路径：回答「全栈数据迁移护栏：Expand-Contract、双写核对与安全回退」时要能同时解释收益、代价和失败信号。；回答顺序可用「现状问题 -> 全栈 方案动作 -> 验证结果」。
+
 ### 题目
 
 如果面试官追问：在当前团队与业务约束下，上线「全栈数据迁移护栏：Expand-Contract、双写核对与安全回退」前，你会优先验证哪些边界假设，避免方案在生产环境失真？
@@ -3459,6 +3627,10 @@ tags: [全栈, 数据迁移, 回滚, 追问]
 parent: fullstack-schema-expand-contract
 generated: followup-script
 
+### 一句话
+
+先说判断标准，再说执行路径：回答「全栈数据迁移护栏：Expand-Contract、双写核对与安全回退」时要能同时解释收益、代价和失败信号。；回答顺序可用「现状问题 -> 全栈 方案动作 -> 验证结果」。
+
 ### 题目
 
 如果面试官追问：以「全栈数据迁移护栏：Expand-Contract、双写核对与安全回退」为例，如果要让结论在 全栈 上可复核，你会怎样安排测试、日志和指标的组合验证？
@@ -3497,6 +3669,10 @@ difficulty: 资深
 tags: [全栈, 数据迁移, 回滚, 追问]
 parent: fullstack-schema-expand-contract
 generated: followup-script
+
+### 一句话
+
+规模变大后先重新评估「全栈数据迁移护栏：Expand-Contract、双写核对与安全回退」瓶颈：数据量、并发、团队协作、浏览器兼容和维护成本哪个先触顶。。
 
 ### 题目
 

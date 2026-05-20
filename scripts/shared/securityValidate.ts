@@ -49,6 +49,15 @@ export function readCspDirectiveValues(csp: string, directive: string): string[]
   return match.trim().split(/\s+/).filter(Boolean);
 }
 
+export function normalizeCspForMetaComparison(csp: string): string {
+  return csp
+    .split(';')
+    .map((item) => item.trim())
+    .filter(Boolean)
+    .filter((directive) => !/^frame-ancestors(\s|$)/i.test(directive))
+    .join('; ');
+}
+
 export function isBroadNetworkSource(token: string): boolean {
   return (
     token === '*' ||

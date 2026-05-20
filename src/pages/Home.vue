@@ -643,6 +643,9 @@ watch(
   display: inline-flex;
   align-items: center;
   gap: 6px;
+  width: 100%;
+  min-height: 40px;
+  justify-content: center;
 }
 .hero h1 {
   font-size: 28px;

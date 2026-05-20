@@ -2276,6 +2276,10 @@ tags: [原型, 继承, 追问]
 parent: prototype-chain
 generated: followup-script
 
+### 一句话
+
+先说判断标准，再说执行路径：回答「原型链是什么？查找规则和终点」时要能同时解释收益、代价和失败信号。；回答顺序可用「现状问题 -> 原型 方案动作 -> 验证结果」，并用「原型链是什么？查找规则和终点」举一条主链路说明。。
+
 ### 题目
 
 如果面试官追问：在当前团队与业务约束下，修改原型链（`Object.setPrototypeOf`）为什么是性能反模式？
@@ -2315,6 +2319,10 @@ tags: [原型, 继承, 追问]
 parent: prototype-chain
 generated: followup-script
 
+### 一句话
+
+先明确这道追问要解决的业务目标，再说明「原型链是什么？查找规则和终点」在当前约束下为什么成立。；回答结构可按「触发条件 -> 原型 机制 -> 风险兜底」展开，并以「原型链是什么？查找规则和终点」补一条失败场景，能体现工程拆解能力。。
+
 ### 题目
 
 如果面试官追问：ES6 `class` 和原型继承能 100% 等价吗？类字段、私有字段（`#x`）有什么不同？
@@ -2352,6 +2360,10 @@ difficulty: 基础
 tags: [this, 函数, 追问]
 parent: this-binding
 generated: followup-script
+
+### 一句话
+
+先明确这道追问要解决的业务目标，再说明「this 指向的七种场景」在当前约束下为什么成立。；回答结构可按「触发条件 -> this 机制 -> 风险兜底」展开，并以「this 指向的七种场景」补一条失败场景，能体现工程拆解能力。。
 
 ### 题目
 
@@ -2392,6 +2404,10 @@ tags: [this, 函数, 追问]
 parent: this-binding
 generated: followup-script
 
+### 一句话
+
+先把目标和约束说清楚，再展开实现：这能避免把「this 指向的七种场景」讲成只在理想输入下可用。；建议按「输入约束 -> this 执行链路 -> 结果验证」展开，并结合「this 指向的七种场景」给出一条可复核结果，能更快体现你对复杂场景的掌控力。。
+
 ### 题目
 
 如果面试官追问：以「this 指向的七种场景」为例，严格模式下默认绑定的 this 是什么？为什么这么设计？
@@ -2430,6 +2446,10 @@ difficulty: 基础
 tags: [闭包, 作用域, 追问]
 parent: closure
 generated: followup-script
+
+### 一句话
+
+先说判断标准，再说执行路径：回答「闭包的定义、用途与陷阱」时要能同时解释收益、代价和失败信号。；可以按「问题背景 -> 闭包 机制 -> 取舍边界」回答，再用「闭包的定义、用途与陷阱」补一个反例，避免停在口号层。。
 
 ### 题目
 
@@ -2470,6 +2490,10 @@ tags: [事件循环, 异步, 追问]
 parent: event-loop
 generated: followup-script
 
+### 一句话
+
+先说判断标准，再说执行路径：回答「浏览器事件循环：宏任务、微任务、RAF、IDLE」时要能同时解释收益、代价和失败信号。；讲「浏览器事件循环：宏任务、微任务、RAF、IDLE」时先给 事件循环 的判断口径，再补执行动作和回退条件，会更像真实评审发言。。
+
 ### 题目
 
 如果面试官追问：在「浏览器事件循环：宏任务、微任务、RAF、IDLE」场景下，`queueMicrotask`、`Promise.resolve().then` 哪个先执行？
@@ -2508,6 +2532,10 @@ difficulty: 进阶
 tags: [事件循环, 异步, 追问]
 parent: event-loop
 generated: followup-script
+
+### 一句话
+
+先说判断标准，再说执行路径：回答「浏览器事件循环：宏任务、微任务、RAF、IDLE」时要能同时解释收益、代价和失败信号。；回答顺序可用「现状问题 -> 事件循环 方案动作 -> 验证结果」。
 
 ### 题目
 
@@ -2548,6 +2576,10 @@ tags: [手写, 对象, 追问]
 parent: deep-clone
 generated: followup-script
 
+### 一句话
+
+先给可验证结论，再补证据链：面试官想确认你是否能把「深拷贝完整实现：循环引用、Symbol、特殊对象」落到真实交付，而不是停在概念层。；回答顺序可用「现状问题 -> 手写实现 方案动作 -> 验证结果」。
+
 ### 题目
 
 如果面试官追问：结合真实业务约束，拷贝一个含 DOM 节点的对象会怎样？
@@ -2584,6 +2616,10 @@ difficulty: 进阶
 tags: [手写, 对象, 追问]
 parent: deep-clone
 generated: followup-script
+
+### 一句话
+
+先明确这道追问要解决的业务目标，再说明「深拷贝完整实现：循环引用、Symbol、特殊对象」在当前约束下为什么成立。；回答结构可按「触发条件 -> 手写实现 机制 -> 风险兜底」展开，并以「深拷贝完整实现：循环引用、Symbol、特殊对象」补一条失败场景。
 
 ### 题目
 
@@ -2624,6 +2660,10 @@ tags: [模块化, Node, 追问]
 parent: esm-vs-cjs
 generated: followup-script
 
+### 一句话
+
+先说判断标准，再说执行路径：回答「ESM 与 CommonJS 的差异、互操作与陷阱」时要能同时解释收益、代价和失败信号。；讲「ESM 与 CommonJS 的差异、互操作与陷阱」时先给 模块化 的判断口径，再补执行动作和回退条件，会更像真实评审发言。。
+
 ### 题目
 
 如果面试官追问：在「ESM 与 CommonJS 的差异、互操作与陷阱」场景下，import 一个 CJS 模块时 default 怎么映射？
@@ -2662,6 +2702,10 @@ difficulty: 进阶
 tags: [模块化, Node, 追问]
 parent: esm-vs-cjs
 generated: followup-script
+
+### 一句话
+
+先把目标和约束说清楚，再展开实现：这能避免把「ESM 与 CommonJS 的差异、互操作与陷阱」讲成只在理想输入下可用。；围绕「ESM 与 CommonJS 的差异、互操作与陷阱」组织答案时。
 
 ### 题目
 
@@ -2702,6 +2746,10 @@ tags: [数组, 手写, 追问]
 parent: flatten-array
 generated: followup-script
 
+### 一句话
+
+规模变大后先重新评估「数组扁平化的多种实现」瓶颈：数据量、并发、团队协作、浏览器兼容和维护成本哪个先触顶。；如果「数组扁平化的多种实现」对应的复杂度和正确性收益被复杂度抵消，就要考虑分层、缓存、懒加载、批处理或更简单的替代方案。。
+
 ### 题目
 
 如果面试官追问：以「数组扁平化的多种实现」为例，如果数据规模扩大一个数量级，你会如何围绕 数组 调整数据结构或算法？
@@ -2728,6 +2776,10 @@ tags: [数组, 手写, 追问]
 parent: flatten-array
 generated: followup-script
 
+### 一句话
+
+验证要从可复现样例开始：准备正向、边界和失败用例，确认「数组扁平化的多种实现」不是只在理想输入下成立。；再补可观测指标：围绕「数组扁平化的多种实现」的复杂度和正确性应该能通过日志、耗时、错误率、命中率、覆盖率或用户行为指标观察到变化。。
+
 ### 题目
 
 如果面试官追问：如果要让「数组扁平化的多种实现」的正确性可复核，你会围绕 数组 设计哪些验证步骤？
@@ -2753,6 +2805,10 @@ difficulty: 基础
 tags: [设计模式, 手写, 追问]
 parent: event-emitter
 generated: followup-script
+
+### 一句话
+
+先给可验证结论，再补证据链：面试官想确认你是否能把「手写一个 EventEmitter」落到真实交付，而不是停在概念层。；回答顺序可用「现状问题 -> 设计模式 方案动作 -> 验证结果」，并用「手写一个 EventEmitter」举一条主链路说明。。
 
 ### 题目
 
@@ -2793,6 +2849,10 @@ tags: [设计模式, 手写, 追问]
 parent: event-emitter
 generated: followup-script
 
+### 一句话
+
+先给可验证结论，再补证据链：面试官想确认你是否能把「手写一个 EventEmitter」落到真实交付，而不是停在概念层。；讲「手写一个 EventEmitter」时先给 设计模式 的判断口径，再补执行动作和回退条件，会更像真实评审发言。。
+
 ### 题目
 
 如果面试官追问：在当前团队与业务约束下，为了确认「手写一个 EventEmitter」在 设计模式 上能持续跑稳，你会长期追哪些稳定性和效率信号？
@@ -2832,6 +2892,10 @@ tags: [手写, 性能, 追问]
 parent: debounce-immediate
 generated: followup-script
 
+### 一句话
+
+验证要从可复现样例开始：准备正向、边界和失败用例，确认「防抖（debounce）的 immediate 模式怎么实现」不是只在理想输入下成立。。
+
 ### 题目
 
 如果面试官追问：围绕「防抖（debounce）的 immediate 模式怎么实现」上线效果，你会优先看哪些和 手写 相关的真实用户指标来佐证体验提升？
@@ -2857,6 +2921,10 @@ difficulty: 进阶
 tags: [手写, 性能, 追问]
 parent: debounce-immediate
 generated: followup-script
+
+### 一句话
+
+先给可验证结论，再补证据链：面试官想确认你是否能把「防抖的 immediate 模式怎么实现」落到真实交付，而不是停在概念层。；讲「防抖的 immediate 模式怎么实现」时先给 手写实现 的判断口径，再补执行动作和回退条件，会更像真实评审发言。。
 
 ### 题目
 
@@ -2897,6 +2965,10 @@ tags: [async, 事件循环, 追问]
 parent: async-await
 generated: followup-script
 
+### 一句话
+
+先说判断标准，再说执行路径：回答「async/await 在事件循环里的真实执行顺序」时要能同时解释收益、代价和失败信号。；回答顺序可用「现状问题 -> async 方案动作 -> 验证结果」。
+
 ### 题目
 
 如果面试官追问：以「async/await 在事件循环里的真实执行顺序」为例，如果要让结论在 async 上可复核，你会怎样安排测试、日志和指标的组合验证？
@@ -2935,6 +3007,10 @@ difficulty: 进阶
 tags: [async, 事件循环, 追问]
 parent: async-await
 generated: followup-script
+
+### 一句话
+
+先说判断标准，再说执行路径：回答「async/await 在事件循环里的真实执行顺序」时要能同时解释收益、代价和失败信号。；可以按「问题背景 -> async 机制 -> 取舍边界」回答。
 
 ### 题目
 
@@ -2975,6 +3051,10 @@ tags: [Proxy, 元编程, 追问]
 parent: proxy-reflect
 generated: followup-script
 
+### 一句话
+
+先说判断标准，再说执行路径：回答「Proxy 与 Reflect：13 种 trap 与 receiver 正确性」时要能同时解释收益、代价和失败信号。。
+
 ### 题目
 
 如果面试官追问：在当前团队与业务约束下，为了证明这个方案在 Proxy 维度有效，你会怎么设计测试闭环和线上观测指标？
@@ -3014,6 +3094,10 @@ tags: [Proxy, 元编程, 追问]
 parent: proxy-reflect
 generated: followup-script
 
+### 一句话
+
+规模变大后先重新评估「Proxy 与 Reflect：13 种 trap 与 receiver 正确性」瓶颈：数据量、并发、团队协作、浏览器兼容和维护成本哪个先触顶。。
+
 ### 题目
 
 如果面试官追问：结合真实业务约束，当约束变化导致成本上升时，你会先优化「Proxy 与 Reflect：13 种 trap 与 receiver 正确性」里和 Proxy 相关的哪些环节？
@@ -3039,6 +3123,10 @@ difficulty: 进阶
 tags: [迭代器, 生成器, 追问]
 parent: iterator-generator
 generated: followup-script
+
+### 一句话
+
+先把目标和约束说清楚，再展开实现：这能避免把「迭代器、生成器与异步迭代」讲成只在理想输入下可用。；建议按「输入约束 -> 迭代器 执行链路 -> 结果验证」展开，并结合「迭代器、生成器与异步迭代」给出一条可复核结果，能更快体现你对复杂场景的掌控力。。
 
 ### 题目
 
@@ -3079,6 +3167,10 @@ tags: [迭代器, 生成器, 追问]
 parent: iterator-generator
 generated: followup-script
 
+### 一句话
+
+规模变大后先重新评估「迭代器、生成器与异步迭代」瓶颈：数据量、并发、团队协作、浏览器兼容和维护成本哪个先触顶。；如果「迭代器、生成器与异步迭代」对应的核心机制收益被复杂度抵消，就要考虑分层、缓存、懒加载、批处理或更简单的替代方案。。
+
 ### 题目
 
 如果面试官追问：结合真实业务约束，当约束变化导致成本上升时，你会先优化「迭代器、生成器与异步迭代」里和 迭代器 相关的哪些环节？
@@ -3104,6 +3196,10 @@ difficulty: 进阶
 tags: [克隆, postMessage, 追问]
 parent: structured-clone
 generated: followup-script
+
+### 一句话
+
+验证要从可复现样例开始：准备正向、边界和失败用例，确认「结构化克隆 vs JSON 序列化」不是只在理想输入下成立。；再补可观测指标：围绕「结构化克隆 vs JSON 序列化」的核心机制应该能通过日志、耗时、错误率、命中率、覆盖率或用户行为指标观察到变化。。
 
 ### 题目
 
@@ -3131,6 +3227,10 @@ tags: [克隆, postMessage, 追问]
 parent: structured-clone
 generated: followup-script
 
+### 一句话
+
+推动「结构化克隆 vs JSON 序列化」落地时先收敛改动面：选低风险页面或模块试点，保留旧路径作为对照。；「结构化克隆 vs JSON 序列化」迁移计划要说明数据兼容、配置开关、监控指标和失败后的恢复路径。；团队推进重点不是一次性重写。
+
 ### 题目
 
 如果面试官追问：在「结构化克隆 vs JSON 序列化」场景下，当需求复杂度增长但团队产能有限时，你会如何围绕 克隆 拆分「结构化克隆 vs JSON 序列化」的落地路径？
@@ -3156,6 +3256,10 @@ difficulty: 进阶
 tags: [模板字符串, 标签模板, 追问]
 parent: tagged-template-literal
 generated: followup-script
+
+### 一句话
+
+先把目标和约束说清楚，再展开实现：这能避免把「模板字符串与标签模板的实战」讲成只在理想输入下可用。；回答结构可按「触发条件 -> 模板字符串 机制 -> 风险兜底」展开，并以「模板字符串与标签模板的实战」补一条失败场景，能体现工程拆解能力。。
 
 ### 题目
 
@@ -3196,6 +3300,10 @@ tags: [模板字符串, 标签模板, 追问]
 parent: tagged-template-literal
 generated: followup-script
 
+### 一句话
+
+规模变大后先重新评估「模板字符串与标签模板的实战」瓶颈：数据量、并发、团队协作、浏览器兼容和维护成本哪个先触顶。；如果「模板字符串与标签模板的实战」对应的核心机制收益被复杂度抵消，就要考虑分层、缓存、懒加载、批处理或更简单的替代方案。。
+
 ### 题目
 
 如果面试官追问：在「模板字符串与标签模板的实战」场景下，如果兼容性压力突然升高，你会如何围绕 模板字符串 重新划分「模板字符串与标签模板的实战」的实施阶段？
@@ -3221,6 +3329,10 @@ difficulty: 资深
 tags: [WeakMap, GC, 追问]
 parent: weak-collection
 generated: followup-script
+
+### 一句话
+
+先给可验证结论，再补证据链：面试官想确认你是否能把「WeakMap / WeakSet / WeakRef 与垃圾回收」落到真实交付，而不是停在概念层。。
 
 ### 题目
 
@@ -3261,6 +3373,10 @@ tags: [WeakMap, GC, 追问]
 parent: weak-collection
 generated: followup-script
 
+### 一句话
+
+先给可验证结论，再补证据链：面试官想确认你是否能把「WeakMap / WeakSet / WeakRef 与垃圾回收」落到真实交付，而不是停在概念层。。
+
 ### 题目
 
 如果面试官追问：在当前团队与业务约束下，遇到约束变化时，你会如何围绕 WeakMap 拆分方案演进路径，而不是一次性推翻重来？
@@ -3299,6 +3415,10 @@ difficulty: 进阶
 tags: [this, 函数, 追问]
 parent: bind-call-apply
 generated: followup-script
+
+### 一句话
+
+先明确这道追问要解决的业务目标，再说明「bind / call / apply 的区别与手写实现」在当前约束下为什么成立。；回答结构可按「触发条件 -> this 机制 -> 风险兜底」展开。
 
 ### 题目
 
@@ -3339,6 +3459,10 @@ tags: [this, 函数, 追问]
 parent: bind-call-apply
 generated: followup-script
 
+### 一句话
+
+推动「bind / call / apply 的区别与手写实现」落地时先收敛改动面：选低风险页面或模块试点，保留旧路径作为对照。；「bind / call / apply 的区别与手写实现」迁移计划要说明数据兼容、配置开关、监控指标和失败后的恢复路径。。
+
 ### 题目
 
 如果面试官追问：在「bind / call / apply 的区别与手写实现」场景下，当需求复杂度增长但团队产能有限时，你会如何围绕 this 拆分「bind / call / apply 的区别与手写实现」的落地路径？
@@ -3364,6 +3488,10 @@ difficulty: 进阶
 tags: [对象, 函数, 追问]
 parent: new-operator
 generated: followup-script
+
+### 一句话
+
+先说判断标准，再说执行路径：回答「new 操作符做了哪些事，怎么手写」时要能同时解释收益、代价和失败信号。；回答顺序可用「现状问题 -> 对象 方案动作 -> 验证结果」，并用「new 操作符做了哪些事，怎么手写」举一条主链路说明。。
 
 ### 题目
 
@@ -3404,6 +3532,10 @@ tags: [对象, 函数, 追问]
 parent: new-operator
 generated: followup-script
 
+### 一句话
+
+推动「new 操作符做了哪些事，怎么手写」落地时先收敛改动面：选低风险页面或模块试点，保留旧路径作为对照。；「new 操作符做了哪些事，怎么手写」迁移计划要说明数据兼容、配置开关、监控指标和失败后的恢复路径。；团队推进重点不是一次性重写。
+
 ### 题目
 
 如果面试官追问：从工程落地角度看，当需求复杂度增长但团队产能有限时，你会如何围绕 对象 拆分「new 操作符做了哪些事，怎么手写」的落地路径？
@@ -3429,6 +3561,10 @@ difficulty: 进阶
 tags: [异步, Promise, 追问]
 parent: promise-all-allsettled-race-any
 generated: followup-script
+
+### 一句话
+
+先把目标和约束说清楚，再展开实现：这能避免把「Promise.all / allSettled / race / any 的差异和典型用法」讲成只在理想输入下可用。；回答结构可按「触发条件 -> 异步 机制 -> 风险兜底」展开。
 
 ### 题目
 
@@ -3468,6 +3604,10 @@ difficulty: 进阶
 tags: [异步, Promise, 追问]
 parent: promise-all-allsettled-race-any
 generated: followup-script
+
+### 一句话
+
+推动「Promise.all / allSettled / race / any 的差异和典型用法」落地时先收敛改动面：选低风险页面或模块试点，保留旧路径作为对照。。
 
 ### 题目
 
@@ -3628,6 +3768,10 @@ tags: [异常治理, runtime, 决策沟通, 追问]
 parent: javascript-runtime-error-warroom
 generated: followup-script
 
+### 一句话
+
+第一件事先验“判定口径”：错误率、影响用户数、业务指标跌幅是否统一，避免每个团队各说各话。；第二件事先验“动作权限”：谁能一键关特性、谁能拍板回滚、谁负责对外同步要提前写清。；第三件事先验“演练闭环”：至少做一次故障演练。
+
 ### 题目
 
 如果面试官追问：运行时异常战情室真正落到线上前，你会先验哪三件事，确保故障来了不是临时拍脑袋？
@@ -3653,6 +3797,10 @@ difficulty: 资深
 tags: [异常治理, runtime, 决策沟通, 追问]
 parent: javascript-runtime-error-warroom
 generated: followup-script
+
+### 一句话
+
+测试侧：做一组“高频报错 + 慢接口 + 弱网”组合场景，验证告警是否能准确触发。；观测侧：同屏看错误率、关键路径成功率、转化波动，确认技术信号与业务信号一致。；决策侧：把降级阈值和回滚阈值写成规则，避免故障时临场争论拖慢响应。
 
 ### 题目
 
@@ -3680,6 +3828,10 @@ tags: [异常治理, runtime, 决策沟通, 追问]
 parent: javascript-runtime-error-warroom
 generated: followup-script
 
+### 一句话
+
+我会盯三组长期指标：故障发现时长、止损生效时长、同类事故复发率。；再补两组协作指标：跨团队同步延迟和决策分歧次数，判断机制是否在组织层面可持续。；最后看收益指标：事故期业务跌幅是否持续收敛，证明机制不是“流程更复杂但收益不变”。
+
 ### 题目
 
 如果面试官追问：这套战情室机制不是只应急一次就结束，你会长期跟踪哪些信号来判断它是否真的稳定有效？
@@ -3705,6 +3857,10 @@ difficulty: 资深
 tags: [兼容治理, polyfill, 发布策略, 追问]
 parent: javascript-polyfill-baseline-governance
 generated: followup-script
+
+### 一句话
+
+先看支持矩阵是否真实：低版本浏览器占比、关键业务路径覆盖率、地区分布要有数据。；再看降级路径是否可用：fallback bundle、特性开关、回滚包必须真实跑过而不是停在文档里。；最后看成本边界：包体增长和解析耗时是否在预算内，超阈值要触发拦截或审批。
 
 ### 题目
 
@@ -3732,6 +3888,10 @@ tags: [兼容治理, polyfill, 发布策略, 追问]
 parent: javascript-polyfill-baseline-governance
 generated: followup-script
 
+### 一句话
+
+我会先展示“兼容命中数据”：低版本错误率、fallback 命中率、关键路径成功率变化。；再展示“性能与成本数据”：包体增量、解析耗时、首屏指标波动，证明收益和代价可量化。；最后展示“治理效果数据”：无效 polyfill 清理量、遗留分支回收量、事故率趋势。
+
 ### 题目
 
 如果面试官追问：复盘这次语法升级和 polyfill 治理，你会拿哪些关键证据向团队证明方案确实有效？
@@ -3757,6 +3917,10 @@ difficulty: 资深
 tags: [兼容治理, polyfill, 发布策略, 追问]
 parent: javascript-polyfill-baseline-governance
 generated: followup-script
+
+### 一句话
+
+收益侧看三项：开发效率提升、线上兼容事故下降、关键体验指标是否持续改善。；成本侧看三项：新增 polyfill 维护量、兼容分支复杂度、构建与调试耗时变化。；决策侧设一条止损线：当收益连续下滑且维护成本上升到阈值，就暂停升级节奏改做债务回收。
 
 ### 题目
 

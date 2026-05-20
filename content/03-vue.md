@@ -2363,6 +2363,10 @@ tags: [架构, 响应式, 迁移, 追问]
 parent: vue2-vs-vue3
 generated: followup-script
 
+### 一句话
+
+先明确这道追问要解决的业务目标，再说明「Vue2 与 Vue3 的设计差异总览」在当前约束下为什么成立。；回答结构可按「触发条件 -> 架构方案 机制 -> 风险兜底」展开，并以「Vue2 与 Vue3 的设计差异总览」补一条失败场景。
+
 ### 题目
 
 如果面试官追问：在当前团队与业务约束下，如果「Vue2 与 Vue3 的设计差异总览」逐渐出现状态耦合或排障困难，你会怎么拆分 架构方案 并验证拆分效果？
@@ -2401,6 +2405,10 @@ difficulty: 基础
 tags: [架构, 响应式, 迁移, 追问]
 parent: vue2-vs-vue3
 generated: followup-script
+
+### 一句话
+
+先说判断标准，再说执行路径：回答「Vue2 与 Vue3 的设计差异总览」时要能同时解释收益、代价和失败信号。；回答顺序可用「现状问题 -> 架构方案 方案动作 -> 验证结果」，并用「Vue2 与 Vue3 的设计差异总览」举一条主链路说明。。
 
 ### 题目
 
@@ -2441,6 +2449,10 @@ tags: [响应式, 原理, 追问]
 parent: effect-track-trigger
 generated: followup-script
 
+### 一句话
+
+先给可验证结论，再补证据链：面试官想确认你是否能把「Vue3 响应式系统的 track / trigger 是怎么工作的」落到真实交付，而不是停在概念层。。
+
 ### 题目
 
 如果面试官追问：在当前团队与业务约束下，如果团队反馈「Vue3 响应式系统的 track / trigger 是怎么工作的」不好维护，你会如何围绕 响应式 做分层重构和验证？
@@ -2479,6 +2491,10 @@ difficulty: 资深
 tags: [响应式, 原理, 追问]
 parent: effect-track-trigger
 generated: followup-script
+
+### 一句话
+
+先给可验证结论，再补证据链：面试官想确认你是否能把「Vue3 响应式系统的 track / trigger 是怎么工作的」落到真实交付，而不是停在概念层。。
 
 ### 题目
 
@@ -2519,6 +2535,10 @@ tags: [渲染, 调度, 追问]
 parent: scheduler-nexttick
 generated: followup-script
 
+### 一句话
+
+先给可验证结论，再补证据链：面试官想确认你是否能把「Scheduler、批量更新与 nextTick 的真实含义」落到真实交付，而不是停在概念层。；回答顺序可用「现状问题 -> 渲染路径 方案动作 -> 验证结果」。
+
 ### 题目
 
 如果面试官追问：在「Scheduler、批量更新与 nextTick 的真实含义」场景下，如果实验室分数变好但线上反馈一般，你会如何围绕 渲染路径 重新评估「Scheduler、批量更新与 nextTick 的真实含义」优化效果？
@@ -2557,6 +2577,10 @@ difficulty: 进阶
 tags: [渲染, 调度, 追问]
 parent: scheduler-nexttick
 generated: followup-script
+
+### 一句话
+
+先给可验证结论，再补证据链：面试官想确认你是否能把「Scheduler、批量更新与 nextTick 的真实含义」落到真实交付，而不是停在概念层。；可以按「问题背景 -> 渲染路径 机制 -> 取舍边界」回答。
 
 ### 题目
 
@@ -2597,6 +2621,10 @@ tags: [编译, SFC, 追问]
 parent: sfc-compile
 generated: followup-script
 
+### 一句话
+
+先把目标和约束说清楚，再展开实现：这能避免把「模板编译、SFC 编译与 <script setup 的编译产物」讲成只在理想输入下可用。；围绕「模板编译、SFC 编译与 <script setup 的编译产物」组织答案时。
+
 ### 题目
 
 如果面试官追问：从工程落地角度看，script setup 编译产物大致长什么样？
@@ -2636,6 +2664,10 @@ tags: [编译, SFC, 追问]
 parent: sfc-compile
 generated: followup-script
 
+### 一句话
+
+先把目标和约束说清楚，再展开实现：这能避免把「模板编译、SFC 编译与 <script setup 的编译产物」讲成只在理想输入下可用。；建议按「输入约束 -> 编译 执行链路 -> 结果验证」展开。
+
 ### 题目
 
 如果面试官追问：在当前团队与业务约束下，v-bind 在 style 里的用法？
@@ -2672,6 +2704,10 @@ difficulty: 进阶
 tags: [组件通信, 设计, 追问]
 parent: component-communication
 generated: followup-script
+
+### 一句话
+
+先明确这道追问要解决的业务目标，再说明「Vue 组件通信方案怎么选」在当前约束下为什么成立。；建议按「输入约束 -> 组件通信 执行链路 -> 结果验证」展开，并结合「Vue 组件通信方案怎么选」给出一条可复核结果，能更快体现你对复杂场景的掌控力。。
 
 ### 题目
 
@@ -2712,6 +2748,10 @@ tags: [组件通信, 设计, 追问]
 parent: component-communication
 generated: followup-script
 
+### 一句话
+
+先说判断标准，再说执行路径：回答「Vue 组件通信方案怎么选」时要能同时解释收益、代价和失败信号。；可以按「问题背景 -> 组件通信 机制 -> 取舍边界」回答，再用「Vue 组件通信方案怎么选」补一个反例，避免停在口号层。。
+
 ### 题目
 
 如果面试官追问：结合真实业务约束，在评审「Vue 组件通信方案怎么选」时，你会如何围绕 组件通信 向团队解释“什么时候值得用，什么时候别硬上”？
@@ -2750,6 +2790,10 @@ difficulty: 进阶
 tags: [Pinia, Router, 追问]
 parent: pinia-router
 generated: followup-script
+
+### 一句话
+
+先说判断标准，再说执行路径：回答「Pinia 与 Vue Router 4 的工程实践」时要能同时解释收益、代价和失败信号。；可以按「问题背景 -> Pinia 机制 -> 取舍边界」回答。
 
 ### 题目
 
@@ -2790,6 +2834,10 @@ tags: [Pinia, Router, 追问]
 parent: pinia-router
 generated: followup-script
 
+### 一句话
+
+先给可验证结论，再补证据链：面试官想确认你是否能把「Pinia 与 Vue Router 4 的工程实践」落到真实交付，而不是停在概念层。；回答顺序可用「现状问题 -> Pinia 方案动作 -> 验证结果」。
+
 ### 题目
 
 如果面试官追问：在「Pinia 与 Vue Router 4 的工程实践」场景下，如果要对比「Pinia 与 Vue Router 4 的工程实践」和替代方案，你会先看学习成本、维护成本还是 Pinia 相关收益速度？
@@ -2829,6 +2877,10 @@ tags: [性能优化, v-memo, v-once, 追问]
 parent: vue-performance-practice
 generated: followup-script
 
+### 一句话
+
+验证要从可复现样例开始：准备正向、边界和失败用例，确认「Vue 性能优化：v-once、v-memo、shallowRef、虚拟列表怎么配合」不是只在理想输入下成立。。
+
 ### 题目
 
 如果面试官追问：结合真实业务约束，你会怎样验证「Vue 性能优化：v-once、v-memo、shallowRef、虚拟列表怎么配合」在 性能优化 维度上的优化收益在真实设备和真实网络下也成立？
@@ -2854,6 +2906,10 @@ difficulty: 资深
 tags: [性能优化, v-memo, v-once, 追问]
 parent: vue-performance-practice
 generated: followup-script
+
+### 一句话
+
+先说判断标准，再说执行路径：回答「Vue 性能优化：v-once、v-memo、shallowRef、虚拟列表怎么配合」时要能同时解释收益、代价和失败信号。；回答顺序可用「现状问题 -> 性能优化 方案动作 -> 验证结果」。
 
 ### 题目
 
@@ -2894,6 +2950,10 @@ tags: [Composables, 复用, 设计, 追问]
 parent: composables-design
 generated: followup-script
 
+### 一句话
+
+推动「composables 设计规范：命名、参数、返回值与副作用」落地时先收敛改动面：选低风险页面或模块试点，保留旧路径作为对照。。
+
 ### 题目
 
 如果面试官追问：在当前团队与业务约束下，团队里有人熟有人新时，你会怎么围绕 Composables 把「composables 设计规范：命名、参数、返回值与副作用」拆成几段推进，确保每段都能独立验收？
@@ -2920,6 +2980,10 @@ tags: [Composables, 复用, 设计, 追问]
 parent: composables-design
 generated: followup-script
 
+### 一句话
+
+验证要从可复现样例开始：准备正向、边界和失败用例，确认「composables 设计规范：命名、参数、返回值与副作用」不是只在理想输入下成立。。
+
 ### 题目
 
 如果面试官追问：在当前团队与业务约束下，要判断「composables 设计规范：命名、参数、返回值与副作用」值不值得长期维护，你会先盯哪些和 Composables 相关的核心指标？
@@ -2945,6 +3009,10 @@ difficulty: 进阶
 tags: [Nuxt, SSR, 追问]
 parent: nuxt3-overview
 generated: followup-script
+
+### 一句话
+
+先明确这道追问要解决的业务目标，再说明「Nuxt 3 的核心价值：SSR、SSG、Nitro、payload」在当前约束下为什么成立。；建议按「输入约束 -> Nuxt 执行链路 -> 结果验证」展开。
 
 ### 题目
 
@@ -2985,6 +3053,10 @@ tags: [Nuxt, SSR, 追问]
 parent: nuxt3-overview
 generated: followup-script
 
+### 一句话
+
+先给可验证结论，再补证据链：面试官想确认你是否能把「Nuxt 3 的核心价值：SSR、SSG、Nitro、payload」落到真实交付，而不是停在概念层。；可以按「问题背景 -> Nuxt 机制 -> 取舍边界」回答。
+
 ### 题目
 
 如果面试官追问：结合真实业务约束，如果团队人数、交付节奏和业务复杂度不同，你会怎么基于 Nuxt 判断该不该选「Nuxt 3 的核心价值：SSR、SSG、Nitro、payload」？
@@ -3024,6 +3096,10 @@ tags: [Vapor, 编译优化, 追问]
 parent: vapor-mode
 generated: followup-script
 
+### 一句话
+
+验证要从可复现样例开始：准备正向、边界和失败用例，确认「Vue 3.5 Vapor Mode 与无 VDOM 渲染」不是只在理想输入下成立。。
+
 ### 题目
 
 如果面试官追问：从工程落地角度看，如果实验室分数变好但线上反馈一般，你会如何围绕 Vapor 重新评估「Vue 3.5 Vapor Mode 与无 VDOM 渲染」优化效果？
@@ -3049,6 +3125,10 @@ difficulty: 资深
 tags: [Vapor, 编译优化, 追问]
 parent: vapor-mode
 generated: followup-script
+
+### 一句话
+
+先明确这道追问要解决的业务目标，再说明「Vue 3.5 Vapor Mode 与无 VDOM 渲染」在当前约束下为什么成立。；建议按「输入约束 -> Vapor 执行链路 -> 结果验证」展开。
 
 ### 题目
 
@@ -3089,6 +3169,10 @@ tags: [性能, Vue, 追问]
 parent: vue-perf-deep
 generated: followup-script
 
+### 一句话
+
+先给可验证结论，再补证据链：面试官想确认你是否能把「Vue 项目大促前的性能体检清单」落到真实交付，而不是停在概念层。；讲「Vue 项目大促前的性能体检清单」时先给 性能瓶颈 的判断口径，再补执行动作和回退条件，会更像真实评审发言。。
+
 ### 题目
 
 如果面试官追问：你会怎样验证「Vue 项目大促前的性能体检清单」在 性能瓶颈 维度上的优化收益在真实设备和真实网络下也成立？
@@ -3128,6 +3212,10 @@ tags: [性能, Vue, 追问]
 parent: vue-perf-deep
 generated: followup-script
 
+### 一句话
+
+验证要从可复现样例开始：准备正向、边界和失败用例，确认「Vue 项目大促前的性能体检清单」不是只在理想输入下成立。；再补可观测指标：围绕「Vue 项目大促前的性能体检清单」的性能收益应该能通过日志、耗时、错误率、命中率、覆盖率或用户行为指标观察到变化。。
+
 ### 题目
 
 如果面试官追问：如果优化带来复杂度或兼容性成本，你会怎么评估「Vue 项目大促前的性能体检清单」是否值得做？
@@ -3153,6 +3241,10 @@ difficulty: 进阶
 tags: [响应式, Vue3, 追问]
 parent: vue3-vs-vue2-reactivity
 generated: followup-script
+
+### 一句话
+
+先明确这道追问要解决的业务目标，再说明「Vue 3 的 Proxy 响应式相比 Vue 2 的 defineProperty 解决了什么」在当前约束下为什么成立。；建议按「输入约束 -> 响应式 执行链路 -> 结果验证」展开。
 
 ### 题目
 
@@ -3193,6 +3285,10 @@ tags: [响应式, Vue3, 追问]
 parent: vue3-vs-vue2-reactivity
 generated: followup-script
 
+### 一句话
+
+规模变大后先重新评估「Vue 3 的 Proxy 响应式相比 Vue 2 的 defineProperty 解决了什么」瓶颈：数据量、并发、团队协作、浏览器兼容和维护成本哪个先触顶。。
+
 ### 题目
 
 如果面试官追问：从工程落地角度看，和常见替代方案相比，「Vue 3 的 Proxy 响应式相比 Vue 2 的 defineProperty 解决了什么」在 响应式 这个维度更适合什么团队规模与业务复杂度？
@@ -3218,6 +3314,10 @@ difficulty: 基础
 tags: [组件, Vue3, 追问]
 parent: vue-component-communication
 generated: followup-script
+
+### 一句话
+
+先给可验证结论，再补证据链：面试官想确认你是否能把「Vue 3 组件之间通信有哪些方式」落到真实交付，而不是停在概念层。；回答顺序可用「现状问题 -> 组件 方案动作 -> 验证结果」，并用「Vue 3 组件之间通信有哪些方式」举一条主链路说明。。
 
 ### 题目
 
@@ -3258,6 +3358,10 @@ tags: [组件, Vue3, 追问]
 parent: vue-component-communication
 generated: followup-script
 
+### 一句话
+
+规模变大后先重新评估「Vue 3 组件之间通信有哪些方式」瓶颈：数据量、并发、团队协作、浏览器兼容和维护成本哪个先触顶。；如果「Vue 3 组件之间通信有哪些方式」对应的响应式与组件边界收益被复杂度抵消。
+
 ### 题目
 
 如果面试官追问：从工程落地角度看，和常见替代方案相比，「Vue 3 组件之间通信有哪些方式」在 组件 这个维度更适合什么团队规模与业务复杂度？
@@ -3284,6 +3388,10 @@ tags: [异步, 性能, 追问]
 parent: vue-async-component-suspense
 generated: followup-script
 
+### 一句话
+
+验证要从可复现样例开始：准备正向、边界和失败用例，确认「Vue 3 异步组件 + Suspense 怎么做骨架屏与错误兜底」不是只在理想输入下成立。。
+
 ### 题目
 
 如果面试官追问：在当前团队与业务约束下，你会如何结合 异步 指标，避免把「Vue 3 异步组件 + Suspense 怎么做骨架屏与错误兜底」的实验室提升误判为真实用户体验改善？
@@ -3309,6 +3417,10 @@ difficulty: 进阶
 tags: [异步, 性能, 追问]
 parent: vue-async-component-suspense
 generated: followup-script
+
+### 一句话
+
+先说判断标准，再说执行路径：回答「Vue 3 异步组件 + Suspense 怎么做骨架屏与错误兜底」时要能同时解释收益、代价和失败信号。；回答顺序可用「现状问题 -> 异步 方案动作 -> 验证结果」。
 
 ### 题目
 
@@ -3349,6 +3461,10 @@ tags: [高级组件, SSR, 追问]
 parent: advanced-features
 generated: followup-script
 
+### 一句话
+
+先给可验证结论，再补证据链：面试官想确认你是否能把「KeepAlive、Teleport、Suspense、异步组件分别解决什么问题」落到真实交付，而不是停在概念层。；回答顺序可用「现状问题 -> 高级组件 方案动作 -> 验证结果」。
+
 ### 题目
 
 如果面试官追问：在当前团队与业务约束下，如果要向团队复盘 高级组件 相关优化，你会展示哪些关键日志和指标来支撑结论？
@@ -3388,6 +3504,10 @@ tags: [高级组件, SSR, 追问]
 parent: advanced-features
 generated: followup-script
 
+### 一句话
+
+规模变大后先重新评估「KeepAlive、Teleport、Suspense、异步组件分别解决什么问题」瓶颈：数据量、并发、团队协作、浏览器兼容和维护成本哪个先触顶。。
+
 ### 题目
 
 如果面试官追问：以「KeepAlive、Teleport、Suspense、异步组件分别解决什么问题」为例，当约束变化导致成本上升时，你会先优化「KeepAlive、Teleport、Suspense、异步组件分别解决什么问题」里和 高级组件 相关的哪些环节？
@@ -3413,6 +3533,10 @@ difficulty: 进阶
 tags: [RenderFunction, JSX, 指令, 追问]
 parent: render-jsx-directive
 generated: followup-script
+
+### 一句话
+
+先给可验证结论，再补证据链：面试官想确认你是否能把「render 函数、JSX 与自定义指令分别适合什么场景」落到真实交付，而不是停在概念层。；回答顺序可用「现状问题 -> RenderFunction 方案动作 -> 验证结果」。
 
 ### 题目
 
@@ -3453,6 +3577,10 @@ tags: [RenderFunction, JSX, 指令, 追问]
 parent: render-jsx-directive
 generated: followup-script
 
+### 一句话
+
+规模变大后先重新评估「render 函数、JSX 与自定义指令分别适合什么场景」瓶颈：数据量、并发、团队协作、浏览器兼容和维护成本哪个先触顶。；如果「render 函数、JSX 与自定义指令分别适合什么场景」对应的核心机制收益被复杂度抵消。
+
 ### 题目
 
 如果面试官追问：以「render 函数、JSX 与自定义指令分别适合什么场景」为例，面对规模与资源变化并存时，你会如何围绕 RenderFunction 调整「render 函数、JSX 与自定义指令分别适合什么场景」的推进顺序？
@@ -3478,6 +3606,10 @@ difficulty: 进阶
 tags: [生命周期, 调试, 错误边界, 追问]
 parent: lifecycle-debug-hooks
 generated: followup-script
+
+### 一句话
+
+先明确这道追问要解决的业务目标，再说明「生命周期、错误边界与调试钩子怎么用」在当前约束下为什么成立。；建议按「输入约束 -> 生命周期 执行链路 -> 结果验证」展开，并结合「生命周期、错误边界与调试钩子怎么用」给出一条可复核结果。
 
 ### 题目
 
@@ -3517,6 +3649,10 @@ difficulty: 进阶
 tags: [生命周期, 调试, 错误边界, 追问]
 parent: lifecycle-debug-hooks
 generated: followup-script
+
+### 一句话
+
+先把目标和约束说清楚，再展开实现：这能避免把「生命周期、错误边界与调试钩子怎么用」讲成只在理想输入下可用。；回答结构可按「触发条件 -> 生命周期 机制 -> 风险兜底」展开，并以「生命周期、错误边界与调试钩子怎么用」补一条失败场景，能体现工程拆解能力。。
 
 ### 题目
 
@@ -3690,6 +3826,10 @@ tags: [升级治理, 发布策略, 决策沟通, 追问]
 parent: vue-upgrade-release-command-bridge
 generated: followup-script
 
+### 一句话
+
+我会按“基础依赖 -> 公共组件 -> 业务页面”分层推进，先稳底座再动上层。；高风险组件（状态管理、路由守卫、异步边界）优先做对照验证，不与业务大改并行。；每一步都绑定可回退版本，确保局部升级失败不会拖垮全局。
+
 ### 题目
 
 如果面试官追问：Vue 升级发布时，为避免时序错位和状态抖动，你会如何安排“先升级谁、后升级谁”？
@@ -3715,6 +3855,10 @@ difficulty: 资深
 tags: [升级治理, 发布策略, 决策沟通, 追问]
 parent: vue-upgrade-release-command-bridge
 generated: followup-script
+
+### 一句话
+
+我会看三组信号：关键路径错误率、版本相关告警趋势、回滚触发次数。；再看协同信号：发布决策等待时长和跨团队反复确认次数是否下降。；只有“稳定性提升 + 协同成本下降”同时成立，才算升级发布机制生效。
 
 ### 题目
 
@@ -3742,6 +3886,10 @@ tags: [升级治理, 发布策略, 决策沟通, 追问]
 parent: vue-upgrade-release-command-bridge
 generated: followup-script
 
+### 一句话
+
+低复杂业务可走快路径：一次性升级 + 短观察窗；中复杂业务走分模块灰度。；高复杂业务必须走双轨：新旧路径并行、关键流量分层放量、回滚预案常备。；分层依据要可量化：依赖深度、关键路径数量、插件兼容风险三项为主。
+
 ### 题目
 
 如果面试官追问：面对不同业务复杂度，你会怎么分层推荐 Vue 升级策略，而不是“一套方案走天下”？
@@ -3767,6 +3915,10 @@ difficulty: 资深
 tags: [SSR, hydration, 事故处置, 追问]
 parent: vue-hydration-incident-playbook
 generated: followup-script
+
+### 一句话
+
+我会优先检查三类输入：随机值/时区差异、异步数据时序漂移、仅客户端执行分支。；这些输入最容易导致 SSR/CSR 渲染结果不一致，流程再快也会误判。；先锁定可复现场景，再决定是否路由级降级，避免“全站误伤”。
 
 ### 题目
 
@@ -3794,6 +3946,10 @@ tags: [SSR, hydration, 事故处置, 追问]
 parent: vue-hydration-incident-playbook
 generated: followup-script
 
+### 一句话
+
+我会看四个证据：mismatch 告警趋势、关键事件恢复率、路由降级成功率、回切后稳定性。；再补执行证据：处置时长是否缩短、结论反转是否减少。；如果告警下降但关键事件没恢复，说明只是“消音”不是“修复”。
+
 ### 题目
 
 如果面试官追问：你说 Hydration 处置闭环有效，会用哪些证据证明不是“看起来在处理”？
@@ -3819,6 +3975,10 @@ difficulty: 资深
 tags: [SSR, hydration, 事故处置, 追问]
 parent: vue-hydration-incident-playbook
 generated: followup-script
+
+### 一句话
+
+我会先保三件事：核心路由可用、关键转化链路可用、降级切换可控。；预算紧时先做“高影响路由治理”，低影响告警进入延后修复队列。；同时定义回切门槛，避免临时降级长期滞留成为新债务。
 
 ### 题目
 

@@ -1089,6 +1089,10 @@ tags: [WASM, 浏览器, 追问]
 parent: wasm-fundamentals
 generated: followup-script
 
+### 一句话
+
+先把目标和约束说清楚，再展开实现：这能避免把「WebAssembly 基础与运行模型」讲成只在理想输入下可用。；围绕「WebAssembly 基础与运行模型」组织答案时，建议按「约束来源 -> WASM 关键决策 -> 验证闭环」展开。。
+
 ### 题目
 
 如果面试官追问：从工程落地角度看，JS/WASM 之间频繁调用、内存拷贝和 TypedArray 视图失效分别有什么坑？
@@ -1127,6 +1131,10 @@ difficulty: 进阶
 tags: [WASM, 浏览器, 追问]
 parent: wasm-fundamentals
 generated: followup-script
+
+### 一句话
+
+先说判断标准，再说执行路径：回答「WebAssembly 基础与运行模型」时要能同时解释收益、代价和失败信号。；回答顺序可用「现状问题 -> WASM 方案动作 -> 验证结果」，并用「WebAssembly 基础与运行模型」举一条主链路说明。。
 
 ### 题目
 
@@ -1167,6 +1175,10 @@ tags: [WASM, 性能, 追问]
 parent: wasm-perf-cases
 generated: followup-script
 
+### 一句话
+
+验证要从可复现样例开始：准备正向、边界和失败用例，确认「哪些场景上 WASM 真的能提速」不是只在理想输入下成立。；再补可观测指标：围绕「哪些场景上 WASM 真的能提速」的性能收益应该能通过日志、耗时、错误率、命中率、覆盖率或用户行为指标观察到变化。。
+
 ### 题目
 
 如果面试官追问：在当前团队与业务约束下，你会如何结合 WASM 指标，避免把「哪些场景上 WASM 真的能提速」的实验室提升误判为真实用户体验改善？
@@ -1192,6 +1204,10 @@ difficulty: 资深
 tags: [WASM, 性能, 追问]
 parent: wasm-perf-cases
 generated: followup-script
+
+### 一句话
+
+先给可验证结论，再补证据链：面试官想确认你是否能把「哪些场景上 WASM 真的能提速」落到真实交付，而不是停在概念层。；讲「哪些场景上 WASM 真的能提速」时先给 WASM 的判断口径，再补执行动作和回退条件，会更像真实评审发言。。
 
 ### 题目
 
@@ -1232,6 +1248,10 @@ tags: [WASM, 架构, 性能, 追问]
 parent: wasm-when-not-to-use
 generated: followup-script
 
+### 一句话
+
+验证要从可复现样例开始：准备正向、边界和失败用例，确认「WebAssembly 什么场景不该用？常见误区」不是只在理想输入下成立。。
+
 ### 题目
 
 如果面试官追问：结合真实业务约束，要证明「WebAssembly 什么场景不该用？常见误区」确实改善体验，你会如何围绕 WASM 设计线上观测与对照验证？
@@ -1258,6 +1278,10 @@ tags: [WASM, 架构, 性能, 追问]
 parent: wasm-when-not-to-use
 generated: followup-script
 
+### 一句话
+
+规模变大后先重新评估「WebAssembly 什么场景不该用？常见误区」瓶颈：数据量、并发、团队协作、浏览器兼容和维护成本哪个先触顶。；如果「WebAssembly 什么场景不该用？常见误区」对应的性能收益被复杂度抵消。
+
 ### 题目
 
 如果面试官追问：你会如何给「WebAssembly 什么场景不该用？常见误区」算一笔账：短期收益能不能覆盖后续在 WASM 上的维护成本？
@@ -1283,6 +1307,10 @@ difficulty: 资深
 tags: [WASM, 性能, 互操作, 追问]
 parent: js-wasm-data-bridge
 generated: followup-script
+
+### 一句话
+
+先说判断标准，再说执行路径：回答「JS 和 WASM 之间数据怎么高效传递」时要能同时解释收益、代价和失败信号。；可以按「问题背景 -> WASM 机制 -> 取舍边界」回答，再用「JS 和 WASM 之间数据怎么高效传递」补一个反例，避免停在口号层。。
 
 ### 题目
 
@@ -1323,6 +1351,10 @@ tags: [WASM, 性能, 互操作, 追问]
 parent: js-wasm-data-bridge
 generated: followup-script
 
+### 一句话
+
+规模变大后先重新评估「JS 和 WASM 之间数据怎么高效传递」瓶颈：数据量、并发、团队协作、浏览器兼容和维护成本哪个先触顶。；如果「JS 和 WASM 之间数据怎么高效传递」对应的性能收益被复杂度抵消。
+
 ### 题目
 
 如果面试官追问：以「JS 和 WASM 之间数据怎么高效传递」为例，当「JS 和 WASM 之间数据怎么高效传递」在 WASM 优化上可能影响兼容性时，你会如何设定推进与回退门槛？
@@ -1348,6 +1380,10 @@ difficulty: 资深
 tags: [WASM, ComponentModel, WASI, Edge, 追问]
 parent: wasm-component-model-wasi-preview2
 generated: followup-script
+
+### 一句话
+
+先明确这道追问要解决的业务目标，再说明「WebAssembly Component Model 与 WASI Preview 2 解决什么」在当前约束下为什么成立。。
 
 ### 题目
 
@@ -1388,6 +1424,10 @@ tags: [WASM, ComponentModel, WASI, Edge, 追问]
 parent: wasm-component-model-wasi-preview2
 generated: followup-script
 
+### 一句话
+
+先给可验证结论，再补证据链：面试官想确认你是否能把「WebAssembly Component Model 与 WASI Preview 2 解决什么」落到真实交付，而不是停在概念层。；可以按「问题背景 -> WASM 机制 -> 取舍边界」回答。
+
 ### 题目
 
 如果面试官追问：结合真实业务约束，WASI 的 capability-based 权限模型和传统进程权限有什么差别？
@@ -1426,6 +1466,10 @@ difficulty: 资深
 tags: [WASM, ComponentModel, WASI, Edge, 追问]
 parent: wasm-component-model-wasi-preview2
 generated: followup-script
+
+### 一句话
+
+先给可验证结论，再补证据链：面试官想确认你是否能把「WebAssembly Component Model 与 WASI Preview 2 解决什么」落到真实交付，而不是停在概念层。；可以按「问题背景 -> WASM 机制 -> 取舍边界」回答。
 
 ### 题目
 
@@ -1466,6 +1510,10 @@ tags: [Rust, 工具链, 追问]
 parent: why-rust-tooling
 generated: followup-script
 
+### 一句话
+
+先给可验证结论，再补证据链：面试官想确认你是否能把「为什么前端工具链都在被 Rust 重写」落到真实交付，而不是停在概念层。；讲「为什么前端工具链都在被 Rust 重写」时先给 Rust 的判断口径，再补执行动作和回退条件，会更像真实评审发言。。
+
 ### 题目
 
 如果面试官追问：从工程落地角度看，上线后你会盯哪些与 Rust 相关的日志与指标，来确认这套方案确实带来改进？
@@ -1504,6 +1552,10 @@ difficulty: 进阶
 tags: [Rust, 工具链, 追问]
 parent: why-rust-tooling
 generated: followup-script
+
+### 一句话
+
+先给可验证结论，再补证据链：面试官想确认你是否能把「为什么前端工具链都在被 Rust 重写」落到真实交付，而不是停在概念层。；回答顺序可用「现状问题 -> Rust 方案动作 -> 验证结果」。
 
 ### 题目
 
@@ -1544,6 +1596,10 @@ tags: [Rust, wasm-bindgen, 追问]
 parent: rust-wasm-toolchain
 generated: followup-script
 
+### 一句话
+
+先给可验证结论，再补证据链：面试官想确认你是否能把「用 Rust 写浏览器 WASM 模块的完整流程」落到真实交付，而不是停在概念层。；回答顺序可用「现状问题 -> Rust 方案动作 -> 验证结果」。
+
 ### 题目
 
 如果面试官追问：以「用 Rust 写浏览器 WASM 模块的完整流程」为例，如果要让结论在 Rust 上可复核，你会怎样安排测试、日志和指标的组合验证？
@@ -1582,6 +1638,10 @@ difficulty: 资深
 tags: [Rust, wasm-bindgen, 追问]
 parent: rust-wasm-toolchain
 generated: followup-script
+
+### 一句话
+
+先给可验证结论，再补证据链：面试官想确认你是否能把「用 Rust 写浏览器 WASM 模块的完整流程」落到真实交付，而不是停在概念层。；讲「用 Rust 写浏览器 WASM 模块的完整流程」时先给 Rust 的判断口径，再补执行动作和回退条件。
 
 ### 题目
 
@@ -1622,6 +1682,10 @@ tags: [WASM, Edge, WASI, 追问]
 parent: wasm-runtime-server
 generated: followup-script
 
+### 一句话
+
+先明确这道追问要解决的业务目标，再说明「服务端 / Edge 跑 WASM 的现状」在当前约束下为什么成立。；回答结构可按「触发条件 -> WASM 机制 -> 风险兜底」展开，并以「服务端 / Edge 跑 WASM 的现状」补一条失败场景。
+
 ### 题目
 
 如果面试官追问：如果要让结论在 WASM 上可复核，你会怎样安排测试、日志和指标的组合验证？
@@ -1660,6 +1724,10 @@ difficulty: 资深
 tags: [WASM, Edge, WASI, 追问]
 parent: wasm-runtime-server
 generated: followup-script
+
+### 一句话
+
+先明确这道追问要解决的业务目标，再说明「服务端 / Edge 跑 WASM 的现状」在当前约束下为什么成立。；回答结构可按「触发条件 -> WASM 机制 -> 风险兜底」展开，并以「服务端 / Edge 跑 WASM 的现状」补一条失败场景。
 
 ### 题目
 
@@ -1700,6 +1768,10 @@ tags: [互操作, WASM, 追问]
 parent: js-rust-interop
 generated: followup-script
 
+### 一句话
+
+先说判断标准，再说执行路径：回答「JS 与 Rust/WASM 的数据互操作模式」时要能同时解释收益、代价和失败信号。；可以按「问题背景 -> 互操作 机制 -> 取舍边界」回答，再用「JS 与 Rust/WASM 的数据互操作模式」补一个反例。
+
 ### 题目
 
 如果面试官追问：在当前团队与业务约束下，你会如何围绕 互操作 搭建验证面板，持续确认这个方案的收益没有被噪声掩盖？
@@ -1738,6 +1810,10 @@ tags: [互操作, WASM, 追问]
 parent: js-rust-interop
 generated: followup-script
 
+### 一句话
+
+规模变大后先重新评估「JS 与 Rust/WASM 的数据互操作模式」瓶颈：数据量、并发、团队协作、浏览器兼容和维护成本哪个先触顶。；如果「JS 与 Rust/WASM 的数据互操作模式」对应的核心机制收益被复杂度抵消。
+
 ### 题目
 
 如果面试官追问：结合真实业务约束，面对规模与资源变化并存时，你会如何围绕 互操作 调整「JS 与 Rust/WASM 的数据互操作模式」的推进顺序？
@@ -1763,6 +1839,10 @@ difficulty: 进阶
 tags: [Rust, 工具链, 追问]
 parent: rust-frontend-tooling
 generated: followup-script
+
+### 一句话
+
+先说判断标准，再说执行路径：回答「前端工具链为什么开始用 Rust 重写」时要能同时解释收益、代价和失败信号。；可以按「问题背景 -> Rust 机制 -> 取舍边界」回答，再用「前端工具链为什么开始用 Rust 重写」补一个反例，避免停在口号层。。
 
 ### 题目
 
@@ -1802,6 +1882,10 @@ difficulty: 进阶
 tags: [Rust, 工具链, 追问]
 parent: rust-frontend-tooling
 generated: followup-script
+
+### 一句话
+
+规模变大后先重新评估「前端工具链为什么开始用 Rust 重写」瓶颈：数据量、并发、团队协作、浏览器兼容和维护成本哪个先触顶。；如果「前端工具链为什么开始用 Rust 重写」对应的核心机制收益被复杂度抵消。
 
 ### 题目
 

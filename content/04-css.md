@@ -1721,6 +1721,10 @@ tags: [盒模型, BFC, 布局, 追问]
 parent: box-bfc
 generated: followup-script
 
+### 一句话
+
+先说判断标准，再说执行路径：回答「盒模型、BFC 与格式化上下文的真实作用」时要能同时解释收益、代价和失败信号。；回答顺序可用「现状问题 -> 盒模型 方案动作 -> 验证结果」，并用「盒模型、BFC 与格式化上下文的真实作用」举一条主链路说明。。
+
 ### 题目
 
 如果面试官追问：结合真实业务约束，inline-block 之间的「鬼影空白」如何消除？
@@ -1757,6 +1761,10 @@ difficulty: 基础
 tags: [盒模型, BFC, 布局, 追问]
 parent: box-bfc
 generated: followup-script
+
+### 一句话
+
+先说判断标准，再说执行路径：回答「盒模型、BFC 与格式化上下文的真实作用」时要能同时解释收益、代价和失败信号。；可以按「问题背景 -> 盒模型 机制 -> 取舍边界」回答，再用「盒模型、BFC 与格式化上下文的真实作用」补一个反例，避免停在口号层。。
 
 ### 题目
 
@@ -1797,6 +1805,10 @@ tags: [Flex, Grid, 追问]
 parent: flex-grid
 generated: followup-script
 
+### 一句话
+
+先给可验证结论，再补证据链：面试官想确认你是否能把「Flex 与 Grid 的边界和常见坑」落到真实交付，而不是停在概念层。；讲「Flex 与 Grid 的边界和常见坑」时先给 Flex 的判断口径，再补执行动作和回退条件，会更像真实评审发言。。
+
 ### 题目
 
 如果面试官追问：在「Flex 与 Grid 的边界和常见坑」场景下，subgrid 解决了什么问题（Firefox 早就支持，Chrome 117+）？
@@ -1835,6 +1847,10 @@ difficulty: 基础
 tags: [Flex, Grid, 追问]
 parent: flex-grid
 generated: followup-script
+
+### 一句话
+
+先把目标和约束说清楚，再展开实现：这能避免把「Flex 与 Grid 的边界和常见坑」讲成只在理想输入下可用。；围绕「Flex 与 Grid 的边界和常见坑」组织答案时，建议按「约束来源 -> Flex 关键决策 -> 验证闭环」展开。。
 
 ### 题目
 
@@ -1875,6 +1891,10 @@ tags: [响应式, 容器查询, 追问]
 parent: responsive-container-query
 generated: followup-script
 
+### 一句话
+
+先给可验证结论，再补证据链：面试官想确认你是否能把「移动端适配、媒体查询与容器查询」落到真实交付，而不是停在概念层。；回答顺序可用「现状问题 -> 响应式 方案动作 -> 验证结果」，并用「移动端适配、媒体查询与容器查询」举一条主链路说明。。
+
 ### 题目
 
 如果面试官追问：结合真实业务约束，当「移动端适配、媒体查询与容器查询」让联调成本持续升高时，你会先拆哪条关键链路来止损？
@@ -1914,6 +1934,10 @@ tags: [响应式, 容器查询, 追问]
 parent: responsive-container-query
 generated: followup-script
 
+### 一句话
+
+规模变大后先重新评估「移动端适配、媒体查询与容器查询」瓶颈：数据量、并发、团队协作、浏览器兼容和维护成本哪个先触顶。；如果「移动端适配、媒体查询与容器查询」对应的响应式与组件边界收益被复杂度抵消，就要考虑分层、缓存、懒加载、批处理或更简单的替代方案。。
+
 ### 题目
 
 如果面试官追问：从工程落地角度看，和常见替代方案相比，「移动端适配、媒体查询与容器查询」在 响应式 这个维度更适合什么团队规模与业务复杂度？
@@ -1940,6 +1964,10 @@ tags: [主题, 变量, 追问]
 parent: variables-theme
 generated: followup-script
 
+### 一句话
+
+推动「CSS Variables、深色模式与设计令牌」落地时先收敛改动面：选低风险页面或模块试点，保留旧路径作为对照。；「CSS Variables、深色模式与设计令牌」迁移计划要说明数据兼容、配置开关、监控指标和失败后的恢复路径。。
+
 ### 题目
 
 如果面试官追问：从工程落地角度看，老系统包袱重、牵一发而动全身时，你会怎么围绕 主题 安排「CSS Variables、深色模式与设计令牌」的渐进改造路线？
@@ -1965,6 +1993,10 @@ difficulty: 进阶
 tags: [主题, 变量, 追问]
 parent: variables-theme
 generated: followup-script
+
+### 一句话
+
+先明确这道追问要解决的业务目标，再说明「CSS Variables、深色模式与设计令牌」在当前约束下为什么成立。；建议按「输入约束 -> 主题 执行链路 -> 结果验证」展开，并结合「CSS Variables、深色模式与设计令牌」给出一条可复核结果。
 
 ### 题目
 
@@ -2005,6 +2037,10 @@ tags: [动画, 性能, 追问]
 parent: animation-compositor
 generated: followup-script
 
+### 一句话
+
+先给可验证结论，再补证据链：面试官想确认你是否能把「transition、animation、合成层与性能优化」落到真实交付，而不是停在概念层。；可以按「问题背景 -> 动画 机制 -> 取舍边界」回答。
+
 ### 题目
 
 如果面试官追问：在「transition、animation、合成层与性能优化」场景下，当「transition、animation、合成层与性能优化」优化后，你会优先看哪些真实用户信号来确认收益？
@@ -2043,6 +2079,10 @@ difficulty: 进阶
 tags: [动画, 性能, 追问]
 parent: animation-compositor
 generated: followup-script
+
+### 一句话
+
+先把目标和约束说清楚，再展开实现：这能避免把「transition、animation、合成层与性能优化」讲成只在理想输入下可用。；建议按「输入约束 -> 动画 执行链路 -> 结果验证」展开。
 
 ### 题目
 
@@ -2083,6 +2123,10 @@ tags: [架构, Tailwind, CSS-in-JS, 追问]
 parent: css-architecture
 generated: followup-script
 
+### 一句话
+
+先说判断标准，再说执行路径：回答「CSS 架构方案：BEM / CSS-in-JS / Tailwind / CSS Modules」时要能同时解释收益、代价和失败信号。；回答顺序可用「现状问题 -> 架构方案 方案动作 -> 验证结果」。
+
 ### 题目
 
 如果面试官追问：从工程落地角度看，面对跨团队协作成本，你会如何围绕 架构方案 规划「CSS 架构方案：BEM / CSS-in-JS / Tailwind / CSS Modules」的阶段目标与交付边界？
@@ -2121,6 +2165,10 @@ difficulty: 进阶
 tags: [架构, Tailwind, CSS-in-JS, 追问]
 parent: css-architecture
 generated: followup-script
+
+### 一句话
+
+先给可验证结论，再补证据链：面试官想确认你是否能把「CSS 架构方案：BEM / CSS-in-JS / Tailwind / CSS Modules」落到真实交付，而不是停在概念层。；可以按「问题背景 -> 架构方案 机制 -> 取舍边界」回答。
 
 ### 题目
 
@@ -2161,6 +2209,10 @@ tags: [ViewTransition, 动效, UX, 追问]
 parent: view-transitions-api
 generated: followup-script
 
+### 一句话
+
+先说判断标准，再说执行路径：回答「View Transitions API 如何让 SPA / MPA 路由切换更顺滑」时要能同时解释收益、代价和失败信号。；可以按「问题背景 -> ViewTransition 机制 -> 取舍边界」回答。
+
 ### 题目
 
 如果面试官追问：View Transitions 和普通 CSS transition / animation 的区别是什么？
@@ -2199,6 +2251,10 @@ difficulty: 进阶
 tags: [ViewTransition, 动效, UX, 追问]
 parent: view-transitions-api
 generated: followup-script
+
+### 一句话
+
+先说判断标准，再说执行路径：回答「View Transitions API 如何让 SPA / MPA 路由切换更顺滑」时要能同时解释收益、代价和失败信号。。
 
 ### 题目
 
@@ -2239,6 +2295,10 @@ tags: [ViewTransition, 动效, UX, 追问]
 parent: view-transitions-api
 generated: followup-script
 
+### 一句话
+
+先给可验证结论，再补证据链：面试官想确认你是否能把「View Transitions API 如何让 SPA / MPA 路由切换更顺滑」落到真实交付，而不是停在概念层。；可以按「问题背景 -> ViewTransition 机制 -> 取舍边界」回答。
+
 ### 题目
 
 如果面试官追问：结合真实业务约束，你会如何为不支持该 API 的浏览器做降级？
@@ -2277,6 +2337,10 @@ difficulty: 进阶
 tags: [Popover, Dialog, TopLayer, AnchorPositioning, 追问]
 parent: native-popover-dialog-anchor
 generated: followup-script
+
+### 一句话
+
+先给可验证结论，再补证据链：面试官想确认你是否能把「原生 dialog / popover、top layer 与 anchor positioning 解决了什么」落到真实交付，而不是停在概念层。。
 
 ### 题目
 
@@ -2317,6 +2381,10 @@ tags: [Popover, Dialog, TopLayer, AnchorPositioning, 追问]
 parent: native-popover-dialog-anchor
 generated: followup-script
 
+### 一句话
+
+先把目标和约束说清楚，再展开实现：这能避免把「原生 dialog / popover、top layer 与 anchor positioning 解决了什么」讲成只在理想输入下可用。。
+
 ### 题目
 
 如果面试官追问：结合真实业务约束，dialog 和 popover 在语义、焦点和关闭行为上有什么差别？
@@ -2355,6 +2423,10 @@ difficulty: 进阶
 tags: [Popover, Dialog, TopLayer, AnchorPositioning, 追问]
 parent: native-popover-dialog-anchor
 generated: followup-script
+
+### 一句话
+
+先明确这道追问要解决的业务目标，再说明「原生 dialog / popover、top layer 与 anchor positioning 解决了什么」在当前约束下为什么成立。；建议按「输入约束 -> Popover 执行链路 -> 结果验证」展开。
 
 ### 题目
 
@@ -2395,6 +2467,10 @@ tags: [CSS, 动画, scroll-timeline, 性能, 追问]
 parent: scroll-driven-animations
 generated: followup-script
 
+### 一句话
+
+先说判断标准，再说执行路径：回答「Scroll-driven Animations：scroll-timeline / view-timeline 解决什么」时要能同时解释收益、代价和失败信号。。
+
 ### 题目
 
 如果面试官追问：结合真实业务约束，`scroll-timeline` 和 `view-timeline` 的触发对象有什么不同？
@@ -2433,6 +2509,10 @@ difficulty: 进阶
 tags: [CSS, 动画, scroll-timeline, 性能, 追问]
 parent: scroll-driven-animations
 generated: followup-script
+
+### 一句话
+
+先给可验证结论，再补证据链：面试官想确认你是否能把「Scroll-driven Animations：scroll-timeline / view-timeline 解决什么」落到真实交付，而不是停在概念层。。
 
 ### 题目
 
@@ -2473,6 +2553,10 @@ tags: [CSS, 动画, scroll-timeline, 性能, 追问]
 parent: scroll-driven-animations
 generated: followup-script
 
+### 一句话
+
+先给可验证结论，再补证据链：面试官想确认你是否能把「Scroll-driven Animations：scroll-timeline / view-timeline 解决什么」落到真实交付，而不是停在概念层。。
+
 ### 题目
 
 如果面试官追问：在「Scroll-driven Animations：scroll-timeline / view-timeline 解决什么」场景下，不支持新 API 的浏览器上你会怎么降级？
@@ -2511,6 +2595,10 @@ difficulty: 进阶
 tags: [CSS, ContainerQueries, @scope, 组件化, 追问]
 parent: css-style-queries-and-scope
 generated: followup-script
+
+### 一句话
+
+先明确这道追问要解决的业务目标，再说明「CSS Style Queries、@scope 与组件样式边界怎么用」在当前约束下为什么成立。；回答结构可按「触发条件 -> CSS 机制 -> 风险兜底」展开。
 
 ### 题目
 
@@ -2551,6 +2639,10 @@ tags: [CSS, ContainerQueries, @scope, 组件化, 追问]
 parent: css-style-queries-and-scope
 generated: followup-script
 
+### 一句话
+
+先给可验证结论，再补证据链：面试官想确认你是否能把「CSS Style Queries、@scope 与组件样式边界怎么用」落到真实交付，而不是停在概念层。；回答顺序可用「现状问题 -> CSS 方案动作 -> 验证结果」。
+
 ### 题目
 
 如果面试官追问：Style Queries 和 CSS Variables 的关系是什么？
@@ -2589,6 +2681,10 @@ difficulty: 进阶
 tags: [CSS, ContainerQueries, @scope, 组件化, 追问]
 parent: css-style-queries-and-scope
 generated: followup-script
+
+### 一句话
+
+先明确这道追问要解决的业务目标，再说明「CSS Style Queries、@scope 与组件样式边界怎么用」在当前约束下为什么成立。；建议按「输入约束 -> CSS 执行链路 -> 结果验证」展开。
 
 ### 题目
 
@@ -2629,6 +2725,10 @@ tags: [z-index, 层叠, 追问]
 parent: stacking-context
 generated: followup-script
 
+### 一句话
+
+先说判断标准，再说执行路径：回答「层叠上下文与 z-index 为什么经常“不生效”」时要能同时解释收益、代价和失败信号。；讲「层叠上下文与 z-index 为什么经常“不生效”」时先给 z-index 的判断口径，再补执行动作和回退条件。
+
 ### 题目
 
 如果面试官追问：从工程落地角度看，为了证明这个方案在 z-index 维度有效，你会怎么设计测试闭环和线上观测指标？
@@ -2668,6 +2768,10 @@ tags: [z-index, 层叠, 追问]
 parent: stacking-context
 generated: followup-script
 
+### 一句话
+
+规模变大后先重新评估「层叠上下文与 z-index 为什么经常“不生效”」瓶颈：数据量、并发、团队协作、浏览器兼容和维护成本哪个先触顶。；如果「层叠上下文与 z-index 为什么经常“不生效”」对应的核心机制收益被复杂度抵消。
+
 ### 题目
 
 如果面试官追问：以「层叠上下文与 z-index 为什么经常“不生效”」为例，面对规模与资源变化并存时，你会如何围绕 z-index 调整「层叠上下文与 z-index 为什么经常“不生效”」的推进顺序？
@@ -2693,6 +2797,10 @@ difficulty: 进阶
 tags: [选择器, 现代 CSS, 追问]
 parent: selector-modern
 generated: followup-script
+
+### 一句话
+
+先给可验证结论，再补证据链：面试官想确认你是否能把「:has、:is、:where、:focus-visible 怎么用」落到真实交付，而不是停在概念层。；回答顺序可用「现状问题 -> 选择器 方案动作 -> 验证结果」。
 
 ### 题目
 
@@ -2733,6 +2841,10 @@ tags: [选择器, 现代 CSS, 追问]
 parent: selector-modern
 generated: followup-script
 
+### 一句话
+
+规模变大后先重新评估「:has()、:is()、:where()、:focus-visible 怎么用」瓶颈：数据量、并发、团队协作、浏览器兼容和维护成本哪个先触顶。。
+
 ### 题目
 
 如果面试官追问：在「`:has()`、`:is()`、`:where()`、`:focus-visible` 怎么用」场景下，如果兼容性压力突然升高，你会如何围绕 选择器 重新划分「`:has()`、`:is()`、`:where()`、`:focus-visible` 怎么用」的实施阶段？
@@ -2758,6 +2870,10 @@ difficulty: 基础
 tags: [打印, 导出, 追问]
 parent: print-css
 generated: followup-script
+
+### 一句话
+
+先给可验证结论，再补证据链：面试官想确认你是否能把「打印样式与网页内容导出友好性」落到真实交付，而不是停在概念层。；回答顺序可用「现状问题 -> 打印 方案动作 -> 验证结果」，并用「打印样式与网页内容导出友好性」举一条主链路说明。。
 
 ### 题目
 
@@ -2798,6 +2914,10 @@ tags: [打印, 导出, 追问]
 parent: print-css
 generated: followup-script
 
+### 一句话
+
+规模变大后先重新评估「打印样式与网页内容导出友好性」瓶颈：数据量、并发、团队协作、浏览器兼容和维护成本哪个先触顶。；如果「打印样式与网页内容导出友好性」对应的核心机制收益被复杂度抵消，就要考虑分层、缓存、懒加载、批处理或更简单的替代方案。。
+
 ### 题目
 
 如果面试官追问：从工程落地角度看，如果兼容性压力突然升高，你会如何围绕 打印 重新划分「打印样式与网页内容导出友好性」的实施阶段？
@@ -2823,6 +2943,10 @@ difficulty: 进阶
 tags: [现代 CSS, has, layers, 追问]
 parent: modern-css-features
 generated: followup-script
+
+### 一句话
+
+先明确这道追问要解决的业务目标，再说明「现代 CSS 必备特性：has / nesting / cascade-layers / color-mix」在当前约束下为什么成立。。
 
 ### 题目
 
@@ -2863,6 +2987,10 @@ tags: [现代 CSS, has, layers, 追问]
 parent: modern-css-features
 generated: followup-script
 
+### 一句话
+
+先把目标和约束说清楚，再展开实现：这能避免把「现代 CSS 必备特性：has / nesting / cascade-layers / color-mix」讲成只在理想输入下可用。。
+
 ### 题目
 
 如果面试官追问：在「现代 CSS 必备特性：has / nesting / cascade-layers / color-mix」场景下，遇到约束变化时，你会如何围绕 现代 CSS 拆分方案演进路径，而不是一次性推翻重来？
@@ -2901,6 +3029,10 @@ difficulty: 基础
 tags: [布局, 居中, 高频, 追问]
 parent: center-element
 generated: followup-script
+
+### 一句话
+
+先把目标和约束说清楚，再展开实现：这能避免把「元素水平垂直居中的 N 种姿势」讲成只在理想输入下可用。；建议按「输入约束 -> 布局 执行链路 -> 结果验证」展开，并结合「元素水平垂直居中的 N 种姿势」给出一条可复核结果。
 
 ### 题目
 
@@ -2941,6 +3073,10 @@ tags: [布局, 居中, 高频, 追问]
 parent: center-element
 generated: followup-script
 
+### 一句话
+
+规模变大后先重新评估「元素水平垂直居中的 N 种姿势」瓶颈：数据量、并发、团队协作、浏览器兼容和维护成本哪个先触顶。；如果「元素水平垂直居中的 N 种姿势」对应的核心机制收益被复杂度抵消，就要考虑分层、缓存、懒加载、批处理或更简单的替代方案。。
+
 ### 题目
 
 如果面试官追问：当约束变化导致成本上升时，你会先优化「元素水平垂直居中的 N 种姿势」里和 布局 相关的哪些环节？
@@ -2966,6 +3102,10 @@ difficulty: 进阶
 tags: [定位, 层叠, 追问]
 parent: position-stacking
 generated: followup-script
+
+### 一句话
+
+先说判断标准，再说执行路径：回答「position 五个值的差别和层叠上下文是怎么形成的」时要能同时解释收益、代价和失败信号。；回答顺序可用「现状问题 -> 定位 方案动作 -> 验证结果」。
 
 ### 题目
 
@@ -3006,6 +3146,10 @@ tags: [定位, 层叠, 追问]
 parent: position-stacking
 generated: followup-script
 
+### 一句话
+
+先把目标和约束说清楚，再展开实现：这能避免把「position 五个值的差别和层叠上下文是怎么形成的」讲成只在理想输入下可用。；建议按「输入约束 -> 定位 执行链路 -> 结果验证」展开。
+
 ### 题目
 
 如果面试官追问：结合真实业务约束，当兼容性要求提升或预算收紧时，你会如何围绕 定位 调整方案边界与实施节奏？
@@ -3045,6 +3189,10 @@ tags: [CSS, 布局, 高频, 追问]
 parent: css-layout-systems
 generated: followup-script
 
+### 一句话
+
+验证要从可复现样例开始：准备正向、边界和失败用例，确认「一道题讲清 Flex / Grid / 多列 / Float 各自适用场景」不是只在理想输入下成立。。
+
 ### 题目
 
 如果面试官追问：以「一道题讲清 Flex / Grid / 多列 / Float 各自适用场景」为例，上线后你会盯哪些和 CSS 相关的指标，来判断「一道题讲清 Flex / Grid / 多列 / Float 各自适用场景」的收益是否持续成立？
@@ -3071,6 +3219,10 @@ tags: [CSS, 布局, 高频, 追问]
 parent: css-layout-systems
 generated: followup-script
 
+### 一句话
+
+规模变大后先重新评估「一道题讲清 Flex / Grid / 多列 / Float 各自适用场景」瓶颈：数据量、并发、团队协作、浏览器兼容和维护成本哪个先触顶。。
+
 ### 题目
 
 如果面试官追问：从工程落地角度看，当需求规模、团队资源或兼容性要求变化时，你会如何围绕 CSS 重排「一道题讲清 Flex / Grid / 多列 / Float 各自适用场景」方案优先级？
@@ -3096,6 +3248,10 @@ difficulty: 进阶
 tags: [CSS, 字体, 排版, 追问]
 parent: css-typography-rhythm
 generated: followup-script
+
+### 一句话
+
+先说判断标准，再说执行路径：回答「CSS 字体与排版怎么做才显专业」时要能同时解释收益、代价和失败信号。；可以按「问题背景 -> CSS 机制 -> 取舍边界」回答，再用「CSS 字体与排版怎么做才显专业」补一个反例，避免停在口号层。。
 
 ### 题目
 
@@ -3134,6 +3290,10 @@ difficulty: 进阶
 tags: [CSS, 字体, 排版, 追问]
 parent: css-typography-rhythm
 generated: followup-script
+
+### 一句话
+
+先把目标和约束说清楚，再展开实现：这能避免把「CSS 字体与排版怎么做才显专业」讲成只在理想输入下可用。；回答结构可按「触发条件 -> CSS 机制 -> 风险兜底」展开，并以「CSS 字体与排版怎么做才显专业」补一条失败场景，能体现工程拆解能力。。
 
 ### 题目
 
@@ -3294,6 +3454,10 @@ tags: [CSS, 性能预算, 渲染路径, 追问]
 parent: css-render-path-budget-gate
 generated: followup-script
 
+### 一句话
+
+先说判断标准，再说执行路径：回答「CSS 渲染路径预算：关键样式体积、阻塞链路与发布闸门」时要能同时解释收益、代价和失败信号。；可以按「问题背景 -> CSS 机制 -> 取舍边界」回答。
+
 ### 题目
 
 如果面试官追问：你会如何识别「CSS 渲染路径预算：关键样式体积、阻塞链路与发布闸门」在真实流量下最容易失效的输入与环境约束？
@@ -3333,6 +3497,10 @@ tags: [CSS, 性能预算, 渲染路径, 追问]
 parent: css-render-path-budget-gate
 generated: followup-script
 
+### 一句话
+
+先把目标和约束说清楚，再展开实现：这能避免把「CSS 渲染路径预算：关键样式体积、阻塞链路与发布闸门」讲成只在理想输入下可用。；围绕「CSS 渲染路径预算：关键样式体积、阻塞链路与发布闸门」组织答案时。
+
 ### 题目
 
 如果面试官追问：从工程落地角度看，为了证明这个方案在 CSS 维度有效，你会怎么设计测试闭环和线上观测指标？
@@ -3370,6 +3538,10 @@ difficulty: 资深
 tags: [CSS, 性能预算, 渲染路径, 追问]
 parent: css-render-path-budget-gate
 generated: followup-script
+
+### 一句话
+
+先把目标和约束说清楚，再展开实现：这能避免把「CSS 渲染路径预算：关键样式体积、阻塞链路与发布闸门」讲成只在理想输入下可用。；围绕「CSS 渲染路径预算：关键样式体积、阻塞链路与发布闸门」组织答案时。
 
 ### 题目
 
@@ -3410,6 +3582,10 @@ tags: [CSS, 发布安全, 回归治理, 追问]
 parent: css-change-safety-guardrail
 generated: followup-script
 
+### 一句话
+
+验证要从可复现样例开始：准备正向、边界和失败用例，确认「样式改动安全护栏：回归范围评估、灰度放量与回滚预案」不是只在理想输入下成立。。
+
 ### 题目
 
 如果面试官追问：在「样式改动安全护栏：回归范围评估、灰度放量与回滚预案」场景里，哪些能力必须由服务端兜底，哪些可交给前端处理？
@@ -3435,6 +3611,10 @@ difficulty: 资深
 tags: [CSS, 发布安全, 回归治理, 追问]
 parent: css-change-safety-guardrail
 generated: followup-script
+
+### 一句话
+
+先明确这道追问要解决的业务目标，再说明「样式改动安全护栏：回归范围评估、灰度放量与回滚预案」在当前约束下为什么成立。；建议按「输入约束 -> CSS 执行链路 -> 结果验证」展开。
 
 ### 题目
 
@@ -3474,6 +3654,10 @@ difficulty: 资深
 tags: [CSS, 发布安全, 回归治理, 追问]
 parent: css-change-safety-guardrail
 generated: followup-script
+
+### 一句话
+
+验证要从可复现样例开始：准备正向、边界和失败用例，确认「样式改动安全护栏：回归范围评估、灰度放量与回滚预案」不是只在理想输入下成立。。
 
 ### 题目
 

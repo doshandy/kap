@@ -54,21 +54,25 @@ const questions = computed(() =>
     </header>
 
     <section class="card filters">
-      <button class="chip" :class="{ active: !selectedReason }" @click="selectedReason = ''">
+      <button
+        class="chip ui-chip"
+        :class="{ active: !selectedReason }"
+        @click="selectedReason = ''"
+      >
         全部错因 <b>{{ allWrongQuestions.length }}</b>
       </button>
       <button
         v-for="item in groupedCounts"
         :key="item.reason"
-        class="chip"
+        class="chip ui-chip"
         :class="{ active: selectedReason === item.reason }"
         :disabled="item.count === 0"
         @click="selectedReason = item.reason"
       >
         {{ item.reason }} <b>{{ item.count }}</b>
       </button>
-      <label class="chip include-skipped">
-        <input v-model="includeSkipped" type="checkbox" />
+      <label class="chip ui-chip include-skipped">
+        <input v-model="includeSkipped" class="ui-checkbox" type="checkbox" />
         显示已跳过
       </label>
     </section>

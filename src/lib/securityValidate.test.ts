@@ -2,15 +2,18 @@ import { beforeAll, describe, expect, it } from 'vitest';
 
 let validateCspPolicy: (csp: string) => { errors: string[]; warnings: string[] };
 let readCspDirectiveValues: (csp: string, directive: string) => string[];
+let normalizeCspForMetaComparison: (csp: string) => string;
 
 beforeAll(async () => {
   const modulePath = '../../scripts/shared/' + 'securityValidate.ts';
   const mod = (await import(modulePath)) as {
     validateCspPolicy: typeof validateCspPolicy;
     readCspDirectiveValues: typeof readCspDirectiveValues;
+    normalizeCspForMetaComparison: typeof normalizeCspForMetaComparison;
   };
   validateCspPolicy = mod.validateCspPolicy;
   readCspDirectiveValues = mod.readCspDirectiveValues;
+  normalizeCspForMetaComparison = mod.normalizeCspForMetaComparison;
 });
 
 describe('readCspDirectiveValues', () => {
@@ -27,6 +30,12 @@ describe('readCspDirectiveValues', () => {
 });
 
 describe('validateCspPolicy', () => {
+  it('meta 比对时忽略 frame-ancestors 指令', () => {
+    const headerCsp = "default-src 'self'; frame-ancestors 'none'; script-src 'self'";
+    const metaCsp = "default-src 'self'; script-src 'self'";
+    expect(normalizeCspForMetaComparison(headerCsp)).toBe(normalizeCspForMetaComparison(metaCsp));
+  });
+
   it('安全基线配置无错误', () => {
     const csp =
       "default-src 'self'; base-uri 'self'; object-src 'none'; frame-ancestors 'none'; script-src 'self'; connect-src 'self' https://api.openai.com; worker-src 'self' blob:";

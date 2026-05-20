@@ -1155,6 +1155,10 @@ tags: [响应式, 框架, 追问]
 parent: reactivity-models
 generated: followup-script
 
+### 一句话
+
+先给可验证结论，再补证据链：面试官想确认你是否能把「主流框架的响应式模型对比」落到真实交付，而不是停在概念层。；回答顺序可用「现状问题 -> 响应式 方案动作 -> 验证结果」，并用「主流框架的响应式模型对比」举一条主链路说明。。
+
 ### 题目
 
 如果面试官追问：结合真实业务约束，当「主流框架的响应式模型对比」让联调成本持续升高时，你会先拆哪条关键链路来止损？
@@ -1194,6 +1198,10 @@ tags: [响应式, 框架, 追问]
 parent: reactivity-models
 generated: followup-script
 
+### 一句话
+
+推动「主流框架的响应式模型对比」落地时先收敛改动面：选低风险页面或模块试点，保留旧路径作为对照。；「主流框架的响应式模型对比」迁移计划要说明数据兼容、配置开关、监控指标和失败后的恢复路径。；团队推进重点不是一次性重写。
+
 ### 题目
 
 如果面试官追问：从工程落地角度看，如果比较「主流框架的响应式模型对比」与替代方案，你会如何基于 响应式 判断不同团队阶段的最佳选择？
@@ -1220,6 +1228,10 @@ tags: [渲染策略, SSR, 追问]
 parent: rendering-strategy
 generated: followup-script
 
+### 一句话
+
+验证要从可复现样例开始：准备正向、边界和失败用例，确认「SPA / SSR / SSG / ISR / RSC / Streaming / Resumability」不是只在理想输入下成立。。
+
 ### 题目
 
 如果面试官追问：从工程落地角度看，如果实验室分数变好但线上反馈一般，你会如何围绕 渲染策略 重新评估「SPA / SSR / SSG / ISR / RSC / Streaming / Resumability」优化效果？
@@ -1245,6 +1257,10 @@ difficulty: 资深
 tags: [渲染策略, SSR, 追问]
 parent: rendering-strategy
 generated: followup-script
+
+### 一句话
+
+先把目标和约束说清楚，再展开实现：这能避免把「SPA / SSR / SSG / ISR / RSC / Streaming / Resumability」讲成只在理想输入下可用。；回答结构可按「触发条件 -> 渲染策略 机制 -> 风险兜底」展开。
 
 ### 题目
 
@@ -1285,6 +1301,10 @@ tags: [体积, 性能, 追问]
 parent: bundle-runtime-cost
 generated: followup-script
 
+### 一句话
+
+验证要从可复现样例开始：准备正向、边界和失败用例，确认「各框架运行时体积与启动成本对比」不是只在理想输入下成立。；再补可观测指标：围绕「各框架运行时体积与启动成本对比」的性能收益应该能通过日志、耗时、错误率、命中率、覆盖率或用户行为指标观察到变化。。
+
 ### 题目
 
 如果面试官追问：你会怎样验证「各框架运行时体积与启动成本对比」在 体积 维度上的优化收益在真实设备和真实网络下也成立？
@@ -1310,6 +1330,10 @@ difficulty: 进阶
 tags: [体积, 性能, 追问]
 parent: bundle-runtime-cost
 generated: followup-script
+
+### 一句话
+
+先明确这道追问要解决的业务目标，再说明「各框架运行时体积与启动成本对比」在当前约束下为什么成立。；围绕「各框架运行时体积与启动成本对比」组织答案时，建议按「约束来源 -> 体积 关键决策 -> 验证闭环」展开。；不要只罗列工具名或 API。
 
 ### 题目
 
@@ -1350,6 +1374,10 @@ tags: [选型, 团队, 追问]
 parent: ecosystem-team
 generated: followup-script
 
+### 一句话
+
+先明确这道追问要解决的业务目标，再说明「生态、招聘和团队工程化的取舍」在当前约束下为什么成立。；建议按「输入约束 -> 选型 执行链路 -> 结果验证」展开，并结合「生态、招聘和团队工程化的取舍」给出一条可复核结果，能更快体现你对复杂场景的掌控力。。
+
 ### 题目
 
 如果面试官追问：当团队成熟度不一致时，你会如何围绕 选型 定义「生态、招聘和团队工程化的取舍」的先后改造顺序？
@@ -1389,6 +1417,10 @@ tags: [选型, 团队, 追问]
 parent: ecosystem-team
 generated: followup-script
 
+### 一句话
+
+验证要从可复现样例开始：准备正向、边界和失败用例，确认「生态、招聘和团队工程化的取舍」不是只在理想输入下成立。；再补可观测指标：围绕「生态、招聘和团队工程化的取舍」的工程可维护性应该能通过日志、耗时、错误率、命中率、覆盖率或用户行为指标观察到变化。。
+
 ### 题目
 
 如果面试官追问：当团队讨论「生态、招聘和团队工程化的取舍」去留时，你会给出哪几组关键指标作为决策依据？
@@ -1414,6 +1446,10 @@ difficulty: 资深
 tags: [Svelte, Solid, Signals, 追问]
 parent: svelte-solid-philosophy
 generated: followup-script
+
+### 一句话
+
+先给可验证结论，再补证据链：面试官想确认你是否能把「Svelte 5 与 Solid 的设计哲学」落到真实交付，而不是停在概念层。；可以按「问题背景 -> Svelte 机制 -> 取舍边界」回答。
 
 ### 题目
 
@@ -1454,6 +1490,10 @@ tags: [Svelte, Solid, Signals, 追问]
 parent: svelte-solid-philosophy
 generated: followup-script
 
+### 一句话
+
+先明确这道追问要解决的业务目标，再说明「Svelte 5 与 Solid 的设计哲学」在当前约束下为什么成立。；围绕「Svelte 5 与 Solid 的设计哲学」组织答案时，建议按「约束来源 -> Svelte 关键决策 -> 验证闭环」展开。。
+
 ### 题目
 
 如果面试官追问：在「Svelte 5 与 Solid 的设计哲学」场景下，为了确认「Svelte 5 与 Solid 的设计哲学」在 Svelte 上能持续跑稳，你会长期追哪些稳定性和效率信号？
@@ -1492,6 +1532,10 @@ difficulty: 资深
 tags: [响应式, 框架, 追问]
 parent: solid-signal-finegrained
 generated: followup-script
+
+### 一句话
+
+先明确这道追问要解决的业务目标，再说明「Signal / 细粒度响应式的本质优势」在当前约束下为什么成立。；建议按「输入约束 -> 响应式 执行链路 -> 结果验证」展开，并结合「Signal / 细粒度响应式的本质优势」给出一条可复核结果。
 
 ### 题目
 
@@ -1532,6 +1576,10 @@ tags: [响应式, 框架, 追问]
 parent: solid-signal-finegrained
 generated: followup-script
 
+### 一句话
+
+推动「Signal / 细粒度响应式（Solid / Vue Vapor）的本质优势」落地时先收敛改动面：选低风险页面或模块试点，保留旧路径作为对照。。
+
 ### 题目
 
 如果面试官追问：在当前团队与业务约束下，围绕「Signal / 细粒度响应式（Solid / Vue Vapor）的本质优势」选型时，你会怎样按 响应式 与业务复杂度给出分层推荐？
@@ -1558,6 +1606,10 @@ tags: [Qwik, 渲染, SSR, 高频, 追问]
 parent: hydration-vs-resumability
 generated: followup-script
 
+### 一句话
+
+验证要从可复现样例开始：准备正向、边界和失败用例，确认「Hydration vs Resumability：Qwik 为什么"不需要 hydration"」不是只在理想输入下成立。。
+
 ### 题目
 
 如果面试官追问：要证明「Hydration vs Resumability：Qwik 为什么"不需要 hydration"」确实改善体验，你会如何围绕 Qwik 设计线上观测与对照验证？
@@ -1583,6 +1635,10 @@ difficulty: 资深
 tags: [Qwik, 渲染, SSR, 高频, 追问]
 parent: hydration-vs-resumability
 generated: followup-script
+
+### 一句话
+
+先给可验证结论，再补证据链：面试官想确认你是否能把「Hydration vs Resumability：Qwik 为什么"不需要 hydration"」落到真实交付，而不是停在概念层。；回答顺序可用「现状问题 -> Qwik 方案动作 -> 验证结果」。
 
 ### 题目
 
@@ -1623,6 +1679,10 @@ tags: [元框架, 选型, 高频, 追问]
 parent: meta-framework-choice
 generated: followup-script
 
+### 一句话
+
+先把目标和约束说清楚，再展开实现：这能避免把「同样是 Vue/React 全家桶，Nuxt / Next / Astro / SvelteKit / Remix 怎么选」讲成只在理想输入下可用。；围绕「同样是 Vue/React 全家桶。
+
 ### 题目
 
 如果面试官追问：在当前团队与业务约束下，如果团队反馈「同样是 Vue/React 全家桶，Nuxt / Next / Astro / SvelteKit / Remix 怎么选」不好维护，你会如何围绕 元框架 做分层重构和验证？
@@ -1661,6 +1721,10 @@ difficulty: 资深
 tags: [元框架, 选型, 高频, 追问]
 parent: meta-framework-choice
 generated: followup-script
+
+### 一句话
+
+先把目标和约束说清楚，再展开实现：这能避免把「同样是 Vue/React 全家桶，Nuxt / Next / Astro / SvelteKit / Remix 怎么选」讲成只在理想输入下可用。；围绕「同样是 Vue/React 全家桶。
 
 ### 题目
 
@@ -1701,6 +1765,10 @@ tags: [迁移, 微前端, 追问]
 parent: migration-strategy
 generated: followup-script
 
+### 一句话
+
+先把目标和约束说清楚，再展开实现：这能避免把「老项目迁移 / 多框架共存怎么做」讲成只在理想输入下可用。；围绕「老项目迁移 / 多框架共存怎么做」组织答案时，建议按「约束来源 -> 迁移 关键决策 -> 验证闭环」展开。。
+
 ### 题目
 
 如果面试官追问：在「老项目迁移 / 多框架共存怎么做」场景下，你会如何围绕 迁移 搭建验证面板，持续确认这个方案的收益没有被噪声掩盖？
@@ -1740,6 +1808,10 @@ tags: [迁移, 微前端, 追问]
 parent: migration-strategy
 generated: followup-script
 
+### 一句话
+
+规模变大后先重新评估「老项目迁移 / 多框架共存怎么做」瓶颈：数据量、并发、团队协作、浏览器兼容和维护成本哪个先触顶。；如果「老项目迁移 / 多框架共存怎么做」对应的核心机制收益被复杂度抵消，就要考虑分层、缓存、懒加载、批处理或更简单的替代方案。。
+
 ### 题目
 
 如果面试官追问：以「老项目迁移 / 多框架共存怎么做」为例，当约束变化导致成本上升时，你会先优化「老项目迁移 / 多框架共存怎么做」里和 迁移 相关的哪些环节？
@@ -1765,6 +1837,10 @@ difficulty: 进阶
 tags: [Angular, DI, 追问]
 parent: angular-distinct
 generated: followup-script
+
+### 一句话
+
+先说判断标准，再说执行路径：回答「Angular 的核心差异和适合场景」时要能同时解释收益、代价和失败信号。；回答顺序可用「现状问题 -> Angular 方案动作 -> 验证结果」，并用「Angular 的核心差异和适合场景」举一条主链路说明。。
 
 ### 题目
 
@@ -1805,6 +1881,10 @@ tags: [Angular, DI, 追问]
 parent: angular-distinct
 generated: followup-script
 
+### 一句话
+
+规模变大后先重新评估「Angular 的核心差异和适合场景」瓶颈：数据量、并发、团队协作、浏览器兼容和维护成本哪个先触顶。；如果「Angular 的核心差异和适合场景」对应的核心机制收益被复杂度抵消，就要考虑分层、缓存、懒加载、批处理或更简单的替代方案。。
+
 ### 题目
 
 如果面试官追问：从工程落地角度看，当需求规模、团队资源或兼容性要求变化时，你会如何围绕 Angular 重排「Angular 的核心差异和适合场景」方案优先级？
@@ -1831,6 +1911,10 @@ tags: [Qwik, Resumability, 追问]
 parent: qwik-resumability
 generated: followup-script
 
+### 一句话
+
+验证要从可复现样例开始：准备正向、边界和失败用例，确认「Qwik 与 Resumability 模型」不是只在理想输入下成立。。
+
 ### 题目
 
 如果面试官追问：以「Qwik 与 Resumability 模型」为例，你会如何围绕 Qwik 定义「Qwik 与 Resumability 模型」生效的判据，并用测试与监控长期验证？
@@ -1856,6 +1940,10 @@ difficulty: 资深
 tags: [Qwik, Resumability, 追问]
 parent: qwik-resumability
 generated: followup-script
+
+### 一句话
+
+规模变大后先重新评估「Qwik 与 Resumability 模型」瓶颈：数据量、并发、团队协作、浏览器兼容和维护成本哪个先触顶。；如果「Qwik 与 Resumability 模型」对应的核心机制收益被复杂度抵消。
 
 ### 题目
 
@@ -2015,6 +2103,10 @@ tags: [选型, 决策治理, 实验设计, 追问]
 parent: framework-decision-experiment-matrix
 generated: followup-script
 
+### 一句话
+
+先把目标和约束说清楚，再展开实现：这能避免把「框架选型实验矩阵：避免被 benchmark 与主观偏好带偏」讲成只在理想输入下可用。；建议按「输入约束 -> 选型 执行链路 -> 结果验证」展开。
+
 ### 题目
 
 如果面试官追问：在当前团队与业务约束下，当「框架选型实验矩阵：避免被 benchmark 与主观偏好带偏」进入复杂业务场景时，你会先确认哪些边界条件是否可控？
@@ -2054,6 +2146,10 @@ tags: [选型, 决策治理, 实验设计, 追问]
 parent: framework-decision-experiment-matrix
 generated: followup-script
 
+### 一句话
+
+推动「框架选型实验矩阵：避免被 benchmark 与主观偏好带偏」落地时先收敛改动面：选低风险页面或模块试点，保留旧路径作为对照。。
+
 ### 题目
 
 如果面试官追问：在当前团队与业务约束下，老系统包袱重、牵一发而动全身时，你会怎么围绕 选型 安排「框架选型实验矩阵：避免被 benchmark 与主观偏好带偏」的渐进改造路线？
@@ -2079,6 +2175,10 @@ difficulty: 资深
 tags: [选型, 决策治理, 实验设计, 追问]
 parent: framework-decision-experiment-matrix
 generated: followup-script
+
+### 一句话
+
+验证要从可复现样例开始：准备正向、边界和失败用例，确认「框架选型实验矩阵：避免被 benchmark 与主观偏好带偏」不是只在理想输入下成立。。
 
 ### 题目
 
@@ -2106,6 +2206,10 @@ tags: [架构边界, 锁定风险, 迁移治理, 追问]
 parent: framework-lockin-boundary-governance
 generated: followup-script
 
+### 一句话
+
+规模变大后先重新评估「框架锁定风险治理：用边界层与契约隔离降低迁移成本」瓶颈：数据量、并发、团队协作、浏览器兼容和维护成本哪个先触顶。；如果「框架锁定风险治理：用边界层与契约隔离降低迁移成本」对应的工程可维护性收益被复杂度抵消。
+
 ### 题目
 
 如果面试官追问：结合真实业务约束，真要把「框架锁定风险治理：用边界层与契约隔离降低迁移成本」推到线上，你会如何围绕 架构边界 设计灰度节奏、回滚条件和迁移路径？
@@ -2131,6 +2235,10 @@ difficulty: 资深
 tags: [架构边界, 锁定风险, 迁移治理, 追问]
 parent: framework-lockin-boundary-governance
 generated: followup-script
+
+### 一句话
+
+先把目标和约束说清楚，再展开实现：这能避免把「框架锁定风险治理：用边界层与契约隔离降低迁移成本」讲成只在理想输入下可用。；建议按「输入约束 -> 架构边界 执行链路 -> 结果验证」展开。
 
 ### 题目
 
@@ -2170,6 +2278,10 @@ difficulty: 资深
 tags: [架构边界, 锁定风险, 迁移治理, 追问]
 parent: framework-lockin-boundary-governance
 generated: followup-script
+
+### 一句话
+
+先明确这道追问要解决的业务目标，再说明「框架锁定风险治理：用边界层与契约隔离降低迁移成本」在当前约束下为什么成立。；回答结构可按「触发条件 -> 架构边界 机制 -> 风险兜底」展开，并以「框架锁定风险治理：用边界层与契约隔离降低迁移成本」补一条失败场景。
 
 ### 题目
 
@@ -2344,6 +2456,10 @@ tags: [框架迁移, 沟通协作, 决策治理, 追问]
 parent: framework-migration-stakeholder-communication
 generated: followup-script
 
+### 一句话
+
+最容易失效的是三个边界：目标口径不一致、责任边界不清、里程碑定义不统一。；我会在启动阶段先锁定“统一词典”：什么叫完成、什么叫延期、什么叫可接受风险。；一旦跨团队出现冲突，先回到共享里程碑和决策责任表，再讨论方案细节。
+
 ### 题目
 
 如果面试官追问：这套迁移沟通剧本在真实组织里最容易在哪些边界上失效，你会如何提前兜底？
@@ -2369,6 +2485,10 @@ difficulty: 资深
 tags: [框架迁移, 沟通协作, 决策治理, 追问]
 parent: framework-migration-stakeholder-communication
 generated: followup-script
+
+### 一句话
+
+我会看三类数据：跨团队会议时长、决策等待时间、同一议题重复讨论次数。；再看结果数据：里程碑按时率、因沟通问题导致的返工率是否下降。；若数据不改善，就回溯剧本字段：是信息太多、责任不清，还是节奏不合适。
 
 ### 题目
 
@@ -2396,6 +2516,10 @@ tags: [框架迁移, 沟通协作, 决策治理, 追问]
 parent: framework-migration-stakeholder-communication
 generated: followup-script
 
+### 一句话
+
+我会把数据分两组：业务价值（交付速度、故障率、用户反馈）和组织成本（人力投入、沟通时长、返工率）。；当业务价值达不到预设阈值且组织成本持续上升，就要启动止损路径。；继续投入的前提是“收益曲线向上 + 风险可控 + 团队可承载”，三者缺一不可。
+
 ### 题目
 
 如果面试官追问：迁移走到一半，你会拿哪些关键数据判断“继续投入”还是“及时止损”？
@@ -2421,6 +2545,10 @@ difficulty: 资深
 tags: [选型治理, POC, 止损策略, 追问]
 parent: framework-poc-stoploss-governance
 generated: followup-script
+
+### 一句话
+
+最常见假设误差有三类：样本过于理想、团队能力被高估、迁移成本被低估。；我会在 POC 前就写清“不可接受条件”，比如学习成本超预期或关键链路不稳定。；一旦命中不可接受条件，不再“加时补救”，直接进入撤退或降级方案。
 
 ### 题目
 
@@ -2448,6 +2576,10 @@ tags: [选型治理, POC, 止损策略, 追问]
 parent: framework-poc-stoploss-governance
 generated: followup-script
 
+### 一句话
+
+我会强制样本分层：简单页面、复杂交互、历史改造各至少一类，避免单点乐观。；指标必须成对出现：效率提升要配稳定性代价，性能收益要配迁移成本。；结论评审时引入反方提问，要求对“为什么不选”给出证据。
+
 ### 题目
 
 如果面试官追问：你怎么证明 POC 结论可信，不是因为挑了简单样本或只看了有利指标？
@@ -2473,6 +2605,10 @@ difficulty: 资深
 tags: [选型治理, POC, 止损策略, 追问]
 parent: framework-poc-stoploss-governance
 generated: followup-script
+
+### 一句话
+
+我会先保留“最能决定去留”的验证项，其余项降级为补充证据。；时间被压缩时，优先验证高风险链路，而不是平均分配精力。；任何调整都要保留可比较性：指标口径不变、样本结构不变、结论阈值不变。
 
 ### 题目
 

@@ -185,7 +185,7 @@ onBeforeUnmount(() => {
             <button
               v-for="item in SCENARIO_SEARCHES"
               :key="item.label"
-              class="chip scenario-chip"
+              class="chip ui-chip scenario-chip"
               @click="pickScenario(item.keyword)"
             >
               {{ item.label }}
@@ -199,7 +199,7 @@ onBeforeUnmount(() => {
             <button class="link-btn" title="清空历史" @click="removeHistory">清空</button>
           </div>
           <div class="chips">
-            <button v-for="h in history" :key="h" class="chip" @click="pickHistory(h)">
+            <button v-for="h in history" :key="h" class="chip ui-chip" @click="pickHistory(h)">
               {{ h }}
             </button>
           </div>
@@ -333,21 +333,10 @@ onBeforeUnmount(() => {
   gap: 6px;
 }
 .chip {
-  padding: 4px 10px;
-  border-radius: 999px;
-  background: var(--c-bg-mute);
-  border: 1px solid var(--c-border);
-  font-size: 12px;
-  color: var(--c-text);
-  cursor: pointer;
-}
-.chip:hover {
-  background: var(--c-primary-soft);
-  border-color: var(--c-primary);
-  color: var(--c-primary);
+  --chip-accent: var(--c-primary);
 }
 .scenario-chip {
-  background: color-mix(in srgb, var(--c-primary) 8%, var(--c-bg-mute));
+  --chip-accent: #6366f1;
 }
 
 .result-list {
