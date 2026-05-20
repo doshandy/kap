@@ -478,24 +478,26 @@ defineExpose({ toggle, markMastered, markReview, toggleNotePanel });
 
           <div class="wrong-reasons card-soft">
             <h4><AppIcon name="warning" /> 错因标签</h4>
-            <button
-              v-for="reason in WRONG_REASON_OPTIONS"
-              :key="reason"
-              class="chip"
-              :class="{ active: marks.hasWrongReason(question.id, reason) }"
-              :aria-pressed="marks.hasWrongReason(question.id, reason)"
-              @click="toggleWrongReason(reason)"
-            >
-              {{ reason }}
-            </button>
-            <button
-              v-if="marks.wrongReasonsOf(question.id).length"
-              class="chip"
-              aria-label="清空当前题目的错因标签"
-              @click="clearWrongReasons"
-            >
-              清空错因
-            </button>
+            <div class="wrong-reasons-tags">
+              <button
+                v-for="reason in WRONG_REASON_OPTIONS"
+                :key="reason"
+                class="chip"
+                :class="{ active: marks.hasWrongReason(question.id, reason) }"
+                :aria-pressed="marks.hasWrongReason(question.id, reason)"
+                @click="toggleWrongReason(reason)"
+              >
+                {{ reason }}
+              </button>
+              <button
+                v-if="marks.wrongReasonsOf(question.id).length"
+                class="chip"
+                aria-label="清空当前题目的错因标签"
+                @click="clearWrongReasons"
+              >
+                清空错因
+              </button>
+            </div>
           </div>
 
           <div v-if="timelineEvents.length" class="timeline card-soft">
@@ -730,12 +732,23 @@ defineExpose({ toggle, markMastered, markReview, toggleNotePanel });
   padding-top: 12px;
   border-top: 1px dashed var(--c-border);
 }
-.reveal-toolbar,
-.wrong-reasons {
+.reveal-toolbar {
   display: flex;
   gap: 8px;
   flex-wrap: wrap;
   margin: 10px 0;
+}
+.wrong-reasons {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin: 10px 0;
+}
+.wrong-reasons-tags {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  align-items: center;
 }
 .chip {
   border: 1px solid var(--c-border);
