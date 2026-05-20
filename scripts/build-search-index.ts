@@ -121,11 +121,10 @@ if (parseErrors.length) {
 
 const payload = {
   version: 2,
-  generatedAt: new Date().toISOString(),
   signature: buildSignature(docs),
   contentSignature: buildContentSignature(fingerprints),
   docs,
 };
 
-writeFileSync(OUT, JSON.stringify(payload), 'utf-8');
+writeFileSync(OUT, `${JSON.stringify(payload, null, 2)}\n`, 'utf-8');
 console.log(`✅ 搜索索引已生成：${docs.length} 道题 -> ${OUT}`);
