@@ -74,6 +74,8 @@ function repairBrokenFragments(value: string): string {
     .replace(/（如\s*）/g, '（如 `T extends { id: string }`）')
     .replace(/默认值（\s*）/g, '默认值（如 `T = unknown`）')
     .replace(/Omit\s*=\s*Pick>/g, 'Omit = `Pick<T, Exclude<keyof T, K>>`')
+    .replace(/通过 proto、constructor\.prototype/g, '通过 `__proto__`、constructor.prototype')
+    .replace(/通过 proto, constructor\.prototype/g, '通过 `__proto__`, constructor.prototype')
     .replace(
       /在 \/ 上加 integrity 属性指定文件的 hash/g,
       '在 script 标签 / link 标签上加 integrity 属性指定文件 hash',

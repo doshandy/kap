@@ -1622,7 +1622,7 @@ parent: prototype-pollution
 
 #### 标准回答（直接作答）
 
-- 结论：攻击者通过 **proto**、constructor.prototype 等路径污染全局原型
+- 结论：攻击者通过 `__proto__`、constructor.prototype 等路径污染全局原型
 - 机制：一旦成功，可能影响权限判断、请求配置、模板渲染甚至 RCE 链条；防御手段：限制可写路径、使用 Object.create(null)、过滤危险 key、升级有漏洞依赖
 - 落地动作：回答「在「原型链污染为什么危险，如何防」进入长周期维护后，你会重点巡检哪些与 原型链污染 相关的高风险边界点」时，按“前置条件检查 -> 主链路验证 -> 异常链路兜底 -> 指标回归确认”的顺序给出可执行步骤。
 
@@ -1634,7 +1634,7 @@ parent: prototype-pollution
 
 #### 关键细节（可追问）
 
-- 攻击者通过 **proto**、constructor.prototype 等路径污染全局原型
+- 攻击者通过 `__proto__`、constructor.prototype 等路径污染全局原型
 - 一旦成功，可能影响权限判断、请求配置、模板渲染甚至 RCE 链条
 - 防御手段：限制可写路径、使用 Object.create(null)、过滤危险 key、升级有漏洞依赖
 
@@ -2762,7 +2762,7 @@ generated: followup-script
 
 #### 标准回答（直接作答）
 
-- 结论：攻击者通过 **proto**、constructor.prototype 等路径污染全局原型
+- 结论：攻击者通过 `__proto__`、constructor.prototype 等路径污染全局原型
 - 机制：一旦成功，可能影响权限判断、请求配置、模板渲染甚至 RCE 链条；防御手段：限制可写路径、使用 Object.create(null)、过滤危险 key、升级有漏洞依赖
 - 落地动作：回答「以「原型链污染为什么危险，如何防」为例，你会如何围绕 原型链污染 定义「原型链污染为什么危险，如何防」生效的判据，并用测试与监控长期验证」时，按“前置条件检查 -> 主链路验证 -> 异常链路兜底 -> 指标回归确认”的顺序给出可执行步骤。
 
@@ -2774,7 +2774,7 @@ generated: followup-script
 
 #### 关键细节（可追问）
 
-- 攻击者通过 **proto**、constructor.prototype 等路径污染全局原型
+- 攻击者通过 `__proto__`、constructor.prototype 等路径污染全局原型
 - 一旦成功，可能影响权限判断、请求配置、模板渲染甚至 RCE 链条
 - 防御手段：限制可写路径、使用 Object.create(null)、过滤危险 key、升级有漏洞依赖
 
@@ -2798,7 +2798,7 @@ generated: followup-script
 
 #### 标准回答（直接作答）
 
-- 结论：攻击者通过 **proto**、constructor.prototype 等路径污染全局原型
+- 结论：攻击者通过 `__proto__`、constructor.prototype 等路径污染全局原型
 - 机制：一旦成功，可能影响权限判断、请求配置、模板渲染甚至 RCE 链条；防御手段：限制可写路径、使用 Object.create(null)、过滤危险 key、升级有漏洞依赖
 - 落地动作：回答「从工程落地角度看，当需求规模、团队资源或兼容性要求变化时，你会如何围绕 原型链污染 重排「原型链污染为什么危险，如何防」方案优先级」时，按“前置条件检查 -> 主链路验证 -> 异常链路兜底 -> 指标回归确认”的顺序给出可执行步骤。
 
@@ -2810,7 +2810,7 @@ generated: followup-script
 
 #### 关键细节（可追问）
 
-- 攻击者通过 **proto**、constructor.prototype 等路径污染全局原型
+- 攻击者通过 `__proto__`、constructor.prototype 等路径污染全局原型
 - 一旦成功，可能影响权限判断、请求配置、模板渲染甚至 RCE 链条
 - 防御手段：限制可写路径、使用 Object.create(null)、过滤危险 key、升级有漏洞依赖
 
