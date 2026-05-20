@@ -2,6 +2,7 @@ import { readdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { JSDOM } from 'jsdom';
+import prettier from 'prettier';
 
 const ROOT = fileURLToPath(new URL('../content/', import.meta.url));
 const OUT = fileURLToPath(new URL('../public/search-index.json', import.meta.url));
@@ -126,5 +127,6 @@ const payload = {
   docs,
 };
 
-writeFileSync(OUT, `${JSON.stringify(payload, null, 2)}\n`, 'utf-8');
+const formatted = await prettier.format(JSON.stringify(payload), { parser: 'json' });
+writeFileSync(OUT, formatted, 'utf-8');
 console.log(`✅ 搜索索引已生成：${docs.length} 道题 -> ${OUT}`);
