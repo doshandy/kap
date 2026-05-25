@@ -65,6 +65,7 @@ watch(
       prewarmTimerId = null;
     }
   },
+  { immediate: true },
 );
 
 function close() {

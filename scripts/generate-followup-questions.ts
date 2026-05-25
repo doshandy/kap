@@ -3,6 +3,12 @@ import { join } from 'node:path';
 import { parseCommonScriptArgs, resolveOnlyContentFiles } from './shared/args';
 import { canonicalizeFollowupQuestionPattern } from './shared/followupCanonical';
 import { replaceOrInsertMetaLine } from './shared/metaLine';
+import {
+  FOLLOWUP_ACTION_KEYWORDS,
+  FOLLOWUP_RISK_KEYWORDS,
+  FOLLOWUP_VERIFY_KEYWORDS,
+  containsAnyKeyword,
+} from './shared/answerQuality';
 
 const parserModule = (await import(
   new URL('../src/lib/contentBlockParser.ts', import.meta.url).href
@@ -39,6 +45,8 @@ interface Block {
   followups: string[];
   sections: Record<string, string>;
 }
+
+type FollowupIntent = 'implementation' | 'reason' | 'verify' | 'tradeoff' | 'rollout' | 'risk';
 
 const CONTENT_DIR = join(process.cwd(), 'content');
 const files = resolveOnlyContentFiles(
@@ -199,6 +207,23 @@ function pickBySeed(options: string[], seed: string, offset = 0): string {
   return options[index];
 }
 
+function tokenize(value: string): string[] {
+  return (
+    markdownText(value).match(/[A-Za-z][A-Za-z0-9_+#./-]{1,}|[\u4e00-\u9fa5]{2,10}/g) || []
+  ).map((token) => token.toLowerCase());
+}
+
+function tokenOverlapRatio(a: string, b: string): number {
+  const left = new Set(tokenize(a));
+  const right = new Set(tokenize(b));
+  if (!left.size || !right.size) return 0;
+  let overlap = 0;
+  for (const token of left) {
+    if (right.has(token)) overlap += 1;
+  }
+  return overlap / Math.min(left.size, right.size);
+}
+
 const GENERIC_FOCUS_TERMS = new Set([
   '类型',
   '方案',
@@ -240,6 +265,82 @@ const FOCUS_TERM_ALIASES: Record<string, string> = {
   手写: '手写实现',
 };
 
+const TERM_STOPWORDS = new Set([
+  '实战',
+  '高频',
+  '面试',
+  '题目',
+  '题库',
+  '概念',
+  '原理',
+  '机制',
+  'Engineering',
+  '基础',
+  '进阶',
+  '资深',
+  '示例',
+  '案例',
+]);
+
+const FIXED_TERM_EXPLANATIONS: Record<string, string[]> = {
+  ai: [
+    '在本题里指接入的大模型能力，需要限定输入边界、输出校验和回退策略。',
+    '这里的 AI 是可运营能力，不是黑盒接口：要有预算上限、失败兜底和可观测信号。',
+    'AI 在这题里不是“调用一次接口”这么简单，必须同时定义质量门槛、成本上限和安全兜底。',
+    '这道题的 AI 指业务可上线能力，需要把模型调用、结果校验和故障回退串成闭环。',
+    'AI 在本题代表一条可治理链路，需要回答“何时放量、何时回退、谁来兜底”。',
+    '这里的 AI 是要负责结果质量的系统能力，必须配套监控、审计和故障降级。',
+    '本题里的 AI 不只看效果，还要满足成本预算与安全约束，三者缺一不可。',
+    'AI 在该场景里指可持续交付能力，需要把模型输出变成可验证、可回滚的工程流程。',
+    'AI 在这道题里属于高风险能力，必须先定义禁答边界，再定义失败兜底与人工接管。',
+    '本题中的 AI 不是单点功能，而是完整链路：输入治理、输出校验、异常回退都要可执行。',
+    'AI 在这里的含义是“可上线且可治理”的生成能力，不能只看模型效果分数。',
+    '这题里的 AI 要求结果可追溯：每次生成都应关联日志证据、评测结果与回退开关。',
+    'AI 在本题里必须满足三条线：质量可验收、成本可控、安全可审计，缺一都不能放量。',
+    '这里说的 AI 指前端可集成的模型能力，上线前要明确调用边界和故障处置责任。',
+    'AI 在该问题里是持续迭代对象，需要版本化评测、灰度发布和异常止损策略。',
+    '本题把 AI 视为工程能力而非黑盒服务，必须配套监控指标和人工复核流程。',
+  ],
+  llm: [
+    '大语言模型，基于上下文预测下一个 token；工程上要配合约束与验证，避免幻觉。',
+    'LLM 是概率生成器，不是确定性规则引擎；上线必须补充校验、重试与人工兜底。',
+  ],
+  prompt: [
+    '给模型的指令模板，决定任务边界、输出格式和约束条件。',
+    'Prompt 相当于任务合同：范围、格式、禁止项写得越清楚，输出越稳定可复核。',
+    'Prompt 是模型执行说明书，核心是把目标、输入约束和输出格式讲清楚。',
+    '本题里的 Prompt 不是一句话提问，而是可复用模板：角色、任务、上下文、格式要完整。',
+  ],
+  'prompt engineering': [
+    '系统化设计和迭代提示词，用结构化约束提升输出稳定性和可验收性。',
+    'Prompt Engineering 是把提示词做成可版本化资产，通过评测集迭代而不是凭感觉调参。',
+  ],
+  token: [
+    '模型处理与计费的最小单位，输入和输出 token 都会占用成本预算。',
+    'Token 直接决定成本和上下文容量；超量会增加费用并挤占有效信息窗口。',
+    'Token 是模型的计算颗粒度，输入输出都计费，超预算会直接影响上线可持续性。',
+    '这里的 Token 既是容量指标也是成本指标，回答时要同时说明窗口占用与费用影响。',
+  ],
+  'context window': [
+    '模型单次请求可处理的上下文总量，超出会截断并丢失关键信息。',
+    'Context Window 是单轮可用内存上限，超过后需要摘要、裁剪或 RAG 才能保证正确性。',
+  ],
+  context: [
+    '当前请求携带的上下文信息，会直接影响模型推理结果和可解释性。',
+    'Context 决定模型“看到什么”，上下文污染会直接引发答非所问或错误结论。',
+  ],
+  temperature: [
+    '控制输出随机性；值越低越稳定，值越高越发散。',
+    'Temperature 是稳定性旋钮：低值适合结构化任务，高值适合创意探索。',
+  ],
+  rag: [
+    '检索增强生成，先检索外部知识再生成回答，用于降低幻觉并补齐时效信息。',
+    'RAG 把“检索”和“生成”解耦，先拿到可追溯证据，再让模型组织输出。',
+    'RAG 是“先找证据再回答”的流程，用检索命中率与证据覆盖率约束生成质量。',
+    '本题中的 RAG 重点是可追溯：回答必须能回链到检索片段，而不是仅凭模型记忆。',
+  ],
+};
+
 function extractFocusCandidates(value: string): string[] {
   const plain = markdownText(value).replace(/「|」/g, ' ');
   return plain.match(/[A-Za-z][A-Za-z0-9_+#./-]{1,}|[\u4e00-\u9fa5]{2,12}/g) || [];
@@ -247,24 +348,106 @@ function extractFocusCandidates(value: string): string[] {
 
 function normalizeFocusTerm(value: string): string {
   const normalized = markdownText(value)
-    .replace(/[「」"'`]/g, '')
-    .replace(/[（(][^()（）]*[)）]/g, '')
+    .replace(/[「」"'`]/g, ' ')
+    .replace(/[（(][^()（）]{0,24}[)）]/g, ' ')
     .replace(/[，。！？?：:；;、]/g, ' ')
     .replace(/\s+/g, ' ')
     .trim();
-  if (!normalized || normalized.length < 2 || normalized.length > 14) return '';
+  if (!normalized || normalized.length < 2 || normalized.length > 28) return '';
   if (GENERIC_FOCUS_TERMS.has(normalized)) return '';
-  if (/^(如何|怎么|哪些|什么|是否|如果|当|在|围绕|结合|从|以)$/.test(normalized)) return '';
+  if (TERM_STOPWORDS.has(normalized)) return '';
+  if (
+    /^(日志|指标|线上指标|线上观测指标|回滚条件|迁移路径|方案边界|实施节奏|组合验证|共同证明|支撑结论|持续验证|复杂依赖|真实流量|业务约束下)$/.test(
+      normalized,
+    )
+  ) {
+    return '';
+  }
+  if (/^(并|以及)/.test(normalized)) return '';
+  if (
+    /(日志|指标|观测|测试|验证)/.test(normalized) &&
+    normalized.length >= 8 &&
+    !/[A-Za-z]/.test(normalized)
+  ) {
+    return '';
+  }
+  if (/^如果面试官追问/.test(normalized)) return '';
+  if (/如何|怎么|哪些|什么|为什么|是否/.test(normalized)) return '';
+  if (
+    /^(如何|怎么|哪些|什么|是否|如果|当|在|围绕|结合|从|以|针对|对于|真要|为了|你会)/.test(
+      normalized,
+    )
+  ) {
+    return '';
+  }
+  if (
+    /业务约束|团队约束|当前团队|工程落地|角度看|场景下|约束下|情况下|评审时|落地时|上线后/.test(
+      normalized,
+    )
+  ) {
+    return '';
+  }
+  if (/真实业务|工程落地|团队与业务约束|场景下|角度看/.test(normalized)) return '';
   return normalized;
 }
 
+function extractPriorityFocusTerms(text: string, includeLooseTokens = true): string[] {
+  const terms: string[] = [];
+  const push = (raw: string) => {
+    const normalized = normalizeFocusTerm(raw);
+    if (normalized) terms.push(normalized);
+  };
+
+  for (const match of text.matchAll(/`([^`]{2,64})`/g)) {
+    const raw = match[1].trim();
+    push(raw);
+    for (const englishPhrase of raw.match(
+      /[A-Za-z][A-Za-z0-9_+#./-]*(?:\s+[A-Za-z][A-Za-z0-9_+#./-]*){0,2}/g,
+    ) || []) {
+      push(englishPhrase.trim());
+    }
+  }
+  for (const match of text.matchAll(/「([^」]{2,80})」/g)) {
+    const raw = match[1].trim();
+    push(raw);
+    for (const segment of raw.split(/[：:，,、/|]/).map((item) => item.trim())) {
+      push(segment);
+    }
+    const lead = raw.split(/[的]/)[0]?.trim();
+    if (lead) push(lead);
+  }
+
+  const plain = markdownText(text);
+  const pairSource = plain.replace(/<[^>]{0,16}>/g, '');
+  for (const pair of pairSource.matchAll(
+    /([A-Za-z][A-Za-z0-9_+#./-]{1,24}|[\u4e00-\u9fa5]{2,20})\s*(?:和|与|vs|VS|\/)\s*([A-Za-z][A-Za-z0-9_+#./-]{1,24}|[\u4e00-\u9fa5]{2,20})/g,
+  )) {
+    push(`${pair[1]} 与 ${pair[2]}`);
+    push(pair[1]);
+    push(pair[2]);
+  }
+  if (includeLooseTokens) {
+    for (const token of extractFocusCandidates(plain)) push(token);
+  }
+  return [...new Set(terms)];
+}
+
 function pickFocusTerm(block: Block, question: string): string {
+  for (const candidate of extractPriorityFocusTerms(question, false)) {
+    const focus = normalizeFocusTerm(candidate);
+    if (focus) return FOCUS_TERM_ALIASES[focus] || focus;
+  }
   const candidates = [
-    ...block.tags,
+    ...extractPriorityFocusTerms(normalizeWhatIsTitle(block.title)),
     ...extractFocusCandidates(normalizeWhatIsTitle(block.title)),
     ...extractFocusCandidates(question),
+    ...block.tags,
   ];
   for (const candidate of candidates) {
+    const focus = normalizeFocusTerm(candidate);
+    if (focus) return FOCUS_TERM_ALIASES[focus] || focus;
+  }
+  for (const candidate of extractPriorityFocusTerms(question, true)) {
     const focus = normalizeFocusTerm(candidate);
     if (focus) return FOCUS_TERM_ALIASES[focus] || focus;
   }
@@ -538,106 +721,609 @@ function refineFollowupQuestion(question: string, parent: Block, slot: number): 
   return decorateFollowupQuestion(chosen, title, seed, slot);
 }
 
+function ensureSentence(value: string): string {
+  const text = markdownText(value).replace(/\s+/g, ' ').trim();
+  if (!text) return '';
+  if (/[。！？!?]$/.test(text)) return text;
+  return `${text}。`;
+}
+
+function isWeakCandidateLine(value: string): boolean {
+  const text = markdownText(value).replace(/\s+/g, ' ').trim();
+  if (!text) return true;
+  return (
+    /^面试中不要只停留在/.test(text) ||
+    /^回答「/.test(text) ||
+    /^这题围绕/.test(text) ||
+    /^这里的.+是/.test(text) ||
+    /^围绕「.+」直接回答：先/.test(text) ||
+    /^先确定指标口径，再补日志与测试证据，最后按阈值做继续\/回退决策/.test(text) ||
+    /^围绕 .+先对比短期收益和长期负担，再给明确切换条件/.test(text) ||
+    /^先演练 .+的失败场景，再配置降级和兜底动作，最后确认恢复路径/.test(text) ||
+    /^验收至少包含回归用例、线上监控和告警阈值，三条证据都达标才收口/.test(text) ||
+    /^围绕实施结果要同时看测试通过率、错误率和时延变化，确保改动真实生效/.test(text) ||
+    /^验收要同时满足“指标达标 \+ 日志一致 \+ 测试通过”，缺一不可/.test(text) ||
+    /^验证闭环包含阈值、证据和回归结果，三者一致才可继续放量/.test(text) ||
+    /^验收看收益与成本两条曲线：收益稳定且维护成本可控才保留当前方案/.test(text) ||
+    /^验收需同时对比收益提升和维护成本变化，确保取舍结论可持续/.test(text) ||
+    /^围绕取舍结果至少给收益趋势、成本趋势和回归稳定性三组数据/.test(text) ||
+    /^先排查 .+ 现状，再实施改动并验证结果，异常时立即回滚/.test(text) ||
+    /^若 .+ 没有明确回退策略，发布失败后会出现恢复窗口过长的问题/.test(text) ||
+    /^围绕 .+ 的实施结果要同时看测试通过率、错误率和时延变化，确保改动真实生效/.test(text) ||
+    /^围绕 .+ 至少给一组指标阈值、一条日志证据和一组测试结果/.test(text) ||
+    /^.+ 验收要同时满足“指标达标 \+ 日志一致 \+ 测试通过”，缺一不可/.test(text) ||
+    /^验收 .+ 时要同时看测试通过率、错误率和时延变化，确保改动真实生效/.test(text) ||
+    /^.+ 验证要给“指标阈值 \+ 监控信号 \+ 回归结果”三件套/.test(text) ||
+    /^.+ 发布先灰度后放量，每批次都有验收门槛和回滚开关，确保迁移可控/.test(text) ||
+    /^.+ 发布路径用“低风险流量试点 -> 分批放量 -> 异常即回退”/.test(text) ||
+    /^.+ 一旦异常要明确止损、回退和恢复路径，三者缺一不可/.test(text) ||
+    /^围绕 .+ 先做基线采集，再做最小改动验证，最后按门槛决定继续放量或回退/.test(text) ||
+    /^先给 .+ 的触发条件，再解释机制和反例，避免只给抽象结论/.test(text) ||
+    /^.+ 的关键差别不在表面功能，而在适用边界、维护成本和失败后果；按这三项比较再决策/.test(text) ||
+    /^先算 .+ 的收益提升、维护成本、回滚复杂度三本账；收益连续达标再推进，否则保留现方案/.test(text)
+  );
+}
+
+function preferStrongLine(selected: string, fallback: string): string {
+  const normalized = ensureSentence(selected);
+  if (!normalized || isWeakCandidateLine(normalized)) return ensureSentence(fallback);
+  return normalized;
+}
+
+function isActionableDirect(intent: FollowupIntent, value: string): boolean {
+  const text = ensureSentence(value);
+  if (intent === 'implementation') {
+    const strongActionRegex =
+      /排查|验证|实施|推进|拆分|拆解|灰度|回滚|回退|恢复|监控|补齐|补充|迁移|收敛|演练|止损|改造|收紧|估算|校准|观察|比较/;
+    if (
+      /(先|再|最后|按|分批|逐步|优先|建议|需要|必须|应当|可先|先把|先补|先做)/.test(text) &&
+      strongActionRegex.test(text)
+    ) {
+      return true;
+    }
+    const normalized = markdownText(text);
+    const strongHitCount = [
+      '排查',
+      '验证',
+      '实施',
+      '推进',
+      '拆分',
+      '拆解',
+      '灰度',
+      '回滚',
+      '回退',
+      '恢复',
+      '监控',
+      '补齐',
+      '补充',
+      '迁移',
+      '收敛',
+      '演练',
+      '止损',
+      '改造',
+      '收紧',
+      '估算',
+      '校准',
+      '观察',
+      '比较',
+    ].filter((keyword) => normalized.includes(keyword)).length;
+    return strongHitCount >= 2;
+  }
+  if (intent === 'reason') {
+    return /因为|原因|本质|前提|导致|触发|失效|因果|为什么|区别|差别|关系|替代|原理/.test(text);
+  }
+  return true;
+}
+
+function ensureActionLine(value: string, fallback: string): string {
+  const normalized = ensureSentence(value);
+  if (containsAnyKeyword(markdownText(normalized), FOLLOWUP_ACTION_KEYWORDS)) return normalized;
+  const fallbackNormalized = ensureSentence(fallback);
+  if (containsAnyKeyword(markdownText(fallbackNormalized), FOLLOWUP_ACTION_KEYWORDS)) {
+    return fallbackNormalized;
+  }
+  return ensureSentence(
+    `${fallbackNormalized.replace(/[。！？!?]+$/g, '')}，并推进排查、实施与回退验证`,
+  );
+}
+
+function inferFollowupIntent(question: string): FollowupIntent {
+  const plain = markdownText(question);
+  const stripped = plain.replace(/「[^」]{2,120}」/g, ' ');
+  if (/指标|验证|证明|监控|告警|测试|验收|日志|趋势|观测|信号|估算|计算/.test(stripped))
+    return 'verify';
+  if (/取舍|成本|收益|权衡|利弊|该不该选|最佳选择|选型|团队阶段/.test(stripped)) return 'tradeoff';
+  if (/上线|灰度|回滚|迁移|发布/.test(stripped)) return 'rollout';
+  if (
+    /风险|异常|故障|失败|兜底|降级|边界问题|边界条件|可靠性开关|开关|熔断|止损|抖动|限流|击穿|陷阱|复杂度坑/.test(
+      stripped,
+    )
+  )
+    return 'risk';
+  if (/为什么|原因|本质|区别|差别|关系|原理|能替代|替代|适合/.test(stripped)) return 'reason';
+  return 'implementation';
+}
+
+function pickKeywordLine(lines: string[], keywords: string[]): string | undefined {
+  for (const line of lines) {
+    if (isWeakCandidateLine(line)) continue;
+    if (containsAnyKeyword(markdownText(line), keywords)) return line;
+  }
+  return undefined;
+}
+
+function buildFallbackDirect(
+  intent: FollowupIntent,
+  title: string,
+  question: string,
+  focusTerm: string,
+): string {
+  if (/declare module.*svg|declare module.+原理/.test(question)) {
+    return `declare module 的作用是给非 TS 资源补类型声明，让编译器知道导入值的形状并通过类型检查。`;
+  }
+  if (/什么时候用.*什么时候/.test(question) && /容器查询|媒体查询/.test(question)) {
+    return `组件内部随容器尺寸变化用容器查询；全局断点和页面级布局切换仍用媒体查询。`;
+  }
+  if (/Style Queries/.test(question) && /CSS Variables/.test(question) && /关系/.test(question)) {
+    return `CSS Variables 负责承载可变设计 token，Style Queries 负责读取样式状态做条件分支，两者组合实现“变量驱动 + 条件选择”。`;
+  }
+  if (/为什么不直接用\s*esbuild|源码不也用\s*esbuild/.test(question)) {
+    return `esbuild 适合快编译，但生产构建还需要成熟插件生态、产物优化与兼容控制，所以通常由 Rollup 或 Rolldown 承担。`;
+  }
+  if (
+    /动态 import 失败|旧版本 chunk|动态加载/.test(question) &&
+    /预算收紧|兼容性要求提升|实施节奏|方案边界/.test(question)
+  ) {
+    return `先补版本探测与自动刷新兜底，再按“关键路由优先预加载、低频模块懒加载”的节奏收敛动态加载成本。`;
+  }
+  if (/60 秒|60秒|一分钟|压缩一个复杂项目回答/.test(question)) {
+    return `先讲项目目标与结果，再给你主导的关键动作和量化收益，最后补一个可追问点，控制在 60 秒内。`;
+  }
+  if (/草稿丢失|本地数据损坏/.test(question)) {
+    return `先把草稿写入可恢复存储并附版本号校验，提交前做冲突合并，异常时按快照回放恢复。`;
+  }
+  if (/key 池|负载均衡/.test(question)) {
+    return `key 池负载要按成功率和时延动态分流，单 key 异常即摘除并走备用池，恢复后再逐步回切。`;
+  }
+  if (/数据量、并发量或页面复杂度扩大一个数量级/.test(question)) {
+    return `规模扩大时先做分层缓存和批量计算，把高成本计算移出主线程，并按并发阈值分级降载。`;
+  }
+  if (
+    /判据|验证面板|可复核|证明.*有效|证据|组合验证|共同证明|测试.*日志.*指标|日志.*指标/.test(
+      question,
+    )
+  ) {
+    return pickBySeed(
+      [
+        `先约定「${title}」的功能正确、性能稳定、业务结果三组阈值，再用日志链路和回归结果交叉验证。`,
+        `验证「${title}」时先对齐成功率、错误率、P95 耗时三项，再用关键日志和测试证据做复核。`,
+        `先定「${title}」验收阈值与采样窗口，再把监控曲线、日志证据、回归结果放在同一时间轴核对。`,
+      ],
+      `${title}|${question}|${focusTerm}|verify-proof-direct`,
+    );
+  }
+  if (/灰度节奏|回滚条件|迁移路径|分阶段止损|实施阶段|发布节奏/.test(question)) {
+    return pickBySeed(
+      [
+        `把「${title}」发布拆成“试点灰度 -> 扩量观察 -> 全量收口”三阶段，每阶段绑定门槛和回滚动作。`,
+        `先小流量验证「${title}」主链路，再分批扩量；任一批次越阈值立即回滚并保留旧链路兜底。`,
+        `「${title}」上线节奏按“低风险流量试点、分阶段放量、稳定后全量”推进，异常批次立即止损。`,
+      ],
+      `${title}|${question}|${focusTerm}|rollout-direct`,
+    );
+  }
+  if (/落地风险|约束是否成立|边界条件击穿|最容易失效|稳定上线|上线前.*先验/.test(question)) {
+    return pickBySeed(
+      [
+        `围绕「${title}」先盘点输入边界、并发峰值和失败回退三类约束，逐项压测与演练，通过后再上线。`,
+        `「${title}」落地前先做高风险路径演练，确认异常可发现、可止损、可恢复，再推进发布。`,
+        `先列「${title}」最坏失败模式并补齐降级兜底，关键链路连续稳定后再扩大影响面。`,
+      ],
+      `${title}|${question}|${focusTerm}|risk-direct`,
+    );
+  }
+  if (/重排方案优先级|调整方案边界|调整.*实施节奏|规模.*变化|预算收紧/.test(question)) {
+    return pickBySeed(
+      [
+        `「${title}」约束变化时先保主链路与稳定性，再按收益/成本比重排任务，延后高成本低收益项。`,
+        `先冻结「${title}」高风险改造，优先交付刚需能力，再按风险分层逐步恢复后续优化项。`,
+        `「${title}」在规模或预算变化时按“保可用、控成本、再优化”顺序推进，避免一次性大改引发连锁风险。`,
+      ],
+      `${title}|${question}|${focusTerm}|reprioritize-direct`,
+    );
+  }
+  if (/复杂度相关边界/.test(question)) {
+    return `优先排查 ${focusTerm} 的最坏输入规模、重复访问热点和队列峰值，确认时间与空间复杂度不会击穿预算。`;
+  }
+  if (/数据规模扩大/.test(question)) {
+    return `数据规模放大时，先把 ${focusTerm} 的邻接结构和访问索引换成低开销实现，再加分批处理避免主线程阻塞。`;
+  }
+  if (/校验与断言|高价值校验/.test(question)) {
+    return `先补 ${focusTerm} 的边界输入断言、随机对拍和回归用例三类证据，确保结论可复核而不是样例跑通。`;
+  }
+  if (/Hooks/.test(question) && /哪些 state|渲染边界|最容易出问题/.test(question)) {
+    return `Hooks 场景优先排查条件渲染里的状态漂移、闭包旧值和副作用依赖遗漏，这三类最容易触发错位更新。`;
+  }
+  if (/状态纠缠|降低调试复杂度/.test(question)) {
+    return `先按“页面路由状态、服务端数据状态、本地交互状态”三层拆边界，再为每层定义单向数据流，调试复杂度会明显下降。`;
+  }
+  if (/该不该选|最佳选择|不同团队阶段/.test(question)) {
+    return `做 ${focusTerm} 选型时，团队经验不足优先低心智负担方案；复杂度上升后再切到扩展性更强的方案。`;
+  }
+  if (/边界问题|重点排查|排查哪些|排查哪/.test(question)) {
+    return `先排查 ${focusTerm} 在弱网、断连、限流与重试场景下的边界失效点，按影响面排序逐项止损。`;
+  }
+  if (/收紧哪几个|可靠性开关|收紧.*开关/.test(question)) {
+    return `先收紧 ${focusTerm} 的超时阈值、重试上限、熔断开关和降级开关，再观察错误率与恢复时长。`;
+  }
+  if (/哪些告警|哪些日志|趋势指标|重点关注哪些.*指标|重点关注哪些.*告警/.test(question)) {
+    return `优先盯 ${focusTerm} 的错误率、超时率、重试成功率和回滚次数，并用关键日志核对异常路径是否收敛。`;
+  }
+  if (/区别|差别|关系|能替代|适合/.test(question)) {
+    return `回答 ${focusTerm} 的区别时，先讲语义差异，再讲运行时影响，最后给按场景落地的选型结论。`;
+  }
+  if (/怎么估算|如何估算|估算|怎么算|怎么计算|如何计算/.test(question)) {
+    return `先按 ${focusTerm} 的输入长度、输出上限和并发量估算 token 区间，再用真实请求日志校准预算与阈值。`;
+  }
+  if (/哪些环节|哪些点|哪几段|哪几个/.test(question)) {
+    return `先处理 ${focusTerm} 的高频链路、错误率高的边界分支和回滚成本最低的改造点，低频优化后置。`;
+  }
+  if (/取舍|权衡|打架|利弊/.test(question)) {
+    return `先量化 ${focusTerm} 的收益上限、维护成本和故障代价，再按阈值决定继续投入还是止损切换。`;
+  }
+  if (/同步规划|效果评估|成本控制|安全策略|组合规则校验|重试|人工审核/.test(question)) {
+    return `${focusTerm} 方案按效果、成本、安全三线并行：效果看核心指标，成本设预算阈值，安全加规则校验与人工抽检，任一不达标都不放量。`;
+  }
+  if (/拆成几段|分阶段|几段推进|每段都能独立验收/.test(question)) {
+    return `把 ${focusTerm} 拆成“基线采集 -> 小流量试点 -> 分批放量”三段推进，每段都绑定独立验收门槛和回滚开关。`;
+  }
+  if (intent === 'verify' && /真实设备|真实网络|线上|弱网|真机/.test(question)) {
+    return `在真机与弱网回放下，对比 ${focusTerm} 的核心指标、错误率和耗时分位，连续达标后再认定收益成立。`;
+  }
+  if (intent === 'risk' && /上线|发布/.test(question)) {
+    return `上线前先按 ${focusTerm} 风险分级做演练，配置降级与回滚开关，确认故障可止损后再放量。`;
+  }
+  const variants: Record<FollowupIntent, string[]> = {
+    implementation: [
+      `先拆分 ${focusTerm} 的执行步骤，逐步实施并在每步后验证，异常立即回滚。`,
+      `把 ${focusTerm} 拆成“现状排查 -> 最小改动 -> 验收回归”三段执行，任何一段异常都要可回退。`,
+      `先锁定 ${focusTerm} 现状，再按批次实施改动，验收不过立即回滚。`,
+      `先把 ${focusTerm} 的核心链路拆成小步快跑任务，每步验收后再推进下一步，异常立即止损。`,
+      `先画出 ${focusTerm} 的主链路时序，再按风险分层改造并逐层验收，未达标立即回退。`,
+      `先梳理 ${focusTerm} 的输入边界与失败路径，再逐段落地改造，确保每段都可独立回滚。`,
+    ],
+    reason: [
+      `解释 ${focusTerm} 时先给结论，再补触发前提、作用机制和失效边界，避免只背定义。`,
+      `${focusTerm} 的原因要落到“为什么会发生、何时会失效、如何规避”三点，缺一都不完整。`,
+      `回答 ${focusTerm} 的原理时要同时给成因、影响范围和替代方案，才算可落地。`,
+    ],
+    verify: [
+      `先定义 ${focusTerm} 的目标阈值（正确率、错误率、P95），再用日志链路和回归结果交叉验证。`,
+      `验证 ${focusTerm} 时至少同时看功能通过率、线上错误率和耗时分位，三项持续达标才算成立。`,
+      `把 ${focusTerm} 的验证拆成离线回归、灰度观测、全量复盘三段，任一不达标都要止损。`,
+    ],
+    tradeoff: [
+      `先量化 ${focusTerm} 的收益上限和维护成本下限，再给继续投入或止损切换的阈值。`,
+      `评估 ${focusTerm} 时要把开发成本、运行成本和故障代价放在同一张表里比较。`,
+      `${focusTerm} 取舍必须同时给短期交付收益和长期维护负担，并明确触发切换条件。`,
+    ],
+    rollout: [
+      `把 ${focusTerm} 上线拆成试点、扩量、全量三阶段，每阶段都绑定错误率门槛和回滚动作。`,
+      `先让 ${focusTerm} 走小流量灰度，观察成功率与告警，再决定是否继续扩量。`,
+      `${focusTerm} 迁移阶段必须保留旧链路兜底，直到新链路在目标指标上连续稳定。`,
+    ],
+    risk: [
+      `先列出 ${focusTerm} 的高危失败点，再准备降级开关、兜底路径和恢复 SOP。`,
+      `${focusTerm} 的核心风险是异常扩散，必须配置限流与熔断来保护主链路。`,
+      `上线 ${focusTerm} 前先做故障演练，确认“能发现、能止损、能恢复”三项都达标。`,
+    ],
+  };
+  return pickBySeed(variants[intent], `${title}|${question}|${focusTerm}|fallback-direct`);
+}
+
+function buildFallbackAction(
+  intent: FollowupIntent,
+  title: string,
+  question: string,
+  focusTerm: string,
+): string {
+  const variants: Record<FollowupIntent, string[]> = {
+    implementation: [
+      `先梳理 ${focusTerm} 现状链路与失败点，再实施最小改动并验证结果，异常时立即回滚。`,
+      `先明确 ${focusTerm} 的输入边界，再按最小改动落地，最后补回归与回退预案。`,
+      `把「${title}」里的 ${focusTerm} 拆成可执行子任务，逐条实施并记录验收结果，异常批次立即终止。`,
+      `先定位 ${focusTerm} 的高风险步骤，再分批实施并留观指标，越阈值立刻止损回退。`,
+    ],
+    reason: [
+      `先复盘 ${focusTerm} 的触发条件，再定位因果链路，最后用反例验证边界。`,
+      `先列出 ${focusTerm} 的前提假设，再解释机制，最后补失效场景，形成因果闭环。`,
+      `围绕 ${focusTerm} 先做归因再做验证，避免把现象当原因。`,
+    ],
+    verify: [
+      `先定义 ${focusTerm} 的验收阈值，再用测试与线上监控双验证，不达标立即回退。`,
+      `围绕 ${focusTerm} 建立“离线回归 + 线上观测”双轨验证，任一轨道不达标都不放量。`,
+      `先统一 ${focusTerm} 指标口径并补齐日志证据，再按测试结果做继续/回退决策。`,
+      `先把「${title}」里的 ${focusTerm} 监控看板和测试基线对齐，再按阈值执行放量或回滚。`,
+    ],
+    tradeoff: [
+      `先排查 ${focusTerm} 的成本项和收益项，再实施收敛动作，最后按阈值决定推进或回退。`,
+      `先量化 ${focusTerm} 的收益和维护成本，再按阈值决定推进或保留现方案，并记录取舍依据。`,
+      `先拆分 ${focusTerm} 的取舍因子，再验证收益/成本比，必要时回退到低风险方案。`,
+    ],
+    rollout: [
+      `${focusTerm} 上线按批次推进：先灰度低风险流量，再逐步放量；任一批次越阈值立刻回滚。`,
+      `${focusTerm} 发布路径拆成“试点 -> 放量 -> 全量”，每个阶段都绑定验收门槛和回滚动作。`,
+      `围绕 ${focusTerm} 设置灰度开关与回滚脚本，确保发布过程可观测、可回退。`,
+    ],
+    risk: [
+      `先演练 ${focusTerm} 的失败场景，再配置降级和兜底动作，最后确认恢复路径。`,
+      `先识别 ${focusTerm} 高风险触发点，再定义止损动作和恢复阈值，确保故障不扩散。`,
+      `围绕 ${focusTerm} 建立“告警 -> 降级 -> 恢复”闭环，再推进上线。`,
+    ],
+  };
+  return pickBySeed(variants[intent], `${title}|${question}|${focusTerm}|fallback-action`);
+}
+
+function buildFallbackRisk(
+  intent: FollowupIntent,
+  title: string,
+  question: string,
+  focusTerm: string,
+): string {
+  const variants: Record<FollowupIntent, string[]> = {
+    implementation: [
+      `${focusTerm} 的风险是改动边界不清会引发连锁回归，需要预设回退。`,
+      `围绕 ${focusTerm} 落地时，最大风险是主链路与兜底链路耦合，异常会成倍放大。`,
+      `${focusTerm} 若缺少回退开关与恢复脚本，发布失败后会拉长故障恢复窗口。`,
+      `在「${title}」里，${focusTerm} 一旦无降级预案，局部异常可能在放量阶段扩散成全局故障。`,
+      `在「${title}」场景下，${focusTerm} 最大风险是变更影响面估计过小，导致回归缺口被放大。`,
+      `${focusTerm} 若没有按批次观察与止损阈值，问题会在放量后快速扩散并增加回滚成本。`,
+    ],
+    reason: [
+      `${focusTerm} 若只讲结论不讲因果，会导致排障方向错误并放大风险。`,
+      `围绕 ${focusTerm} 归因不完整时，团队会在错误方向反复优化，风险持续累积。`,
+      `若 ${focusTerm} 缺少反例验证，容易把偶发结果误判成稳定规律。`,
+    ],
+    verify: [
+      `若 ${focusTerm} 缺少验收阈值，容易出现“看似有效但线上失效”的风险。`,
+      `${focusTerm} 没有统一指标口径时，验证结论会互相冲突并误导决策。`,
+      `在「${title}」里，${focusTerm} 若只看单次测试结果、不看持续监控，风险会在高峰期暴露。`,
+      `在「${title}」里，${focusTerm} 如果缺少日志留痕与告警闭环，线上问题会被延迟发现并放大。`,
+    ],
+    tradeoff: [
+      `围绕 ${focusTerm} 取舍不量化时，常见风险是短期收益被长期维护成本抵消。`,
+      `若 ${focusTerm} 决策只看交付速度，后续维护成本和回归成本会快速上升。`,
+      `围绕 ${focusTerm} 缺少切换阈值时，团队容易在错误方案上持续投入。`,
+    ],
+    rollout: [
+      `${focusTerm} 发布阶段最大风险是灰度门槛不清，问题会随放量扩散并增加回滚成本。`,
+      `围绕 ${focusTerm} 的迁移若没有批次边界，故障会跨模块扩散并难以止损。`,
+      `若 ${focusTerm} 没有实时观测信号，异常放量后往往来不及回退。`,
+    ],
+    risk: [
+      `${focusTerm} 的高风险点是异常扩散链路未被拦截，导致故障从局部升级为全局。`,
+      `围绕 ${focusTerm} 的故障若缺少降级保护，最坏情况会直接影响核心业务链路。`,
+      `若 ${focusTerm} 告警阈值配置过宽，风险会被延迟发现并放大恢复成本。`,
+    ],
+  };
+  return pickBySeed(variants[intent], `${title}|${question}|${focusTerm}|fallback-risk`);
+}
+
+function buildFallbackVerify(
+  intent: FollowupIntent,
+  title: string,
+  question: string,
+  focusTerm: string,
+): string {
+  const variants: Record<FollowupIntent, string[]> = {
+    implementation: [
+      `验收看 ${focusTerm} 相关回归测试通过率、关键日志和线上指标，三者一致才算完成。`,
+      `验收至少包含「${title}」里 ${focusTerm} 的回归用例、线上监控和告警阈值，三条证据都达标才收口。`,
+      `在「${title}」里，验收 ${focusTerm} 时要同时看测试通过率、错误率和时延变化，确保改动真实生效。`,
+      `${focusTerm} 验收必须覆盖离线回归、线上观测和告警演练，三项都通过才可收口。`,
+      `在「${title}」里，${focusTerm} 验收要同时对齐监控趋势、日志采样与回归结果，再做放量决策。`,
+      `${focusTerm} 的验收闭环要覆盖“回归通过 -> 指标达标 -> 告警稳定”三个阶段，缺一不可。`,
+    ],
+    reason: [
+      `验收要能复现 ${focusTerm} 问题并证明原因链成立，再观察修复后指标是否回归。`,
+      `验收标准是 ${focusTerm} 因果链可复现：输入触发、机制命中、修复后指标回稳。`,
+      `围绕 ${focusTerm} 归因结果至少给复现步骤、日志证据和回归指标，防止误判。`,
+    ],
+    verify: [
+      `在「${title}」里，${focusTerm} 至少要给一组指标阈值、一条日志证据和一组测试结果。`,
+      `${focusTerm} 验收要同时满足“指标达标 + 日志一致 + 测试通过”，缺一不可。`,
+      `${focusTerm} 验证闭环包含阈值、证据和回归结果，三者一致才可继续放量。`,
+      `在「${title}」里，${focusTerm} 验收要把监控趋势、日志取样和回归结果三份证据对齐后再做放量决策。`,
+    ],
+    tradeoff: [
+      `验收看 ${focusTerm} 收益与成本两条曲线：收益稳定且维护成本可控才保留当前方案。`,
+      `验收需同时对比 ${focusTerm} 收益提升和维护成本变化，确保取舍结论可持续。`,
+      `围绕 ${focusTerm} 取舍结果至少给收益趋势、成本趋势和回归稳定性三组数据。`,
+    ],
+    rollout: [
+      `验收看 ${focusTerm} 灰度通过率、回滚次数和故障恢复时长，达到门槛再继续放量。`,
+      `发布验收至少看 ${focusTerm} 放量成功率、异常告警命中和回滚耗时，满足阈值再推进。`,
+      `围绕 ${focusTerm} 上线结果持续观察错误率、恢复时长和用户影响面，确认稳定后再全量。`,
+    ],
+    risk: [
+      `验收看 ${focusTerm} 风险告警命中率、降级生效率和恢复耗时，确保异常可控可恢复。`,
+      `${focusTerm} 风险验收至少包含告警触发、降级执行和恢复达标三项信号。`,
+      `围绕 ${focusTerm} 高风险场景要验证“能发现、能止损、能恢复”，三项都通过才算合格。`,
+    ],
+  };
+  return pickBySeed(variants[intent], `${title}|${question}|${focusTerm}|fallback-verify`);
+}
+
+function buildSupplementaryAction(intent: FollowupIntent, focusTerm: string): string {
+  const variants: Record<FollowupIntent, string> = {
+    implementation: `把 ${focusTerm} 拆成最小改动任务逐条实施，补回归后按批次推进，异常立即回滚。`,
+    reason: `先排查 ${focusTerm} 的触发条件，再验证因果链与反例，确认后再实施修正。`,
+    verify: `补齐 ${focusTerm} 的日志埋点、回归用例和告警阈值，按日复盘并保留回退开关。`,
+    tradeoff: `把 ${focusTerm} 的收益与成本拆成可观测项，持续验证后按阈值推进或回退。`,
+    rollout: `围绕 ${focusTerm} 建立灰度批次、监控看板和回滚脚本，按门槛逐批放量。`,
+    risk: `针对 ${focusTerm} 先演练故障，再实施降级与兜底，确认恢复路径后再推进发布。`,
+  };
+  return variants[intent];
+}
+
+function extractTermCandidates(question: string, title: string, focusTerm: string): string[] {
+  const terms = new Set<string>();
+  for (const match of `${question} ${title}`.matchAll(/`([^`]{2,64})`/g)) {
+    const raw = match[1].trim();
+    terms.add(raw);
+    for (const englishPhrase of raw.match(
+      /[A-Za-z][A-Za-z0-9_+#./-]*(?:\s+[A-Za-z][A-Za-z0-9_+#./-]*){0,2}/g,
+    ) || []) {
+      terms.add(englishPhrase.trim());
+    }
+  }
+  for (const match of `${question} ${title}`.matchAll(/「([^」]{2,64})」/g)) {
+    const raw = match[1].trim();
+    terms.add(raw);
+    for (const englishPhrase of raw.match(
+      /[A-Za-z][A-Za-z0-9_+#./-]*(?:\s+[A-Za-z][A-Za-z0-9_+#./-]*){0,2}/g,
+    ) || []) {
+      terms.add(englishPhrase.trim());
+    }
+  }
+  for (const token of question.match(/[A-Za-z][A-Za-z0-9_+#./-]{1,18}/g) || []) terms.add(token);
+  if (!terms.size) terms.add(focusTerm);
+  const cleaned = [...terms]
+    .filter((term) => {
+      if (!term) return false;
+      if (term.length < 2 || term.length > 32) return false;
+      if (/[\u4e00-\u9fa5]/.test(term) && term.length > 10) return false;
+      if (/^如果面试官追问/.test(term)) return false;
+      if (/^\S+\s+\S+\s+\S+\s+\S+/.test(term) && !/[\u4e00-\u9fa5]/.test(term)) return false;
+      if (/^(在|从|以|围绕|结合|针对|对于)/.test(term) && term.length >= 4) return false;
+      if (/真实业务|工程落地|团队与业务约束|场景下|角度看/.test(term)) return false;
+      if (/^[0-9]+$/.test(term)) return false;
+      if (TERM_STOPWORDS.has(term)) return false;
+      return true;
+    })
+    .slice(0, 3);
+  return cleaned.length ? cleaned : [focusTerm];
+}
+
+function buildTermFallback(
+  term: string,
+  title: string,
+  intent: FollowupIntent,
+  question: string,
+): string {
+  const map: Record<FollowupIntent, string[]> = {
+    implementation: [
+      `在「${title}」这题里，${term} 是要落地的核心对象，回答时要给执行步骤、改动边界和完成标准。`,
+      `围绕「${title}」里的 ${term} 作答时，要说明由谁实施、怎么落地、失败后如何回退。`,
+    ],
+    reason: [
+      `在「${title}」里，${term} 是因果链关键变量，需要说明触发条件、机制和反例。`,
+      `${term} 决定「${title}」为什么会这样，回答时要把原因和失效前提讲清楚。`,
+    ],
+    verify: [
+      `在「${title}」里，${term} 是验收对象，必须给可量化指标、日志信号和测试证据。`,
+      `围绕「${title}」里的 ${term} 验证时，要明确“达标阈值”和“不达标时的回退动作”。`,
+    ],
+    tradeoff: [
+      `在「${title}」里，${term} 是取舍变量，要同时比较收益、成本和长期维护复杂度。`,
+      `围绕「${title}」里的 ${term} 评估时，不能只讲优点，还要给切换条件和止损阈值。`,
+    ],
+    rollout: [
+      `在「${title}」里，${term} 是发布迁移关键对象，要说明灰度节奏、回滚开关和兼容策略。`,
+      `围绕「${title}」里的 ${term} 推进上线时，要明确每个批次的放量门槛和回退条件。`,
+    ],
+    risk: [
+      `在「${title}」里，${term} 是高风险点，要说明最坏失败模式、降级动作和恢复路径。`,
+      `围绕「${title}」里的 ${term} 作答时，需要给“风险触发信号 -> 兜底动作 -> 恢复验收”的闭环。`,
+    ],
+  };
+  return pickBySeed(map[intent], `${title}|${question}|${term}|term-fallback`);
+}
+
+function buildTermLines(
+  terms: string[],
+  related: string[],
+  title: string,
+  intent: FollowupIntent,
+  question: string,
+): string[] {
+  return terms.map((term) => {
+    const fixed = FIXED_TERM_EXPLANATIONS[term.toLowerCase()];
+    if (fixed?.length) {
+      const chosen = pickBySeed(fixed, `${title}|${question}|${term}|fixed-term`);
+      const withTopic = /^在「.+」/.test(chosen) ? chosen : `在「${title}」场景里，${chosen}`;
+      return `- ${term}：${withTopic}`;
+    }
+    const hit = related.find(
+      (line) =>
+        line.includes(term) &&
+        line.length <= 88 &&
+        !isWeakCandidateLine(line) &&
+        !/在这题里指影响结论成立的关键约束/.test(line) &&
+        !/面试中不要只停留在/.test(line),
+    );
+    const explanation = hit
+      ? ensureSentence(hit).replace(/^[^：:]{1,16}[：:]\s*/, '')
+      : buildTermFallback(term, title, intent, question);
+    return `- ${term}：${explanation}`;
+  });
+}
+
 function answerFor(block: Block, question: string): string {
   const normalizedTitle = normalizeWhatIsTitle(block.title);
-  const seed = `${block.slug}|${question}|${normalizedTitle}`;
   const focusTerm = pickFocusTerm(block, question);
+  const intent = inferFollowupIntent(question);
   const related = relevantLines(block, question);
-  const relatedPartLines = related.length
-    ? related.map((line) => `- ${line}`)
-    : [
-        `- 先界定「${normalizedTitle}」在当前业务中的目标，再说明哪些边界条件会让默认方案失效。`,
-        `- 把讨论聚焦到 ${focusTerm}：不仅要讲理想链路，还要覆盖失败路径、降级方式和用户可见影响。`,
-      ];
+  const directFallback = buildFallbackDirect(intent, normalizedTitle, question, focusTerm);
+  const actionFallback = buildFallbackAction(intent, normalizedTitle, question, focusTerm);
+  const riskFallback = buildFallbackRisk(intent, normalizedTitle, question, focusTerm);
+  const verifyFallback = buildFallbackVerify(intent, normalizedTitle, question, focusTerm);
+  const forceIntentDirect =
+    intent === 'tradeoff' || intent === 'verify' || intent === 'rollout' || intent === 'risk';
+  let direct = directFallback;
+  if (!forceIntentDirect) {
+    const candidate = related.find(
+      (line) =>
+        !isWeakCandidateLine(line) &&
+        tokenOverlapRatio(line, question) >= 0.12 &&
+        isActionableDirect(intent, line),
+    );
+    if (candidate) direct = candidate;
+  }
+  let action = ensureActionLine(
+    pickKeywordLine(related, FOLLOWUP_ACTION_KEYWORDS) || actionFallback,
+    actionFallback,
+  );
+  if (tokenOverlapRatio(action, direct) > 0.72) {
+    action = ensureActionLine(buildSupplementaryAction(intent, focusTerm), actionFallback);
+  }
+  let risk = preferStrongLine(
+    ensureSentence(pickKeywordLine(related, FOLLOWUP_RISK_KEYWORDS) || riskFallback),
+    riskFallback,
+  );
+  let verify = preferStrongLine(
+    ensureSentence(pickKeywordLine(related, FOLLOWUP_VERIFY_KEYWORDS) || verifyFallback),
+    verifyFallback,
+  );
+  if (tokenOverlapRatio(risk, question) < 0.08 && !risk.includes(focusTerm)) {
+    risk = ensureSentence(riskFallback);
+  }
+  if (tokenOverlapRatio(verify, question) < 0.1 && !verify.includes(focusTerm)) {
+    verify = ensureSentence(verifyFallback);
+  }
+  const terms = extractTermCandidates(question, block.title, focusTerm);
+  const termLines = buildTermLines(terms, related, normalizedTitle, intent, question);
 
-  const thinkingLineA = [
-    `先给可验证结论，再补证据链：面试官想确认你是否能把「${normalizedTitle}」落到真实交付，而不是停在概念层。`,
-    `先明确这道追问要解决的业务目标，再说明「${normalizedTitle}」在当前约束下为什么成立。`,
-    `先说判断标准，再说执行路径：回答「${normalizedTitle}」时要能同时解释收益、代价和失败信号。`,
-    `先把目标和约束说清楚，再展开实现：这能避免把「${normalizedTitle}」讲成只在理想输入下可用。`,
-  ];
-  const thinkingLineB = [
-    `回答结构可按「触发条件 -> ${focusTerm} 机制 -> 风险兜底」展开，并以「${normalizedTitle}」补一条失败场景，能体现工程拆解能力。`,
-    `可以按「问题背景 -> ${focusTerm} 机制 -> 取舍边界」回答，再用「${normalizedTitle}」补一个反例，避免停在口号层。`,
-    `建议按「输入约束 -> ${focusTerm} 执行链路 -> 结果验证」展开，并结合「${normalizedTitle}」给出一条可复核结果，能更快体现你对复杂场景的掌控力。`,
-    `回答顺序可用「现状问题 -> ${focusTerm} 方案动作 -> 验证结果」，并用「${normalizedTitle}」举一条主链路说明。`,
-    `围绕「${normalizedTitle}」组织答案时，建议按「约束来源 -> ${focusTerm} 关键决策 -> 验证闭环」展开。`,
-    `讲「${normalizedTitle}」时先给 ${focusTerm} 的判断口径，再补执行动作和回退条件，会更像真实评审发言。`,
-  ];
-  const thinkingLineC = [
-    `如果涉及「${normalizedTitle}」的技术细节，优先讲数据流和状态变化；做方案比较时要说明为何此刻不选替代路径。`,
-    `在「${normalizedTitle}」回答里，实现层面要解释 ${focusTerm} 的时序和边界，决策层面要解释成本与风险，二者缺一都会让答案显得单薄。`,
-    `讲「${normalizedTitle}」时实现侧重点应放在 ${focusTerm} 与边界输入，决策侧重点应放在收益与维护成本平衡。`,
-    `不要只罗列工具名或 API，最好把「${normalizedTitle}」的机制、约束和落地步骤串成完整叙事线。`,
-  ];
+  return `#### 直答
+- 结论：${preferStrongLine(direct, directFallback)}
+- 关键动作：${preferStrongLine(action, actionFallback)}
 
-  const contextBridgeLine = [
-    `补一个你真实处理过的「${normalizedTitle}」相似场景：说明 ${focusTerm} 怎么监控、怎么告警、怎么回滚，会比抽象结论更有说服力。`,
-    `结合一次「${normalizedTitle}」线上案例说明 ${focusTerm} 的变化轨迹，能让你的答案从“知道原理”升级到“能带队落地”。`,
-    `把原题观点放进「${normalizedTitle}」的一个具体版本迭代里，讲清 ${focusTerm} 在发布前后如何验证，会显著提升可信度。`,
-    `给出与「${normalizedTitle}」相关的业务上下文，说明 ${focusTerm} 在高峰流量或弱网环境下如何保持稳定，能体现你有实战经验。`,
-    `若能补一段「${normalizedTitle}」复盘片段，解释 ${focusTerm} 如何从告警到定位再到修复，可信度会明显上升。`,
-  ];
+#### 术语解释
+${termLines.join('\n')}
 
-  const landingLineA = [
-    `围绕「${normalizedTitle}」设计验证时别停在“写点测试”：至少覆盖正常、边界和失败三类输入，并把 ${focusTerm} 的预期结果写成可复核标准。`,
-    `落地「${normalizedTitle}」时先约定验收口径：哪些指标代表成功、哪些异常算失败，再围绕 ${focusTerm} 设计测试与回归流程。`,
-    `建议先准备「${normalizedTitle}」的最小可复现样例，再扩展到主链路回归，这样能更快确认 ${focusTerm} 的改动是否真的生效。`,
-    `把验证拆成“离线用例 + 集成链路 + 回归检查”，确保「${normalizedTitle}」在 ${focusTerm} 上的优化不是只在 demo 数据下成立。`,
-    `针对「${normalizedTitle}」可以先做一次冒烟链路压测，再补边界回归，避免上线后才暴露 ${focusTerm} 的缺口。`,
-  ];
-  const landingLineB = [
-    `围绕「${normalizedTitle}」的观测层要绑定 ${focusTerm} 相关日志与指标：错误率、耗时分位、资源占用和用户可感知延迟，至少选一组长期跟踪。`,
-    `在「${normalizedTitle}」落地过程中不要只看单个监控面板，建议把日志、指标和告警串起来，形成 ${focusTerm} 的问题定位闭环。`,
-    `围绕「${normalizedTitle}」的线上监控建议同时覆盖成功率、慢请求、异常分布和重试次数，方便判断 ${focusTerm} 的真实收益是否稳定。`,
-    `观测口径要前后一致：上线前后使用同一组指标观察「${normalizedTitle}」里的 ${focusTerm}，否则很难证明变化来自这次改动。`,
-    `围绕「${normalizedTitle}」建监控时，建议把 ${focusTerm} 指标和业务转化指标并排展示，避免只看技术侧信号。`,
-  ];
-  const landingLineC = [
-    `围绕「${normalizedTitle}」发布时建议保留开关和回滚路径，先灰度到低风险流量，再逐步扩大覆盖范围。`,
-    `「${normalizedTitle}」上线节奏建议分批推进：先小流量试运行，再根据告警和反馈决定是否扩容。`,
-    `涉及「${normalizedTitle}」的高风险改动时，先准备回滚预案和应急手册，避免问题发生后临时决策。`,
-    `如果「${normalizedTitle}」会影响历史数据或兼容性，务必提前说明迁移方案与回退条件。`,
-  ];
-
-  const pitfallLineA = [
-    `常见误区是把「${normalizedTitle}」讲成通用银弹，忽略输入规模、团队资源和上线窗口这些关键约束。`,
-    `最容易失分的是只说「${normalizedTitle}」的推荐做法却不给边界条件，面试官通常会继续追问何时不该这样做。`,
-    `很多回答会忽略「${normalizedTitle}」的前置假设，导致方案看起来正确却无法直接执行，这是高频扣分点。`,
-    `不要把「${normalizedTitle}」的经验结论当成普适规则，先交代适用范围再给建议，可信度会更高。`,
-  ];
-  const pitfallLineB = [
-    `另一个问题是缺少失败预案：若「${normalizedTitle}」里的 ${focusTerm} 异常时没有降级与回滚说明，答案会显得工程成熟度不足。`,
-    `如果没说明「${normalizedTitle}」里 ${focusTerm} 的异常处理和兜底路径，方案一旦遇到突发流量或外部依赖抖动就会站不住脚。`,
-    `只关注「${normalizedTitle}」里 ${focusTerm} 的主流程而忽略异常路径，会让答案在“可维护性”和“线上稳定性”两个维度同时失分。`,
-    `若没有针对「${normalizedTitle}」里的 ${focusTerm} 明确告警阈值和恢复动作，即便方案思路正确，也难体现生产掌控力。`,
-    `若没说明「${normalizedTitle}」在 ${focusTerm} 失效时的回退策略，面试官通常会质疑方案是否可上线。`,
-  ];
-  const pitfallLineC = [
-    `避免把「${normalizedTitle}」说成“总是”“一定”“完全替代”，改成“在这些条件下优先采用”更专业。`,
-    `表达「${normalizedTitle}」时尽量少用绝对词，增加可验证条件与例外场景，答案会更稳健。`,
-    `不要把「${normalizedTitle}」结论说死，给出条件范围和替代路径，能显著降低回答被反例击穿的概率。`,
-    `保持「${normalizedTitle}」结论可检验、可回退，比强调某个方案“最优”更能体现资深判断。`,
-  ];
-
-  return `#### 回答思路
-- ${pickBySeed(thinkingLineA, seed, 1)}
-- ${pickBySeed(thinkingLineB, seed, 2)}
-- ${pickBySeed(thinkingLineC, seed, 3)}
-
-#### 结合原题展开
-${relatedPartLines.join('\n')}
-- ${pickBySeed(contextBridgeLine, seed, 4)}
-
-#### 工程落地
-- ${pickBySeed(landingLineA, seed, 5)}
-- ${pickBySeed(landingLineB, seed, 6)}
-- ${pickBySeed(landingLineC, seed, 7)}
-
-#### 易错点
-- ${pickBySeed(pitfallLineA, seed, 8)}
-- ${pickBySeed(pitfallLineB, seed, 9)}
-- ${pickBySeed(pitfallLineC, seed, 10)}`;
+#### 风险与验收
+- 主要风险：${risk}
+- 验收信号：${verify}`;
 }
 
 function childBlock(parent: Block, slug: string, question: string): string {

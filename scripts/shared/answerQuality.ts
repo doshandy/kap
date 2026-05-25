@@ -9,7 +9,23 @@ export const BANNED_TEMPLATE_PHRASES = [
   '先把追问落回原题',
   '至少准备一个可验证动作',
   '最后主动比较替代方案',
+  '在这题里指影响结论成立的关键约束，不能默认成立',
 ];
+
+export const VAGUE_ANSWER_PHRASES = [
+  '视情况而定',
+  '看业务需求',
+  '没有固定答案',
+  '根据实际情况',
+  '通常来说',
+  '一般而言',
+  '这个要看场景',
+  '大概是这样',
+  '差不多',
+  '都可以',
+];
+
+export const FOLLOWUP_REQUIRED_HEADINGS = ['直答', '术语解释', '风险与验收'] as const;
 
 export const FOLLOWUP_ACTION_KEYWORDS = [
   '排查',
@@ -99,4 +115,35 @@ export function jaccardSimilarity(a: string, b: string): number {
   }
   const union = tokensA.size + tokensB.size - intersection;
   return union > 0 ? intersection / union : 0;
+}
+
+export function extractMarkdownSubsection(answer: string, heading: string): string {
+  if (!answer.trim()) return '';
+  const lines = answer.split(/\r?\n/);
+  const out: string[] = [];
+  let collecting = false;
+  for (const line of lines) {
+    const h = line.match(/^####\s+(.+?)\s*$/);
+    if (h) {
+      if (collecting) break;
+      collecting = h[1].trim() === heading;
+      continue;
+    }
+    if (collecting) out.push(line);
+  }
+  return out.join('\n').trim();
+}
+
+export function firstBulletLine(section: string): string {
+  if (!section.trim()) return '';
+  const line = section
+    .split(/\r?\n/)
+    .map((item) => item.match(/^\s*[-*]\s+(.+?)\s*$/)?.[1] || '')
+    .find(Boolean);
+  return (line || '').trim();
+}
+
+export function hasTermExplanation(section: string): boolean {
+  if (!section.trim()) return false;
+  return section.split(/\r?\n/).some((line) => /^\s*[-*]\s+.{1,40}[：:]\s*\S+/.test(line.trim()));
 }

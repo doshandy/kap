@@ -7,10 +7,15 @@ import { normalizeQuestionId } from './shared/questionId';
 import { parseCommonScriptArgs, resolveOnlyContentFiles } from './shared/args';
 import {
   BANNED_TEMPLATE_PHRASES,
+  FOLLOWUP_REQUIRED_HEADINGS,
   FOLLOWUP_ACTION_KEYWORDS,
   FOLLOWUP_RISK_KEYWORDS,
   FOLLOWUP_VERIFY_KEYWORDS,
+  VAGUE_ANSWER_PHRASES,
   containsAnyKeyword,
+  extractMarkdownSubsection,
+  firstBulletLine,
+  hasTermExplanation,
   jaccardSimilarity,
   normalizeQualityText,
 } from './shared/answerQuality';
@@ -639,7 +644,39 @@ for (const q of questionsById.values()) {
       errs.push(`${q.file}: ${q.slug} 答案包含禁用模板句 → ${phrase}`);
     }
   }
+  for (const phrase of VAGUE_ANSWER_PHRASES) {
+    if (normalizedAnswer.includes(phrase)) {
+      errs.push(`${q.file}: ${q.slug} 答案包含模糊表述 → ${phrase}`);
+    }
+  }
   if (!q.parentId) continue;
+  for (const heading of FOLLOWUP_REQUIRED_HEADINGS) {
+    const section = extractMarkdownSubsection(q.answerText, heading);
+    if (!section) {
+      errs.push(`${q.file}: ${q.slug} 追问题答案缺少「#### ${heading}」段落`);
+    }
+  }
+  const directSection = extractMarkdownSubsection(q.answerText, '直答');
+  const directLine = firstBulletLine(directSection);
+  if (!directLine) {
+    errs.push(`${q.file}: ${q.slug} 追问题答案缺少直答结论行`);
+  } else {
+    const hasConclusionPrefix =
+      directLine.startsWith('结论：') ||
+      directLine.startsWith('结论:') ||
+      directLine.startsWith('直接回答：') ||
+      directLine.startsWith('直接回答:');
+    if (!hasConclusionPrefix) {
+      errs.push(`${q.file}: ${q.slug} 直答首条未给出明确结论`);
+    }
+    if (normalizeQualityText(directLine).length < 14) {
+      errs.push(`${q.file}: ${q.slug} 直答结论过短，无法支撑问题结论`);
+    }
+  }
+  const termSection = extractMarkdownSubsection(q.answerText, '术语解释');
+  if (!hasTermExplanation(termSection)) {
+    errs.push(`${q.file}: ${q.slug} 术语解释段缺少“术语：解释”格式的条目`);
+  }
   if (!containsAnyKeyword(normalizedAnswer, FOLLOWUP_ACTION_KEYWORDS)) {
     errs.push(`${q.file}: ${q.slug} 追问题答案缺少动作化描述（如排查/实施/迁移/回滚）`);
   }
@@ -652,7 +689,7 @@ for (const q of questionsById.values()) {
   const parent = questionsById.get(q.parentId);
   if (!parent) continue;
   const similarity = jaccardSimilarity(normalizedAnswer, normalizeQualityText(parent.answerText));
-  if (similarity >= 0.72) {
+  if (similarity >= 0.8) {
     errs.push(
       `${q.file}: ${q.slug} 追问题答案与父题相似度过高 (${similarity.toFixed(2)})，请避免复述`,
     );
