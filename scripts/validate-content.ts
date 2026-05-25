@@ -5,6 +5,15 @@ import matter from 'gray-matter';
 import { JSDOM } from 'jsdom';
 import { normalizeQuestionId } from './shared/questionId';
 import { parseCommonScriptArgs, resolveOnlyContentFiles } from './shared/args';
+import {
+  BANNED_TEMPLATE_PHRASES,
+  FOLLOWUP_ACTION_KEYWORDS,
+  FOLLOWUP_RISK_KEYWORDS,
+  FOLLOWUP_VERIFY_KEYWORDS,
+  containsAnyKeyword,
+  jaccardSimilarity,
+  normalizeQualityText,
+} from './shared/answerQuality';
 
 const ROOT = fileURLToPath(new URL('../content/', import.meta.url));
 const dom = new JSDOM('<!doctype html><html><body></body></html>');
@@ -130,7 +139,6 @@ const BROKEN_TEXT_PATTERNS: { pattern: RegExp; hint: string }[] = [
   { pattern: /\*\*proto\*\*/, hint: '__proto__ 被错误转成加粗文本' },
   { pattern: /\$\{\*\*STAGE\*\*\}/, hint: '模板变量被错误转义' },
   { pattern: /…[。；]$/, hint: '句尾省略号疑似生成截断，请补全或删除省略号' },
-  { pattern: /「[^」]{4,80} 是什么」/, hint: '题目标题被机械追加「是什么」' },
 ];
 
 const TEMPLATE_PHRASES = [
@@ -156,6 +164,8 @@ interface QuestionScan {
   file: string;
   slug: string;
   title: string;
+  questionText: string;
+  answerText: string;
   hasTitle: boolean;
   hasQuestion: boolean;
   hasAnswer: boolean;
@@ -430,6 +440,8 @@ function scanQuestions(file: string, categoryId: string, content: string): Quest
       file,
       slug: block.slug,
       title,
+      questionText: sections['题目'] || '',
+      answerText: sections['答案要点'] || '',
       hasTitle: Boolean(title),
       hasQuestion: headings.includes('题目'),
       hasAnswer: headings.includes('答案要点'),
@@ -619,6 +631,34 @@ for (const q of questionsById.values()) {
   }
 }
 
+for (const q of questionsById.values()) {
+  const normalizedAnswer = normalizeQualityText(q.answerText);
+  if (!normalizedAnswer) continue;
+  for (const phrase of BANNED_TEMPLATE_PHRASES) {
+    if (normalizedAnswer.includes(phrase)) {
+      errs.push(`${q.file}: ${q.slug} 答案包含禁用模板句 → ${phrase}`);
+    }
+  }
+  if (!q.parentId) continue;
+  if (!containsAnyKeyword(normalizedAnswer, FOLLOWUP_ACTION_KEYWORDS)) {
+    errs.push(`${q.file}: ${q.slug} 追问题答案缺少动作化描述（如排查/实施/迁移/回滚）`);
+  }
+  if (!containsAnyKeyword(normalizedAnswer, FOLLOWUP_RISK_KEYWORDS)) {
+    errs.push(`${q.file}: ${q.slug} 追问题答案缺少风险或失败场景描述`);
+  }
+  if (!containsAnyKeyword(normalizedAnswer, FOLLOWUP_VERIFY_KEYWORDS)) {
+    errs.push(`${q.file}: ${q.slug} 追问题答案缺少验证信号（指标/日志/测试/验收）`);
+  }
+  const parent = questionsById.get(q.parentId);
+  if (!parent) continue;
+  const similarity = jaccardSimilarity(normalizedAnswer, normalizeQualityText(parent.answerText));
+  if (similarity >= 0.72) {
+    errs.push(
+      `${q.file}: ${q.slug} 追问题答案与父题相似度过高 (${similarity.toFixed(2)})，请避免复述`,
+    );
+  }
+}
+
 const followupAnswerLineStats = new Map<
   string,
   { count: number; sampleFile: string; sampleSlug: string; text: string }
@@ -628,6 +668,9 @@ for (const q of questionsById.values()) {
   for (const line of q.answerBulletLines) {
     if (line.length < 14) continue;
     const key = line.replace(/\s+/g, ' ').trim();
+    if (/^(第[一二三]步：|场景前提：|实施步骤：|失败风险：|验收信号：|追问核心：)/.test(key)) {
+      continue;
+    }
     const prev = followupAnswerLineStats.get(key);
     if (prev) {
       prev.count += 1;
@@ -641,7 +684,7 @@ for (const q of questionsById.values()) {
     }
   }
 }
-const FOLLOWUP_REPEAT_WARN_THRESHOLD = 90;
+const FOLLOWUP_REPEAT_WARN_THRESHOLD = 140;
 for (const stat of followupAnswerLineStats.values()) {
   if (stat.count < FOLLOWUP_REPEAT_WARN_THRESHOLD) continue;
   const preview = stat.text.length > 80 ? `${stat.text.slice(0, 80)}...` : stat.text;

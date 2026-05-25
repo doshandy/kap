@@ -121,6 +121,14 @@ parent: proxy-vs-defineproperty
 - 如果代码块里需要展示 Markdown 标题，请放在 fenced code block 内；校验器会跳过代码块内的 `##`
 - 延伸部分适合放易错点、对比项、追问方向
 
+## 答案质量标准
+
+- 主问题与追问题都必须满足“场景前提 + 可执行步骤 + 失败风险 + 验证信号”四要素。
+- 追问题必须直接回应追问意图，禁止复读父题答案。
+- 禁止模板化空话、机械流程口号和截断句。
+
+详细规则见 [`docs/answer-quality-rubric.md`](./answer-quality-rubric.md)。
+
 ## 提交前检查
 
 ```bash
@@ -149,6 +157,7 @@ pnpm build
 - fenced code block 是否闭合、是否有语言标识
 - 是否出现常见生成损坏片段，例如尖括号内容丢失、HTML 标签名缺失、模板变量被错误转义
 - 同一文件内是否残留大量模板化追问句式；默认只提示，`STRICT_VALIDATE=1` 下会失败
+- 追问题答案是否缺少动作化描述、风险提示与验证信号（严格模式下会失败）
 
 ## 维护建议
 
@@ -166,5 +175,8 @@ pnpm build
 - `pnpm content:links`：预览跨题相关题目的高置信关联；确认后用 `pnpm content:links:write`
 - `pnpm content:polish`：预览移除泛化追问、收敛过密 links、清理生成模板句；确认后用 `pnpm content:polish:write`
 - `pnpm tsx scripts/enhance-content-quality.ts`：预览补常见误区、扩写短答案和改写模板追问；确认后加 `--write`
+- `pnpm tsx scripts/rewrite-standard-answers.ts --only=xx.md`：重写主问题与追问题答案（含一句话与工程化补充）；确认后加 `--write` 批量落盘
+
+全量改写推荐按批次执行，批次清单见 [`docs/answer-rewrite-batches.md`](./answer-rewrite-batches.md)。
 
 推荐流程：先用 `--only=xx.md` 小范围验证，再看 git diff，最后运行 `pnpm validate:content`；大范围改写后再跑 `pnpm build`。
