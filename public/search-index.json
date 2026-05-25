@@ -1,7 +1,7 @@
 {
   "version": 2,
-  "signature": "2283:2c9faad1",
-  "contentSignature": "2283:c046bd7",
+  "signature": "2283:9726854",
+  "contentSignature": "2283:18111ceb",
   "docs": [
     {
       "id": "01-javascript/prototype-chain",
@@ -73,7 +73,7 @@
       "id": "01-javascript/iterator-generator",
       "title": "迭代器、生成器与异步迭代",
       "tags": ["迭代器", "生成器"],
-      "raw": "## iterator-generator title: 迭代器、生成器与异步迭代 followups: [iterator-generator-followup-1, iterator-generator-followup-2, iterator-generator-followup-3] difficulty: 进阶 tags: [迭代器, 生成器] ### 一句话 回答「迭代器、生成器与异步迭代」时，先讲核心机制，再讲失败边界，最后给可复核的验证路径。 ### 题目 `Symbol.iterator`、`Symbol.asyncIterator`、`function*` 是怎么协作的？什么时候该手写迭代器？ ### 答案要点 - 可迭代协议：对象拥有 [Symbol.iterator]() 方法返回迭代器（含 next()），就能被 for...of、解构、扩展 - 生成器：function* 自动实现迭代器协议，yiel"
+      "raw": "## iterator-generator title: 迭代器、生成器与异步迭代 followups: [iterator-generator-followup-1, iterator-generator-followup-2, iterator-generator-followup-3] difficulty: 进阶 tags: [迭代器, 生成器] ### 一句话 回答「迭代器、生成器与异步迭代」时，先讲核心机制，再讲失败边界，最后给可复核的验证路径。 ### 题目 `Symbol.iterator`、`Symbol.asyncIterator`、`function*` 是怎么协作的？什么时候该手写迭代器？ ### 答案要点 - 可迭代协议：对象拥有 [Symbol.iterator]() 方法返回迭代器（含 next()），就能被 for...of、解构、扩展 - 生成器：function\\* 自动实现迭代器协议，yie"
     },
     {
       "id": "01-javascript/structured-clone",
@@ -583,7 +583,7 @@
       "id": "02-typescript/discriminated-union",
       "title": "判别联合（Tagged Union）的设计与穷尽性",
       "tags": ["类型"],
-      "raw": "## discriminated-union title: 判别联合（Tagged Union）的设计与穷尽性 followups: [discriminated-union-followup-1, discriminated-union-followup-2, discriminated-union-followup-3] difficulty: 进阶 tags: [类型] ### 一句话 讲「判别联合（Tagged Union）的设计与穷尽性」时要把结论、动作、风险、验收四段说全，才算可落地答案。 ### 题目 为什么推荐用 tagged union 设计领域模型？怎么保证穷尽匹配？ ### 答案要点 - 用一个共有的字面量字段（如 type / kind / status）做判别 - TS 在 switch/if 中会自动类型收窄，访问字段时不必再断言 - 默认分支放 const _: never = x;，缺一个分支时编"
+      "raw": "## discriminated-union title: 判别联合（Tagged Union）的设计与穷尽性 followups: [discriminated-union-followup-1, discriminated-union-followup-2, discriminated-union-followup-3] difficulty: 进阶 tags: [类型] ### 一句话 讲「判别联合（Tagged Union）的设计与穷尽性」时要把结论、动作、风险、验收四段说全，才算可落地答案。 ### 题目 为什么推荐用 tagged union 设计领域模型？怎么保证穷尽匹配？ ### 答案要点 - 用一个共有的字面量字段（如 type / kind / status）做判别 - TS 在 switch/if 中会自动类型收窄，访问字段时不必再断言 - 默认分支放 const \\_: never = x;，缺一个分支时"
     },
     {
       "id": "02-typescript/branded-types",
@@ -631,7 +631,7 @@
       "id": "02-typescript/branded-vs-opaque",
       "title": "品牌类型 (Branded Types) 与不透明类型",
       "tags": ["类型安全", "Branded"],
-      "raw": "## branded-vs-opaque title: 品牌类型 (Branded Types) 与不透明类型 followups: [branded-vs-opaque-followup-1, branded-vs-opaque-followup-2, branded-vs-opaque-followup-3] difficulty: 资深 tags: [类型安全, Branded] ### 一句话 这题回答要覆盖 类型安全 的适用前提、实现路径和异常处理，避免只背定义。 ### 题目 TS 是结构化类型，怎么让 `UserId` 和 `OrderId` 在编译期不可互换？ ### 答案要点 - TS 默认结构等价，所有 string 都互通 - 加一层\"虚拟字段\"做品牌：type UserId = string & { __brand: 'UserId' } - 创建：用工厂函数做 cast，禁止外部直接 as - 同样可以"
+      "raw": "## branded-vs-opaque title: 品牌类型 (Branded Types) 与不透明类型 followups: [branded-vs-opaque-followup-1, branded-vs-opaque-followup-2, branded-vs-opaque-followup-3] difficulty: 资深 tags: [类型安全, Branded] ### 一句话 这题回答要覆盖 类型安全 的适用前提、实现路径和异常处理，避免只背定义。 ### 题目 TS 是结构化类型，怎么让 `UserId` 和 `OrderId` 在编译期不可互换？ ### 答案要点 - TS 默认结构等价，所有 string 都互通 - 加一层\"虚拟字段\"做品牌：type UserId = string & { \\_\\_brand: 'UserId' } - 创建：用工厂函数做 cast，禁止外部直接 as - 同样"
     },
     {
       "id": "02-typescript/type-level-gymnastics",
@@ -6943,13 +6943,13 @@
       "id": "13-security/prototype-pollution",
       "title": "原型链污染为什么危险，如何防",
       "tags": ["原型链污染", "对象合并"],
-      "raw": "## prototype-pollution title: 原型链污染为什么危险，如何防 followups: [prototype-pollution-followup-1, prototype-pollution-followup-2, prototype-pollution-followup-3] difficulty: 进阶 tags: [原型链污染, 对象合并] ### 一句话 这题回答要覆盖 原型链污染 的适用前提、实现路径和异常处理，避免只背定义。 ### 题目 什么是 prototype pollution？它为什么经常出现在工具函数和配置合并逻辑里？ ### 答案要点 - 攻击者通过 __proto__、constructor.prototype 等路径污染全局原型 - 一旦成功，可能影响权限判断、请求配置、模板渲染甚至 RCE 链条 - 防御手段：限制可写路径、使用 Object.create(null)、过"
+      "raw": "## prototype-pollution title: 原型链污染为什么危险，如何防 followups: [prototype-pollution-followup-1, prototype-pollution-followup-2, prototype-pollution-followup-3] difficulty: 进阶 tags: [原型链污染, 对象合并] ### 一句话 这题回答要覆盖 原型链污染 的适用前提、实现路径和异常处理，避免只背定义。 ### 题目 什么是 prototype pollution？它为什么经常出现在工具函数和配置合并逻辑里？ ### 答案要点 - 攻击者通过 `__proto__`、constructor.prototype 等路径污染全局原型 - 一旦成功，可能影响权限判断、请求配置、模板渲染甚至 RCE 链条 - 防御手段：限制可写路径、使用 Object.create(null)"
     },
     {
       "id": "13-security/source-map-secrets",
       "title": "Source Map、环境变量与前端敏感信息边界",
       "tags": ["SourceMap", "Secrets"],
-      "raw": "## source-map-secrets title: Source Map、环境变量与前端敏感信息边界 followups: [source-map-secrets-followup-1, source-map-secrets-followup-2, source-map-secrets-followup-3] difficulty: 基础 tags: [SourceMap, Secrets] ### 一句话 这题的高分关键是把 SourceMap 讲成可执行方案：前提清晰、步骤可落地、验收可验证。 ### 题目 前端项目里哪些信息绝不能当成“前端也能保密”的秘密？ ### 答案要点 - 任何下发到浏览器的值都不能视为真正机密，包括 JS 里的 token、密钥、算法细节 - sourcemap 若公开暴露，会放大逆向分析和漏洞利用难度下降的问题 - 环境变量里以 VITE_ 等前缀暴露到前端的内容，本质就是公开配置 - 面"
+      "raw": "## source-map-secrets title: Source Map、环境变量与前端敏感信息边界 followups: [source-map-secrets-followup-1, source-map-secrets-followup-2, source-map-secrets-followup-3] difficulty: 基础 tags: [SourceMap, Secrets] ### 一句话 这题的高分关键是把 SourceMap 讲成可执行方案：前提清晰、步骤可落地、验收可验证。 ### 题目 前端项目里哪些信息绝不能当成“前端也能保密”的秘密？ ### 答案要点 - 任何下发到浏览器的值都不能视为真正机密，包括 JS 里的 token、密钥、算法细节 - sourcemap 若公开暴露，会放大逆向分析和漏洞利用难度下降的问题 - 环境变量里以 VITE\\_ 等前缀暴露到前端的内容，本质就是公开配置 - "
     },
     {
       "id": "13-security/passkeys-webauthn",
@@ -9469,7 +9469,7 @@
       "id": "19-visualization/d3-thinking",
       "title": "D3 的核心思想不是“画图库”，而是数据驱动映射",
       "tags": ["D3", "数据映射"],
-      "raw": "## d3-thinking title: D3 的核心思想不是“画图库”，而是数据驱动映射 followups: [d3-thinking-followup-1, d3-thinking-followup-2, d3-thinking-followup-3] difficulty: 进阶 tags: [D3, 数据映射] ### 一句话 讲「D3 的核心思想不是“画图库”，而是数据驱动映射」时要把结论、动作、风险、验收四段说全，才算可落地答案。 ### 题目 为什么很多人学 D3 会觉得难？它和 ECharts 的心智模型有什么不同？ ### 答案要点 - D3 是底层映射工具集，强调\"比例尺 → 数据绑定 → 图元生成\"三段心智 - ECharts 是高层配置驱动库，传 option 即出图，自由度低但开发快 - D3 的核心 API：d3.scale*（比例尺）/ d3.selection（数据绑定）/ d3.axis（坐"
+      "raw": "## d3-thinking title: D3 的核心思想不是“画图库”，而是数据驱动映射 followups: [d3-thinking-followup-1, d3-thinking-followup-2, d3-thinking-followup-3] difficulty: 进阶 tags: [D3, 数据映射] ### 一句话 讲「D3 的核心思想不是“画图库”，而是数据驱动映射」时要把结论、动作、风险、验收四段说全，才算可落地答案。 ### 题目 为什么很多人学 D3 会觉得难？它和 ECharts 的心智模型有什么不同？ ### 答案要点 - D3 是底层映射工具集，强调\"比例尺 → 数据绑定 → 图元生成\"三段心智 - ECharts 是高层配置驱动库，传 option 即出图，自由度低但开发快 - D3 的核心 API：d3.scale\\*（比例尺）/ d3.selection（数据绑定）/ d3.axis（"
     },
     {
       "id": "19-visualization/animation-raf",
@@ -10867,7 +10867,7 @@
       "id": "22-react/react-testing",
       "title": "React 组件测试要测什么、怎么测",
       "tags": ["测试", "RTL"],
-      "raw": "## react-testing title: React 组件测试要测什么、怎么测 followups: [react-testing-followup-1, react-testing-followup-2, react-testing-followup-3] difficulty: 进阶 tags: [测试, RTL] ### 一句话 这题的高分关键是把 测试 讲成可执行方案：前提清晰、步骤可落地、验收可验证。 ### 题目 单测 / 组件测的边界在哪？React Testing Library 的核心理念和常见 API？ ### 答案要点 - \"像用户一样测试\"：不要测实现细节（state、私有方法），要测可见行为 - 优先选择器顺序：getByRole > getByLabelText > getByPlaceholderText > getByText > getByTestId - 异步：findBy* 自动等待出"
+      "raw": "## react-testing title: React 组件测试要测什么、怎么测 followups: [react-testing-followup-1, react-testing-followup-2, react-testing-followup-3] difficulty: 进阶 tags: [测试, RTL] ### 一句话 这题的高分关键是把 测试 讲成可执行方案：前提清晰、步骤可落地、验收可验证。 ### 题目 单测 / 组件测的边界在哪？React Testing Library 的核心理念和常见 API？ ### 答案要点 - \"像用户一样测试\"：不要测实现细节（state、私有方法），要测可见行为 - 优先选择器顺序：getByRole > getByLabelText > getByPlaceholderText > getByText > getByTestId - 异步：findBy\\* 自动等待"
     },
     {
       "id": "22-react/react-key-warning",
@@ -11791,7 +11791,7 @@
       "id": "24-fullstack-meta/seo-and-meta",
       "title": "现代框架做 SEO 的关键点",
       "tags": ["SEO", "meta"],
-      "raw": "## seo-and-meta title: 现代框架做 SEO 的关键点 followups: [seo-and-meta-followup-1, seo-and-meta-followup-2, seo-and-meta-followup-3] difficulty: 进阶 tags: [SEO, meta] ### 一句话 回答「现代框架做 SEO 的关键点」时，先讲核心机制，再讲失败边界，最后给可复核的验证路径。 ### 题目 做面向 C 端的内容站，SEO 上 Next / Nuxt 有哪些必须做对的事？ ### 答案要点 - 渲染：内容必须出现在首屏 HTML 里，避免 CSR 后才填充 - meta：每页独立 / / og:* / twitter:*，App Router 用 generateMetadata - 结构化数据：JSON-LD（Article / Product / FAQ / Breadcrumb）"
+      "raw": "## seo-and-meta title: 现代框架做 SEO 的关键点 followups: [seo-and-meta-followup-1, seo-and-meta-followup-2, seo-and-meta-followup-3] difficulty: 进阶 tags: [SEO, meta] ### 一句话 回答「现代框架做 SEO 的关键点」时，先讲核心机制，再讲失败边界，最后给可复核的验证路径。 ### 题目 做面向 C 端的内容站，SEO 上 Next / Nuxt 有哪些必须做对的事？ ### 答案要点 - 渲染：内容必须出现在首屏 HTML 里，避免 CSR 后才填充 - meta：每页独立 / / og:_ / twitter:_，App Router 用 generateMetadata - 结构化数据：JSON-LD（Article / Product / FAQ / Breadcrumb）"
     },
     {
       "id": "24-fullstack-meta/ssr-csr-ssg-isr",
@@ -11827,7 +11827,7 @@
       "id": "24-fullstack-meta/ssr-data-fetching-consistency",
       "title": "SSR 数据如何无缝传递到 Client，避免重复请求",
       "tags": ["SSR", "数据获取", "高频"],
-      "raw": "## ssr-data-fetching-consistency title: SSR 数据如何无缝传递到 Client，避免重复请求 followups: [ssr-data-fetching-consistency-followup-1, ssr-data-fetching-consistency-followup-2, ssr-data-fetching-consistency-followup-3] difficulty: 资深 tags: [SSR, 数据获取, 高频] ### 一句话 这题的高分关键是把 SSR 讲成可执行方案：前提清晰、步骤可落地、验收可验证。 ### 题目 SSR 拉了数据渲染 HTML，client hydration 后又请求了一次同样接口。怎么把数据\"无缝过户\"？ ### 答案要点 - 传统方案：注入 __INITIAL_STATE__ - 服务端把 { users, products } "
+      "raw": "## ssr-data-fetching-consistency title: SSR 数据如何无缝传递到 Client，避免重复请求 followups: [ssr-data-fetching-consistency-followup-1, ssr-data-fetching-consistency-followup-2, ssr-data-fetching-consistency-followup-3] difficulty: 资深 tags: [SSR, 数据获取, 高频] ### 一句话 这题的高分关键是把 SSR 讲成可执行方案：前提清晰、步骤可落地、验收可验证。 ### 题目 SSR 拉了数据渲染 HTML，client hydration 后又请求了一次同样接口。怎么把数据\"无缝过户\"？ ### 答案要点 - 传统方案：注入 **INITIAL_STATE** - 服务端把 { users, products } "
     },
     {
       "id": "24-fullstack-meta/ssr-csr-spa-mpa-basic",
@@ -12529,7 +12529,7 @@
       "id": "26-browser-extension/userscript-tampermonkey",
       "title": "Tampermonkey / 用户脚本与扩展的边界",
       "tags": ["Tampermonkey", "用户脚本"],
-      "raw": "## userscript-tampermonkey title: Tampermonkey / 用户脚本与扩展的边界 followups: [userscript-tampermonkey-followup-1, userscript-tampermonkey-followup-2, userscript-tampermonkey-followup-3] difficulty: 进阶 tags: [Tampermonkey, 用户脚本] ### 一句话 这题回答要覆盖 Tampermonkey 的适用前提、实现路径和异常处理，避免只背定义。 ### 题目 什么时候选用户脚本，什么时候做正式扩展？两者能力差异是什么？ ### 答案要点 - 用户脚本：单文件 .user.js，开发部署成本极低，依赖 Tampermonkey / Violentmonkey 这类宿主 - 能力：可以用 GM_* API（跨域请求、菜单、存储），但本"
+      "raw": "## userscript-tampermonkey title: Tampermonkey / 用户脚本与扩展的边界 followups: [userscript-tampermonkey-followup-1, userscript-tampermonkey-followup-2, userscript-tampermonkey-followup-3] difficulty: 进阶 tags: [Tampermonkey, 用户脚本] ### 一句话 这题回答要覆盖 Tampermonkey 的适用前提、实现路径和异常处理，避免只背定义。 ### 题目 什么时候选用户脚本，什么时候做正式扩展？两者能力差异是什么？ ### 答案要点 - 用户脚本：单文件 .user.js，开发部署成本极低，依赖 Tampermonkey / Violentmonkey 这类宿主 - 能力：可以用 GM\\_\\* API（跨域请求、菜单、存储），"
     },
     {
       "id": "26-browser-extension/extension-publishing",
@@ -12541,7 +12541,7 @@
       "id": "26-browser-extension/extension-message-passing",
       "title": "浏览器扩展不同上下文之间怎么通信？",
       "tags": ["浏览器插件", "通信", "高频"],
-      "raw": "## extension-message-passing title: 浏览器扩展不同上下文之间怎么通信？ followups: [extension-message-passing-followup-1, extension-message-passing-followup-2, extension-message-passing-followup-3] difficulty: 进阶 tags: [浏览器插件, 通信, 高频] ### 一句话 回答「浏览器扩展不同上下文之间怎么通信」时，先讲核心机制，再讲失败边界，最后给可复核的验证路径。 ### 题目 扩展里有 background、content script、popup、injected script 四种代码，分别可以访问什么 API？它们之间怎么互相发消息？ ### 答案要点 - background（MV3 是 Service Worker）：chrome.* 全权"
+      "raw": "## extension-message-passing title: 浏览器扩展不同上下文之间怎么通信？ followups: [extension-message-passing-followup-1, extension-message-passing-followup-2, extension-message-passing-followup-3] difficulty: 进阶 tags: [浏览器插件, 通信, 高频] ### 一句话 回答「浏览器扩展不同上下文之间怎么通信」时，先讲核心机制，再讲失败边界，最后给可复核的验证路径。 ### 题目 扩展里有 background、content script、popup、injected script 四种代码，分别可以访问什么 API？它们之间怎么互相发消息？ ### 答案要点 - background（MV3 是 Service Worker）：chrome.\\* 全"
     },
     {
       "id": "26-browser-extension/extension-csp-remote-code",
@@ -12895,7 +12895,7 @@
       "id": "27-data-platform-cases/multi-stage-deployment",
       "title": "多国 / 多环境部署（CN / ID / SP / MX）怎么管理差异",
       "tags": ["架构", "部署", "i18n"],
-      "raw": "## multi-stage-deployment title: 多国 / 多环境部署（CN / ID / SP / MX）怎么管理差异 followups: [multi-stage-deployment-followup-1, multi-stage-deployment-followup-2, multi-stage-deployment-followup-3] difficulty: 进阶 tags: [架构, 部署, i18n] ### 一句话 这题的高分关键是把 架构 讲成可执行方案：前提清晰、步骤可落地、验收可验证。 ### 题目 同一份代码部署到中国、印尼、西班牙、墨西哥四个国家，每个国家有不同的 CDN、合规要求、日期 / 货币格式、菜单权限。怎么设计才不会变成 if-else 地狱？ ### 答案要点 - Vite / Webpack define 把 __STAGE__ 注入为字符串常量（'cn' / 'i"
+      "raw": "## multi-stage-deployment title: 多国 / 多环境部署（CN / ID / SP / MX）怎么管理差异 followups: [multi-stage-deployment-followup-1, multi-stage-deployment-followup-2, multi-stage-deployment-followup-3] difficulty: 进阶 tags: [架构, 部署, i18n] ### 一句话 这题的高分关键是把 架构 讲成可执行方案：前提清晰、步骤可落地、验收可验证。 ### 题目 同一份代码部署到中国、印尼、西班牙、墨西哥四个国家，每个国家有不同的 CDN、合规要求、日期 / 货币格式、菜单权限。怎么设计才不会变成 if-else 地狱？ ### 答案要点 - Vite / Webpack define 把 **STAGE** 注入为字符串常量（'cn' / 'i"
     },
     {
       "id": "27-data-platform-cases/permission-matrix-frontend",
